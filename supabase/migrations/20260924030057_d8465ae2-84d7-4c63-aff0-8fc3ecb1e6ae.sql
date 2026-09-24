@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.is_org_staff(uuid) FROM anon;
