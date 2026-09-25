@@ -507,13 +507,6 @@ function StaffPanel() {
             </Button>
           </div>
         </div>
-        <nav className="mx-auto hidden max-w-7xl gap-1 px-4 pb-3 sm:flex sm:px-6" aria-label="Navegação do painel">
-          <PanelNavButton active={activeView === "overview"} icon={BarChart3} label="Visão geral" onClick={() => setActiveView("overview")} />
-          {["OWNER", "ADMIN"].includes(role ?? "") && (
-            <PanelNavButton active={activeView === "management"} icon={Settings2} label="Gestão" onClick={() => setActiveView("management")} />
-          )}
-          <PanelNavButton active={activeView === "orders"} icon={ShoppingBag} label="Pedidos" onClick={() => setActiveView("orders")} />
-        </nav>
         {mobileMenuOpen && (
           <nav className="border-t px-4 py-3 sm:hidden" aria-label="Navegação do painel">
             <div className="grid gap-2">
@@ -569,7 +562,6 @@ function StaffPanel() {
           description="Consulte rapidamente os últimos pedidos e avance o atendimento."
           />
           <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} />
-          <QuickActionsSection />
         </div>
 
         {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "management" && (
@@ -693,48 +685,6 @@ function HighlightCard({ label, value, hint }: { label: string; value: string; h
       <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
       <p className="mt-1 text-xs leading-5 text-muted-foreground">{hint}</p>
     </div>
-  );
-}
-
-function QuickActionsSection() {
-  const actions = [
-    { label: "Ver pedidos", description: "Acompanhe pedidos e atualize os status.", icon: ShoppingBag, target: "pedidos" },
-    { label: "Gerenciar produtos", description: "Edite preços, disponibilidade e destaques.", icon: Package, target: "produtos" },
-    { label: "Gerenciar adicionais", description: "Configure os extras disponíveis no cardápio.", icon: Tag, target: "adicionais" },
-    { label: "Fotos do cardápio", description: "Troque ou envie fotos dos produtos.", icon: ImagePlus, target: "fotos-produtos" },
-  ];
-
-  const goTo = (target: string) => {
-    document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  return (
-    <section className="mb-5 rounded-[1.25rem] border bg-card p-4 shadow-soft sm:p-5">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Acesso rápido</p>
-        <h2 className="mt-1 text-2xl">Atalhos do painel</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Chegue às tarefas mais usadas em um toque.</p>
-      </div>
-      <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-        {actions.map((action) => {
-          const Icon = action.icon;
-          return (
-            <button
-              key={action.target}
-              type="button"
-              onClick={() => goTo(action.target)}
-              className="group rounded-xl border bg-background p-3.5 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-sm"
-            >
-              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Icon className="size-5" />
-              </div>
-              <p className="mt-3 font-semibold">{action.label}</p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">{action.description}</p>
-            </button>
-          );
-        })}
-      </div>
-    </section>
   );
 }
 
