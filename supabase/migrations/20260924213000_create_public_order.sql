@@ -22,6 +22,10 @@ DECLARE
   v_item jsonb;
   v_item_id uuid;
   v_addon jsonb;
+  v_addon_row record;
+  v_product_id uuid;
+  v_second_product_id uuid;
+  v_addon_id uuid;
 BEGIN
   IF v_name = '' OR v_phone = '' THEN RAISE EXCEPTION 'Nome e telefone são obrigatórios'; END IF;
   IF NOT EXISTS (SELECT 1 FROM organizations WHERE id = v_org AND active AND deleted_at IS NULL) THEN
@@ -68,13 +72,30 @@ BEGIN
   ) RETURNING id INTO v_order_id;
 
   FOR v_item IN SELECT * FROM jsonb_array_elements(COALESCE(p_order->'items','[]'::jsonb)) LOOP
+    v_product_id := NULLIF(v_item->>'product_id','')::uuid;
+    v_second_product_id := NULLIF(v_item->>'second_product_id','')::uuid;
+
+    IF v_product_id IS NOT NULL AND NOT EXISTS (
+      SELECT 1 FROM products
+      WHERE id = v_product_id AND organization_id = v_org AND active AND available AND deleted_at IS NULL
+    ) THEN
+      RAISE EXCEPTION 'Produto inválido';
+    END IF;
+
+    IF v_second_product_id IS NOT NULL AND NOT EXISTS (
+      SELECT 1 FROM products
+      WHERE id = v_second_product_id AND organization_id = v_org AND active AND available AND deleted_at IS NULL
+    ) THEN
+      RAISE EXCEPTION 'Segundo produto inválido';
+    END IF;
+
     INSERT INTO order_items (
       organization_id, order_id, product_id, product_name, second_product_id,
       second_product_name, is_half, size_id, size_name, crust_id, crust_name,
       crust_price, unit_price, quantity, total_price, notes
     ) VALUES (
-      v_org, v_order_id, NULLIF(v_item->>'product_id','')::uuid, v_item->>'product_name',
-      NULLIF(v_item->>'second_product_id','')::uuid, NULLIF(v_item->>'second_product_name',''),
+      v_org, v_order_id, v_product_id, v_item->>'product_name',
+      v_second_product_id, NULLIF(v_item->>'second_product_name',''),
       COALESCE((v_item->>'is_half')::boolean,false),
       NULLIF(v_item->>'size_id','')::uuid, NULLIF(v_item->>'size_name',''),
       NULLIF(v_item->>'crust_id','')::uuid, NULLIF(v_item->>'crust_name',''),
@@ -85,10 +106,29 @@ BEGIN
     ) RETURNING id INTO v_item_id;
 
     FOR v_addon IN SELECT * FROM jsonb_array_elements(COALESCE(v_item->'addons','[]'::jsonb)) LOOP
+      v_addon_id := NULLIF(v_addon->>'id','')::uuid;
+
+      SELECT a.name, a.price
+      INTO v_addon_row
+      FROM product_addons a
+      WHERE a.id = v_addon_id
+        AND a.organization_id = v_org
+        AND a.active
+        AND EXISTS (
+          SELECT 1
+          FROM product_addon_links l
+          WHERE l.addon_id = a.id
+            AND l.organization_id = v_org
+            AND (l.product_id = v_product_id OR l.product_id = v_second_product_id)
+        );
+
+      IF NOT FOUND THEN
+        RAISE EXCEPTION 'Adicional inválido para o produto';
+      END IF;
+
       INSERT INTO order_item_addons (organization_id, order_item_id, addon_id, name, price, quantity)
       VALUES (
-        v_org, v_item_id, NULLIF(v_addon->>'id','')::uuid, v_addon->>'name',
-        COALESCE((v_addon->>'price')::numeric,0),
+        v_org, v_item_id, v_addon_id, v_addon_row.name, v_addon_row.price,
         GREATEST(1, COALESCE((v_item->>'quantity')::integer,1))
       );
     END LOOP;
