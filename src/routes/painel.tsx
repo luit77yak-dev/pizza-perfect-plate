@@ -827,9 +827,11 @@ function HighlightCard({ label, value, hint }: { label: string; value: string; h
 function RecentOrdersSection({
   orders,
   onStatus,
+  onDetails,
 }: {
   orders: Order[];
   onStatus: (order: Order, status: OrderStatus) => void;
+  onDetails?: (order: Order) => void;
 }) {
   return (
     <section className="mb-5 rounded-[1.25rem] border bg-card p-4 shadow-soft sm:p-5">
@@ -866,6 +868,11 @@ function RecentOrdersSection({
                 </div>
                 <div className="flex items-center justify-between gap-3 sm:justify-end">
                   <p className="font-bold">{formatCurrency(order.total)}</p>
+                  {onDetails && (
+                    <Button size="sm" variant="outline" onClick={() => onDetails(order)} className="rounded-full">
+                      Detalhes
+                    </Button>
+                  )}
                   {next && order.status !== "CANCELLED" && order.status !== "DELIVERED" && (
                     <Button size="sm" onClick={() => onStatus(order, next.value)} className="rounded-full">
                       {next.label}

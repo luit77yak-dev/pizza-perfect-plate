@@ -1278,6 +1278,17 @@ export type Database = {
           order_number: number
         }[]
       }
+      get_public_order_status: {
+        Args: { p_customer_phone: string; p_order_id: string }
+        Returns: {
+          created_at: string
+          fulfillment: Database["public"]["Enums"]["fulfillment_type"]
+          order_id: string
+          order_number: number
+          status: Database["public"]["Enums"]["order_status"]
+          updated_at: string
+        }[]
+      }
       has_org_role: {
         Args: {
           _org: string
