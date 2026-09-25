@@ -857,47 +857,6 @@ export type Database = {
         }
         Relationships: []
       }
-      product_addons: {
-        Row: {
-          active: boolean
-          created_at: string
-          id: string
-          name: string
-          organization_id: string
-          price: number
-          sort_order: number
-          updated_at: string
-        }
-        Insert: {
-          active?: boolean
-          created_at?: string
-          id?: string
-          name: string
-          organization_id: string
-          price?: number
-          sort_order?: number
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean
-          created_at?: string
-          id?: string
-          name?: string
-          organization_id?: string
-          price?: number
-          sort_order?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_addons_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       product_addon_links: {
         Row: {
           addon_id: string
@@ -943,6 +902,47 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_addons: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          price: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_addons_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -1270,6 +1270,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_public_order: {
+        Args: { p_order: Json }
+        Returns: {
+          order_id: string
+          order_number: number
+        }[]
+      }
       has_org_role: {
         Args: {
           _org: string
@@ -1280,7 +1287,6 @@ export type Database = {
       is_org_manager: { Args: { _org: string }; Returns: boolean }
       is_org_staff: { Args: { _org: string }; Returns: boolean }
       next_order_number: { Args: { _org: string }; Returns: number }
-      create_public_order: { Args: { p_order: Json }; Returns: { order_id: string; order_number: number }[] }
     }
     Enums: {
       app_role:

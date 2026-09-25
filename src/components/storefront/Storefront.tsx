@@ -138,8 +138,8 @@ function getStoreStatus(hours: StoreHour[]) {
 
   const now = new Date();
   const minutes = now.getHours() * 60 + now.getMinutes();
-  const [openHour, openMinute] = today.opens_at.slice(0, 5).split(":").map(Number);
-  const [closeHour, closeMinute] = today.closes_at.slice(0, 5).split(":").map(Number);
+  const [openHour = 0, openMinute = 0] = today.opens_at.slice(0, 5).split(":").map(Number);
+  const [closeHour = 0, closeMinute = 0] = today.closes_at.slice(0, 5).split(":").map(Number);
   const open = minutes >= openHour * 60 + openMinute && minutes < closeHour * 60 + closeMinute;
 
   return {
@@ -486,7 +486,7 @@ function ProductConfigurator({
   const basePrice = getPrice(product, sizeId, data.prices);
   const secondBasePrice = secondProduct ? getPrice(secondProduct, sizeId, data.prices) : basePrice;
   const crust = data.crusts.find((item) => item.id === crustId);
-  const productAddonIds = data.productAddonLinks
+  const productAddonIds = (data.productAddonLinks ?? [])
     .filter((link) => link.product_id === product.id || link.product_id === secondProduct?.id)
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((link) => link.addon_id);
@@ -499,7 +499,7 @@ function ProductConfigurator({
     isHalf: Boolean(secondProductId),
     halfRule: data.settings.half_pizza_pricing_rule,
     halfFixedPrice: data.settings.half_pizza_fixed_price,
-    crustPrice: crust?.price,
+    crustPrice: crust?.price ?? 0,
     addonPrices: addons.map((item) => item.price),
   });
 
