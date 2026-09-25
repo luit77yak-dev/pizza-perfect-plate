@@ -192,3 +192,32 @@
     display: none;
   }
 }
+
+
+/* Storefront motion polish */
+@keyframes storefront-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes storefront-pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+@utility animate-storefront-in {
+  animation: storefront-fade-up 420ms ease-out both;
+}
+
+@utility animate-storefront-pulse {
+  animation: storefront-pulse-soft 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
