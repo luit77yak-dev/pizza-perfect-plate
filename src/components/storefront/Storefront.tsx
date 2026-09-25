@@ -274,69 +274,29 @@ export function Storefront({ slug }: { slug?: string }) {
       </header>
 
       <main id="inicio">
-        <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-8 pt-4 sm:gap-6 sm:px-6 sm:pb-10 sm:pt-6 lg:grid-cols-[1.15fr_.85fr] lg:items-center lg:pt-8">
-          <div className="overflow-hidden rounded-[.75rem] border-2 border-secondary bg-secondary text-secondary-foreground shadow-lifted">
-            <div className="relative min-h-[360px] p-6 sm:min-h-[390px] sm:p-10">
-              {data.settings.hero_image_url && (
-                <img
-                  src={data.settings.hero_image_url}
-                  alt=""
-                  className="absolute inset-0 size-full object-cover opacity-45"
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary/95 via-secondary/80 to-secondary/45" />
-              <div className="relative flex min-h-[320px] max-w-xl flex-col justify-end sm:min-h-[330px]">
-                <Badge className="mb-4 w-fit rounded-sm border-0 bg-primary px-3 py-1 font-display uppercase tracking-wide text-primary-foreground shadow-[4px_4px_0_rgba(0,0,0,.35)]">
-                  Pizza de verdade
-                </Badge>
-                <h1 className="max-w-2xl text-[2.65rem] leading-[.96] sm:text-6xl">
-                  {data.settings.hero_title || `O sabor que chega até você`}
-                </h1>
-                <p className="mt-4 max-w-xl text-sm leading-6 text-secondary-foreground/75 sm:text-base">
-                  {data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}
-                </p>
-                <a
-                  href="#cardapio"
-                  className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
-                >
-                  {data.settings.hero_cta_label || "Ver cardápio"}
-                  <ChevronRight className="size-4" />
-                </a>
+        <section className="mx-auto max-w-6xl px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-7">
+          <div className="relative overflow-hidden rounded-sm border-2 border-secondary bg-background shadow-[8px_8px_0_rgba(0,0,0,.9)]">
+            <div className="grid min-h-[560px] lg:grid-cols-[1.05fr_.95fr]">
+              <div className="relative z-10 flex flex-col justify-center p-7 sm:p-10 lg:p-14">
+                <p className="mb-4 w-fit bg-secondary px-3 py-1 font-display text-xs uppercase tracking-[.18em] text-secondary-foreground">Pizza artesanal</p>
+                <h1 className="max-w-3xl text-[clamp(3.6rem,8vw,7.4rem)] uppercase leading-[.82] tracking-[-.04em]">{data.settings.hero_title || "O sabor que chega até você"}</h1>
+                <p className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">{data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
+                <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-sm bg-primary px-6 py-4 font-display text-sm uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.85)] transition-transform hover:-translate-y-1">{data.settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
               </div>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            <div className="rounded-3xl border bg-card p-5 shadow-soft">
-              <div className="flex items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <Clock3 className="size-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">Hoje</p>
-                  <p className="text-sm text-muted-foreground">{status.label}</p>
-                </div>
-              </div>
-            </div>
-            <div className="rounded-3xl border bg-card p-5 shadow-soft">
-              <div className="flex items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-2xl bg-secondary/10 text-secondary">
-                  <Store className="size-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold">Entrega e retirada</p>
-                  <p className="truncate text-sm text-muted-foreground">
-                    {data.settings.delivery_enabled && data.settings.pickup_enabled
-                      ? "Escolha como quer receber"
-                      : data.settings.delivery_enabled
-                        ? "Entrega disponível"
-                        : "Retirada disponível"}
-                  </p>
-                </div>
+              <div className="relative min-h-[360px] overflow-hidden bg-secondary lg:min-h-full">
+                {data.settings.hero_image_url ? <img src={data.settings.hero_image_url} alt="" className="absolute inset-5 size-[calc(100%-2.5rem)] rotate-[2.5deg] object-cover shadow-[10px_10px_0_rgba(0,0,0,.65)] sm:inset-8 sm:size-[calc(100%-4rem)]" /> : <div className="absolute inset-0 grid place-items-center text-secondary-foreground/50"><Pizza className="size-28" strokeWidth={1} /></div>}
+                <div className="absolute bottom-6 left-5 z-10 flex size-28 rotate-[-8deg] items-center justify-center rounded-full border-2 border-secondary bg-primary p-4 text-center font-display text-[10px] uppercase leading-3 text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.7)] sm:left-8">{data.organization.name}<br />feito na hora<br />pizza artesanal</div>
               </div>
             </div>
           </div>
         </section>
+
+        <div className="mb-12 overflow-hidden border-y-2 border-secondary bg-primary text-primary-foreground" aria-hidden="true">
+          <div className="ppp-ticker-run flex min-w-max items-center gap-8 py-4 font-display text-sm uppercase tracking-[.08em]">
+            {data.products.slice(0, 8).map((product) => <span key={product.id} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
+            {data.products.slice(0, 8).map((product) => <span key={`ticker-${product.id}`} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
+          </div>
+        </div>
 
         <section id="cardapio" className="mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6">
           <div className="mb-5 flex items-end justify-between gap-4">
