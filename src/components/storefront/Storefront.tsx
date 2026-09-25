@@ -196,8 +196,8 @@ export function Storefront({ slug }: { slug?: string }) {
         } as CSSProperties
       }
     >
-      <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+      <header className="sticky top-0 z-40 border-b bg-background/90 shadow-[0_1px_0_rgba(0,0,0,.03)] backdrop-blur-xl">
+        <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <a href="#inicio" className="flex min-w-0 items-center gap-3">
             {data.settings.logo_url ? (
               <img src={data.settings.logo_url} alt="" className="size-10 rounded-xl object-cover" />
@@ -214,7 +214,7 @@ export function Storefront({ slug }: { slug?: string }) {
               </div>
             </div>
           </a>
-          <Button variant="outline" className="gap-2 rounded-full" onClick={() => setCartOpen(true)}>
+          <Button variant="outline" size="sm" className="gap-2 rounded-full px-3 sm:px-4" onClick={() => setCartOpen(true)}>
             <ShoppingBag className="size-4" />
             <span className="hidden sm:inline">Carrinho</span>
             {itemCount > 0 && <Badge className="rounded-full px-2">{itemCount}</Badge>}
@@ -223,9 +223,9 @@ export function Storefront({ slug }: { slug?: string }) {
       </header>
 
       <main id="inicio">
-        <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-10 pt-5 sm:px-6 lg:grid-cols-[1.15fr_.85fr] lg:items-center lg:pt-8">
+        <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-8 pt-4 sm:gap-6 sm:px-6 sm:pb-10 sm:pt-6 lg:grid-cols-[1.15fr_.85fr] lg:items-center lg:pt-8">
           <div className="overflow-hidden rounded-[2rem] bg-secondary text-secondary-foreground shadow-lifted">
-            <div className="relative min-h-[330px] p-7 sm:min-h-[390px] sm:p-10">
+            <div className="relative min-h-[360px] p-6 sm:min-h-[390px] sm:p-10">
               {data.settings.hero_image_url && (
                 <img
                   src={data.settings.hero_image_url}
@@ -234,11 +234,11 @@ export function Storefront({ slug }: { slug?: string }) {
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-br from-secondary/95 via-secondary/80 to-secondary/45" />
-              <div className="relative flex min-h-[290px] max-w-xl flex-col justify-end sm:min-h-[330px]">
+              <div className="relative flex min-h-[320px] max-w-xl flex-col justify-end sm:min-h-[330px]">
                 <Badge className="mb-4 w-fit border-0 bg-primary/15 text-primary-foreground backdrop-blur">
                   Delivery artesanal
                 </Badge>
-                <h1 className="max-w-2xl text-4xl leading-[.98] sm:text-6xl">
+                <h1 className="max-w-2xl text-[2.65rem] leading-[.96] sm:text-6xl">
                   {data.settings.hero_title || `O sabor que chega até você`}
                 </h1>
                 <p className="mt-4 max-w-xl text-sm leading-6 text-secondary-foreground/75 sm:text-base">
@@ -287,7 +287,7 @@ export function Storefront({ slug }: { slug?: string }) {
           </div>
         </section>
 
-        <section id="cardapio" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6">
+        <section id="cardapio" className="mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">Cardápio</p>
@@ -321,7 +321,7 @@ export function Storefront({ slug }: { slug?: string }) {
               <p className="mt-1 text-sm text-muted-foreground">Tente outra categoria.</p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProducts.map((product) => {
                 const firstSize = data.sizes[0];
                 const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
@@ -329,9 +329,9 @@ export function Storefront({ slug }: { slug?: string }) {
                   <button
                     key={product.id}
                     onClick={() => setSelectedProduct(product)}
-                    className="group overflow-hidden rounded-3xl border bg-card text-left shadow-soft transition-all hover:-translate-y-1 hover:shadow-lifted"
+                    className="group overflow-hidden rounded-[1.5rem] border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted active:scale-[.99]"
                   >
-                    <div className="relative aspect-[1.35] overflow-hidden bg-muted">
+                    <div className="relative aspect-[1.42] overflow-hidden bg-muted sm:aspect-[1.35]">
                       {product.image_url ? (
                         <img src={product.image_url} alt="" className="size-full object-cover transition duration-500 group-hover:scale-105" />
                       ) : (
@@ -345,15 +345,15 @@ export function Storefront({ slug }: { slug?: string }) {
                         </span>
                       )}
                     </div>
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-3">
+                    <div className="p-4 sm:p-5">
+                      <div className="flex items-start justify-between gap-2.5">
                         <div>
-                          <h3 className="text-xl">{product.name}</h3>
+                          <h3 className="text-[1.2rem] leading-tight sm:text-xl">{product.name}</h3>
                           <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">
                             {product.description || "Uma opção preparada para você."}
                           </p>
                         </div>
-                        <span className="shrink-0 text-sm font-bold text-primary">{formatCurrency(displayPrice)}</span>
+                        <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-sm font-bold text-primary">{formatCurrency(displayPrice)}</span>
                       </div>
                       <div className="mt-4 flex items-center justify-between border-t pt-3 text-sm font-semibold">
                         <span>{product.allow_half ? "Aceita meio a meio" : "Personalize seu pedido"}</span>
@@ -472,7 +472,7 @@ function ProductConfigurator({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/45 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={`Configurar ${product.name}`}>
-      <div className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-t-[2rem] bg-background shadow-lifted sm:rounded-[2rem]">
+      <div className="max-h-[94dvh] w-full max-w-2xl overflow-hidden rounded-t-[2rem] bg-background shadow-lifted sm:max-h-[92vh] sm:rounded-[2rem]">
         <div className="flex items-center justify-between border-b px-5 py-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Personalizar</p>
