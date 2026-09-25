@@ -1270,6 +1270,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_first_owner: { Args: never; Returns: boolean }
       create_public_order: {
         Args: { p_order: Json }
         Returns: {
