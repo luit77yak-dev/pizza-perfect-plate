@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, ChevronUp, Clock3, ImagePlus, LogOut, Package, Pencil, Plus, RefreshCw, Save, Trash2, Upload, UserRound, X } from "lucide-react";
+import { Check, ChevronUp, Clock3, ImagePlus, LogOut, Package, Pencil, Plus, RefreshCw, Save, ShoppingBag, Tag, Trash2, Upload, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
@@ -542,6 +542,8 @@ function StaffPanel() {
 
         <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} />
 
+        <QuickActionsSection />
+
         {["OWNER", "ADMIN"].includes(role ?? "") && (
           <ProductCatalogManager
             products={products}
@@ -578,7 +580,7 @@ function StaffPanel() {
           />
         )}
 
-        <div className="mb-5 mt-8 flex items-end justify-between gap-4">
+        <div id="pedidos" className="mb-5 mt-8 scroll-mt-24 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm text-muted-foreground">{activeOrders.length} pedido(s) em andamento</p>
             <h2 className="mt-1 text-3xl">Pedidos</h2>
@@ -615,6 +617,48 @@ function HighlightCard({ label, value, hint }: { label: string; value: string; h
       <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
       <p className="mt-1 text-xs leading-5 text-muted-foreground">{hint}</p>
     </div>
+  );
+}
+
+function QuickActionsSection() {
+  const actions = [
+    { label: "Ver pedidos", description: "Acompanhe pedidos e atualize os status.", icon: ShoppingBag, target: "pedidos" },
+    { label: "Gerenciar produtos", description: "Edite preços, disponibilidade e destaques.", icon: Package, target: "produtos" },
+    { label: "Gerenciar adicionais", description: "Configure os extras disponíveis no cardápio.", icon: Tag, target: "adicionais" },
+    { label: "Fotos do cardápio", description: "Troque ou envie fotos dos produtos.", icon: ImagePlus, target: "fotos-produtos" },
+  ];
+
+  const goTo = (target: string) => {
+    document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  return (
+    <section className="mb-8 rounded-[1.5rem] border bg-card p-5 shadow-soft sm:p-6">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Acesso rápido</p>
+        <h2 className="mt-1 text-2xl">Atalhos do painel</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Chegue às tarefas mais usadas em um toque.</p>
+      </div>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {actions.map((action) => {
+          const Icon = action.icon;
+          return (
+            <button
+              key={action.target}
+              type="button"
+              onClick={() => goTo(action.target)}
+              className="group rounded-2xl border bg-background p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-sm"
+            >
+              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Icon className="size-5" />
+              </div>
+              <p className="mt-3 font-semibold">{action.label}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">{action.description}</p>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
