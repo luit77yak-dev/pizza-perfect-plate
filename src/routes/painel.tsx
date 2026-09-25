@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, ChevronDown, Clock3, LogOut, Package, RefreshCw, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -317,6 +317,6 @@ function OrderCard({ order, onStatus }: { order: Order; onStatus: (order: Order,
   );
 }
 
-function PanelShell({ children }: { children: React.ReactNode }) {
+function PanelShell({ children }: { children: ReactNode }) {
   return <div className="min-h-screen bg-background text-foreground">{children}</div>;
 }
