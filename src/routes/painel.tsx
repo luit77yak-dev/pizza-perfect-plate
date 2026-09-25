@@ -28,6 +28,7 @@ type Product = {
 type Category = { id: string; name: string; active: boolean; sort_order: number };
 type ProductSize = { id: string; name: string; slices: number | null; active: boolean; sort_order: number };
 type ProductPrice = { id: string; product_id: string; size_id: string; price: number };
+type Addon = { id: string; name: string; price: number; active: boolean; sort_order: number };
 
 type Order = {
   id: string;
@@ -99,6 +100,8 @@ function StaffPanel() {
   const [imageUploading, setImageUploading] = useState<string | null>(null);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [savingProductId, setSavingProductId] = useState<string | null>(null);
+  const [addons, setAddons] = useState<Addon[]>([]);
+  const [savingAddonId, setSavingAddonId] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
@@ -134,7 +137,7 @@ function StaffPanel() {
     setRole(data.role);
     const org = data.organizations as { name?: string } | null;
     setOrganizationName(org?.name ?? "Sua loja");
-    await Promise.all([loadOrders(data.organization_id), loadProducts(data.organization_id)]);
+    await Promise.all([loadOrders(data.organization_id), loadProducts(data.organization_id), loadAddons(data.organization_id)]);
   };
 
   const loadProducts = async (orgId: string) => {
@@ -150,6 +153,59 @@ function StaffPanel() {
     setCategories((categoriesResult.data ?? []) as Category[]);
     setSizes((sizesResult.data ?? []) as ProductSize[]);
     setProductPrices((pricesResult.data ?? []) as ProductPrice[]);
+  };
+
+  const loadAddons = async (orgId: string) => {
+    const { data, error: addonsError } = await supabase
+      .from("product_addons")
+      .select("id, name, price, active, sort_order")
+      .eq("organization_id", orgId)
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+    if (addonsError) setError(addonsError.message);
+    else setAddons((data ?? []) as Addon[]);
+  };
+
+  const saveAddon = async (draft: Addon) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!draft.name.trim()) { setError("Informe o nome do adicional."); return; }
+    const price = Number(String(draft.price).replace(",", "."));
+    if (!Number.isFinite(price) || price < 0) { setError("Informe um preço válido."); return; }
+    setSavingAddonId(draft.id);
+    setError(null);
+    const { error: updateError } = await supabase
+      .from("product_addons")
+      .update({ name: draft.name.trim(), price, active: draft.active })
+      .eq("id", draft.id)
+      .eq("organization_id", organizationId);
+    if (updateError) setError(updateError.message);
+    else await loadAddons(organizationId);
+    setSavingAddonId(null);
+  };
+
+  const createAddon = async () => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    setError(null);
+    const { data, error: createError } = await supabase
+      .from("product_addons")
+      .insert({ organization_id: organizationId, name: "Novo adicional", price: 0, active: true, sort_order: addons.length })
+      .select("id, name, price, active, sort_order")
+      .single();
+    if (createError) { setError(createError.message); return; }
+    setAddons((current) => [...current, data as Addon]);
+    setSavingAddonId(null);
+  };
+
+  const toggleAddon = async (addon: Addon) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    const next = !addon.active;
+    const { error: updateError } = await supabase
+      .from("product_addons")
+      .update({ active: next })
+      .eq("id", addon.id)
+      .eq("organization_id", organizationId);
+    if (updateError) setError(updateError.message);
+    else setAddons((current) => current.map((item) => item.id === addon.id ? { ...item, active: next } : item));
   };
 
   const loadOrders = async (orgId = organizationId) => {
@@ -406,6 +462,16 @@ function StaffPanel() {
         )}
 
         {["OWNER", "ADMIN"].includes(role ?? "") && (
+          <AddonManager
+            addons={addons}
+            savingAddonId={savingAddonId}
+            onCreate={createAddon}
+            onSave={saveAddon}
+            onToggle={toggleAddon}
+          />
+        )}
+
+        {["OWNER", "ADMIN"].includes(role ?? "") && (
           <ProductImageManager
             products={products}
             uploadingProductId={imageUploading}
@@ -559,6 +625,115 @@ function ProductEditorRow({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function AddonManager({
+  addons, savingAddonId, onCreate, onSave, onToggle,
+}: {
+  addons: Addon[];
+  savingAddonId: string | null;
+  onCreate: () => void;
+  onSave: (addon: Addon) => void;
+  onToggle: (addon: Addon) => void;
+}) {
+  return (
+    <section className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Personalização</p>
+          <h2 className="mt-1 text-2xl">Adicionais</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Cadastre extras que o cliente poderá escolher ao montar o pedido.</p>
+        </div>
+        <Button onClick={onCreate} className="rounded-full">
+          <Plus className="mr-2 size-4" /> Novo adicional
+        </Button>
+      </div>
+
+      <div className="mt-5 space-y-2">
+        {addons.length === 0 ? (
+          <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+            Nenhum adicional cadastrado.
+          </div>
+        ) : (
+          addons.map((addon) => (
+            <AddonEditorRow
+              key={addon.id}
+              addon={addon}
+              saving={savingAddonId === addon.id}
+              onSave={onSave}
+              onToggle={onToggle}
+            />
+          ))
+        )}
+      </div>
+    </section>
+  );
+}
+
+function AddonEditorRow({
+  addon, saving, onSave, onToggle,
+}: {
+  addon: Addon;
+  saving: boolean;
+  onSave: (addon: Addon) => void;
+  onToggle: (addon: Addon) => void;
+}) {
+  const [draft, setDraft] = useState(addon);
+
+  useEffect(() => {
+    setDraft(addon);
+  }, [addon]);
+
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl border bg-background p-3 sm:flex-row sm:items-center">
+      <div className="min-w-0 flex-1">
+        <label className="block text-xs font-medium text-muted-foreground">Nome</label>
+        <input
+          value={draft.name}
+          onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+          className="mt-1 h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+          placeholder="Ex.: Bacon"
+        />
+      </div>
+      <div className="w-full sm:w-32">
+        <label className="block text-xs font-medium text-muted-foreground">Preço</label>
+        <input
+          value={draft.price}
+          onChange={(e) => setDraft({ ...draft, price: Number(e.target.value.replace(",", ".")) || 0 })}
+          inputMode="decimal"
+          className="mt-1 h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+          placeholder="0,00"
+        />
+      </div>
+      <div className="flex flex-wrap gap-2 sm:pt-5">
+        <Button
+          variant={draft.active ? "outline" : "secondary"}
+          size="sm"
+          className="rounded-full"
+          onClick={() => setDraft({ ...draft, active: !draft.active })}
+        >
+          {draft.active ? "Ativo" : "Inativo"}
+        </Button>
+        <Button
+          size="sm"
+          className="rounded-full"
+          disabled={saving}
+          onClick={() => onSave(draft)}
+        >
+          <Save className="mr-1.5 size-4" />
+          {saving ? "Salvando..." : "Salvar"}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="rounded-full"
+          onClick={() => onToggle(addon)}
+        >
+          {addon.active ? "Desativar" : "Ativar"}
+        </Button>
+      </div>
     </div>
   );
 }
