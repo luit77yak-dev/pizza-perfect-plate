@@ -898,55 +898,6 @@ export type Database = {
           },
         ]
       }
-      product_addon_links: {
-        Row: {
-          addon_id: string
-          created_at: string
-          id: string
-          organization_id: string
-          product_id: string
-          sort_order: number
-        }
-        Insert: {
-          addon_id: string
-          created_at?: string
-          id?: string
-          organization_id: string
-          product_id: string
-          sort_order?: number
-        }
-        Update: {
-          addon_id?: string
-          created_at?: string
-          id?: string
-          organization_id?: string
-          product_id?: string
-          sort_order?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_addon_links_addon_id_fkey"
-            columns: ["addon_id"]
-            isOneToOne: false
-            referencedRelation: "product_addons"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_addon_links_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_addon_links_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       product_crusts: {
         Row: {
           active: boolean
@@ -1280,7 +1231,6 @@ export type Database = {
       is_org_manager: { Args: { _org: string }; Returns: boolean }
       is_org_staff: { Args: { _org: string }; Returns: boolean }
       next_order_number: { Args: { _org: string }; Returns: number }
-      create_public_order: { Args: { p_order: Json }; Returns: { order_id: string; order_number: number }[] }
     }
     Enums: {
       app_role:
