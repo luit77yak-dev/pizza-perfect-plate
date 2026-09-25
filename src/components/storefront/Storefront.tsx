@@ -29,6 +29,9 @@ import type {
   ProductPrice,
   ProductSize,
   StoreHour,
+  DeliveryZone,
+  FulfillmentType,
+  PaymentMethod,
 } from "@/lib/domain/types";
 
 type StoreData = {
@@ -41,6 +44,7 @@ type StoreData = {
   crusts: Crust[];
   addons: Addon[];
   hours: StoreHour[];
+  deliveryZones: DeliveryZone[];
 };
 
 async function loadStore(slug?: string): Promise<StoreData> {
@@ -67,6 +71,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     crustsResult,
     addonsResult,
     hoursResult,
+    deliveryZonesResult,
   ] = await Promise.all([
     supabase.from("organization_settings").select("*").eq("organization_id", organization.id).maybeSingle(),
     supabase.from("categories").select("*").eq("organization_id", organization.id).eq("active", true).is("deleted_at", null).order("sort_order"),
@@ -76,6 +81,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     supabase.from("product_crusts").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
     supabase.from("product_addons").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
     supabase.from("store_hours").select("*").eq("organization_id", organization.id).order("weekday"),
+    supabase.from("delivery_zones").select("*").eq("organization_id", organization.id).eq("active", true).order("name"),
   ]);
 
   const error =
@@ -86,7 +92,8 @@ async function loadStore(slug?: string): Promise<StoreData> {
     pricesResult.error ??
     crustsResult.error ??
     addonsResult.error ??
-    hoursResult.error;
+    hoursResult.error ??
+    deliveryZonesResult.error;
   if (error) throw error;
   if (!settingsResult.data) throw new Error("As configurações da loja ainda não foram cadastradas.");
 
@@ -100,6 +107,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     crusts: (crustsResult.data ?? []) as Crust[],
     addons: (addonsResult.data ?? []) as Addon[],
     hours: (hoursResult.data ?? []) as StoreHour[],
+    deliveryZones: (deliveryZonesResult.data ?? []) as DeliveryZone[],
   };
 }
 
@@ -138,6 +146,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
@@ -389,10 +398,28 @@ export function Storefront({ slug }: { slug?: string }) {
           onUpdate={cart.updateQuantity}
           onRemove={cart.removeItem}
           onClear={cart.clear}
+          onCheckout={() => {
+            setCartOpen(false);
+            setCheckoutOpen(true);
+          }}
         />
       )}
 
-      {itemCount > 0 && !cartOpen && (
+      {checkoutOpen && (
+        <CheckoutPanel
+          organization={data.organization}
+          settings={data.settings}
+          deliveryZones={data.deliveryZones}
+          items={cart.items}
+          subtotal={subtotal}
+          onClose={() => setCheckoutOpen(false)}
+          onSuccess={() => {
+            cart.clear();
+          }}
+        />
+      )}
+
+      {itemCount > 0 && !cartOpen && !checkoutOpen && (
         <div className="fixed inset-x-0 bottom-4 z-30 mx-auto w-[calc(100%-2rem)] max-w-md">
           <button
             onClick={() => setCartOpen(true)}
@@ -608,6 +635,7 @@ function CartPanel({
   onUpdate,
   onRemove,
   onClear,
+  onCheckout,
 }: {
   items: CartItem[];
   subtotal: number;
@@ -615,6 +643,7 @@ function CartPanel({
   onUpdate: (lineId: string, quantity: number) => void;
   onRemove: (lineId: string) => void;
   onClear: () => void;
+  onCheckout: () => void;
 }) {
   return (
     <div className="fixed inset-0 z-50 bg-foreground/35 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Carrinho">
@@ -677,7 +706,7 @@ function CartPanel({
           <p className="mt-2 text-xs leading-5 text-muted-foreground">
             A taxa de entrega e descontos serão calculados no checkout.
           </p>
-          <Button disabled={items.length === 0} className="mt-4 h-12 w-full rounded-full">
+          <Button disabled={items.length === 0} className="mt-4 h-12 w-full rounded-full" onClick={onCheckout}>
             Continuar para checkout
           </Button>
           {items.length > 0 && (
@@ -687,6 +716,356 @@ function CartPanel({
           )}
         </div>
       </aside>
+    </div>
+  );
+}
+
+function CheckoutPanel({
+  organization,
+  settings,
+  deliveryZones,
+  items,
+  subtotal,
+  onClose,
+  onSuccess,
+}: {
+  organization: Organization;
+  settings: OrganizationSettings;
+  deliveryZones: DeliveryZone[];
+  items: CartItem[];
+  subtotal: number;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [fulfillment, setFulfillment] = useState<FulfillmentType>(
+    settings.delivery_enabled ? "DELIVERY" : "PICKUP",
+  );
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    settings.payment_methods[0] ?? "PIX",
+  );
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [street, setStreet] = useState("");
+  const [number, setNumber] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [complement, setComplement] = useState("");
+  const [reference, setReference] = useState("");
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successNumber, setSuccessNumber] = useState<number | null>(null);
+
+  const selectedZone =
+    fulfillment === "DELIVERY"
+      ? deliveryZones.find((zone) =>
+          zone.neighborhoods.some(
+            (item) => item.trim().toLowerCase() === neighborhood.trim().toLowerCase(),
+          ),
+        ) ?? null
+      : null;
+  const deliveryFee = selectedZone?.delivery_fee ?? 0;
+  const total = subtotal + deliveryFee;
+
+  const availablePayments = settings.payment_methods.length
+    ? settings.payment_methods
+    : (["PIX"] as PaymentMethod[]);
+
+  const submitOrder = async () => {
+    setError(null);
+
+    if (!name.trim() || !phone.trim()) {
+      setError("Informe seu nome e telefone.");
+      return;
+    }
+    if (fulfillment === "DELIVERY") {
+      if (!street.trim() || !number.trim() || !neighborhood.trim()) {
+        setError("Para entrega, informe rua, número e bairro.");
+        return;
+      }
+      if (deliveryZones.length > 0 && !selectedZone) {
+        setError("Não encontramos uma área de entrega para esse bairro.");
+        return;
+      }
+    }
+    if (subtotal < Number(settings.min_order_amount ?? 0)) {
+      setError(
+        `O pedido mínimo é ${formatCurrency(Number(settings.min_order_amount))}.`,
+      );
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { data: orderNumber, error: numberError } = await supabase.rpc(
+        "next_order_number",
+        { _org: organization.id },
+      );
+      if (numberError) throw numberError;
+
+      const idempotencyKey = crypto.randomUUID();
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          organization_id: organization.id,
+          order_number: Number(orderNumber),
+          customer_name: name.trim(),
+          customer_phone: phone.trim(),
+          fulfillment,
+          payment_method: paymentMethod,
+          address_street: fulfillment === "DELIVERY" ? street.trim() : null,
+          address_number: fulfillment === "DELIVERY" ? number.trim() : null,
+          address_neighborhood: fulfillment === "DELIVERY" ? neighborhood.trim() : null,
+          address_complement: fulfillment === "DELIVERY" ? complement.trim() || null : null,
+          address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
+          delivery_zone_id: fulfillment === "DELIVERY" ? selectedZone?.id ?? null : null,
+          delivery_fee: deliveryFee,
+          discount: 0,
+          subtotal,
+          total,
+          notes: notes.trim() || null,
+          idempotency_key: idempotencyKey,
+          source: "STOREFRONT",
+          is_demo: organization.demo_mode,
+          status: "RECEIVED",
+        })
+        .select("id, order_number")
+        .single();
+
+      if (orderError) throw orderError;
+      if (!order) throw new Error("Não foi possível criar o pedido.");
+
+      const orderItems = items.map((item) => ({
+        order_id: order.id,
+        organization_id: organization.id,
+        product_id: item.productId,
+        product_name: item.productName,
+        second_product_id: item.secondProductId,
+        second_product_name: item.secondProductName,
+        is_half: item.isHalf,
+        size_id: item.sizeId,
+        size_name: item.sizeName,
+        crust_id: item.crustId,
+        crust_name: item.crustName,
+        crust_price: item.crustPrice,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        total_price: item.unitPrice * item.quantity,
+        notes: item.notes,
+      }));
+
+      const { data: createdItems, error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems)
+        .select("id");
+
+      if (itemsError) throw itemsError;
+
+      const addonRows = items.flatMap((item, itemIndex) =>
+        item.addons.map((addon) => ({
+          order_item_id: createdItems?.[itemIndex]?.id,
+          organization_id: organization.id,
+          addon_id: addon.id,
+          name: addon.name,
+          price: addon.price,
+          quantity: item.quantity,
+        })),
+      );
+
+      if (addonRows.length > 0) {
+        const { error: addonsError } = await supabase
+          .from("order_item_addons")
+          .insert(addonRows);
+        if (addonsError) throw addonsError;
+      }
+
+      setSuccessNumber(Number(order.order_number));
+      onSuccess();
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Não foi possível enviar o pedido.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (successNumber != null) {
+    return (
+      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/45 p-4 backdrop-blur-sm">
+        <section className="w-full max-w-md rounded-[2rem] bg-background p-7 text-center shadow-lifted">
+          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Check className="size-8" />
+          </div>
+          <p className="mt-5 text-xs font-semibold uppercase tracking-[.18em] text-primary">Pedido recebido</p>
+          <h2 className="mt-1 text-3xl">Tudo certo! 🎉</h2>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            Seu pedido <strong>#{successNumber}</strong> foi enviado para {organization.name}.
+          </p>
+          <div className="mt-6 rounded-2xl bg-muted p-4 text-left text-sm">
+            <p className="font-semibold">{fulfillment === "DELIVERY" ? "Entrega" : "Retirada"}</p>
+            <p className="mt-1 text-muted-foreground">
+              {fulfillment === "DELIVERY"
+                ? "A loja recebeu seu endereço e começará a preparar o pedido."
+                : settings.pickup_instructions || "A loja avisará quando o pedido estiver pronto."}
+            </p>
+          </div>
+          <Button className="mt-6 h-12 w-full rounded-full" onClick={onClose}>
+            Voltar ao cardápio
+          </Button>
+        </section>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background">
+      <div className="mx-auto min-h-screen max-w-3xl px-4 pb-10 pt-5 sm:px-6 sm:pt-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">Finalizar pedido</p>
+            <h1 className="mt-1 text-3xl sm:text-4xl">Quase lá</h1>
+          </div>
+          <button onClick={onClose} className="rounded-full p-2 hover:bg-muted" aria-label="Fechar checkout">
+            <X className="size-5" />
+          </button>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
+          <div className="space-y-4">
+            <section className="rounded-3xl border bg-card p-5 shadow-soft">
+              <p className="text-sm font-semibold">Como você quer receber?</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {settings.delivery_enabled && (
+                  <button
+                    onClick={() => setFulfillment("DELIVERY")}
+                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "DELIVERY" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                  >
+                    <p className="font-semibold">Entrega</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Receba no seu endereço</p>
+                  </button>
+                )}
+                {settings.pickup_enabled && (
+                  <button
+                    onClick={() => setFulfillment("PICKUP")}
+                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "PICKUP" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                  >
+                    <p className="font-semibold">Retirada</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Retire na loja</p>
+                  </button>
+                )}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border bg-card p-5 shadow-soft">
+              <p className="text-sm font-semibold">Seus dados</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <label className="text-sm">
+                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Nome *</span>
+                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                </label>
+                <label className="text-sm">
+                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Telefone *</span>
+                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(00) 00000-0000" inputMode="tel" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                </label>
+              </div>
+            </section>
+
+            {fulfillment === "DELIVERY" && (
+              <section className="rounded-3xl border bg-card p-5 shadow-soft">
+                <p className="text-sm font-semibold">Endereço de entrega</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_120px]">
+                  <label className="text-sm">
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Rua *</span>
+                    <input value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Rua, avenida..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                  </label>
+                  <label className="text-sm">
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Número *</span>
+                    <input value={number} onChange={(e) => setNumber(e.target.value)} placeholder="123" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                  </label>
+                </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className="text-sm">
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Bairro *</span>
+                    <input value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="Seu bairro" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                  </label>
+                  <label className="text-sm">
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Complemento</span>
+                    <input value={complement} onChange={(e) => setComplement(e.target.value)} placeholder="Apto, casa..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                  </label>
+                </div>
+                <label className="mt-3 block text-sm">
+                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Ponto de referência</span>
+                  <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Próximo a..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                </label>
+                {deliveryZones.length > 0 && (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    {selectedZone
+                      ? `Taxa de entrega: ${formatCurrency(deliveryFee)} · ${selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min`
+                      : "Digite um bairro atendido para calcular a taxa de entrega."}
+                  </p>
+                )}
+              </section>
+            )}
+
+            <section className="rounded-3xl border bg-card p-5 shadow-soft">
+              <p className="text-sm font-semibold">Pagamento</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {availablePayments.map((method) => (
+                  <button
+                    key={method}
+                    onClick={() => setPaymentMethod(method)}
+                    className={`rounded-2xl border p-4 text-left ${paymentMethod === method ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                  >
+                    <p className="font-semibold">
+                      {method === "PIX" ? "PIX" : method === "CASH" ? "Dinheiro" : method === "CARD_ON_DELIVERY" ? "Cartão na entrega" : "Cartão no local"}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {method === "PIX" ? "Pagamento via PIX" : "Pagamento combinado com a loja"}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border bg-card p-5 shadow-soft">
+              <label htmlFor="checkout-notes" className="text-sm font-semibold">Observações do pedido</label>
+              <Textarea id="checkout-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-3" placeholder="Ex.: tocar a campainha, tirar cebola..." maxLength={500} />
+            </section>
+          </div>
+
+          <aside className="h-fit rounded-3xl border bg-card p-5 shadow-soft lg:sticky lg:top-6">
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Resumo</p>
+            <div className="mt-4 space-y-3">
+              {items.map((item) => (
+                <div key={item.lineId} className="flex items-start justify-between gap-3 text-sm">
+                  <div>
+                    <p className="font-medium">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
+                    <p className="text-xs text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
+                  </div>
+                  <span className="font-semibold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="my-4 border-t" />
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
+              {fulfillment === "DELIVERY" && (
+                <div className="flex justify-between"><span className="text-muted-foreground">Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "—"}</span></div>
+              )}
+              <div className="flex justify-between pt-2 text-lg font-bold"><span>Total</span><span>{formatCurrency(total)}</span></div>
+            </div>
+            {error && <p className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
+            <Button disabled={submitting || items.length === 0} onClick={submitOrder} className="mt-5 h-12 w-full rounded-full">
+              {submitting ? "Enviando pedido..." : `Enviar pedido · ${formatCurrency(total)}`}
+            </Button>
+            <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
+              Ao enviar, o pedido será encaminhado diretamente para a loja.
+            </p>
+          </aside>
+        </div>
+      </div>
     </div>
   );
 }
