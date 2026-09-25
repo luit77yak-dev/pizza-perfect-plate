@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Clock3, ImagePlus, LogOut, Package, RefreshCw, Trash2, Upload, UserRound } from "lucide-react";
+import { Check, ChevronUp, ImagePlus, LogOut, Package, Pencil, Plus, RefreshCw, Save, Trash2, Upload, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
@@ -16,10 +16,18 @@ type Product = {
   name: string;
   description: string | null;
   image_url: string | null;
+  kind: "PIZZA" | "SIMPLE";
+  base_price: number;
+  allow_half: boolean;
   active: boolean;
+  featured: boolean;
   available: boolean;
   sort_order: number;
 };
+
+type Category = { id: string; name: string; active: boolean; sort_order: number };
+type ProductSize = { id: string; name: string; slices: number | null; active: boolean; sort_order: number };
+type ProductPrice = { id: string; product_id: string; size_id: string; price: number };
 
 type Order = {
   id: string;
@@ -85,7 +93,12 @@ function StaffPanel() {
   const [organizationName, setOrganizationName] = useState("");
   const [role, setRole] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [sizes, setSizes] = useState<ProductSize[]>([]);
+  const [productPrices, setProductPrices] = useState<ProductPrice[]>([]);
   const [imageUploading, setImageUploading] = useState<string | null>(null);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [savingProductId, setSavingProductId] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
@@ -125,15 +138,18 @@ function StaffPanel() {
   };
 
   const loadProducts = async (orgId: string) => {
-    const { data, error: productsError } = await supabase
-      .from("products")
-      .select("id, category_id, name, description, image_url, active, available, sort_order")
-      .eq("organization_id", orgId)
-      .order("sort_order", { ascending: true })
-      .order("name", { ascending: true });
-
-    if (productsError) setError(productsError.message);
-    else setProducts((data ?? []) as Product[]);
+    const [productsResult, categoriesResult, sizesResult, pricesResult] = await Promise.all([
+      supabase.from("products").select("id, category_id, name, description, image_url, kind, base_price, allow_half, active, featured, available, sort_order").eq("organization_id", orgId).order("sort_order", { ascending: true }).order("name", { ascending: true }),
+      supabase.from("categories").select("id, name, active, sort_order").eq("organization_id", orgId).order("sort_order", { ascending: true }).order("name", { ascending: true }),
+      supabase.from("product_sizes").select("id, name, slices, active, sort_order").eq("organization_id", orgId).order("sort_order", { ascending: true }),
+      supabase.from("product_prices").select("id, product_id, size_id, price").eq("organization_id", orgId),
+    ]);
+    const firstError = productsResult.error ?? categoriesResult.error ?? sizesResult.error ?? pricesResult.error;
+    if (firstError) { setError(firstError.message); return; }
+    setProducts((productsResult.data ?? []) as Product[]);
+    setCategories((categoriesResult.data ?? []) as Category[]);
+    setSizes((sizesResult.data ?? []) as ProductSize[]);
+    setProductPrices((pricesResult.data ?? []) as ProductPrice[]);
   };
 
   const loadOrders = async (orgId = organizationId) => {
@@ -172,6 +188,60 @@ function StaffPanel() {
     if (signInError) setError(signInError.message);
     else if (data.user) await loadOrganization(data.user.id);
     setAuthLoading(false);
+  };
+
+  const saveProduct = async (draft: Product, sizePrices: Record<string, string>) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!draft.name.trim()) { setError("Informe o nome do produto."); return; }
+    const basePrice = Number(String(draft.base_price).replace(",", "."));
+    if (!Number.isFinite(basePrice) || basePrice < 0) { setError("Informe um preço base válido."); return; }
+    setSavingProductId(draft.id);
+    setError(null);
+    const { error: productError } = await supabase.from("products").update({
+      name: draft.name.trim(), description: draft.description?.trim() || null, category_id: draft.category_id || null,
+      kind: draft.kind, base_price: basePrice, allow_half: draft.allow_half, active: draft.active,
+      featured: draft.featured, available: draft.available,
+    }).eq("id", draft.id).eq("organization_id", organizationId);
+    if (productError) { setError(productError.message); setSavingProductId(null); return; }
+
+    const { error: deletePricesError } = await supabase.from("product_prices").delete()
+      .eq("organization_id", organizationId).eq("product_id", draft.id);
+    if (deletePricesError) { setError(deletePricesError.message); setSavingProductId(null); return; }
+
+    const priceRows = sizes
+      .map((size) => ({ size, raw: sizePrices[size.id]?.trim() ?? "" }))
+      .filter(({ raw }) => raw !== "")
+      .map(({ size, raw }) => ({ organization_id: organizationId, product_id: draft.id, size_id: size.id, price: Number(raw.replace(",", ".")) }))
+      .filter((row) => Number.isFinite(row.price) && row.price >= 0);
+    if (priceRows.length) {
+      const { error: pricesError } = await supabase.from("product_prices").insert(priceRows);
+      if (pricesError) { setError(pricesError.message); setSavingProductId(null); return; }
+    }
+    await loadProducts(organizationId);
+    setEditingProductId(null);
+    setSavingProductId(null);
+  };
+
+  const createProduct = async () => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    setError(null);
+    const { data, error: createError } = await supabase.from("products").insert({
+      organization_id: organizationId, name: "Novo produto", description: "", kind: "SIMPLE",
+      base_price: 0, active: true, available: true, featured: false, allow_half: false, sort_order: products.length,
+    }).select("id, category_id, name, description, image_url, kind, base_price, allow_half, active, featured, available, sort_order").single();
+    if (createError) { setError(createError.message); return; }
+    const created = data as Product;
+    setProducts((current) => [...current, created]);
+    setEditingProductId(created.id);
+  };
+
+  const toggleProduct = async (product: Product, field: "active" | "available" | "featured") => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    const next = !product[field];
+    const { error: updateError } = await supabase.from("products").update({ [field]: next })
+      .eq("id", product.id).eq("organization_id", organizationId);
+    if (updateError) setError(updateError.message);
+    else setProducts((current) => current.map((item) => item.id === product.id ? { ...item, [field]: next } : item));
   };
 
   const uploadProductImage = async (product: Product, file: File) => {
@@ -321,6 +391,21 @@ function StaffPanel() {
 
       <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
         {["OWNER", "ADMIN"].includes(role ?? "") && (
+          <ProductCatalogManager
+            products={products}
+            categories={categories}
+            sizes={sizes}
+            prices={productPrices}
+            editingProductId={editingProductId}
+            savingProductId={savingProductId}
+            onCreate={createProduct}
+            onEdit={setEditingProductId}
+            onSave={saveProduct}
+            onToggle={toggleProduct}
+          />
+        )}
+
+        {["OWNER", "ADMIN"].includes(role ?? "") && (
           <ProductImageManager
             products={products}
             uploadingProductId={imageUploading}
@@ -356,6 +441,125 @@ function StaffPanel() {
         )}
       </main>
     </PanelShell>
+  );
+}
+
+function ProductCatalogManager({
+  products, categories, sizes, prices, editingProductId, savingProductId, onCreate, onEdit, onSave, onToggle,
+}: {
+  products: Product[]; categories: Category[]; sizes: ProductSize[]; prices: ProductPrice[];
+  editingProductId: string | null; savingProductId: string | null; onCreate: () => void; onEdit: (id: string | null) => void;
+  onSave: (product: Product, sizePrices: Record<string, string>) => void;
+  onToggle: (product: Product, field: "active" | "available" | "featured") => void;
+}) {
+  return (
+    <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Cardápio</p>
+          <h2 className="mt-1 text-2xl">Produtos</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Edite nomes, preços, categorias e disponibilidade sem mexer no código.</p>
+        </div>
+        <Button onClick={onCreate} className="rounded-full"><Plus className="mr-2 size-4" /> Novo produto</Button>
+      </div>
+      <div className="mt-5 space-y-2">
+        {products.length === 0 ? <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">Nenhum produto cadastrado.</div> :
+          products.map((product) => <ProductEditorRow key={product.id} product={product} categories={categories} sizes={sizes} prices={prices}
+            expanded={editingProductId === product.id} saving={savingProductId === product.id} onEdit={() => onEdit(editingProductId === product.id ? null : product.id)}
+            onSave={onSave} onToggle={onToggle} />)}
+      </div>
+    </section>
+  );
+}
+
+function ProductEditorRow({
+  product, categories, sizes, prices, expanded, saving, onEdit, onSave, onToggle,
+}: {
+  product: Product[] extends never[] ? never : Product; categories: Category[]; sizes: ProductSize[]; prices: ProductPrice[];
+  expanded: boolean; saving: boolean; onEdit: () => void; onSave: (product: Product, sizePrices: Record<string, string>) => void;
+  onToggle: (product: Product, field: "active" | "available" | "featured") => void;
+}) {
+  const [draft, setDraft] = useState(product);
+  const [sizePrices, setSizePrices] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    setDraft(product);
+    const initial: Record<string, string> = {};
+    sizes.forEach((size) => {
+      const row = prices.find((item) => item.product_id === product.id && item.size_id === size.id);
+      initial[size.id] = row ? String(row.price) : "";
+    });
+    setSizePrices(initial);
+  }, [product, prices, sizes]);
+
+  const categoryName = categories.find((category) => category.id === product.category_id)?.name;
+
+  return (
+    <div className="overflow-hidden rounded-2xl border bg-background">
+      <div className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
+            {product.image_url ? <img src={product.image_url} alt="" className="size-full object-cover" /> :
+              <div className="flex size-full items-center justify-center text-xs font-semibold text-muted-foreground">{product.name.slice(0, 2).toUpperCase()}</div>}
+          </div>
+          <div className="min-w-0"><p className="truncate font-semibold">{product.name}</p>
+            <p className="text-xs text-muted-foreground">{categoryName || "Sem categoria"} · {formatCurrency(Number(product.base_price))}{!product.active ? " · oculto" : ""}{!product.available ? " · indisponível" : ""}</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" className="rounded-full" onClick={onEdit}>{expanded ? <ChevronUp className="mr-1.5 size-4" /> : <Pencil className="mr-1.5 size-4" />}{expanded ? "Fechar" : "Editar"}</Button>
+          <Button variant={product.available ? "outline" : "secondary"} size="sm" className="rounded-full" onClick={() => onToggle(product, "available")}>{product.available ? "Disponível" : "Indisponível"}</Button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="border-t bg-muted/20 p-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="text-sm"><span className="mb-1.5 block text-xs font-medium text-muted-foreground">Nome *</span>
+              <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+            </label>
+            <label className="text-sm"><span className="mb-1.5 block text-xs font-medium text-muted-foreground">Preço base *</span>
+              <input value={draft.base_price} onChange={(e) => setDraft({ ...draft, base_price: e.target.value as unknown as number })} inputMode="decimal" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+            </label>
+          </div>
+          <label className="mt-3 block text-sm"><span className="mb-1.5 block text-xs font-medium text-muted-foreground">Descrição</span>
+            <textarea value={draft.description ?? ""} onChange={(e) => setDraft({ ...draft, description: e.target.value })} rows={2} maxLength={300} className="w-full rounded-xl border bg-background px-3 py-2 outline-none focus:border-primary" />
+          </label>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <label className="text-sm"><span className="mb-1.5 block text-xs font-medium text-muted-foreground">Categoria</span>
+              <select value={draft.category_id ?? ""} onChange={(e) => setDraft({ ...draft, category_id: e.target.value || null })} className="h-11 w-full rounded-xl border bg-background px-3">
+                <option value="">Sem categoria</option>{categories.filter((category) => category.active).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+              </select>
+            </label>
+            <label className="text-sm"><span className="mb-1.5 block text-xs font-medium text-muted-foreground">Tipo</span>
+              <select value={draft.kind} onChange={(e) => setDraft({ ...draft, kind: e.target.value as Product["kind"] })} className="h-11 w-full rounded-xl border bg-background px-3">
+                <option value="PIZZA">Pizza</option><option value="SIMPLE">Produto simples</option>
+              </select>
+            </label>
+          </div>
+          {sizes.length > 0 && (
+            <div className="mt-4 rounded-2xl border bg-background p-4">
+              <p className="text-sm font-semibold">Preços por tamanho</p><p className="mt-1 text-xs text-muted-foreground">Deixe vazio para usar o preço base.</p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {sizes.filter((size) => size.active).map((size) => <label key={size.id} className="text-sm">
+                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">{size.name}{size.slices ? ` · ${size.slices} fatias` : ""}</span>
+                  <input value={sizePrices[size.id] ?? ""} onChange={(e) => setSizePrices((current) => ({ ...current, [size.id]: e.target.value }))} inputMode="decimal" placeholder={String(draft.base_price)} className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                </label>)}
+              </div>
+            </div>
+          )}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" onClick={() => setDraft({ ...draft, active: !draft.active })} className={`rounded-full border px-3 py-2 text-xs font-semibold ${draft.active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>No cardápio</button>
+            <button type="button" onClick={() => setDraft({ ...draft, available: !draft.available })} className={`rounded-full border px-3 py-2 text-xs font-semibold ${draft.available ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>Disponível</button>
+            <button type="button" onClick={() => setDraft({ ...draft, featured: !draft.featured })} className={`rounded-full border px-3 py-2 text-xs font-semibold ${draft.featured ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>Destaque</button>
+            {draft.kind === "PIZZA" && <button type="button" onClick={() => setDraft({ ...draft, allow_half: !draft.allow_half })} className={`rounded-full border px-3 py-2 text-xs font-semibold ${draft.allow_half ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>Meio a meio</button>}
+          </div>
+          <div className="mt-4 flex justify-end gap-2"><Button variant="outline" onClick={onEdit} className="rounded-full"><X className="mr-1.5 size-4" /> Fechar</Button>
+            <Button onClick={() => onSave(draft, sizePrices)} disabled={saving} className="rounded-full"><Save className="mr-1.5 size-4" />{saving ? "Salvando..." : "Salvar alterações"}</Button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
