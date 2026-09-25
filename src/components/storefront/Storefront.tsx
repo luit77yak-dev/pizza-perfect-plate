@@ -166,6 +166,7 @@ export function Storefront({ slug }: { slug?: string }) {
   });
   const cart = useLocalCart();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -183,9 +184,14 @@ export function Storefront({ slug }: { slug?: string }) {
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
-    if (selectedCategory === "all") return data.products;
-    return data.products.filter((product) => product.category_id === selectedCategory);
-  }, [data, selectedCategory]);
+    const term = searchTerm.trim().toLocaleLowerCase("pt-BR");
+    return data.products.filter((product) => {
+      const matchesCategory = selectedCategory === "all" || product.category_id === selectedCategory;
+      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
+      const haystack = [product.name, product.description, categoryName].join(" ").toLocaleLowerCase("pt-BR");
+      return matchesCategory && (!term || haystack.includes(term));
+    });
+  }, [data, selectedCategory, searchTerm]);
 
   const categoryProducts = useMemo(() => {
     if (!data) return new Map<string, number>();
@@ -216,6 +222,7 @@ export function Storefront({ slug }: { slug?: string }) {
             Tentar novamente
           </Button>
         </section>
+
       </main>
     );
   }
@@ -238,110 +245,72 @@ export function Storefront({ slug }: { slug?: string }) {
         } as CSSProperties
       }
     >
-      <header className="sticky top-0 z-40 border-b bg-background/90 shadow-[0_1px_0_rgba(0,0,0,.03)] backdrop-blur-xl">
-        <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+      <div className="overflow-hidden bg-secondary text-secondary-foreground" aria-hidden="true"><div className="ppp-ticker-run flex min-w-max items-center gap-8 py-2 font-display text-[11px] uppercase tracking-[.16em]">{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={index} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={`repeat-${index}`} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}</div></div>
+
+      <header className="sticky top-0 z-40 border-b-2 border-secondary bg-background/95 backdrop-blur-xl">
+        <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <a href="#inicio" className="flex min-w-0 items-center gap-3">
             {data.settings.logo_url ? (
-              <img src={data.settings.logo_url} alt="" className="size-10 rounded-xl object-cover" />
+              <img src={data.settings.logo_url} alt="" className="size-10 rounded-sm border-2 border-secondary object-cover" />
             ) : (
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary font-display text-lg font-semibold text-primary-foreground">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-sm border-2 border-secondary bg-primary font-display text-lg font-semibold text-primary-foreground">
                 {data.organization.name.charAt(0)}
               </div>
             )}
-            <div className="min-w-0">
-              <p className="truncate font-display text-lg font-semibold">{data.organization.name}</p>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span className={`size-1.5 rounded-full ${status.open ? "bg-success" : "bg-muted-foreground"}`} />
-                {status.label}
-              </div>
-            </div>
+            <p className="truncate font-display text-xl font-semibold uppercase tracking-tight">{data.organization.name}</p>
           </a>
-          <Button variant="outline" size="sm" className="gap-2 rounded-full px-3 sm:px-4" onClick={() => setCartOpen(true)}>
+          <nav className="hidden items-center gap-6 text-xs font-bold uppercase tracking-[.14em] md:flex">
+            <a href="#cardapio" className="transition-opacity hover:opacity-60">Cardápio</a>
+            <a href="#sobre" className="transition-opacity hover:opacity-60">A casa</a>
+            <a href="#contato" className="transition-opacity hover:opacity-60">Contato</a>
+          </nav>
+          <Button size="sm" className="gap-2 rounded-sm border-2 border-secondary px-4 font-display uppercase shadow-[3px_3px_0_rgba(0,0,0,.8)] transition-transform hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5" onClick={() => setCartOpen(true)}>
             <ShoppingBag className="size-4" />
-            <span className="hidden sm:inline">Carrinho</span>
-            {itemCount > 0 && <Badge className="rounded-full px-2">{itemCount}</Badge>}
+            <span>Pedir agora</span>
+            {itemCount > 0 && <Badge className="rounded-sm bg-background px-2 text-foreground">{itemCount}</Badge>}
           </Button>
         </div>
       </header>
 
       <main id="inicio">
-        <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-8 pt-4 sm:gap-6 sm:px-6 sm:pb-10 sm:pt-6 lg:grid-cols-[1.15fr_.85fr] lg:items-center lg:pt-8">
-          <div className="overflow-hidden rounded-[2rem] bg-secondary text-secondary-foreground shadow-lifted">
-            <div className="relative min-h-[360px] p-6 sm:min-h-[390px] sm:p-10">
-              {data.settings.hero_image_url && (
-                <img
-                  src={data.settings.hero_image_url}
-                  alt=""
-                  className="absolute inset-0 size-full object-cover opacity-45"
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary/95 via-secondary/80 to-secondary/45" />
-              <div className="relative flex min-h-[320px] max-w-xl flex-col justify-end sm:min-h-[330px]">
-                <Badge className="mb-4 w-fit border-0 bg-primary/15 text-primary-foreground backdrop-blur">
-                  Delivery artesanal
-                </Badge>
-                <h1 className="max-w-2xl text-[2.65rem] leading-[.96] sm:text-6xl">
-                  {data.settings.hero_title || `O sabor que chega até você`}
-                </h1>
-                <p className="mt-4 max-w-xl text-sm leading-6 text-secondary-foreground/75 sm:text-base">
-                  {data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}
-                </p>
-                <a
-                  href="#cardapio"
-                  className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
-                >
-                  {data.settings.hero_cta_label || "Ver cardápio"}
-                  <ChevronRight className="size-4" />
-                </a>
+        <section className="mx-auto max-w-6xl px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-7">
+          <div className="relative overflow-hidden rounded-sm border-2 border-secondary bg-background shadow-[8px_8px_0_rgba(0,0,0,.9)]">
+            <div className="grid min-h-[560px] lg:grid-cols-[1.05fr_.95fr]">
+              <div className="relative z-10 flex flex-col justify-center p-7 sm:p-10 lg:p-14">
+                <p className="mb-4 w-fit bg-secondary px-3 py-1 font-display text-xs uppercase tracking-[.18em] text-secondary-foreground">Pizza artesanal</p>
+                <h1 className="max-w-3xl text-[clamp(3.6rem,8vw,7.4rem)] uppercase leading-[.82] tracking-[-.04em]">{data.settings.hero_title || "O sabor que chega até você"}</h1>
+                <p className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">{data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
+                <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-sm bg-primary px-6 py-4 font-display text-sm uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.85)] transition-transform hover:-translate-y-1">{data.settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
               </div>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            <div className="rounded-3xl border bg-card p-5 shadow-soft">
-              <div className="flex items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <Clock3 className="size-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">Hoje</p>
-                  <p className="text-sm text-muted-foreground">{status.label}</p>
-                </div>
-              </div>
-            </div>
-            <div className="rounded-3xl border bg-card p-5 shadow-soft">
-              <div className="flex items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-2xl bg-secondary/10 text-secondary">
-                  <Store className="size-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold">Entrega e retirada</p>
-                  <p className="truncate text-sm text-muted-foreground">
-                    {data.settings.delivery_enabled && data.settings.pickup_enabled
-                      ? "Escolha como quer receber"
-                      : data.settings.delivery_enabled
-                        ? "Entrega disponível"
-                        : "Retirada disponível"}
-                  </p>
-                </div>
+              <div className="relative min-h-[360px] overflow-hidden bg-secondary lg:min-h-full">
+                {data.settings.hero_image_url ? <img src={data.settings.hero_image_url} alt="" className="absolute inset-5 size-[calc(100%-2.5rem)] rotate-[2.5deg] object-cover shadow-[10px_10px_0_rgba(0,0,0,.65)] sm:inset-8 sm:size-[calc(100%-4rem)]" /> : <div className="absolute inset-0 grid place-items-center text-secondary-foreground/50"><Pizza className="size-28" strokeWidth={1} /></div>}
+                <div className="absolute bottom-6 left-5 z-10 flex size-28 rotate-[-8deg] items-center justify-center rounded-full border-2 border-secondary bg-primary p-4 text-center font-display text-[10px] uppercase leading-3 text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.7)] sm:left-8">{data.organization.name}<br />feito na hora<br />pizza artesanal</div>
               </div>
             </div>
           </div>
         </section>
 
+        <div className="mb-12 overflow-hidden border-y-2 border-secondary bg-primary text-primary-foreground" aria-hidden="true">
+          <div className="ppp-ticker-run flex min-w-max items-center gap-8 py-4 font-display text-sm uppercase tracking-[.08em]">
+            {data.products.slice(0, 8).map((product) => <span key={product.id} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
+            {data.products.slice(0, 8).map((product) => <span key={`ticker-${product.id}`} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
+          </div>
+        </div>
+
         <section id="cardapio" className="mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">Cardápio</p>
-              <h2 className="mt-1 text-3xl sm:text-4xl">Escolha seu pedido</h2>
+              <h2 className="mt-1 text-4xl uppercase leading-[.9] sm:text-6xl">Escolha seu pedido</h2>
             </div>
             <span className="hidden text-sm text-muted-foreground sm:block">{data.products.length} opções</span>
           </div>
 
-          <div className="scrollbar-none -mx-1 mb-7 flex gap-2 overflow-x-auto px-1 pb-1">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${selectedCategory === "all" ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}
+              className={`shrink-0 rounded-sm border-2 border-secondary px-4 py-2 text-sm font-semibold uppercase transition-colors ${selectedCategory === "all" ? "bg-primary text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]" : "bg-card hover:-translate-y-0.5"}`}
             >
               Todos
             </button>
@@ -349,12 +318,23 @@ export function Storefront({ slug }: { slug?: string }) {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${selectedCategory === category.id ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}
+                className={`shrink-0 rounded-sm border-2 border-secondary px-4 py-2 text-sm font-semibold uppercase transition-colors ${selectedCategory === category.id ? "bg-primary text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]" : "bg-card hover:-translate-y-0.5"}`}
               >
                 {category.name}
                 <span className="ml-1.5 opacity-60">{categoryProducts.get(category.id) ?? 0}</span>
               </button>
             ))}
+            </div>
+            <label className="relative block shrink-0 sm:w-64">
+              <span className="sr-only">Buscar no cardápio</span>
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Buscar no cardápio"
+                className="h-11 w-full rounded-sm border-2 border-secondary bg-card px-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:shadow-[3px_3px_0_rgba(0,0,0,.7)]"
+              />
+            </label>
           </div>
 
           {filteredProducts.length === 0 ? (
@@ -363,8 +343,8 @@ export function Storefront({ slug }: { slug?: string }) {
               <p className="mt-1 text-sm text-muted-foreground">Tente outra categoria.</p>
             </div>
           ) : (
-            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredProducts.map((product) => {
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProducts.map((product, index) => {
                 const firstSize = data.sizes[0];
                 const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
                 const categoryImage = data.categories.find((category) => category.id === product.category_id)?.image_url;
@@ -373,55 +353,66 @@ export function Storefront({ slug }: { slug?: string }) {
                   <button
                     key={product.id}
                     onClick={() => setSelectedProduct(product)}
-                    className="group overflow-hidden rounded-[1.5rem] border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted active:scale-[.99]"
+                    className={`group relative overflow-visible rounded-sm border-2 border-secondary bg-card text-left shadow-[7px_7px_0_rgba(0,0,0,.82)] transition-all duration-200 hover:-translate-y-1.5 hover:rotate-[-.45deg] hover:shadow-[11px_11px_0_rgba(0,0,0,.82)] active:translate-x-1 active:translate-y-1 active:shadow-[3px_3px_0_rgba(0,0,0,.82)] ${index % 5 === 2 ? "lg:rotate-[.35deg]" : ""}`}
                   >
-                    <div className="relative aspect-[1.42] overflow-hidden bg-muted sm:aspect-[1.35]">
+                    <div className="relative aspect-[1.18] overflow-hidden border-b-2 border-secondary bg-muted">
                       {productImage ? (
                         <img
                           src={productImage}
                           alt={product.name}
                           loading="lazy"
-                          className="size-full object-cover transition duration-500 group-hover:scale-105"
+                          className="size-full object-cover transition duration-500 group-hover:scale-110"
                         />
                       ) : (
                         <div className="relative flex size-full items-center justify-center overflow-hidden bg-gradient-to-br from-primary/15 via-accent to-secondary/15">
                           <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/10 blur-2xl" />
                           <div className="absolute -bottom-12 -left-8 size-36 rounded-full bg-secondary/15 blur-2xl" />
                           <div className="relative flex flex-col items-center gap-2 text-primary/55">
-                            <div className="flex size-20 items-center justify-center rounded-full border border-primary/15 bg-background/55 shadow-sm backdrop-blur-sm">
+                            <div className="flex size-20 items-center justify-center rounded-full border-2 border-secondary/15 bg-background/55 shadow-sm backdrop-blur-sm">
                               <Pizza className="size-10" strokeWidth={1.5} />
                             </div>
                             <span className="text-[11px] font-semibold uppercase tracking-[.18em]">Imagem em breve</span>
                           </div>
                         </div>
                       )}
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent p-4 pt-12">
+                        <p className="font-display text-xl uppercase leading-none text-white drop-shadow-sm sm:text-2xl">{product.name}</p>
+                      </div>
                       {product.featured && (
-                        <span className="absolute left-3 top-3 rounded-full bg-background/90 px-3 py-1 text-xs font-semibold backdrop-blur">
+                        <span className="absolute left-3 top-3 border-2 border-secondary bg-primary px-3 py-1 font-display text-[10px] uppercase tracking-[.12em] text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]">
                           Destaque
                         </span>
                       )}
                     </div>
                     <div className="p-4 sm:p-5">
-                      <div className="flex items-start justify-between gap-2.5">
-                        <div>
-                          <h3 className="text-[1.2rem] leading-tight sm:text-xl">{product.name}</h3>
-                          <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 pr-1">
+                          <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">{data.categories.find((category) => category.id === product.category_id)?.name || "Pizza"}</p>
+                          <p className="mt-2 line-clamp-2 text-sm leading-5 text-muted-foreground">
                             {product.description || "Uma opção preparada para você."}
                           </p>
                         </div>
-                        <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-sm font-bold text-primary">{formatCurrency(displayPrice)}</span>
+                        <span className="relative -mr-1 -mt-2 shrink-0 -rotate-3 border-2 border-secondary bg-primary px-3 py-2 font-display text-sm font-bold text-primary-foreground shadow-[4px_4px_0_rgba(0,0,0,.78)] sm:px-3.5">
+                          {formatCurrency(displayPrice)}
+                        </span>
                       </div>
-                      <div className="mt-4 flex items-center justify-between border-t pt-3 text-sm font-semibold">
-                        <span>{product.allow_half ? "Aceita meio a meio" : "Personalize seu pedido"}</span>
-                        <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                      <div className="mt-4 flex items-center justify-between border-t-2 border-secondary pt-3 text-xs font-bold uppercase tracking-[.08em]">
+                        <span>{product.allow_half ? "Meio a meio" : "Personalizar"}</span>
+                        <span className="inline-flex size-8 items-center justify-center border-2 border-secondary bg-background transition-transform group-hover:translate-x-1">
+                          <ChevronRight className="size-4" />
+                        </span>
                       </div>
                     </div>
                   </button>
                 );
               })}
-            </div>
+            </div></div>
           )}
         </section>
+        <section id="sobre" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6"><div className="overflow-hidden rounded-[.75rem] border-2 border-secondary bg-secondary text-secondary-foreground shadow-lifted"><div className="grid lg:grid-cols-[.9fr_1.1fr]"><div className="p-7 sm:p-10 lg:p-14"><p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">A casa</p><h2 className="mt-3 text-4xl uppercase leading-[.9] sm:text-6xl">Feita para quem ama pizza.</h2><p className="mt-5 max-w-xl text-sm leading-7 text-secondary-foreground/75 sm:text-base">{data.settings.description || "Massa, molho, queijo e ingredientes escolhidos para transformar um pedido comum em uma experiência que dá vontade de repetir."}</p><a href="#cardapio" className="mt-7 inline-flex rounded-sm bg-primary px-5 py-3 font-display uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.5)]">Ver o cardápio</a></div><div className="grid grid-cols-2 gap-3 bg-primary p-3 sm:p-5">{[data.settings.hero_image_url, ...data.categories.slice(0, 3).map((category) => category.image_url)].filter(Boolean).slice(0, 3).map((image, index) => <div key={`about-${index}`} className={`overflow-hidden rounded-sm border-2 border-secondary shadow-[5px_5px_0_rgba(0,0,0,.6)] ${index === 0 ? "col-span-2 aspect-[2/1] rotate-[-1.5deg]" : "aspect-square rotate-[1.5deg]"}`}><img src={image!} alt="" className="size-full object-cover" loading="lazy" /></div>)}</div></div></div></section>
+
+        <section id="contato" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6"><div className="rounded-[.75rem] border-2 border-secondary bg-primary p-7 text-primary-foreground shadow-lifted sm:p-10 lg:p-14"><p className="text-xs font-semibold uppercase tracking-[.2em] opacity-75">Contato</p><h2 className="mt-2 text-[clamp(4.5rem,15vw,10rem)] uppercase leading-[.75]">Bora pedir?</h2><div className="mt-10 grid gap-3 sm:grid-cols-3"><a href="#cardapio" className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)] transition-transform hover:-translate-y-1"><span className="block text-xs uppercase tracking-widest opacity-60">Cardápio</span><span className="mt-1 block font-semibold">Escolher agora</span></a><div className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)]"><span className="block text-xs uppercase tracking-widest opacity-60">Atendimento</span><span className="mt-1 block font-semibold">{data.settings.delivery_enabled && data.settings.pickup_enabled ? "Delivery e retirada" : data.settings.delivery_enabled ? "Delivery" : "Retirada"}</span></div><div className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)]"><span className="block text-xs uppercase tracking-widest opacity-60">WhatsApp</span><span className="mt-1 block font-semibold">{data.settings.whatsapp_phone || "Consulte a loja"}</span></div></div></div></section>
+
       </main>
 
       {selectedProduct && (
