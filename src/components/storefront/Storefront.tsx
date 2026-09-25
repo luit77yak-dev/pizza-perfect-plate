@@ -400,7 +400,6 @@ export function Storefront({ slug }: { slug?: string }) {
                     onClick={() => setSelectedProduct(product)}
                     style={{ animationDelay: `${Math.min(filteredProducts.indexOf(product) * 45, 360)}ms` }}
                     className="animate-storefront-in group overflow-hidden rounded-[1.5rem] border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted active:scale-[.99]"
-                    className="animate-storefront-in group overflow-hidden rounded-[1.5rem] border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted active:scale-[.99]"
                   >
                     <div className="relative aspect-[1.42] overflow-hidden bg-muted sm:aspect-[1.35]">
                       {productImage ? (
