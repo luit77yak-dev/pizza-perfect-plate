@@ -540,6 +540,8 @@ function StaffPanel() {
           </div>
         </section>
 
+        <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} />
+
         {["OWNER", "ADMIN"].includes(role ?? "") && (
           <ProductCatalogManager
             products={products}
@@ -613,6 +615,63 @@ function HighlightCard({ label, value, hint }: { label: string; value: string; h
       <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
       <p className="mt-1 text-xs leading-5 text-muted-foreground">{hint}</p>
     </div>
+  );
+}
+
+function RecentOrdersSection({
+  orders,
+  onStatus,
+}: {
+  orders: Order[];
+  onStatus: (order: Order, status: OrderStatus) => void;
+}) {
+  return (
+    <section className="mb-8 rounded-[1.5rem] border bg-card p-5 shadow-soft sm:p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Acompanhamento</p>
+          <h2 className="mt-1 text-2xl">Pedidos recentes</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Os últimos pedidos recebidos aparecem aqui para consulta rápida.</p>
+        </div>
+        <span className="text-xs text-muted-foreground">Últimos {orders.length}</span>
+      </div>
+
+      {orders.length === 0 ? (
+        <div className="mt-5 rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+          Ainda não há pedidos registrados.
+        </div>
+      ) : (
+        <div className="mt-5 space-y-2">
+          {orders.map((order) => {
+            const nextIndex = statusFlow.findIndex((item) => item.value === order.status) + 1;
+            const next = statusFlow[nextIndex];
+            return (
+              <div key={order.id} className="flex flex-col gap-3 rounded-2xl border bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">#{order.order_number}</span>
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">{statusLabel[order.status]}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <p className="truncate font-semibold">{order.customer_name}</p>
+                    <p className="text-sm text-muted-foreground">{order.order_items.reduce((sum, item) => sum + item.quantity, 0)} item(ns)</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-3 sm:justify-end">
+                  <p className="font-bold">{formatCurrency(order.total)}</p>
+                  {next && order.status !== "CANCELLED" && order.status !== "DELIVERED" && (
+                    <Button size="sm" onClick={() => onStatus(order, next.value)} className="rounded-full">
+                      {next.label}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 }
 
