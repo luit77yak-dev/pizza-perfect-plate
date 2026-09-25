@@ -1153,14 +1153,14 @@ function OrderCard({
             <Check className="mr-1.5 size-4" /> Marcar como {nextStep.label}
           </Button>
         )}
-        {currentIndex > 0 && (
+        {currentIndex > 0 && statusFlow[currentIndex - 1] && (
           <Button
             variant="outline"
             size="sm"
             className="rounded-full"
-            onClick={() => onStatus(order, statusFlow[currentIndex - 1].value)}
+            onClick={() => onStatus(order, statusFlow[currentIndex - 1]!.value)}
           >
-            Voltar para {statusFlow[currentIndex - 1].label}
+            Voltar para {statusFlow[currentIndex - 1]!.label}
           </Button>
         )}
         <Button
