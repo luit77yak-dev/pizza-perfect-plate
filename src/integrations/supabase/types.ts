@@ -1231,6 +1231,7 @@ export type Database = {
       is_org_manager: { Args: { _org: string }; Returns: boolean }
       is_org_staff: { Args: { _org: string }; Returns: boolean }
       next_order_number: { Args: { _org: string }; Returns: number }
+      create_public_order: { Args: { p_order: Json }; Returns: { order_id: string; order_number: number }[] }
     }
     Enums: {
       app_role:
