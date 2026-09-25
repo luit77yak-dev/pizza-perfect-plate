@@ -130,6 +130,8 @@ function StaffPanel() {
       return;
     }
     if (!data) {
+      const { data: claimed } = await supabase.rpc("claim_first_owner" as never);
+      if (claimed) return loadOrganization(userId);
       setError("Sua conta não possui acesso ao painel de uma loja.");
       return;
     }
@@ -250,6 +252,20 @@ function StaffPanel() {
     const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     if (signInError) setError(signInError.message);
     else if (data.user) await loadOrganization(data.user.id);
+    setAuthLoading(false);
+  };
+
+  const signUp = async () => {
+    setAuthLoading(true);
+    setError(null);
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/painel` },
+    });
+    if (signUpError) setError(signUpError.message);
+    else if (data.session && data.user) await loadOrganization(data.user.id);
+    else setError("Conta criada. Confirme pelo link enviado ao seu e-mail e depois entre aqui.");
     setAuthLoading(false);
   };
 
@@ -442,6 +458,9 @@ function StaffPanel() {
               {error && <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
               <Button onClick={() => void signIn()} disabled={authLoading || !email || !password} className="h-12 w-full rounded-full">
                 {authLoading ? "Entrando..." : "Entrar no painel"}
+              </Button>
+              <Button variant="outline" onClick={() => void signUp()} disabled={authLoading || !email || password.length < 6} className="h-12 w-full rounded-full">
+                Criar conta
               </Button>
             </div>
           </section>
