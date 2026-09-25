@@ -486,7 +486,7 @@ function ProductConfigurator({
   const basePrice = getPrice(product, sizeId, data.prices);
   const secondBasePrice = secondProduct ? getPrice(secondProduct, sizeId, data.prices) : basePrice;
   const crust = data.crusts.find((item) => item.id === crustId);
-  const productAddonIds = data.productAddonLinks
+  const productAddonIds = (data.productAddonLinks ?? [])
     .filter((link) => link.product_id === product.id || link.product_id === secondProduct?.id)
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((link) => link.addon_id);
