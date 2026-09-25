@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, ChevronDown, Clock3, LogOut, Package, RefreshCw, UserRound } from "lucide-react";
+import { Check, Clock3, ImagePlus, LogOut, Package, RefreshCw, Trash2, Upload, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
@@ -9,6 +9,17 @@ import type { OrderStatus } from "@/lib/domain/types";
 export const Route = createFileRoute("/painel")({
   component: StaffPanel,
 });
+
+type Product = {
+  id: string;
+  category_id: string | null;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+  active: boolean;
+  available: boolean;
+  sort_order: number;
+};
 
 type Order = {
   id: string;
@@ -72,6 +83,9 @@ function StaffPanel() {
   const [signedIn, setSignedIn] = useState(false);
   const [organizationId, setOrganizationId] = useState<string | null>(null);
   const [organizationName, setOrganizationName] = useState("");
+  const [role, setRole] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [imageUploading, setImageUploading] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
@@ -104,9 +118,22 @@ function StaffPanel() {
     }
 
     setOrganizationId(data.organization_id);
+    setRole(data.role);
     const org = data.organizations as { name?: string } | null;
     setOrganizationName(org?.name ?? "Sua loja");
-    await loadOrders(data.organization_id);
+    await Promise.all([loadOrders(data.organization_id), loadProducts(data.organization_id)]);
+  };
+
+  const loadProducts = async (orgId: string) => {
+    const { data, error: productsError } = await supabase
+      .from("products")
+      .select("id, category_id, name, description, image_url, active, available, sort_order")
+      .eq("organization_id", orgId)
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+
+    if (productsError) setError(productsError.message);
+    else setProducts((data ?? []) as Product[]);
   };
 
   const loadOrders = async (orgId = organizationId) => {
@@ -145,6 +172,74 @@ function StaffPanel() {
     if (signInError) setError(signInError.message);
     else if (data.user) await loadOrganization(data.user.id);
     setAuthLoading(false);
+  };
+
+  const uploadProductImage = async (product: Product, file: File) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Selecione uma imagem válida.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("A imagem deve ter no máximo 5 MB.");
+      return;
+    }
+
+    setImageUploading(product.id);
+    setError(null);
+
+    const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${organizationId}/${product.id}/${crypto.randomUUID()}.${extension}`;
+    const { error: uploadError } = await supabase.storage.from("product-images").upload(path, file, {
+      cacheControl: "31536000",
+      upsert: false,
+      contentType: file.type,
+    });
+
+    if (uploadError) {
+      setError(uploadError.message);
+      setImageUploading(null);
+      return;
+    }
+
+    const { data: publicUrl } = supabase.storage.from("product-images").getPublicUrl(path);
+    const { error: updateError } = await supabase
+      .from("products")
+      .update({ image_url: publicUrl.publicUrl })
+      .eq("id", product.id)
+      .eq("organization_id", organizationId);
+
+    if (updateError) {
+      setError(updateError.message);
+    } else {
+      setProducts((current) => current.map((item) => item.id === product.id ? { ...item, image_url: publicUrl.publicUrl } : item));
+    }
+
+    setImageUploading(null);
+  };
+
+  const removeProductImage = async (product: Product) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "") || !product.image_url) return;
+    setImageUploading(product.id);
+    setError(null);
+
+    const marker = "/storage/v1/object/public/product-images/";
+    const index = product.image_url.indexOf(marker);
+    const path = index >= 0 ? decodeURIComponent(product.image_url.slice(index + marker.length)) : null;
+
+    if (path) {
+      await supabase.storage.from("product-images").remove([path]);
+    }
+
+    const { error: updateError } = await supabase
+      .from("products")
+      .update({ image_url: null })
+      .eq("id", product.id)
+      .eq("organization_id", organizationId);
+
+    if (updateError) setError(updateError.message);
+    else setProducts((current) => current.map((item) => item.id === product.id ? { ...item, image_url: null } : item));
+    setImageUploading(null);
   };
 
   const updateStatus = async (order: Order, nextStatus: OrderStatus) => {
@@ -225,7 +320,16 @@ function StaffPanel() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
-        <div className="mb-5 flex items-end justify-between gap-4">
+        {["OWNER", "ADMIN"].includes(role ?? "") && (
+          <ProductImageManager
+            products={products}
+            uploadingProductId={imageUploading}
+            onUpload={uploadProductImage}
+            onRemove={removeProductImage}
+          />
+        )}
+
+        <div className="mb-5 mt-8 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm text-muted-foreground">{activeOrders.length} pedido(s) em andamento</p>
             <h2 className="mt-1 text-3xl">Pedidos</h2>
@@ -252,6 +356,89 @@ function StaffPanel() {
         )}
       </main>
     </PanelShell>
+  );
+}
+
+function ProductImageManager({
+  products,
+  uploadingProductId,
+  onUpload,
+  onRemove,
+}: {
+  products: Product[];
+  uploadingProductId: string | null;
+  onUpload: (product: Product, file: File) => void;
+  onRemove: (product: Product) => void;
+}) {
+  return (
+    <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Cardápio visual</p>
+          <h2 className="mt-1 text-2xl">Fotos dos produtos</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Envie fotos de até 5 MB. Elas aparecem automaticamente na vitrine.</p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <ImagePlus className="size-4" />
+          {products.filter((product) => product.image_url).length}/{products.length} com foto
+        </div>
+      </div>
+
+      {products.length === 0 ? (
+        <div className="mt-5 rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+          Nenhum produto encontrado.
+        </div>
+      ) : (
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {products.map((product) => (
+            <div key={product.id} className="overflow-hidden rounded-2xl border bg-background">
+              <div className="aspect-[16/10] overflow-hidden bg-muted">
+                {product.image_url ? (
+                  <img src={product.image_url} alt={product.name} className="size-full object-cover" loading="lazy" />
+                ) : (
+                  <div className="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                    <ImagePlus className="size-8" />
+                    <span className="text-xs">Sem foto</span>
+                  </div>
+                )}
+              </div>
+              <div className="p-3">
+                <p className="truncate font-semibold">{product.name}</p>
+                <div className="mt-3 flex gap-2">
+                  <label className="flex h-10 flex-1 cursor-pointer items-center justify-center rounded-full bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90">
+                    <Upload className="mr-2 size-4" />
+                    {uploadingProductId === product.id ? "Enviando..." : product.image_url ? "Trocar foto" : "Enviar foto"}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      disabled={uploadingProductId === product.id}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        event.currentTarget.value = "";
+                        if (file) void onUpload(product, file);
+                      }}
+                    />
+                  </label>
+                  {product.image_url && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="size-10 rounded-full"
+                      title="Remover foto"
+                      disabled={uploadingProductId === product.id}
+                      onClick={() => void onRemove(product)}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
