@@ -33,6 +33,7 @@ import type {
   DeliveryZone,
   FulfillmentType,
   PaymentMethod,
+  OrderStatus,
 } from "@/lib/domain/types";
 
 type ProductAddonLink = {
@@ -794,7 +795,10 @@ function CheckoutPanel({
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successOrderId, setSuccessOrderId] = useState<string | null>(null);
   const [successNumber, setSuccessNumber] = useState<number | null>(null);
+  const [successStatus, setSuccessStatus] = useState<OrderStatus>("RECEIVED");
+  const [trackingError, setTrackingError] = useState<string | null>(null);
 
   const selectedZone =
     fulfillment === "DELIVERY"
@@ -891,8 +895,10 @@ function CheckoutPanel({
       if (createError) throw createError;
 
       const order = Array.isArray(created) ? created[0] : created;
-      if (!order?.order_number) throw new Error("Não foi possível criar o pedido.");
+      if (!order?.order_number || !order?.order_id) throw new Error("Não foi possível criar o pedido.");
+      setSuccessOrderId(String(order.order_id));
       setSuccessNumber(Number(order.order_number));
+      setSuccessStatus("RECEIVED");
       onSuccess();
     } catch (submitError) {
       setError(
@@ -905,29 +911,100 @@ function CheckoutPanel({
     }
   };
 
-  if (successNumber != null) {
+  useEffect(() => {
+    if (!successOrderId) return;
+
+    let cancelled = false;
+    const loadStatus = async () => {
+      const { data: tracking, error: trackingQueryError } = await supabase.rpc(
+        "get_public_order_status",
+        { p_order_id: successOrderId, p_customer_phone: phone.trim() },
+      );
+
+      if (cancelled) return;
+      if (trackingQueryError) {
+        setTrackingError("Não foi possível atualizar o status agora.");
+        return;
+      }
+
+      const current = Array.isArray(tracking) ? tracking[0] : tracking;
+      if (current?.status) {
+        setSuccessStatus(current.status as OrderStatus);
+        setTrackingError(null);
+      }
+    };
+
+    void loadStatus();
+    const interval = window.setInterval(loadStatus, 5000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [successOrderId, phone]);
+
+  if (successNumber != null && successOrderId != null) {
     return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/45 p-4 backdrop-blur-sm">
-        <section className="w-full max-w-md rounded-[2rem] bg-background p-7 text-center shadow-lifted">
-          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Check className="size-8" />
+      <div className="fixed inset-0 z-[60] overflow-y-auto bg-background">
+        <section className="mx-auto min-h-screen w-full max-w-2xl px-4 pb-10 pt-8 sm:px-6 sm:pt-12">
+          <div className="rounded-[2rem] border bg-card p-6 shadow-lifted sm:p-8">
+            <div className="flex items-start gap-4">
+              <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Check className="size-7" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">Pedido recebido</p>
+                <h2 className="mt-1 text-3xl">Pedido #{successNumber}</h2>
+                <p className="mt-2 text-sm text-muted-foreground">{organization.name}</p>
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <p className="text-sm font-semibold">Acompanhe seu pedido</p>
+              <div className="mt-4 space-y-3">
+                {[
+                  ["RECEIVED", "Pedido recebido"],
+                  ["CONFIRMED", "Pedido confirmado"],
+                  ["PREPARING", "Em preparo"],
+                  ["READY", fulfillment === "DELIVERY" ? "Pedido pronto" : "Pronto para retirada"],
+                  ["OUT_FOR_DELIVERY", "Saiu para entrega"],
+                  ["DELIVERED", fulfillment === "DELIVERY" ? "Entregue" : "Retirado"],
+                ].map(([value, label], index, steps) => {
+                  const currentIndex = steps.findIndex(([step]) => step === successStatus);
+                  const isDone = currentIndex >= 0 && index <= currentIndex;
+                  const isCurrent = value === successStatus;
+                  if (fulfillment === "PICKUP" && value === "OUT_FOR_DELIVERY") return null;
+                  return (
+                    <div key={value} className="flex items-center gap-3">
+                      <div className={`flex size-9 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${isDone ? "border-primary bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}>
+                        {isDone ? <Check className="size-4" /> : index + 1}
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-semibold ${isCurrent ? "text-primary" : ""}`}>{label}</p>
+                        {isCurrent && <p className="text-xs text-muted-foreground">Status atualizado automaticamente.</p>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl bg-muted p-4 text-sm">
+              <p className="font-semibold">
+                {successStatus === "CANCELLED" ? "Pedido cancelado" :
+                  successStatus === "DELIVERED" ? "Pedido finalizado" :
+                  successStatus === "READY" && fulfillment === "PICKUP" ? "Pode retirar seu pedido" :
+                  successStatus === "OUT_FOR_DELIVERY" ? "Seu pedido está a caminho!" :
+                  "A loja está preparando seu pedido."}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                {trackingError ?? "Esta tela verifica automaticamente se a loja atualizou o pedido."}
+              </p>
+            </div>
+
+            <Button className="mt-6 h-12 w-full rounded-full" onClick={onClose}>
+              Voltar ao cardápio
+            </Button>
           </div>
-          <p className="mt-5 text-xs font-semibold uppercase tracking-[.18em] text-primary">Pedido recebido</p>
-          <h2 className="mt-1 text-3xl">Tudo certo! 🎉</h2>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            Seu pedido <strong>#{successNumber}</strong> foi enviado para {organization.name}.
-          </p>
-          <div className="mt-6 rounded-2xl bg-muted p-4 text-left text-sm">
-            <p className="font-semibold">{fulfillment === "DELIVERY" ? "Entrega" : "Retirada"}</p>
-            <p className="mt-1 text-muted-foreground">
-              {fulfillment === "DELIVERY"
-                ? "A loja recebeu seu endereço e começará a preparar o pedido."
-                : settings.pickup_instructions || "A loja avisará quando o pedido estiver pronto."}
-            </p>
-          </div>
-          <Button className="mt-6 h-12 w-full rounded-full" onClick={onClose}>
-            Voltar ao cardápio
-          </Button>
         </section>
       </div>
     );
