@@ -419,3 +419,9 @@
     }
   }
 }
+
+
+/* Editorial street-food motion layer */
+@keyframes ppp-ticker-run { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.ppp-ticker-run { animation: ppp-ticker-run 22s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .ppp-ticker-run { animation: none; } }
