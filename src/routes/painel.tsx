@@ -475,7 +475,7 @@ function ProductCatalogManager({
 function ProductEditorRow({
   product, categories, sizes, prices, expanded, saving, onEdit, onSave, onToggle,
 }: {
-  product: Product[] extends never[] ? never : Product; categories: Category[]; sizes: ProductSize[]; prices: ProductPrice[];
+  product: Product; categories: Category[]; sizes: ProductSize[]; prices: ProductPrice[];
   expanded: boolean; saving: boolean; onEdit: () => void; onSave: (product: Product, sizePrices: Record<string, string>) => void;
   onToggle: (product: Product, field: "active" | "available" | "featured") => void;
 }) {
@@ -519,7 +519,7 @@ function ProductEditorRow({
               <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
             </label>
             <label className="text-sm"><span className="mb-1.5 block text-xs font-medium text-muted-foreground">Preço base *</span>
-              <input value={draft.base_price} onChange={(e) => setDraft({ ...draft, base_price: e.target.value as unknown as number })} inputMode="decimal" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+              <input value={draft.base_price} onChange={(e) => setDraft({ ...draft, base_price: Number(e.target.value.replace(",", ".")) || 0 })} inputMode="decimal" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
             </label>
           </div>
           <label className="mt-3 block text-sm"><span className="mb-1.5 block text-xs font-medium text-muted-foreground">Descrição</span>
