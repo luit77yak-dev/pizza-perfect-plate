@@ -582,12 +582,14 @@ function StaffPanel() {
         </div>
 
         {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "management" && (
-          <SectionHeading
-            eyebrow="Gestão"
-            title="Catálogo da loja"
-            description="Organize produtos, adicionais e fotos em um único espaço."
-          />
-          <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
+          <>
+            <SectionHeading
+              eyebrow="Gestão"
+              title="Catálogo da loja"
+              description="Organize produtos, adicionais e fotos em um único espaço."
+            />
+            <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
+          </>
         )}
 
         {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "management" && (
