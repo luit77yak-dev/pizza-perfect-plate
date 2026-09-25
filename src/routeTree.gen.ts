@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LojaSlugRouteImport } from './routes/loja/$slug'
+import { Route as PainelRouteImport } from './routes/painel'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -24,18 +25,27 @@ const LojaSlugRoute = LojaSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const PainelRoute = PainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/painel': typeof PainelRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/painel': typeof PainelRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/painel': typeof PainelRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -72,6 +82,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LojaSlugRoute: LojaSlugRoute,
+  PainelRoute: PainelRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
