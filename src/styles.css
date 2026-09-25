@@ -221,3 +221,201 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Pizza Perfect Plate storefront evolution
+ * Inspired by the visual language of bold street-food landing pages.
+ * This layer intentionally preserves the existing white-label tokens,
+ * components, routes and ordering flow.
+ */
+
+@keyframes ppp-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes ppp-float-in {
+  from { opacity: 0; transform: translateY(18px) rotate(0.8deg); }
+  to { opacity: 1; transform: translateY(0) rotate(0); }
+}
+
+@keyframes ppp-badge-spin {
+  to { transform: rotate(360deg); }
+}
+
+@utility ppp-street-shadow {
+  box-shadow: 8px 8px 0 color-mix(in oklab, var(--color-secondary) 88%, transparent);
+}
+
+@layer components {
+  /* Give the storefront a more editorial, poster-like rhythm without
+     changing the application's existing semantic components. */
+  main#inicio {
+    overflow: clip;
+  }
+
+  main#inicio > section:first-child {
+    position: relative;
+    isolation: isolate;
+  }
+
+  main#inicio > section:first-child::before {
+    content: "FEITO NA HORA  •  DELIVERY  •  RETIRADA  •  PEDIDOS ONLINE  •  ";
+    position: absolute;
+    left: 50%;
+    top: -0.25rem;
+    z-index: -1;
+    width: max-content;
+    padding: .45rem 1rem;
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+    font-family: var(--font-display);
+    font-size: .68rem;
+    letter-spacing: .14em;
+    white-space: nowrap;
+    transform: translateX(-50%) rotate(-1deg);
+    animation: ppp-ticker 18s linear infinite;
+    pointer-events: none;
+  }
+
+  /* Hero */
+  main#inicio > section:first-child .shadow-lifted {
+    border-radius: 0.5rem;
+    box-shadow: 10px 10px 0 color-mix(in oklab, var(--color-secondary) 88%, transparent);
+  }
+
+  main#inicio > section:first-child h1 {
+    font-size: clamp(2.8rem, 8vw, 6.6rem);
+    line-height: .88;
+    letter-spacing: -.035em;
+    text-wrap: balance;
+    animation: ppp-float-in 650ms cubic-bezier(.2,.75,.25,1) both;
+  }
+
+  main#inicio > section:first-child a[href="#cardapio"] {
+    border-radius: 0.25rem;
+    box-shadow: 5px 5px 0 color-mix(in oklab, var(--color-secondary) 85%, transparent);
+    font-family: var(--font-display);
+    letter-spacing: .03em;
+    text-transform: uppercase;
+  }
+
+  main#inicio > section:first-child a[href="#cardapio"]:active {
+    transform: translate(3px, 3px);
+    box-shadow: 2px 2px 0 color-mix(in oklab, var(--color-secondary) 85%, transparent);
+  }
+
+  /* Feature cards beside the hero become stronger visual anchors. */
+  main#inicio > section:first-child > div:last-child > div {
+    border-radius: .5rem;
+    border-width: 2px;
+    box-shadow: 6px 6px 0 color-mix(in oklab, var(--color-primary) 32%, transparent);
+  }
+
+  /* Menu heading */
+  #cardapio h2 {
+    font-size: clamp(2.4rem, 7vw, 4.8rem);
+    line-height: .9;
+    text-transform: uppercase;
+  }
+
+  #cardapio > div:first-child {
+    position: relative;
+  }
+
+  #cardapio > div:first-child::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: .15rem;
+    width: min(28vw, 13rem);
+    height: .45rem;
+    background: var(--color-primary);
+    transform: rotate(-2deg);
+  }
+
+  /* Category navigation */
+  #cardapio .scrollbar-none button {
+    border-radius: .25rem;
+    border-width: 2px;
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+
+  /* Product cards */
+  #cardapio .group {
+    border-radius: .35rem;
+    border-width: 2px;
+    box-shadow: 7px 7px 0 color-mix(in oklab, var(--color-secondary) 82%, transparent);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  #cardapio .group:hover {
+    transform: translate(-2px, -3px) rotate(-.35deg);
+    box-shadow: 10px 10px 0 color-mix(in oklab, var(--color-secondary) 82%, transparent);
+  }
+
+  #cardapio .group > div:first-child {
+    border-bottom: 2px solid var(--color-secondary);
+  }
+
+  #cardapio .group > div:last-child {
+    position: relative;
+  }
+
+  #cardapio .group > div:last-child > div:first-child > div:last-child span {
+    border-radius: .15rem;
+    transform: rotate(-2deg);
+    box-shadow: 3px 3px 0 color-mix(in oklab, var(--color-secondary) 80%, transparent);
+  }
+
+  /* Make food photography carry more visual weight. */
+  #cardapio .group img {
+    filter: saturate(1.06) contrast(1.03);
+  }
+
+  /* Keep the ordering UI recognizable, but give it the same visual language. */
+  [role="dialog"] .rounded-3xl,
+  [role="dialog"] .rounded-[2rem] {
+    border-radius: .5rem;
+  }
+
+  /* Mobile: horizontal category rail and strong touch targets. */
+  @media (max-width: 639px) {
+    main#inicio > section:first-child {
+      padding-top: 1.35rem;
+    }
+
+    main#inicio > section:first-child h1 {
+      font-size: clamp(2.7rem, 15vw, 4.7rem);
+    }
+
+    #cardapio .scrollbar-none {
+      margin-bottom: 1.5rem;
+      padding-right: 1rem;
+    }
+
+    #cardapio .group {
+      box-shadow: 5px 5px 0 color-mix(in oklab, var(--color-secondary) 82%, transparent);
+    }
+
+    #cardapio .group:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 color-mix(in oklab, var(--color-secondary) 82%, transparent);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    main#inicio > section:first-child::before,
+    main#inicio > section:first-child h1 {
+      animation: none;
+    }
+
+    #cardapio .group,
+    #cardapio .group:hover {
+      transform: none;
+      transition: none;
+    }
+  }
+}
