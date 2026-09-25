@@ -441,6 +441,20 @@
       overflow-x: hidden;
     }
 
+    #root,
+    #root > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    img,
+    button,
+    input,
+    textarea,
+    select {
+      max-width: 100%;
+    }
+
     /* Header */
     header {
       top: 0;
@@ -487,8 +501,15 @@
     }
 
     main#inicio > section:first-child > div {
+      width: 100%;
+      min-width: 0;
       min-height: 0;
       box-shadow: 6px 6px 0 color-mix(in oklab, var(--color-secondary) 88%, transparent);
+    }
+
+    main#inicio > section:first-child > div > div {
+      min-width: 0;
+      width: 100%;
     }
 
     main#inicio > section:first-child > div > div:first-child {
@@ -540,13 +561,14 @@
     }
 
     main#inicio > section:first-child > div > div:last-child > div:last-child {
-      left: .9rem;
+      left: 50%;
       bottom: .75rem;
       width: 5.75rem;
       height: 5.75rem;
       padding: .65rem;
       font-size: .52rem;
       line-height: 1.1;
+      transform: translateX(-50%) rotate(-8deg);
     }
 
     /* Running strips: less vertical weight on small screens. */
@@ -764,6 +786,20 @@
     [aria-label="Carrinho"] aside {
       max-width: none;
       width: 100%;
+      min-width: 0;
+    }
+
+    [aria-label="Carrinho"] aside > div:nth-child(2) {
+      min-width: 0;
+      overflow-x: hidden;
+    }
+
+    [aria-label="Carrinho"] aside .rounded-2xl {
+      min-width: 0;
+    }
+
+    [aria-label="Carrinho"] aside .rounded-2xl p {
+      overflow-wrap: anywhere;
     }
 
     [aria-label="Carrinho"] aside > div:first-child {
@@ -788,9 +824,17 @@
     }
 
     .fixed.inset-0.z-\[60px\] > div {
+      width: 100%;
+      min-width: 0;
       padding-inline: .75rem;
       padding-bottom: calc(.75rem + env(safe-area-inset-bottom));
       padding-top: .9rem;
+    }
+
+    .fixed.inset-0.z-\[60px\] input,
+    .fixed.inset-0.z-\[60px\] textarea,
+    .fixed.inset-0.z-\[60px\] button {
+      min-width: 0;
     }
 
     .fixed.inset-0.z-\[60px\] .rounded-3xl {
@@ -811,6 +855,38 @@
     .fixed.inset-x-0.bottom-4 button {
       border-radius: .65rem;
       padding: .8rem 1rem;
+    }
+  }
+
+  @media (max-width: 374px) {
+    header > div {
+      padding-inline: .6rem;
+    }
+
+    header a[href="#inicio"] p {
+      max-width: 35vw;
+      font-size: .78rem;
+    }
+
+    header button {
+      min-height: 2.6rem;
+      padding-inline: .55rem;
+    }
+
+    main#inicio > section:first-child > div > div:first-child {
+      padding-inline: .9rem;
+    }
+
+    main#inicio > section:first-child h1 {
+      font-size: clamp(2.3rem, 14vw, 3.25rem);
+    }
+
+    #cardapio h2 {
+      font-size: clamp(2.15rem, 10.5vw, 2.9rem);
+    }
+
+    #cardapio .group > div:last-child {
+      padding: .75rem;
     }
   }
 
