@@ -995,3 +995,13 @@ function AddonEditorRow({
         <Button
           size="sm"
           className="rounded-full"
+          onClick={() => onSave(draft)}
+          disabled={saving}
+        >
+          <Save className="mr-1.5 size-4" />
+          {saving ? "Salvando..." : "Salvar"}
+        </Button>
+      </div>
+    </div>
+  );
+}
