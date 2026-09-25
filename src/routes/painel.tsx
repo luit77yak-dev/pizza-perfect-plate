@@ -678,17 +678,20 @@ function InlineViewNav({
 
   return (
     <nav className="mt-3 flex flex-wrap gap-1 rounded-xl border bg-background p-1" aria-label="Navegação desta página">
-      {items.filter((item) => item.view !== activeView).map((item) => (
-        <button
-          key={item.view}
-          type="button"
-          onClick={() => onChange(item.view)}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-3 sm:text-sm"
-        >
-          <item.icon className="size-3.5 sm:size-4" />
-          {item.label}
-        </button>
-      ))}
+      {items.filter((item) => item.view !== activeView).map((item) => {
+        const Icon = item.icon;
+        return (
+          <button
+            key={item.view}
+            type="button"
+            onClick={() => onChange(item.view)}
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-3 sm:text-sm"
+          >
+            <Icon className="size-3.5 sm:size-4" />
+            {item.label}
+          </button>
+        );
+      })}
     </nav>
   );
 }
