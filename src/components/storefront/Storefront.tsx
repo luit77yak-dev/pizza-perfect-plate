@@ -343,8 +343,8 @@ export function Storefront({ slug }: { slug?: string }) {
               <p className="mt-1 text-sm text-muted-foreground">Tente outra categoria.</p>
             </div>
           ) : (
-            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredProducts.map((product) => {
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProducts.map((product, index) => {
                 const firstSize = data.sizes[0];
                 const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
                 const categoryImage = data.categories.find((category) => category.id === product.category_id)?.image_url;
@@ -353,53 +353,60 @@ export function Storefront({ slug }: { slug?: string }) {
                   <button
                     key={product.id}
                     onClick={() => setSelectedProduct(product)}
-                    className="group overflow-hidden rounded-[.5rem] border-2 border-secondary bg-card text-left shadow-lifted transition-all duration-200 hover:-translate-y-1 hover:rotate-[-.35deg] hover:shadow-[10px_10px_0_rgba(0,0,0,.78)] active:translate-x-1 active:translate-y-1 active:shadow-[3px_3px_0_rgba(0,0,0,.78)]"
+                    className={`group relative overflow-visible rounded-sm border-2 border-secondary bg-card text-left shadow-[7px_7px_0_rgba(0,0,0,.82)] transition-all duration-200 hover:-translate-y-1.5 hover:rotate-[-.45deg] hover:shadow-[11px_11px_0_rgba(0,0,0,.82)] active:translate-x-1 active:translate-y-1 active:shadow-[3px_3px_0_rgba(0,0,0,.82)] ${index % 5 === 2 ? "lg:rotate-[.35deg]" : ""}`}
                   >
-                    <div className="relative aspect-[1.42] overflow-hidden bg-muted sm:aspect-[1.35]">
+                    <div className="relative aspect-[1.18] overflow-hidden border-b-2 border-secondary bg-muted">
                       {productImage ? (
                         <img
                           src={productImage}
                           alt={product.name}
                           loading="lazy"
-                          className="size-full object-cover transition duration-500 group-hover:scale-105"
+                          className="size-full object-cover transition duration-500 group-hover:scale-110"
                         />
                       ) : (
                         <div className="relative flex size-full items-center justify-center overflow-hidden bg-gradient-to-br from-primary/15 via-accent to-secondary/15">
                           <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/10 blur-2xl" />
                           <div className="absolute -bottom-12 -left-8 size-36 rounded-full bg-secondary/15 blur-2xl" />
                           <div className="relative flex flex-col items-center gap-2 text-primary/55">
-                            <div className="flex size-20 items-center justify-center rounded-full border border-primary/15 bg-background/55 shadow-sm backdrop-blur-sm">
+                            <div className="flex size-20 items-center justify-center rounded-full border-2 border-secondary/15 bg-background/55 shadow-sm backdrop-blur-sm">
                               <Pizza className="size-10" strokeWidth={1.5} />
                             </div>
                             <span className="text-[11px] font-semibold uppercase tracking-[.18em]">Imagem em breve</span>
                           </div>
                         </div>
                       )}
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent p-4 pt-12">
+                        <p className="font-display text-xl uppercase leading-none text-white drop-shadow-sm sm:text-2xl">{product.name}</p>
+                      </div>
                       {product.featured && (
-                        <span className="absolute left-3 top-3 rounded-full bg-background/90 px-3 py-1 text-xs font-semibold backdrop-blur">
+                        <span className="absolute left-3 top-3 border-2 border-secondary bg-primary px-3 py-1 font-display text-[10px] uppercase tracking-[.12em] text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]">
                           Destaque
                         </span>
                       )}
                     </div>
                     <div className="p-4 sm:p-5">
-                      <div className="flex items-start justify-between gap-2.5">
-                        <div>
-                          <h3 className="text-[1.2rem] leading-tight sm:text-xl">{product.name}</h3>
-                          <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 pr-1">
+                          <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">{data.categories.find((category) => category.id === product.category_id)?.name || "Pizza"}</p>
+                          <p className="mt-2 line-clamp-2 text-sm leading-5 text-muted-foreground">
                             {product.description || "Uma opção preparada para você."}
                           </p>
                         </div>
-                        <span className="relative -mr-1 -mt-1 shrink-0 -rotate-3 border-2 border-secondary bg-primary px-3 py-2 font-display text-sm font-bold text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]">{formatCurrency(displayPrice)}</span>
+                        <span className="relative -mr-1 -mt-2 shrink-0 -rotate-3 border-2 border-secondary bg-primary px-3 py-2 font-display text-sm font-bold text-primary-foreground shadow-[4px_4px_0_rgba(0,0,0,.78)] sm:px-3.5">
+                          {formatCurrency(displayPrice)}
+                        </span>
                       </div>
-                      <div className="mt-4 flex items-center justify-between border-t pt-3 text-sm font-semibold">
-                        <span>{product.allow_half ? "Aceita meio a meio" : "Personalize seu pedido"}</span>
-                        <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                      <div className="mt-4 flex items-center justify-between border-t-2 border-secondary pt-3 text-xs font-bold uppercase tracking-[.08em]">
+                        <span>{product.allow_half ? "Meio a meio" : "Personalizar"}</span>
+                        <span className="inline-flex size-8 items-center justify-center border-2 border-secondary bg-background transition-transform group-hover:translate-x-1">
+                          <ChevronRight className="size-4" />
+                        </span>
                       </div>
                     </div>
                   </button>
                 );
               })}
-            </div>
+            </div></div>
           )}
         </section>
         <section id="sobre" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6"><div className="overflow-hidden rounded-[.75rem] border-2 border-secondary bg-secondary text-secondary-foreground shadow-lifted"><div className="grid lg:grid-cols-[.9fr_1.1fr]"><div className="p-7 sm:p-10 lg:p-14"><p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">A casa</p><h2 className="mt-3 text-4xl uppercase leading-[.9] sm:text-6xl">Feita para quem ama pizza.</h2><p className="mt-5 max-w-xl text-sm leading-7 text-secondary-foreground/75 sm:text-base">{data.settings.description || "Massa, molho, queijo e ingredientes escolhidos para transformar um pedido comum em uma experiência que dá vontade de repetir."}</p><a href="#cardapio" className="mt-7 inline-flex rounded-sm bg-primary px-5 py-3 font-display uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.5)]">Ver o cardápio</a></div><div className="grid grid-cols-2 gap-3 bg-primary p-3 sm:p-5">{[data.settings.hero_image_url, ...data.categories.slice(0, 3).map((category) => category.image_url)].filter(Boolean).slice(0, 3).map((image, index) => <div key={`about-${index}`} className={`overflow-hidden rounded-sm border-2 border-secondary shadow-[5px_5px_0_rgba(0,0,0,.6)] ${index === 0 ? "col-span-2 aspect-[2/1] rotate-[-1.5deg]" : "aspect-square rotate-[1.5deg]"}`}><img src={image!} alt="" className="size-full object-cover" loading="lazy" /></div>)}</div></div></div></section>
