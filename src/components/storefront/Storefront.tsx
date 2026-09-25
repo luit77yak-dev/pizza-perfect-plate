@@ -796,91 +796,50 @@ function CheckoutPanel({
 
     setSubmitting(true);
     try {
-      const { data: orderNumber, error: numberError } = await supabase.rpc(
-        "next_order_number",
-        { _org: organization.id },
-      );
-      if (numberError) throw numberError;
-
-      const idempotencyKey = crypto.randomUUID();
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          organization_id: organization.id,
-          order_number: Number(orderNumber),
-          customer_name: name.trim(),
-          customer_phone: phone.trim(),
-          fulfillment,
-          payment_method: paymentMethod,
-          address_street: fulfillment === "DELIVERY" ? street.trim() : null,
-          address_number: fulfillment === "DELIVERY" ? number.trim() : null,
-          address_neighborhood: fulfillment === "DELIVERY" ? neighborhood.trim() : null,
-          address_complement: fulfillment === "DELIVERY" ? complement.trim() || null : null,
-          address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
-          delivery_zone_id: fulfillment === "DELIVERY" ? selectedZone?.id ?? null : null,
-          delivery_fee: deliveryFee,
-          discount: 0,
-          subtotal,
-          total,
-          notes: notes.trim() || null,
-          idempotency_key: idempotencyKey,
-          source: "STOREFRONT",
-          is_demo: organization.demo_mode,
-          status: "RECEIVED",
-        })
-        .select("id, order_number")
-        .single();
-
-      if (orderError) throw orderError;
-      if (!order) throw new Error("Não foi possível criar o pedido.");
-
-      const orderItems = items.map((item) => ({
-        order_id: order.id,
+      const payload = {
         organization_id: organization.id,
-        product_id: item.productId,
-        product_name: item.productName,
-        second_product_id: item.secondProductId,
-        second_product_name: item.secondProductName,
-        is_half: item.isHalf,
-        size_id: item.sizeId,
-        size_name: item.sizeName,
-        crust_id: item.crustId,
-        crust_name: item.crustName,
-        crust_price: item.crustPrice,
-        quantity: item.quantity,
-        unit_price: item.unitPrice,
-        total_price: item.unitPrice * item.quantity,
-        notes: item.notes,
-      }));
-
-      const { data: createdItems, error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems)
-        .select("id");
-
-      if (itemsError) throw itemsError;
-      if (!createdItems || createdItems.length !== items.length) {
-        throw new Error("Não foi possível registrar todos os itens do pedido.");
-      }
-
-      const addonRows = items.flatMap((item, itemIndex) =>
-        item.addons.map((addon) => ({
-          order_item_id: createdItems[itemIndex].id,
-          organization_id: organization.id,
-          addon_id: addon.id,
-          name: addon.name,
-          price: addon.price,
+        customer_name: name.trim(),
+        customer_phone: phone.trim(),
+        fulfillment,
+        payment_method: paymentMethod,
+        address_street: fulfillment === "DELIVERY" ? street.trim() : null,
+        address_number: fulfillment === "DELIVERY" ? number.trim() : null,
+        address_neighborhood: fulfillment === "DELIVERY" ? neighborhood.trim() : null,
+        address_complement: fulfillment === "DELIVERY" ? complement.trim() || null : null,
+        address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
+        notes: notes.trim() || null,
+        subtotal,
+        idempotency_key: crypto.randomUUID(),
+        items: items.map((item) => ({
+          product_id: item.productId,
+          product_name: item.productName,
+          second_product_id: item.secondProductId,
+          second_product_name: item.secondProductName,
+          is_half: item.isHalf,
+          size_id: item.sizeId,
+          size_name: item.sizeName,
+          crust_id: item.crustId,
+          crust_name: item.crustName,
+          crust_price: item.crustPrice,
+          unit_price: item.unitPrice,
           quantity: item.quantity,
+          notes: item.notes,
+          addons: item.addons.map((addon) => ({
+            id: addon.id,
+            name: addon.name,
+            price: addon.price,
+          })),
         })),
+      };
+
+      const { data: created, error: createError } = await supabase.rpc(
+        "create_public_order",
+        { p_order: payload },
       );
+      if (createError) throw createError;
 
-      if (addonRows.length > 0) {
-        const { error: addonsError } = await supabase
-          .from("order_item_addons")
-          .insert(addonRows);
-        if (addonsError) throw addonsError;
-      }
-
+      const order = Array.isArray(created) ? created[0] : created;
+      if (!order?.order_number) throw new Error("Não foi possível criar o pedido.");
       setSuccessNumber(Number(order.order_number));
       onSuccess();
     } catch (submitError) {
