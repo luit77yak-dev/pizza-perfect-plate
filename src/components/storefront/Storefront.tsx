@@ -123,6 +123,15 @@ async function loadStore(slug?: string): Promise<StoreData> {
   };
 }
 
+function normalizeNeighborhood(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+}
+
 function getPrice(product: Product, sizeId: string | null, prices: ProductPrice[]) {
   if (!sizeId) return Number(product.base_price) || 0;
   const row = prices.find((price) => price.product_id === product.id && price.size_id === sizeId);
@@ -791,10 +800,21 @@ function CheckoutPanel({
     fulfillment === "DELIVERY"
       ? deliveryZones.find((zone) =>
           zone.neighborhoods.some(
-            (item) => item.trim().toLowerCase() === neighborhood.trim().toLowerCase(),
+            (item) => normalizeNeighborhood(item) === normalizeNeighborhood(neighborhood),
           ),
         ) ?? null
       : null;
+
+  const matchedNeighborhood =
+    selectedZone?.neighborhoods.find(
+      (item) => normalizeNeighborhood(item) === normalizeNeighborhood(neighborhood),
+    ) ?? null;
+
+  const availableNeighborhoods = Array.from(
+    new Set(
+      deliveryZones.flatMap((zone) => zone.neighborhoods.map((item) => item.trim()).filter(Boolean)),
+    ),
+  );
   const deliveryFee = selectedZone?.delivery_fee ?? 0;
   const total = subtotal + deliveryFee;
 
@@ -836,7 +856,7 @@ function CheckoutPanel({
         payment_method: paymentMethod,
         address_street: fulfillment === "DELIVERY" ? street.trim() : null,
         address_number: fulfillment === "DELIVERY" ? number.trim() : null,
-        address_neighborhood: fulfillment === "DELIVERY" ? neighborhood.trim() : null,
+        address_neighborhood: fulfillment === "DELIVERY" ? (matchedNeighborhood ?? neighborhood.trim()) : null,
         address_complement: fulfillment === "DELIVERY" ? complement.trim() || null : null,
         address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
         notes: notes.trim() || null,
@@ -982,7 +1002,18 @@ function CheckoutPanel({
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <label className="text-sm">
                     <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Bairro *</span>
-                    <input value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="Seu bairro" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                    <input
+                      list="delivery-neighborhoods"
+                      value={neighborhood}
+                      onChange={(e) => setNeighborhood(e.target.value)}
+                      placeholder="Seu bairro"
+                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    />
+                    {availableNeighborhoods.length > 0 && (
+                      <datalist id="delivery-neighborhoods">
+                        {availableNeighborhoods.map((item) => <option key={item} value={item} />)}
+                      </datalist>
+                    )}
                   </label>
                   <label className="text-sm">
                     <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Complemento</span>
@@ -997,7 +1028,7 @@ function CheckoutPanel({
                   <p className="mt-3 text-xs text-muted-foreground">
                     {selectedZone
                       ? `Taxa de entrega: ${formatCurrency(deliveryFee)} · ${selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min`
-                      : "Digite um bairro atendido para calcular a taxa de entrega."}
+                      : availableNeighborhoods.length > 0 ? "Selecione ou digite um dos bairros atendidos para calcular a taxa." : "A loja ainda não cadastrou áreas de entrega."}
                   </p>
                 )}
               </section>
