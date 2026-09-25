@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, ChevronUp, Clock3, ImagePlus, LogOut, Package, Pencil, Plus, RefreshCw, Save, ShoppingBag, Tag, Trash2, Upload, UserRound, X } from "lucide-react";
+import { BarChart3, Check, ChevronUp, Clock3, ImagePlus, LogOut, Menu, Package, Pencil, Plus, RefreshCw, Save, Settings2, ShoppingBag, Tag, Trash2, Upload, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
@@ -107,6 +107,8 @@ function StaffPanel() {
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<"overview" | "management" | "orders">("overview");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const loadSession = async () => {
     const { data } = await supabase.auth.getSession();
@@ -486,25 +488,47 @@ function StaffPanel() {
 
   return (
     <PanelShell>
-      <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-          <div>
+      <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur-xl">
+        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+          <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Painel</p>
             <h1 className="truncate text-xl font-semibold">{organizationName}</h1>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => void loadOrders()} disabled={loading} className="rounded-full">
               <RefreshCw className={`mr-1.5 size-4 ${loading ? "animate-spin" : ""}`} />
-              Atualizar
-            </Button>            <Button variant="ghost" size="icon" onClick={() => void supabase.auth.signOut()} aria-label="Sair">
+              <span className="hidden sm:inline">Atualizar</span>
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => void supabase.auth.signOut()} aria-label="Sair">
               <LogOut className="size-4" />
+            </Button>
+            <Button variant="outline" size="icon" className="rounded-full sm:hidden" onClick={() => setMobileMenuOpen((current) => !current)} aria-label="Abrir menu" aria-expanded={mobileMenuOpen}>
+              <Menu className="size-5" />
             </Button>
           </div>
         </div>
+        <nav className="mx-auto hidden max-w-7xl gap-1 px-4 pb-3 sm:flex sm:px-6" aria-label="Navegação do painel">
+          <PanelNavButton active={activeView === "overview"} icon={BarChart3} label="Visão geral" onClick={() => setActiveView("overview")} />
+          {["OWNER", "ADMIN"].includes(role ?? "") && (
+            <PanelNavButton active={activeView === "management"} icon={Settings2} label="Gestão" onClick={() => setActiveView("management")} />
+          )}
+          <PanelNavButton active={activeView === "orders"} icon={ShoppingBag} label="Pedidos" onClick={() => setActiveView("orders")} />
+        </nav>
+        {mobileMenuOpen && (
+          <nav className="border-t px-4 py-3 sm:hidden" aria-label="Navegação do painel">
+            <div className="grid gap-2">
+              <PanelNavButton active={activeView === "overview"} icon={BarChart3} label="Visão geral" onClick={() => { setActiveView("overview"); setMobileMenuOpen(false); }} />
+              {["OWNER", "ADMIN"].includes(role ?? "") && (
+                <PanelNavButton active={activeView === "management"} icon={Settings2} label="Gestão" onClick={() => { setActiveView("management"); setMobileMenuOpen(false); }} />
+              )}
+              <PanelNavButton active={activeView === "orders"} icon={ShoppingBag} label="Pedidos" onClick={() => { setActiveView("orders"); setMobileMenuOpen(false); }} />
+            </div>
+          </nav>
+        )}
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
-        <section className="mb-5 rounded-[1.5rem] border bg-card p-4 shadow-soft sm:p-5">
+        <section className={`mb-5 rounded-[1.5rem] border bg-card p-4 shadow-soft sm:p-5 ${activeView === "overview" ? "" : "hidden"}`}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Resumo de hoje</p>
@@ -538,16 +562,17 @@ function StaffPanel() {
           </div>
         </section>
 
-        <SectionHeading
+        <div className={activeView === "overview" ? "" : "hidden"}>
+          <SectionHeading
           eyebrow="Operação"
           title="Acompanhamento dos pedidos"
           description="Consulte rapidamente os últimos pedidos e avance o atendimento."
-        />
-        <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} />
+          />
+          <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} />
+          <QuickActionsSection />
+        </div>
 
-        <QuickActionsSection />
-
-        {["OWNER", "ADMIN"].includes(role ?? "") && (
+        {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "management" && (
           <SectionHeading
             eyebrow="Gestão"
             title="Catálogo da loja"
@@ -555,7 +580,7 @@ function StaffPanel() {
           />
         )}
 
-        {["OWNER", "ADMIN"].includes(role ?? "") && (
+        {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "management" && (
           <div className="space-y-5 rounded-[1.5rem] border bg-muted/20 p-1.5 sm:p-2">
             <ProductCatalogManager
             products={products}
@@ -587,11 +612,12 @@ function StaffPanel() {
           </div>
         )}
 
-        <SectionHeading
+        <div className={activeView === "orders" ? "" : "hidden"}>
+          <SectionHeading
           eyebrow="Atendimento"
           title="Fila de pedidos"
           description="Pedidos que ainda precisam de alguma ação da equipe."
-        />
+          />
 
         <div id="pedidos" className="mb-5 mt-6 scroll-mt-24 flex items-end justify-between gap-4">
           <div>
@@ -618,8 +644,33 @@ function StaffPanel() {
             ))}
           </div>
         )}
+        </div>
       </main>
     </PanelShell>
+  );
+}
+
+function PanelNavButton({
+  active,
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  icon: typeof BarChart3;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+      aria-current={active ? "page" : undefined}
+    >
+      <Icon className="size-4" />
+      {label}
+    </button>
   );
 }
 
