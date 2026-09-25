@@ -169,15 +169,17 @@ export function Storefront({ slug }: { slug?: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [trackedOrder, setTrackedOrder] = useState<{ id: string; number: number; phone: string } | null>(() => {
+  const [trackedOrder, setTrackedOrder] = useState<{ id: string; number: number; phone: string } | null>(null);
+
+  useEffect(() => {
+    if (!data?.organization?.id) return;
     try {
       const raw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
-      return raw ? JSON.parse(raw) : null;
+      setTrackedOrder(raw ? JSON.parse(raw) : null);
     } catch {
-      return null;
+      setTrackedOrder(null);
     }
-  });
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  }, [data?.organization?.id]);
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
