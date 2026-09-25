@@ -166,6 +166,7 @@ export function Storefront({ slug }: { slug?: string }) {
   });
   const cart = useLocalCart();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -183,9 +184,14 @@ export function Storefront({ slug }: { slug?: string }) {
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
-    if (selectedCategory === "all") return data.products;
-    return data.products.filter((product) => product.category_id === selectedCategory);
-  }, [data, selectedCategory]);
+    const term = searchTerm.trim().toLocaleLowerCase("pt-BR");
+    return data.products.filter((product) => {
+      const matchesCategory = selectedCategory === "all" || product.category_id === selectedCategory;
+      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
+      const haystack = [product.name, product.description, categoryName].join(" ").toLocaleLowerCase("pt-BR");
+      return matchesCategory && (!term || haystack.includes(term));
+    });
+  }, [data, selectedCategory, searchTerm]);
 
   const categoryProducts = useMemo(() => {
     if (!data) return new Map<string, number>();
@@ -215,6 +221,50 @@ export function Storefront({ slug }: { slug?: string }) {
           <Button className="mt-6" onClick={() => refetch()}>
             Tentar novamente
           </Button>
+        </section>
+
+        <section id="sobre" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+          <div className="grid overflow-hidden rounded-[1.5rem] border-2 bg-secondary text-secondary-foreground shadow-lifted lg:grid-cols-[1.1fr_.9fr]">
+            <div className="p-7 sm:p-10 lg:p-14">
+              <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary-foreground/70">A casa</p>
+              <h2 className="mt-3 text-4xl leading-[.92] sm:text-6xl">Feito para pedir. Pensado para voltar.</h2>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-secondary-foreground/75 sm:text-base">
+                {data.settings.description || "Uma experiência de pizza simples, rápida e feita para transformar o cardápio em pedido."}
+              </p>
+            </div>
+            <div className="grid min-h-64 place-items-center bg-primary p-8 text-center">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary-foreground/75">Funcionamento</p>
+                <p className="mt-3 font-display text-3xl text-primary-foreground">{data.hours.length ? "Consulte nossos horários" : "Pedidos online"}</p>
+                <div className="mt-4 space-y-1 text-sm text-primary-foreground/80">
+                  {data.hours.slice(0, 4).map((hour) => (
+                    <p key={hour.weekday}>{hour.closed ? "Fechado" : (hour.opens_at?.slice(0, 5) ?? "") + " às " + (hour.closes_at?.slice(0, 5) ?? "")}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="contato" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6">
+          <div className="rounded-[1.5rem] border-2 bg-primary p-7 text-primary-foreground shadow-lifted sm:p-10 lg:p-14">
+            <p className="text-xs font-semibold uppercase tracking-[.2em] opacity-75">Contato</p>
+            <h2 className="mt-2 text-[clamp(4rem,14vw,9rem)] leading-[.8]">Bora pedir?</h2>
+            <div className="mt-10 grid gap-3 sm:grid-cols-3">
+              <a href="#cardapio" className="rounded-xl bg-primary-foreground/10 p-4 transition-transform hover:-translate-y-1">
+                <span className="block text-xs uppercase tracking-widest opacity-70">Cardápio</span>
+                <span className="mt-1 block font-semibold">Escolher agora</span>
+              </a>
+              <div className="rounded-xl bg-primary-foreground/10 p-4">
+                <span className="block text-xs uppercase tracking-widest opacity-70">Atendimento</span>
+                <span className="mt-1 block font-semibold">{data.settings.delivery_enabled ? "Delivery" : "Retirada"} {data.settings.pickup_enabled && data.settings.delivery_enabled ? "e retirada" : ""}</span>
+              </div>
+              <div className="rounded-xl bg-primary-foreground/10 p-4">
+                <span className="block text-xs uppercase tracking-widest opacity-70">Pedido</span>
+                <span className="mt-1 block font-semibold">Online e direto na loja</span>
+              </div>
+            </div>
+          </div>
         </section>
       </main>
     );
@@ -338,7 +388,8 @@ export function Storefront({ slug }: { slug?: string }) {
             <span className="hidden text-sm text-muted-foreground sm:block">{data.products.length} opções</span>
           </div>
 
-          <div className="scrollbar-none -mx-1 mb-7 flex gap-2 overflow-x-auto px-1 pb-1">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
             <button
               onClick={() => setSelectedCategory("all")}
               className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${selectedCategory === "all" ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}
@@ -355,6 +406,17 @@ export function Storefront({ slug }: { slug?: string }) {
                 <span className="ml-1.5 opacity-60">{categoryProducts.get(category.id) ?? 0}</span>
               </button>
             ))}
+            </div>
+            <label className="relative block shrink-0 sm:w-64">
+              <span className="sr-only">Buscar no cardápio</span>
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Buscar no cardápio"
+                className="h-11 w-full rounded-xl border-2 bg-card px-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
+              />
+            </label>
           </div>
 
           {filteredProducts.length === 0 ? (
