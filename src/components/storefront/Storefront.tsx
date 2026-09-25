@@ -8,6 +8,7 @@ import {
   Plus,
   Pizza,
   ShoppingBag,
+  Search,
   Store,
   X,
 } from "lucide-react";
@@ -166,6 +167,7 @@ export function Storefront({ slug }: { slug?: string }) {
   });
   const cart = useLocalCart();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -183,9 +185,16 @@ export function Storefront({ slug }: { slug?: string }) {
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
-    if (selectedCategory === "all") return data.products;
-    return data.products.filter((product) => product.category_id === selectedCategory);
-  }, [data, selectedCategory]);
+    const query = searchTerm.trim().toLocaleLowerCase("pt-BR");
+    return data.products.filter((product) => {
+      const matchesCategory = selectedCategory === "all" || product.category_id === selectedCategory;
+      if (!matchesCategory) return false;
+      if (!query) return true;
+      const category = data.categories.find((item) => item.id === product.category_id);
+      const haystack = [product.name, product.description, category?.name].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR");
+      return haystack.includes(query);
+    });
+  }, [data, selectedCategory, searchTerm]);
 
   const categoryProducts = useMemo(() => {
     if (!data) return new Map<string, number>();
@@ -239,6 +248,16 @@ export function Storefront({ slug }: { slug?: string }) {
       }
     >
       <header className="sticky top-0 z-40 border-b bg-background/90 shadow-[0_1px_0_rgba(0,0,0,.03)] backdrop-blur-xl">
+      <div className="overflow-hidden border-b bg-secondary text-secondary-foreground" aria-hidden="true">
+        <div className="storefront-ticker flex min-w-max gap-8 py-2 text-[10px] font-semibold uppercase tracking-[.22em]">
+          {[...data.products.filter((product) => product.featured).slice(0, 4), ...data.products.slice(0, 4)].map((product, index) => (
+            <span key={`${product.id}-${index}`} className="flex items-center gap-3">
+              <span>{product.name}</span><span className="text-primary">•</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
         <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <a href="#inicio" className="flex min-w-0 items-center gap-3">
             {data.settings.logo_url ? (
@@ -338,6 +357,12 @@ export function Storefront({ slug }: { slug?: string }) {
             <span className="hidden text-sm text-muted-foreground sm:block">{data.products.length} opções</span>
           </div>
 
+          <div className="mb-4 flex items-center gap-3 rounded-2xl border bg-card px-4 py-3 shadow-soft">
+            <Search className="size-4 shrink-0 text-muted-foreground" />
+            <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Buscar no cardápio" aria-label="Buscar no cardápio" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" type="search" />
+            {searchTerm && <button type="button" onClick={() => setSearchTerm("")} className="text-xs font-semibold text-muted-foreground hover:text-foreground">Limpar</button>}
+          </div>
+
           <div className="scrollbar-none -mx-1 mb-7 flex gap-2 overflow-x-auto px-1 pb-1">
             <button
               onClick={() => setSelectedCategory("all")}
@@ -373,7 +398,8 @@ export function Storefront({ slug }: { slug?: string }) {
                   <button
                     key={product.id}
                     onClick={() => setSelectedProduct(product)}
-                    className="group overflow-hidden rounded-[1.5rem] border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted active:scale-[.99]"
+                    style={{ animationDelay: `${Math.min(filteredProducts.indexOf(product) * 45, 360)}ms` }}
+                    className="animate-storefront-in group overflow-hidden rounded-[1.5rem] border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted active:scale-[.99]"
                   >
                     <div className="relative aspect-[1.42] overflow-hidden bg-muted sm:aspect-[1.35]">
                       {productImage ? (

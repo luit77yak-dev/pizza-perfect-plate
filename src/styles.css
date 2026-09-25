@@ -221,3 +221,9 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Pizza Perfect Plate storefront motion */
+@keyframes storefront-ticker { from { transform: translateX(0); } to { transform: translateX(-35%); } }
+.storefront-ticker { animation: storefront-ticker 28s linear infinite; }
+.storefront-ticker:hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .storefront-ticker { animation: none; } }
