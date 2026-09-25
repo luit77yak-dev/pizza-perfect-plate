@@ -43,13 +43,14 @@ type StoreData = {
   hours: StoreHour[];
 };
 
-async function loadStore(): Promise<StoreData> {
+async function loadStore(slug?: string): Promise<StoreData> {
   const { data: organization, error: organizationError } = await supabase
     .from("organizations")
     .select("*")
     .eq("active", true)
-    .eq("demo_mode", true)
+    .eq("demo_mode", slug ? false : true)
     .is("deleted_at", null)
+    .match(slug ? { slug } : {})
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
@@ -127,10 +128,10 @@ function getStoreStatus(hours: StoreHour[]) {
   };
 }
 
-export function Storefront() {
+export function Storefront({ slug }: { slug?: string }) {
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["public-store"],
-    queryFn: loadStore,
+    queryKey: ["public-store", slug ?? "demo"],
+    queryFn: () => loadStore(slug),
     staleTime: 60_000,
   });
   const cart = useLocalCart();
