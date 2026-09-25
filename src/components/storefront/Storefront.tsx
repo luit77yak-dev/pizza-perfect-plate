@@ -35,6 +35,12 @@ import type {
   PaymentMethod,
 } from "@/lib/domain/types";
 
+type ProductAddonLink = {
+  product_id: string;
+  addon_id: string;
+  sort_order: number;
+};
+
 type StoreData = {
   organization: Organization;
   settings: OrganizationSettings;
@@ -44,6 +50,7 @@ type StoreData = {
   prices: ProductPrice[];
   crusts: Crust[];
   addons: Addon[];
+  productAddonLinks: ProductAddonLink[];
   hours: StoreHour[];
   deliveryZones: DeliveryZone[];
 };
@@ -71,6 +78,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     pricesResult,
     crustsResult,
     addonsResult,
+    productAddonLinksResult,
     hoursResult,
     deliveryZonesResult,
   ] = await Promise.all([
@@ -81,6 +89,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     supabase.from("product_prices").select("*").eq("organization_id", organization.id),
     supabase.from("product_crusts").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
     supabase.from("product_addons").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
+    supabase.from("product_addon_links").select("product_id, addon_id, sort_order").eq("organization_id", organization.id).order("sort_order"),
     supabase.from("store_hours").select("*").eq("organization_id", organization.id).order("weekday"),
     supabase.from("delivery_zones").select("*").eq("organization_id", organization.id).eq("active", true).order("name"),
   ]);
@@ -93,6 +102,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     pricesResult.error ??
     crustsResult.error ??
     addonsResult.error ??
+    productAddonLinksResult.error ??
     hoursResult.error ??
     deliveryZonesResult.error;
   if (error) throw error;
@@ -107,6 +117,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     prices: (pricesResult.data ?? []) as ProductPrice[],
     crusts: (crustsResult.data ?? []) as Crust[],
     addons: (addonsResult.data ?? []) as Addon[],
+    productAddonLinks: (productAddonLinksResult.data ?? []) as ProductAddonLink[],
     hours: (hoursResult.data ?? []) as StoreHour[],
     deliveryZones: (deliveryZonesResult.data ?? []) as DeliveryZone[],
   };
@@ -475,7 +486,13 @@ function ProductConfigurator({
   const basePrice = getPrice(product, sizeId, data.prices);
   const secondBasePrice = secondProduct ? getPrice(secondProduct, sizeId, data.prices) : basePrice;
   const crust = data.crusts.find((item) => item.id === crustId);
-  const addons = data.addons.filter((item) => addonIds.includes(item.id));
+  const productAddonIds = data.productAddonLinks
+    .filter((link) => link.product_id === product.id || link.product_id === secondProduct?.id)
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((link) => link.addon_id);
+  const availableAddonIds = new Set(productAddonIds);
+  const availableAddons = data.addons.filter((item) => availableAddonIds.has(item.id));
+  const addons = availableAddons.filter((item) => addonIds.includes(item.id));
   const unitPrice = calculateProductUnitPrice({
     basePrice,
     secondBasePrice,
@@ -596,11 +613,11 @@ function ProductConfigurator({
             </div>
           )}
 
-          {data.addons.length > 0 && (
+          {availableAddons.length > 0 && (
             <div className="mt-7">
               <p className="mb-2 text-sm font-semibold">Adicionais</p>
               <div className="grid gap-2 sm:grid-cols-2">
-                {data.addons.map((item) => {
+                {availableAddons.map((item) => {
                   const checked = addonIds.includes(item.id);
                   return (
                     <button
