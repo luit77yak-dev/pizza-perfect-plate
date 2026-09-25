@@ -6,6 +6,7 @@ import {
   Clock3,
   Minus,
   Plus,
+  Pizza,
   ShoppingBag,
   Store,
   X,
@@ -334,6 +335,8 @@ export function Storefront({ slug }: { slug?: string }) {
               {filteredProducts.map((product) => {
                 const firstSize = data.sizes[0];
                 const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
+                const categoryImage = data.categories.find((category) => category.id === product.category_id)?.image_url;
+                const productImage = product.image_url || categoryImage;
                 return (
                   <button
                     key={product.id}
@@ -341,11 +344,23 @@ export function Storefront({ slug }: { slug?: string }) {
                     className="group overflow-hidden rounded-[1.5rem] border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted active:scale-[.99]"
                   >
                     <div className="relative aspect-[1.42] overflow-hidden bg-muted sm:aspect-[1.35]">
-                      {product.image_url ? (
-                        <img src={product.image_url} alt="" className="size-full object-cover transition duration-500 group-hover:scale-105" />
+                      {productImage ? (
+                        <img
+                          src={productImage}
+                          alt={product.name}
+                          loading="lazy"
+                          className="size-full object-cover transition duration-500 group-hover:scale-105"
+                        />
                       ) : (
-                        <div className="flex size-full items-center justify-center bg-gradient-to-br from-primary/10 via-accent to-secondary/10">
-                          <span className="font-display text-5xl font-semibold text-primary/30">{product.name.charAt(0)}</span>
+                        <div className="relative flex size-full items-center justify-center overflow-hidden bg-gradient-to-br from-primary/15 via-accent to-secondary/15">
+                          <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/10 blur-2xl" />
+                          <div className="absolute -bottom-12 -left-8 size-36 rounded-full bg-secondary/15 blur-2xl" />
+                          <div className="relative flex flex-col items-center gap-2 text-primary/55">
+                            <div className="flex size-20 items-center justify-center rounded-full border border-primary/15 bg-background/55 shadow-sm backdrop-blur-sm">
+                              <Pizza className="size-10" strokeWidth={1.5} />
+                            </div>
+                            <span className="text-[11px] font-semibold uppercase tracking-[.18em]">Imagem em breve</span>
+                          </div>
                         </div>
                       )}
                       {product.featured && (
