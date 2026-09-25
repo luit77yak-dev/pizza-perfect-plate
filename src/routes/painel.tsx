@@ -1005,3 +1005,173 @@ function AddonEditorRow({
     </div>
   );
 }
+function PanelShell({ children }: { children: ReactNode }) {
+  return <div className="min-h-screen bg-background text-foreground">{children}</div>;
+}
+
+function ProductImageManager({
+  products,
+  uploadingProductId,
+  onUpload,
+  onRemove,
+}: {
+  products: Product[];
+  uploadingProductId: string | null;
+  onUpload: (product: Product, file: File) => void;
+  onRemove: (product: Product) => void;
+}) {
+  return (
+    <section id="fotos" className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Vitrine</p>
+          <h2 className="mt-1 text-2xl">Fotos dos produtos</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Envie ou remova a imagem exibida no cardápio de cada produto.</p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {products.length === 0 ? (
+          <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground sm:col-span-2 lg:col-span-3">
+            Nenhum produto cadastrado.
+          </div>
+        ) : (
+          products.map((product) => {
+            const uploading = uploadingProductId === product.id;
+            return (
+              <div key={product.id} className="overflow-hidden rounded-2xl border bg-background">
+                <div className="flex h-36 items-center justify-center bg-muted/40">
+                  {product.image_url ? (
+                    <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <ImagePlus className="size-7 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="truncate text-sm font-medium">{product.name}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted">
+                      <Upload className="size-3.5" />
+                      {uploading ? "Enviando..." : product.image_url ? "Trocar foto" : "Enviar foto"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        disabled={uploading}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) onUpload(product, file);
+                          event.target.value = "";
+                        }}
+                      />
+                    </label>
+                    {product.image_url && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 rounded-full text-destructive"
+                        disabled={uploading}
+                        onClick={() => onRemove(product)}
+                      >
+                        <Trash2 className="mr-1 size-3.5" /> Remover
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </section>
+  );
+}
+
+function OrderCard({
+  order,
+  onStatus,
+}: {
+  order: Order;
+  onStatus: (order: Order, nextStatus: OrderStatus) => void;
+}) {
+  const currentIndex = statusFlow.findIndex((step) => step.value === order.status);
+  const nextStep = currentIndex >= 0 ? statusFlow[currentIndex + 1] : undefined;
+  const address = [order.address_street, order.address_number].filter(Boolean).join(", ");
+  const neighborhood = order.address_neighborhood;
+
+  return (
+    <article className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">
+            Pedido #{order.order_number} · {order.fulfillment === "DELIVERY" ? "Entrega" : "Retirada"}
+          </p>
+          <h3 className="mt-1 text-lg font-semibold">{order.customer_name}</h3>
+          <p className="text-sm text-muted-foreground">{order.customer_phone}</p>
+        </div>
+        <span className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
+          {statusLabel[order.status]}
+        </span>
+      </div>
+
+      <ul className="mt-4 space-y-1.5 text-sm">
+        {order.order_items.map((item) => (
+          <li key={item.id} className="flex items-start justify-between gap-3">
+            <span>
+              {item.quantity}× {item.product_name}
+              {item.second_product_name ? ` + ${item.second_product_name}` : ""}
+              {item.size_name ? ` · ${item.size_name}` : ""}
+              {item.crust_name ? ` · borda ${item.crust_name}` : ""}
+              {item.notes ? <span className="block text-xs text-muted-foreground">Obs.: {item.notes}</span> : null}
+            </span>
+            <span className="shrink-0 font-medium">{formatCurrency(item.unit_price * item.quantity)}</span>
+          </li>
+        ))}
+      </ul>
+
+      {(address || order.notes) && (
+        <div className="mt-3 rounded-xl bg-muted/40 p-3 text-sm">
+          {address && (
+            <p>
+              {address}
+              {neighborhood ? ` · ${neighborhood}` : ""}
+              {order.address_complement ? ` · ${order.address_complement}` : ""}
+            </p>
+          )}
+          {order.notes && <p className="mt-1 text-muted-foreground">Obs. do cliente: {order.notes}</p>}
+        </div>
+      )}
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-3 text-sm">
+        <p className="text-muted-foreground">{paymentLabel[order.payment_method]}</p>
+        <p className="text-base font-semibold">{formatCurrency(order.total)}</p>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {nextStep && (
+          <Button size="sm" className="rounded-full" onClick={() => onStatus(order, nextStep.value)}>
+            <Check className="mr-1.5 size-4" /> Marcar como {nextStep.label}
+          </Button>
+        )}
+        {currentIndex > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            onClick={() => onStatus(order, statusFlow[currentIndex - 1].value)}
+          >
+            Voltar para {statusFlow[currentIndex - 1].label}
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="rounded-full text-destructive"
+          onClick={() => onStatus(order, "CANCELLED")}
+        >
+          <X className="mr-1 size-4" /> Cancelar
+        </Button>
+      </div>
+    </article>
+  );
+}
