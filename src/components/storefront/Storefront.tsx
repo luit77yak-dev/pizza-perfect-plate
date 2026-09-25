@@ -245,7 +245,9 @@ export function Storefront({ slug }: { slug?: string }) {
         } as CSSProperties
       }
     >
-      <header className="sticky top-0 z-40 border-b bg-background/90 shadow-[0_1px_0_rgba(0,0,0,.03)] backdrop-blur-xl">
+      <div className="overflow-hidden bg-secondary text-secondary-foreground" aria-hidden="true"><div className="ppp-ticker-run flex min-w-max items-center gap-8 py-2 font-display text-[11px] uppercase tracking-[.16em]">{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={index} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={`repeat-${index}`} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}</div></div>
+
+      <header className="sticky top-0 z-40 border-b-2 border-secondary bg-background/95 shadow-[0_1px_0_rgba(0,0,0,.05)] backdrop-blur-xl">
         <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <a href="#inicio" className="flex min-w-0 items-center gap-3">
             {data.settings.logo_url ? (
@@ -273,7 +275,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
       <main id="inicio">
         <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-8 pt-4 sm:gap-6 sm:px-6 sm:pb-10 sm:pt-6 lg:grid-cols-[1.15fr_.85fr] lg:items-center lg:pt-8">
-          <div className="overflow-hidden rounded-[2rem] bg-secondary text-secondary-foreground shadow-lifted">
+          <div className="overflow-hidden rounded-[.75rem] border-2 border-secondary bg-secondary text-secondary-foreground shadow-lifted">
             <div className="relative min-h-[360px] p-6 sm:min-h-[390px] sm:p-10">
               {data.settings.hero_image_url && (
                 <img
@@ -284,8 +286,8 @@ export function Storefront({ slug }: { slug?: string }) {
               )}
               <div className="absolute inset-0 bg-gradient-to-br from-secondary/95 via-secondary/80 to-secondary/45" />
               <div className="relative flex min-h-[320px] max-w-xl flex-col justify-end sm:min-h-[330px]">
-                <Badge className="mb-4 w-fit border-0 bg-primary/15 text-primary-foreground backdrop-blur">
-                  Delivery artesanal
+                <Badge className="mb-4 w-fit rounded-sm border-0 bg-primary px-3 py-1 font-display uppercase tracking-wide text-primary-foreground shadow-[4px_4px_0_rgba(0,0,0,.35)]">
+                  Pizza de verdade
                 </Badge>
                 <h1 className="max-w-2xl text-[2.65rem] leading-[.96] sm:text-6xl">
                   {data.settings.hero_title || `O sabor que chega até você`}
@@ -340,7 +342,7 @@ export function Storefront({ slug }: { slug?: string }) {
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">Cardápio</p>
-              <h2 className="mt-1 text-3xl sm:text-4xl">Escolha seu pedido</h2>
+              <h2 className="mt-1 text-4xl uppercase leading-[.9] sm:text-6xl">Escolha seu pedido</h2>
             </div>
             <span className="hidden text-sm text-muted-foreground sm:block">{data.products.length} opções</span>
           </div>
@@ -392,7 +394,7 @@ export function Storefront({ slug }: { slug?: string }) {
                   <button
                     key={product.id}
                     onClick={() => setSelectedProduct(product)}
-                    className="group overflow-hidden rounded-[1.5rem] border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted active:scale-[.99]"
+                    className="group overflow-hidden rounded-[.5rem] border-2 border-secondary bg-card text-left shadow-lifted transition-all duration-200 hover:-translate-y-1 hover:rotate-[-.35deg] hover:shadow-[10px_10px_0_rgba(0,0,0,.78)] active:translate-x-1 active:translate-y-1 active:shadow-[3px_3px_0_rgba(0,0,0,.78)]"
                   >
                     <div className="relative aspect-[1.42] overflow-hidden bg-muted sm:aspect-[1.35]">
                       {productImage ? (
@@ -441,49 +443,9 @@ export function Storefront({ slug }: { slug?: string }) {
             </div>
           )}
         </section>
-        <section id="sobre" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-          <div className="grid overflow-hidden rounded-[1.5rem] border-2 bg-secondary text-secondary-foreground shadow-lifted lg:grid-cols-[1.1fr_.9fr]">
-            <div className="p-7 sm:p-10 lg:p-14">
-              <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary-foreground/70">A casa</p>
-              <h2 className="mt-3 text-4xl leading-[.92] sm:text-6xl">Feito para pedir. Pensado para voltar.</h2>
-              <p className="mt-5 max-w-xl text-sm leading-7 text-secondary-foreground/75 sm:text-base">
-                {data.settings.description || "Uma experiência de pizza simples, rápida e feita para transformar o cardápio em pedido."}
-              </p>
-            </div>
-            <div className="grid min-h-64 place-items-center bg-primary p-8 text-center">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary-foreground/75">Funcionamento</p>
-                <p className="mt-3 font-display text-3xl text-primary-foreground">{data.hours.length ? "Consulte nossos horários" : "Pedidos online"}</p>
-                <div className="mt-4 space-y-1 text-sm text-primary-foreground/80">
-                  {data.hours.slice(0, 4).map((hour) => (
-                    <p key={hour.weekday}>{hour.closed ? "Fechado" : (hour.opens_at?.slice(0, 5) ?? "") + " às " + (hour.closes_at?.slice(0, 5) ?? "")}</p>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <section id="sobre" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6"><div className="overflow-hidden rounded-[.75rem] border-2 border-secondary bg-secondary text-secondary-foreground shadow-lifted"><div className="grid lg:grid-cols-[.9fr_1.1fr]"><div className="p-7 sm:p-10 lg:p-14"><p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">A casa</p><h2 className="mt-3 text-4xl uppercase leading-[.9] sm:text-6xl">Feita para quem ama pizza.</h2><p className="mt-5 max-w-xl text-sm leading-7 text-secondary-foreground/75 sm:text-base">{data.settings.description || "Massa, molho, queijo e ingredientes escolhidos para transformar um pedido comum em uma experiência que dá vontade de repetir."}</p><a href="#cardapio" className="mt-7 inline-flex rounded-sm bg-primary px-5 py-3 font-display uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.5)]">Ver o cardápio</a></div><div className="grid grid-cols-2 gap-3 bg-primary p-3 sm:p-5">{[data.settings.hero_image_url, ...data.categories.slice(0, 3).map((category) => category.image_url)].filter(Boolean).slice(0, 3).map((image, index) => <div key={`about-${index}`} className={`overflow-hidden rounded-sm border-2 border-secondary shadow-[5px_5px_0_rgba(0,0,0,.6)] ${index === 0 ? "col-span-2 aspect-[2/1] rotate-[-1.5deg]" : "aspect-square rotate-[1.5deg]"}`}><img src={image!} alt="" className="size-full object-cover" loading="lazy" /></div>)}</div></div></div></section>
 
-        <section id="contato" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6">
-          <div className="rounded-[1.5rem] border-2 bg-primary p-7 text-primary-foreground shadow-lifted sm:p-10 lg:p-14">
-            <p className="text-xs font-semibold uppercase tracking-[.2em] opacity-75">Contato</p>
-            <h2 className="mt-2 text-[clamp(4rem,14vw,9rem)] leading-[.8]">Bora pedir?</h2>
-            <div className="mt-10 grid gap-3 sm:grid-cols-3">
-              <a href="#cardapio" className="rounded-xl bg-primary-foreground/10 p-4 transition-transform hover:-translate-y-1">
-                <span className="block text-xs uppercase tracking-widest opacity-70">Cardápio</span>
-                <span className="mt-1 block font-semibold">Escolher agora</span>
-              </a>
-              <div className="rounded-xl bg-primary-foreground/10 p-4">
-                <span className="block text-xs uppercase tracking-widest opacity-70">Atendimento</span>
-                <span className="mt-1 block font-semibold">{data.settings.delivery_enabled ? "Delivery" : "Retirada"} {data.settings.pickup_enabled && data.settings.delivery_enabled ? "e retirada" : ""}</span>
-              </div>
-              <div className="rounded-xl bg-primary-foreground/10 p-4">
-                <span className="block text-xs uppercase tracking-widest opacity-70">Pedido</span>
-                <span className="mt-1 block font-semibold">Online e direto na loja</span>
-              </div>
-            </div>
-          </div>
-        </section>
+        <section id="contato" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6"><div className="rounded-[.75rem] border-2 border-secondary bg-primary p-7 text-primary-foreground shadow-lifted sm:p-10 lg:p-14"><p className="text-xs font-semibold uppercase tracking-[.2em] opacity-75">Contato</p><h2 className="mt-2 text-[clamp(4.5rem,15vw,10rem)] uppercase leading-[.75]">Bora pedir?</h2><div className="mt-10 grid gap-3 sm:grid-cols-3"><a href="#cardapio" className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)] transition-transform hover:-translate-y-1"><span className="block text-xs uppercase tracking-widest opacity-60">Cardápio</span><span className="mt-1 block font-semibold">Escolher agora</span></a><div className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)]"><span className="block text-xs uppercase tracking-widest opacity-60">Atendimento</span><span className="mt-1 block font-semibold">{data.settings.delivery_enabled && data.settings.pickup_enabled ? "Delivery e retirada" : data.settings.delivery_enabled ? "Delivery" : "Retirada"}</span></div><div className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)]"><span className="block text-xs uppercase tracking-widest opacity-60">WhatsApp</span><span className="mt-1 block font-semibold">{data.settings.whatsapp_phone || "Consulte a loja"}</span></div></div></div></section>
 
       </main>
 
