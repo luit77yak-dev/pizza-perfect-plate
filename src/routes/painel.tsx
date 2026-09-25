@@ -540,12 +540,26 @@ function StaffPanel() {
           </div>
         </section>
 
+        <SectionHeading
+          eyebrow="Operação"
+          title="Acompanhamento dos pedidos"
+          description="Consulte rapidamente os últimos pedidos e avance o atendimento."
+        />
         <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} />
 
         <QuickActionsSection />
 
         {["OWNER", "ADMIN"].includes(role ?? "") && (
-          <ProductCatalogManager
+          <SectionHeading
+            eyebrow="Gestão"
+            title="Catálogo da loja"
+            description="Organize produtos, adicionais e fotos em um único espaço."
+          />
+        )}
+
+        {["OWNER", "ADMIN"].includes(role ?? "") && (
+          <div className="space-y-5 rounded-[1.75rem] border bg-muted/20 p-2 sm:p-3">
+            <ProductCatalogManager
             products={products}
             categories={categories}
             sizes={sizes}
@@ -559,26 +573,27 @@ function StaffPanel() {
             onSave={saveProduct}
             onToggle={toggleProduct}
           />
-        )}
-
-        {["OWNER", "ADMIN"].includes(role ?? "") && (
-          <AddonManager
+            <AddonManager
             addons={addons}
             savingAddonId={savingAddonId}
             onCreate={createAddon}
             onSave={saveAddon}
             onToggle={toggleAddon}
           />
-        )}
-
-        {["OWNER", "ADMIN"].includes(role ?? "") && (
-          <ProductImageManager
+            <ProductImageManager
             products={products}
             uploadingProductId={imageUploading}
             onUpload={uploadProductImage}
             onRemove={removeProductImage}
           />
+          </div>
         )}
+
+        <SectionHeading
+          eyebrow="Atendimento"
+          title="Fila de pedidos"
+          description="Pedidos que ainda precisam de alguma ação da equipe."
+        />
 
         <div id="pedidos" className="mb-5 mt-8 scroll-mt-24 flex items-end justify-between gap-4">
           <div>
@@ -607,6 +622,18 @@ function StaffPanel() {
         )}
       </main>
     </PanelShell>
+  );
+}
+
+function SectionHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
+  return (
+    <div className="mb-4 mt-10 flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">{eyebrow}</p>
+        <h2 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">{title}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
   );
 }
 
@@ -729,7 +756,7 @@ function ProductCatalogManager({
   onToggle: (product: Product, field: "active" | "available" | "featured") => void;
 }) {
   return (
-    <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
+    <section id="produtos" className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Cardápio</p>
@@ -891,7 +918,7 @@ function AddonManager({
   onToggle: (addon: Addon) => void;
 }) {
   return (
-    <section className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
+    <section id="adicionais" className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Personalização</p>
@@ -1002,7 +1029,7 @@ function ProductImageManager({
   onRemove: (product: Product) => void;
 }) {
   return (
-    <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
+    <section id="fotos-produtos" className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Cardápio visual</p>
