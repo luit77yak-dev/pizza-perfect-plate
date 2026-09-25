@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, ChevronUp, ImagePlus, LogOut, Package, Pencil, Plus, RefreshCw, Save, Trash2, Upload, UserRound, X } from "lucide-react";
+import { Check, ChevronUp, Clock3, ImagePlus, LogOut, Package, Pencil, Plus, RefreshCw, Save, Trash2, Upload, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
@@ -318,7 +318,8 @@ function StaffPanel() {
   const toggleProduct = async (product: Product, field: "active" | "available" | "featured") => {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
     const next = !product[field];
-    const { error: updateError } = await supabase.from("products").update({ [field]: next })
+    const patch: { active?: boolean; available?: boolean; featured?: boolean } = { [field]: next };
+    const { error: updateError } = await supabase.from("products").update(patch)
       .eq("id", product.id).eq("organization_id", organizationId);
     if (updateError) setError(updateError.message);
     else setProducts((current) => current.map((item) => item.id === product.id ? { ...item, [field]: next } : item));
