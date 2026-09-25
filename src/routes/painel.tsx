@@ -247,8 +247,7 @@ function StaffPanel() {
   }, []);
 
   const signIn = async () => {
-    setAuthLoading(true);
-    setError(null);
+    setAuthLoading(true);    setError(null);
     const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     if (signInError) setError(signInError.message);
     else if (data.user) await loadOrganization(data.user.id);
@@ -297,7 +296,8 @@ function StaffPanel() {
       if (pricesError) { setError(pricesError.message); setSavingProductId(null); return; }
     }
 
-    const { error: deleteAddonsError } = await supabase.from("product_addon_links").delete()      .eq("organization_id", organizationId).eq("product_id", draft.id);
+    const { error: deleteAddonsError } = await supabase.from("product_addon_links").delete()
+      .eq("organization_id", organizationId).eq("product_id", draft.id);
     if (deleteAddonsError) { setError(deleteAddonsError.message); setSavingProductId(null); return; }
 
     const addonRows = [...new Set(addonIds)]
@@ -496,16 +496,15 @@ function StaffPanel() {
             <Button variant="outline" size="sm" onClick={() => void loadOrders()} disabled={loading} className="rounded-full">
               <RefreshCw className={`mr-1.5 size-4 ${loading ? "animate-spin" : ""}`} />
               Atualizar
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => void supabase.auth.signOut()} aria-label="Sair">
+            </Button>            <Button variant="ghost" size="icon" onClick={() => void supabase.auth.signOut()} aria-label="Sair">
               <LogOut className="size-4" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6">
-        <section className="mb-4 rounded-[1.5rem] border bg-card p-3.5 shadow-soft sm:p-4">
+      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
+        <section className="mb-5 rounded-[1.5rem] border bg-card p-4 shadow-soft sm:p-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Resumo de hoje</p>
@@ -515,15 +514,15 @@ function StaffPanel() {
             <p className="text-xs text-muted-foreground">{todayHighlights.todayOrders.length} pedido(s) registrados hoje</p>
           </div>
 
-          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
             <HighlightCard label="Pedidos hoje" value={String(todayHighlights.todayOrders.length)} hint="Todos os pedidos recebidos" />
             <HighlightCard label="Em andamento" value={String(todayHighlights.inProgress.length)} hint="Pedidos que ainda não foram concluídos" />
             <HighlightCard label="Faturamento" value={formatCurrency(todayHighlights.revenue)} hint="Pedidos entregues hoje" />
             <HighlightCard label="Ticket médio" value={formatCurrency(todayHighlights.averageTicket)} hint="Média dos pedidos entregues" />
           </div>
 
-          <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
-            <div className="rounded-xl border bg-background p-3">
+          <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+            <div className="rounded-xl border bg-background p-3.5">
               <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Status do dia</p>
               <div className="mt-3 flex flex-wrap gap-2 text-sm">
                 <span className="rounded-full bg-primary/10 px-3 py-1.5 font-medium text-primary">{todayHighlights.completed.length} entregues</span>
@@ -531,7 +530,7 @@ function StaffPanel() {
                 <span className="rounded-full bg-destructive/10 px-3 py-1.5 font-medium text-destructive">{todayHighlights.cancelled.length} cancelados</span>
               </div>
             </div>
-            <div className="rounded-xl border bg-background p-3">
+            <div className="rounded-xl border bg-background p-3.5">
               <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Cardápio</p>
               <p className="mt-2 text-2xl font-semibold">{products.filter((product) => product.active && product.available).length}</p>
               <p className="text-sm text-muted-foreground">produtos ativos e disponíveis para venda</p>
@@ -596,7 +595,8 @@ function StaffPanel() {
 
         <div id="pedidos" className="mb-5 mt-6 scroll-mt-24 flex items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-muted-foreground">{activeOrders.length} pedido(s) em andamento</p>            <h2 className="mt-1 text-3xl">Pedidos</h2>
+            <p className="text-sm text-muted-foreground">{activeOrders.length} pedido(s) em andamento</p>
+            <h2 className="mt-1 text-3xl">Pedidos</h2>
           </div>
           <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
             <Clock3 className="size-4" /> Atualização manual
@@ -612,7 +612,7 @@ function StaffPanel() {
             <p className="mt-1 text-sm text-muted-foreground">Quando chegar um pedido, ele aparecerá aqui.</p>
           </div>
         ) : (
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             {activeOrders.map((order) => (
               <OrderCard key={order.id} order={order} onStatus={updateStatus} />
             ))}
@@ -625,7 +625,7 @@ function StaffPanel() {
 
 function SectionHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
   return (
-    <div className="mb-2 mt-5 flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mb-3 mt-7 flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">{eyebrow}</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">{title}</h2>
@@ -637,7 +637,7 @@ function SectionHeading({ eyebrow, title, description }: { eyebrow: string; titl
 
 function HighlightCard({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <div className="rounded-xl border bg-background p-3">
+    <div className="rounded-xl border bg-background p-3.5">
       <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{label}</p>
       <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
       <p className="mt-1 text-xs leading-5 text-muted-foreground">{hint}</p>
@@ -658,13 +658,13 @@ function QuickActionsSection() {
   };
 
   return (
-    <section className="mb-4 rounded-[1.25rem] border bg-card p-3.5 shadow-soft sm:p-4">
+    <section className="mb-5 rounded-[1.25rem] border bg-card p-4 shadow-soft sm:p-5">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Acesso rápido</p>
         <h2 className="mt-1 text-2xl">Atalhos do painel</h2>
         <p className="mt-1 text-sm text-muted-foreground">Chegue às tarefas mais usadas em um toque.</p>
       </div>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
         {actions.map((action) => {
           const Icon = action.icon;
           return (
@@ -672,7 +672,7 @@ function QuickActionsSection() {
               key={action.target}
               type="button"
               onClick={() => goTo(action.target)}
-              className="group rounded-xl border bg-background p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-sm"
+              className="group rounded-xl border bg-background p-3.5 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-sm"
             >
               <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon className="size-5" />
@@ -695,7 +695,7 @@ function RecentOrdersSection({
   onStatus: (order: Order, status: OrderStatus) => void;
 }) {
   return (
-    <section className="mb-4 rounded-[1.25rem] border bg-card p-3.5 shadow-soft sm:p-4">
+    <section className="mb-5 rounded-[1.25rem] border bg-card p-4 shadow-soft sm:p-5">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Acompanhamento</p>
@@ -710,7 +710,7 @@ function RecentOrdersSection({
           Ainda não há pedidos registrados.
         </div>
       ) : (
-        <div className="mt-3 space-y-1">
+        <div className="mt-4 space-y-1.5">
           {orders.map((order) => {
             const nextIndex = statusFlow.findIndex((item) => item.value === order.status) + 1;
             const next = statusFlow[nextIndex];
@@ -745,8 +745,7 @@ function RecentOrdersSection({
 }
 
 function ProductCatalogManager({
-  products, categories, sizes, prices, addons, productAddonIds, editingProductId, savingProductId, onCreate, onEdit, onSave, onToggle,
-}: {
+  products, categories, sizes, prices, addons, productAddonIds, editingProductId, savingProductId, onCreate, onEdit, onSave, onToggle,}: {
   products: Product[]; categories: Category[]; sizes: ProductSize[]; prices: ProductPrice[]; addons: Addon[];
   productAddonIds: Record<string, string[]>;
   editingProductId: string | null; savingProductId: string | null; onCreate: () => void; onEdit: (id: string | null) => void;
@@ -763,7 +762,7 @@ function ProductCatalogManager({
         </div>
         <Button onClick={onCreate} className="rounded-full"><Plus className="mr-2 size-4" /> Novo produto</Button>
       </div>
-      <div className="mt-3 space-y-1">
+      <div className="mt-4 space-y-1.5">
         {products.length === 0 ? <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">Nenhum produto cadastrado.</div> :
           products.map((product) => <ProductEditorRow key={product.id} product={product} categories={categories} sizes={sizes} prices={prices}
             addons={addons} addonIds={productAddonIds[product.id] ?? []}
@@ -928,7 +927,7 @@ function AddonManager({
         </Button>
       </div>
 
-      <div className="mt-3 space-y-1">
+      <div className="mt-4 space-y-1.5">
         {addons.length === 0 ? (
           <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
             Nenhum adicional cadastrado.
