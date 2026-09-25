@@ -859,10 +859,13 @@ function CheckoutPanel({
         .select("id");
 
       if (itemsError) throw itemsError;
+      if (!createdItems || createdItems.length !== items.length) {
+        throw new Error("Não foi possível registrar todos os itens do pedido.");
+      }
 
       const addonRows = items.flatMap((item, itemIndex) =>
         item.addons.map((addon) => ({
-          order_item_id: createdItems?.[itemIndex]?.id,
+          order_item_id: createdItems[itemIndex].id,
           organization_id: organization.id,
           addon_id: addon.id,
           name: addon.name,
