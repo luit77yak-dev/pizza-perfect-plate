@@ -169,6 +169,15 @@ export function Storefront({ slug }: { slug?: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [trackedOrder, setTrackedOrder] = useState<{ id: string; number: number; phone: string } | null>(() => {
+    try {
+      const raw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
@@ -449,10 +458,32 @@ export function Storefront({ slug }: { slug?: string }) {
           items={cart.items}
           subtotal={subtotal}
           onClose={() => setCheckoutOpen(false)}
-          onSuccess={() => {
+          trackedOrder={trackedOrder}
+          onSuccess={(order) => {
             cart.clear();
+            setTrackedOrder(order);
+            try {
+              localStorage.setItem(`ppp:last-order:${data.organization.id}`, JSON.stringify(order));
+            } catch {
+              // Ignore storage failures; tracking still works for the current session.
+            }
           }}
         />
+      )}
+
+      {trackedOrder && !checkoutOpen && !cartOpen && itemCount === 0 && (
+        <div className="fixed inset-x-0 bottom-4 z-30 mx-auto w-[calc(100%-2rem)] max-w-md">
+          <button
+            onClick={() => setCheckoutOpen(true)}
+            className="flex w-full items-center justify-between rounded-2xl border bg-card px-5 py-4 text-left shadow-lifted"
+          >
+            <span>
+              <span className="block text-xs font-semibold uppercase tracking-[.12em] text-primary">Pedido em andamento</span>
+              <span className="mt-1 block text-sm font-semibold">Acompanhar pedido #{trackedOrder.number}</span>
+            </span>
+            <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+          </button>
+        </div>
       )}
 
       {itemCount > 0 && !cartOpen && !checkoutOpen && (
@@ -770,6 +801,7 @@ function CheckoutPanel({
   subtotal,
   onClose,
   onSuccess,
+  trackedOrder,
 }: {
   organization: Organization;
   settings: OrganizationSettings;
@@ -777,7 +809,8 @@ function CheckoutPanel({
   items: CartItem[];
   subtotal: number;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (order: { id: string; number: number; phone: string }) => void;
+  trackedOrder?: { id: string; number: number; phone: string } | null;
 }) {
   const [fulfillment, setFulfillment] = useState<FulfillmentType>(
     settings.delivery_enabled ? "DELIVERY" : "PICKUP",
@@ -799,6 +832,14 @@ function CheckoutPanel({
   const [successNumber, setSuccessNumber] = useState<number | null>(null);
   const [successStatus, setSuccessStatus] = useState<OrderStatus>("RECEIVED");
   const [trackingError, setTrackingError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!trackedOrder) return;
+    setSuccessOrderId(trackedOrder.id);
+    setSuccessNumber(trackedOrder.number);
+    setSuccessStatus("RECEIVED");
+    setPhone(trackedOrder.phone);
+  }, [trackedOrder]);
 
   const selectedZone =
     fulfillment === "DELIVERY"
@@ -899,7 +940,7 @@ function CheckoutPanel({
       setSuccessOrderId(String(order.order_id));
       setSuccessNumber(Number(order.order_number));
       setSuccessStatus("RECEIVED");
-      onSuccess();
+      onSuccess({ id: String(order.order_id), number: Number(order.order_number), phone: phone.trim() });
     } catch (submitError) {
       setError(
         submitError instanceof Error
