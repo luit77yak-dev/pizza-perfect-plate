@@ -569,9 +569,33 @@
     }
 
     #cardapio h2 {
-      max-width: 15rem;
+      width: 100%;
+      max-width: none;
+      text-align: center;
       font-size: clamp(2.35rem, 11vw, 3.25rem);
       line-height: .88;
+    }
+
+    #cardapio > div:first-child > div:first-child {
+      width: 100%;
+      text-align: center;
+    }
+
+    #sobre > div > div:first-child,
+    #contato > div {
+      text-align: center;
+    }
+
+    #sobre > div > div:first-child > p,
+    #sobre > div > div:first-child > h2,
+    #sobre > div > div:first-child > p + h2 + p {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #contato > div > p,
+    #contato h2 {
+      text-align: center;
     }
 
     #cardapio .scrollbar-none {
