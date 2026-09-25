@@ -437,6 +437,22 @@ function StaffPanel() {
     [orders],
   );
 
+  const todayHighlights = useMemo(() => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const todayOrders = orders.filter((order) => {
+      const createdAt = new Date(order.created_at);
+      return createdAt >= start && createdAt < end;
+    });
+    const completed = todayOrders.filter((order) => order.status === "DELIVERED");
+    const inProgress = todayOrders.filter((order) => !["DELIVERED", "CANCELLED"].includes(order.status));
+    const cancelled = todayOrders.filter((order) => order.status === "CANCELLED");
+    const revenue = completed.reduce((sum, order) => sum + Number(order.total || 0), 0);
+    const averageTicket = completed.length ? revenue / completed.length : 0;
+    return { todayOrders, completed, inProgress, cancelled, revenue, averageTicket };
+  }, [orders]);
+
   if (!sessionChecked) {
     return <PanelShell><div className="p-8 text-sm text-muted-foreground">Carregando painel...</div></PanelShell>;
   }
@@ -490,6 +506,40 @@ function StaffPanel() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
+        <section className="mb-8 rounded-[1.75rem] border bg-card p-5 shadow-soft sm:p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Resumo de hoje</p>
+              <h2 className="mt-1 text-2xl sm:text-3xl">Destaques do dia</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Uma visão rápida do movimento da sua loja hoje.</p>
+            </div>
+            <p className="text-xs text-muted-foreground">{todayHighlights.todayOrders.length} pedido(s) registrados hoje</p>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <HighlightCard label="Pedidos hoje" value={String(todayHighlights.todayOrders.length)} hint="Todos os pedidos recebidos" />
+            <HighlightCard label="Em andamento" value={String(todayHighlights.inProgress.length)} hint="Pedidos que ainda não foram concluídos" />
+            <HighlightCard label="Faturamento" value={formatCurrency(todayHighlights.revenue)} hint="Pedidos entregues hoje" />
+            <HighlightCard label="Ticket médio" value={formatCurrency(todayHighlights.averageTicket)} hint="Média dos pedidos entregues" />
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border bg-background p-4">
+              <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Status do dia</p>
+              <div className="mt-3 flex flex-wrap gap-2 text-sm">
+                <span className="rounded-full bg-primary/10 px-3 py-1.5 font-medium text-primary">{todayHighlights.completed.length} entregues</span>
+                <span className="rounded-full bg-muted px-3 py-1.5 font-medium">{todayHighlights.inProgress.length} em andamento</span>
+                <span className="rounded-full bg-destructive/10 px-3 py-1.5 font-medium text-destructive">{todayHighlights.cancelled.length} cancelados</span>
+              </div>
+            </div>
+            <div className="rounded-2xl border bg-background p-4">
+              <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Cardápio</p>
+              <p className="mt-2 text-2xl font-semibold">{products.filter((product) => product.active && product.available).length}</p>
+              <p className="text-sm text-muted-foreground">produtos ativos e disponíveis para venda</p>
+            </div>
+          </div>
+        </section>
+
         {["OWNER", "ADMIN"].includes(role ?? "") && (
           <ProductCatalogManager
             products={products}
@@ -553,6 +603,16 @@ function StaffPanel() {
         )}
       </main>
     </PanelShell>
+  );
+}
+
+function HighlightCard({ label, value, hint }: { label: string; value: string; hint: string }) {
+  return (
+    <div className="rounded-2xl border bg-background p-4">
+      <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{label}</p>
+      <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">{hint}</p>
+    </div>
   );
 }
 
