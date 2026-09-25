@@ -297,8 +297,7 @@ function StaffPanel() {
       if (pricesError) { setError(pricesError.message); setSavingProductId(null); return; }
     }
 
-    const { error: deleteAddonsError } = await supabase.from("product_addon_links").delete()
-      .eq("organization_id", organizationId).eq("product_id", draft.id);
+    const { error: deleteAddonsError } = await supabase.from("product_addon_links").delete()      .eq("organization_id", organizationId).eq("product_id", draft.id);
     if (deleteAddonsError) { setError(deleteAddonsError.message); setSavingProductId(null); return; }
 
     const addonRows = [...new Set(addonIds)]
@@ -505,8 +504,8 @@ function StaffPanel() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
-        <section className="mb-5 rounded-[1.5rem] border bg-card p-4 shadow-soft sm:p-5">
+      <main className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6">
+        <section className="mb-4 rounded-[1.5rem] border bg-card p-3.5 shadow-soft sm:p-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Resumo de hoje</p>
@@ -516,15 +515,15 @@ function StaffPanel() {
             <p className="text-xs text-muted-foreground">{todayHighlights.todayOrders.length} pedido(s) registrados hoje</p>
           </div>
 
-          <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <HighlightCard label="Pedidos hoje" value={String(todayHighlights.todayOrders.length)} hint="Todos os pedidos recebidos" />
             <HighlightCard label="Em andamento" value={String(todayHighlights.inProgress.length)} hint="Pedidos que ainda não foram concluídos" />
             <HighlightCard label="Faturamento" value={formatCurrency(todayHighlights.revenue)} hint="Pedidos entregues hoje" />
             <HighlightCard label="Ticket médio" value={formatCurrency(todayHighlights.averageTicket)} hint="Média dos pedidos entregues" />
           </div>
 
-          <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
-            <div className="rounded-xl border bg-background p-3.5">
+          <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-xl border bg-background p-3">
               <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Status do dia</p>
               <div className="mt-3 flex flex-wrap gap-2 text-sm">
                 <span className="rounded-full bg-primary/10 px-3 py-1.5 font-medium text-primary">{todayHighlights.completed.length} entregues</span>
@@ -532,7 +531,7 @@ function StaffPanel() {
                 <span className="rounded-full bg-destructive/10 px-3 py-1.5 font-medium text-destructive">{todayHighlights.cancelled.length} cancelados</span>
               </div>
             </div>
-            <div className="rounded-xl border bg-background p-3.5">
+            <div className="rounded-xl border bg-background p-3">
               <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Cardápio</p>
               <p className="mt-2 text-2xl font-semibold">{products.filter((product) => product.active && product.available).length}</p>
               <p className="text-sm text-muted-foreground">produtos ativos e disponíveis para venda</p>
@@ -597,8 +596,7 @@ function StaffPanel() {
 
         <div id="pedidos" className="mb-5 mt-6 scroll-mt-24 flex items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-muted-foreground">{activeOrders.length} pedido(s) em andamento</p>
-            <h2 className="mt-1 text-3xl">Pedidos</h2>
+            <p className="text-sm text-muted-foreground">{activeOrders.length} pedido(s) em andamento</p>            <h2 className="mt-1 text-3xl">Pedidos</h2>
           </div>
           <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
             <Clock3 className="size-4" /> Atualização manual
@@ -614,7 +612,7 @@ function StaffPanel() {
             <p className="mt-1 text-sm text-muted-foreground">Quando chegar um pedido, ele aparecerá aqui.</p>
           </div>
         ) : (
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-3 lg:grid-cols-2">
             {activeOrders.map((order) => (
               <OrderCard key={order.id} order={order} onStatus={updateStatus} />
             ))}
@@ -627,7 +625,7 @@ function StaffPanel() {
 
 function SectionHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
   return (
-    <div className="mb-3 mt-7 flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mb-2 mt-5 flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">{eyebrow}</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">{title}</h2>
@@ -639,7 +637,7 @@ function SectionHeading({ eyebrow, title, description }: { eyebrow: string; titl
 
 function HighlightCard({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <div className="rounded-xl border bg-background p-3.5">
+    <div className="rounded-xl border bg-background p-3">
       <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{label}</p>
       <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
       <p className="mt-1 text-xs leading-5 text-muted-foreground">{hint}</p>
@@ -660,13 +658,13 @@ function QuickActionsSection() {
   };
 
   return (
-    <section className="mb-5 rounded-[1.25rem] border bg-card p-4 shadow-soft sm:p-5">
+    <section className="mb-4 rounded-[1.25rem] border bg-card p-3.5 shadow-soft sm:p-4">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Acesso rápido</p>
         <h2 className="mt-1 text-2xl">Atalhos do painel</h2>
         <p className="mt-1 text-sm text-muted-foreground">Chegue às tarefas mais usadas em um toque.</p>
       </div>
-      <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {actions.map((action) => {
           const Icon = action.icon;
           return (
@@ -674,7 +672,7 @@ function QuickActionsSection() {
               key={action.target}
               type="button"
               onClick={() => goTo(action.target)}
-              className="group rounded-xl border bg-background p-3.5 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-sm"
+              className="group rounded-xl border bg-background p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-sm"
             >
               <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon className="size-5" />
@@ -697,7 +695,7 @@ function RecentOrdersSection({
   onStatus: (order: Order, status: OrderStatus) => void;
 }) {
   return (
-    <section className="mb-5 rounded-[1.25rem] border bg-card p-4 shadow-soft sm:p-5">
+    <section className="mb-4 rounded-[1.25rem] border bg-card p-3.5 shadow-soft sm:p-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Acompanhamento</p>
@@ -712,7 +710,7 @@ function RecentOrdersSection({
           Ainda não há pedidos registrados.
         </div>
       ) : (
-        <div className="mt-4 space-y-1.5">
+        <div className="mt-3 space-y-1">
           {orders.map((order) => {
             const nextIndex = statusFlow.findIndex((item) => item.value === order.status) + 1;
             const next = statusFlow[nextIndex];
@@ -765,7 +763,7 @@ function ProductCatalogManager({
         </div>
         <Button onClick={onCreate} className="rounded-full"><Plus className="mr-2 size-4" /> Novo produto</Button>
       </div>
-      <div className="mt-4 space-y-1.5">
+      <div className="mt-3 space-y-1">
         {products.length === 0 ? <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">Nenhum produto cadastrado.</div> :
           products.map((product) => <ProductEditorRow key={product.id} product={product} categories={categories} sizes={sizes} prices={prices}
             addons={addons} addonIds={productAddonIds[product.id] ?? []}
@@ -930,7 +928,7 @@ function AddonManager({
         </Button>
       </div>
 
-      <div className="mt-4 space-y-1.5">
+      <div className="mt-3 space-y-1">
         {addons.length === 0 ? (
           <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
             Nenhum adicional cadastrado.
@@ -998,170 +996,3 @@ function AddonEditorRow({
         <Button
           size="sm"
           className="rounded-full"
-          disabled={saving}
-          onClick={() => onSave(draft)}
-        >
-          <Save className="mr-1.5 size-4" />
-          {saving ? "Salvando..." : "Salvar"}
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="rounded-full"
-          onClick={() => onToggle(addon)}
-        >
-          {addon.active ? "Desativar" : "Ativar"}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function ProductImageManager({
-  products,
-  uploadingProductId,
-  onUpload,
-  onRemove,
-}: {
-  products: Product[];
-  uploadingProductId: string | null;
-  onUpload: (product: Product, file: File) => void;
-  onRemove: (product: Product) => void;
-}) {
-  return (
-    <section id="fotos-produtos" className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Cardápio visual</p>
-          <h2 className="mt-1 text-2xl">Fotos dos produtos</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Envie fotos de até 5 MB. Elas aparecem automaticamente na vitrine.</p>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <ImagePlus className="size-4" />
-          {products.filter((product) => product.image_url).length}/{products.length} com foto
-        </div>
-      </div>
-
-      {products.length === 0 ? (
-        <div className="mt-5 rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-          Nenhum produto encontrado.
-        </div>
-      ) : (
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {products.map((product) => (
-            <div key={product.id} className="overflow-hidden rounded-2xl border bg-background">
-              <div className="aspect-[16/10] overflow-hidden bg-muted">
-                {product.image_url ? (
-                  <img src={product.image_url} alt={product.name} className="size-full object-cover" loading="lazy" />
-                ) : (
-                  <div className="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground">
-                    <ImagePlus className="size-8" />
-                    <span className="text-xs">Sem foto</span>
-                  </div>
-                )}
-              </div>
-              <div className="p-3">
-                <p className="truncate font-semibold">{product.name}</p>
-                <div className="mt-3 flex gap-2">
-                  <label className="flex h-10 flex-1 cursor-pointer items-center justify-center rounded-full bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90">
-                    <Upload className="mr-2 size-4" />
-                    {uploadingProductId === product.id ? "Enviando..." : product.image_url ? "Trocar foto" : "Enviar foto"}
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      className="hidden"
-                      disabled={uploadingProductId === product.id}
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        event.currentTarget.value = "";
-                        if (file) void onUpload(product, file);
-                      }}
-                    />
-                  </label>
-                  {product.image_url && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="size-10 rounded-full"
-                      title="Remover foto"
-                      disabled={uploadingProductId === product.id}
-                      onClick={() => void onRemove(product)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
-  );
-}
-
-function OrderCard({ order, onStatus }: { order: Order; onStatus: (order: Order, status: OrderStatus) => void }) {
-  const nextIndex = statusFlow.findIndex((item) => item.value === order.status) + 1;
-  const next = statusFlow[nextIndex];
-
-  return (
-    <article className="overflow-hidden rounded-[1.5rem] border bg-card shadow-soft">
-      <div className="flex items-start justify-between gap-3 border-b p-5">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">#{order.order_number}</span>
-            <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">{statusLabel[order.status]}</span>
-          </div>
-          <h3 className="mt-3 text-xl">{order.customer_name}</h3>
-          <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><UserRound className="size-3.5" />{order.customer_phone}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-lg font-bold">{formatCurrency(order.total)}</p>
-          <p className="text-xs text-muted-foreground">{paymentLabel[order.payment_method]}</p>
-        </div>
-      </div>
-
-      <div className="space-y-3 p-5">
-        {order.order_items.map((item) => (
-          <div key={item.id} className="rounded-xl bg-muted/60 p-3 text-sm">
-            <div className="flex justify-between gap-3">
-              <p className="font-semibold">{item.quantity}× {item.product_name}{item.second_product_name ? ` + ${item.second_product_name}` : ""}</p>
-              <span className="font-medium">{formatCurrency(item.unit_price * item.quantity)}</span>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">{[item.size_name, item.crust_name].filter(Boolean).join(" · ")}</p>
-            {item.notes && <p className="mt-1 text-xs">Obs.: {item.notes}</p>}
-          </div>
-        ))}
-
-        {order.fulfillment === "DELIVERY" && (
-          <div className="rounded-xl border p-3 text-sm">
-            <p className="font-semibold">Entrega</p>
-            <p className="mt-1 text-muted-foreground">
-              {order.address_street}, {order.address_number} · {order.address_neighborhood}
-              {order.address_complement ? ` · ${order.address_complement}` : ""}
-            </p>
-          </div>
-        )}
-
-        {order.notes && <p className="text-sm"><strong>Observação:</strong> {order.notes}</p>}
-
-        <div className="flex flex-col gap-2 pt-1 sm:flex-row">
-          {next && (
-            <Button onClick={() => onStatus(order, next.value)} className="h-11 flex-1 rounded-full">
-              <Check className="mr-2 size-4" /> {next.label}
-            </Button>
-          )}
-          {order.status !== "CANCELLED" && order.status !== "DELIVERED" && (
-            <Button variant="outline" onClick={() => onStatus(order, "CANCELLED")} className="h-11 rounded-full">
-              Cancelar
-            </Button>
-          )}
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function PanelShell({ children }: { children: ReactNode }) {
-  return <div className="min-h-screen bg-background text-foreground">{children}</div>;
-}
