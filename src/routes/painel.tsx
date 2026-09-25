@@ -10,6 +10,22 @@ export const Route = createFileRoute("/painel")({
   component: StaffPanel,
 });
 
+type BusinessType = "PIZZERIA" | "RESTAURANT" | "RETAIL" | "SERVICES" | "BEAUTY";
+type PanelView = "overview" | "management" | "orders";
+
+type BusinessProfile = {
+  type: BusinessType;
+  displayName: string;
+  modules: { catalog: boolean; orders: boolean; delivery: boolean };
+};
+
+// The pizzaria is the first business module; capabilities stay reusable for future niches.
+const businessProfile: BusinessProfile = {
+  type: "PIZZERIA",
+  displayName: "Pizzaria",
+  modules: { catalog: true, orders: true, delivery: true },
+};
+
 type Product = {
   id: string;
   category_id: string | null;
@@ -107,7 +123,7 @@ function StaffPanel() {
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeView, setActiveView] = useState<"overview" | "management" | "orders">("overview");
+  const [activeView, setActiveView] = useState<PanelView>("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const loadSession = async () => {
@@ -527,6 +543,7 @@ function StaffPanel() {
               <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Resumo de hoje</p>
               <h2 className="mt-1 text-2xl sm:text-3xl">Destaques do dia</h2>
               <p className="mt-1 text-sm text-muted-foreground">Uma visão rápida do movimento da sua loja hoje.</p>
+              <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
             </div>
             <p className="text-xs text-muted-foreground">{todayHighlights.todayOrders.length} pedido(s) registrados hoje</p>
           </div>
@@ -570,6 +587,7 @@ function StaffPanel() {
             title="Catálogo da loja"
             description="Organize produtos, adicionais e fotos em um único espaço."
           />
+          <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
         )}
 
         {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "management" && (
@@ -610,6 +628,7 @@ function StaffPanel() {
           title="Fila de pedidos"
           description="Pedidos que ainda precisam de alguma ação da equipe."
           />
+          <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
 
         <div id="pedidos" className="mb-5 mt-6 scroll-mt-24 flex items-end justify-between gap-4">
           <div>
@@ -639,6 +658,38 @@ function StaffPanel() {
         </div>
       </main>
     </PanelShell>
+  );
+}
+
+function InlineViewNav({
+  activeView,
+  onChange,
+  role,
+}: {
+  activeView: PanelView;
+  onChange: (view: PanelView) => void;
+  role: string | null;
+}) {
+  const items: Array<{ view: PanelView; icon: typeof BarChart3; label: string }> = [
+    { view: "overview", icon: BarChart3, label: "Visão geral" },
+    ...(["OWNER", "ADMIN"].includes(role ?? "") ? [{ view: "management" as PanelView, icon: Settings2, label: "Gestão" }] : []),
+    { view: "orders", icon: ShoppingBag, label: "Pedidos" },
+  ];
+
+  return (
+    <nav className="mt-3 flex flex-wrap gap-1 rounded-xl border bg-background p-1" aria-label="Navegação desta página">
+      {items.filter((item) => item.view !== activeView).map((item) => (
+        <button
+          key={item.view}
+          type="button"
+          onClick={() => onChange(item.view)}
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-3 sm:text-sm"
+        >
+          <item.icon className="size-3.5 sm:size-4" />
+          {item.label}
+        </button>
+      ))}
+    </nav>
   );
 }
 
