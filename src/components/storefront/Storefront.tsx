@@ -247,28 +247,27 @@ export function Storefront({ slug }: { slug?: string }) {
     >
       <div className="overflow-hidden bg-secondary text-secondary-foreground" aria-hidden="true"><div className="ppp-ticker-run flex min-w-max items-center gap-8 py-2 font-display text-[11px] uppercase tracking-[.16em]">{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={index} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={`repeat-${index}`} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}</div></div>
 
-      <header className="sticky top-0 z-40 border-b-2 border-secondary bg-background/95 shadow-[0_1px_0_rgba(0,0,0,.05)] backdrop-blur-xl">
-        <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+      <header className="sticky top-0 z-40 border-b-2 border-secondary bg-background/95 backdrop-blur-xl">
+        <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <a href="#inicio" className="flex min-w-0 items-center gap-3">
             {data.settings.logo_url ? (
-              <img src={data.settings.logo_url} alt="" className="size-10 rounded-xl object-cover" />
+              <img src={data.settings.logo_url} alt="" className="size-10 rounded-sm border-2 border-secondary object-cover" />
             ) : (
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary font-display text-lg font-semibold text-primary-foreground">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-sm border-2 border-secondary bg-primary font-display text-lg font-semibold text-primary-foreground">
                 {data.organization.name.charAt(0)}
               </div>
             )}
-            <div className="min-w-0">
-              <p className="truncate font-display text-lg font-semibold">{data.organization.name}</p>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span className={`size-1.5 rounded-full ${status.open ? "bg-success" : "bg-muted-foreground"}`} />
-                {status.label}
-              </div>
-            </div>
+            <p className="truncate font-display text-xl font-semibold uppercase tracking-tight">{data.organization.name}</p>
           </a>
-          <Button variant="outline" size="sm" className="gap-2 rounded-full px-3 sm:px-4" onClick={() => setCartOpen(true)}>
+          <nav className="hidden items-center gap-6 text-xs font-bold uppercase tracking-[.14em] md:flex">
+            <a href="#cardapio" className="transition-opacity hover:opacity-60">Cardápio</a>
+            <a href="#sobre" className="transition-opacity hover:opacity-60">A casa</a>
+            <a href="#contato" className="transition-opacity hover:opacity-60">Contato</a>
+          </nav>
+          <Button size="sm" className="gap-2 rounded-sm border-2 border-secondary px-4 font-display uppercase shadow-[3px_3px_0_rgba(0,0,0,.8)] transition-transform hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5" onClick={() => setCartOpen(true)}>
             <ShoppingBag className="size-4" />
-            <span className="hidden sm:inline">Carrinho</span>
-            {itemCount > 0 && <Badge className="rounded-full px-2">{itemCount}</Badge>}
+            <span>Pedir agora</span>
+            {itemCount > 0 && <Badge className="rounded-sm bg-background px-2 text-foreground">{itemCount}</Badge>}
           </Button>
         </div>
       </header>
@@ -311,7 +310,7 @@ export function Storefront({ slug }: { slug?: string }) {
             <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${selectedCategory === "all" ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}
+              className={`shrink-0 rounded-sm border-2 border-secondary px-4 py-2 text-sm font-semibold uppercase transition-colors ${selectedCategory === "all" ? "bg-primary text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]" : "bg-card hover:-translate-y-0.5"}`}
             >
               Todos
             </button>
@@ -319,7 +318,7 @@ export function Storefront({ slug }: { slug?: string }) {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${selectedCategory === category.id ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}
+                className={`shrink-0 rounded-sm border-2 border-secondary px-4 py-2 text-sm font-semibold uppercase transition-colors ${selectedCategory === category.id ? "bg-primary text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]" : "bg-card hover:-translate-y-0.5"}`}
               >
                 {category.name}
                 <span className="ml-1.5 opacity-60">{categoryProducts.get(category.id) ?? 0}</span>
@@ -333,7 +332,7 @@ export function Storefront({ slug }: { slug?: string }) {
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Buscar no cardápio"
-                className="h-11 w-full rounded-xl border-2 bg-card px-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
+                className="h-11 w-full rounded-sm border-2 border-secondary bg-card px-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:shadow-[3px_3px_0_rgba(0,0,0,.7)]"
               />
             </label>
           </div>
@@ -390,7 +389,7 @@ export function Storefront({ slug }: { slug?: string }) {
                             {product.description || "Uma opção preparada para você."}
                           </p>
                         </div>
-                        <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-sm font-bold text-primary">{formatCurrency(displayPrice)}</span>
+                        <span className="relative -mr-1 -mt-1 shrink-0 -rotate-3 border-2 border-secondary bg-primary px-3 py-2 font-display text-sm font-bold text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]">{formatCurrency(displayPrice)}</span>
                       </div>
                       <div className="mt-4 flex items-center justify-between border-t pt-3 text-sm font-semibold">
                         <span>{product.allow_half ? "Aceita meio a meio" : "Personalize seu pedido"}</span>
