@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { BarChart3, Check, ChevronUp, Clock3, ImagePlus, LogOut, Menu, Package, Pencil, Plus, RefreshCw, Save, Settings2, ShoppingBag, Tag, Trash2, Upload, UserRound, X } from "lucide-react";
+import { BarChart3, Check, ChevronUp, Clock3, ImagePlus, LogOut, MapPin, Menu, Package, Pencil, Plus, RefreshCw, Save, Settings2, ShoppingBag, Tag, Trash2, Upload, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
-import type { OrderStatus } from "@/lib/domain/types";
+import type { DeliveryZone, OrderStatus } from "@/lib/domain/types";
 
 export const Route = createFileRoute("/painel")({
   component: StaffPanel,
@@ -119,6 +119,8 @@ function StaffPanel() {
   const [savingProductId, setSavingProductId] = useState<string | null>(null);
   const [addons, setAddons] = useState<Addon[]>([]);
   const [savingAddonId, setSavingAddonId] = useState<string | null>(null);
+  const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
+  const [savingDeliveryZoneId, setSavingDeliveryZoneId] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
@@ -159,7 +161,7 @@ function StaffPanel() {
     setRole(data.role);
     const org = data.organizations as { name?: string } | null;
     setOrganizationName(org?.name ?? "Sua loja");
-    await Promise.all([loadOrders(data.organization_id), loadProducts(data.organization_id), loadAddons(data.organization_id)]);
+    await Promise.all([loadOrders(data.organization_id), loadProducts(data.organization_id), loadAddons(data.organization_id), loadDeliveryZones(data.organization_id)]);
   };
 
   const loadProducts = async (orgId: string) => {
@@ -192,6 +194,76 @@ function StaffPanel() {
       .order("name", { ascending: true });
     if (addonsError) setError(addonsError.message);
     else setAddons((data ?? []) as Addon[]);
+  };
+
+  const loadDeliveryZones = async (orgId: string) => {
+    const { data, error: zonesError } = await supabase
+      .from("delivery_zones")
+      .select("id, organization_id, name, neighborhoods, minimum_order, delivery_fee, estimated_minutes, active")
+      .eq("organization_id", orgId)
+      .order("name", { ascending: true });
+    if (zonesError) setError(zonesError.message);
+    else setDeliveryZones((data ?? []) as DeliveryZone[]);
+  };
+
+  const createDeliveryZone = async () => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    setError(null);
+    const { data, error: createError } = await supabase
+      .from("delivery_zones")
+      .insert({
+        organization_id: organizationId,
+        name: "Nova área",
+        neighborhoods: [],
+        minimum_order: 0,
+        delivery_fee: 0,
+        estimated_minutes: 40,
+        active: true,
+      })
+      .select("id, organization_id, name, neighborhoods, minimum_order, delivery_fee, estimated_minutes, active")
+      .single();
+    if (createError) setError(createError.message);
+    else if (data) setDeliveryZones((current) => [...current, data as DeliveryZone]);
+  };
+
+  const saveDeliveryZone = async (draft: DeliveryZone) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!draft.name.trim()) {
+      setError("Informe o nome da área de entrega.");
+      return;
+    }
+    setSavingDeliveryZoneId(draft.id);
+    setError(null);
+    const neighborhoods = draft.neighborhoods
+      .map((item) => item.trim())
+      .filter(Boolean);
+    const { error: updateError } = await supabase
+      .from("delivery_zones")
+      .update({
+        name: draft.name.trim(),
+        neighborhoods,
+        minimum_order: Number(draft.minimum_order) || 0,
+        delivery_fee: Number(draft.delivery_fee) || 0,
+        estimated_minutes: draft.estimated_minutes == null ? null : Number(draft.estimated_minutes) || null,
+        active: draft.active,
+      })
+      .eq("id", draft.id)
+      .eq("organization_id", organizationId);
+    if (updateError) setError(updateError.message);
+    else await loadDeliveryZones(organizationId);
+    setSavingDeliveryZoneId(null);
+  };
+
+  const toggleDeliveryZone = async (zone: DeliveryZone) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    const next = !zone.active;
+    const { error: updateError } = await supabase
+      .from("delivery_zones")
+      .update({ active: next })
+      .eq("id", zone.id)
+      .eq("organization_id", organizationId);
+    if (updateError) setError(updateError.message);
+    else setDeliveryZones((current) => current.map((item) => item.id === zone.id ? { ...item, active: next } : item));
   };
 
   const saveAddon = async (draft: Addon) => {
@@ -616,6 +688,13 @@ function StaffPanel() {
             onSave={saveAddon}
             onToggle={toggleAddon}
           />
+            <DeliveryZoneManager
+            zones={deliveryZones}
+            savingZoneId={savingDeliveryZoneId}
+            onCreate={createDeliveryZone}
+            onSave={saveDeliveryZone}
+            onToggle={toggleDeliveryZone}
+          />
             <ProductImageManager
             products={products}
             uploadingProductId={imageUploading}
@@ -959,6 +1038,117 @@ function ProductEditorRow({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function DeliveryZoneManager({
+  zones,
+  savingZoneId,
+  onCreate,
+  onSave,
+  onToggle,
+}: {
+  zones: DeliveryZone[];
+  savingZoneId: string | null;
+  onCreate: () => void;
+  onSave: (zone: DeliveryZone) => void;
+  onToggle: (zone: DeliveryZone) => void;
+}) {
+  return (
+    <section className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Logística</p>
+          <h2 className="mt-1 text-2xl">Áreas de entrega</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Defina os bairros atendidos, a taxa e o tempo estimado de cada área.</p>
+        </div>
+        <Button onClick={onCreate} className="rounded-full">
+          <Plus className="mr-2 size-4" /> Nova área
+        </Button>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {zones.length === 0 ? (
+          <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+            Nenhuma área cadastrada. Crie uma área para liberar a entrega por bairro.
+          </div>
+        ) : (
+          zones.map((zone) => (
+            <DeliveryZoneEditorRow
+              key={zone.id}
+              zone={zone}
+              saving={savingZoneId === zone.id}
+              onSave={onSave}
+              onToggle={onToggle}
+            />
+          ))
+        )}
+      </div>
+    </section>
+  );
+}
+
+function DeliveryZoneEditorRow({
+  zone,
+  saving,
+  onSave,
+  onToggle,
+}: {
+  zone: DeliveryZone;
+  saving: boolean;
+  onSave: (zone: DeliveryZone) => void;
+  onToggle: (zone: DeliveryZone) => void;
+}) {
+  const [draft, setDraft] = useState(zone);
+
+  useEffect(() => {
+    setDraft(zone);
+  }, [zone]);
+
+  return (
+    <div className="rounded-2xl border bg-background p-4">
+      <div className="grid gap-3 sm:grid-cols-[1fr_140px_140px_120px]">
+        <label className="text-sm">
+          <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Nome da área</span>
+          <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" placeholder="Ex.: Centro" />
+        </label>
+        <label className="text-sm">
+          <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Taxa</span>
+          <input value={draft.delivery_fee} onChange={(e) => setDraft({ ...draft, delivery_fee: Number(e.target.value.replace(",", ".")) || 0 })} inputMode="decimal" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" placeholder="0,00" />
+        </label>
+        <label className="text-sm">
+          <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Pedido mínimo</span>
+          <input value={draft.minimum_order} onChange={(e) => setDraft({ ...draft, minimum_order: Number(e.target.value.replace(",", ".")) || 0 })} inputMode="decimal" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" placeholder="0,00" />
+        </label>
+        <label className="text-sm">
+          <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Tempo (min)</span>
+          <input value={draft.estimated_minutes ?? ""} onChange={(e) => setDraft({ ...draft, estimated_minutes: e.target.value ? Number(e.target.value) : null })} inputMode="numeric" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" placeholder="40" />
+        </label>
+      </div>
+
+      <label className="mt-3 block text-sm">
+        <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Bairros atendidos</span>
+        <input
+          value={draft.neighborhoods.join(", ")}
+          onChange={(e) => setDraft({ ...draft, neighborhoods: e.target.value.split(",") })}
+          className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+          placeholder="Ex.: Centro, Setor Oeste, Jardim América"
+        />
+        <span className="mt-1.5 block text-xs text-muted-foreground">Separe os bairros por vírgula.</span>
+      </label>
+
+      <div className="mt-3 flex flex-wrap justify-end gap-2">
+        <Button variant={draft.active ? "outline" : "secondary"} size="sm" className="rounded-full" onClick={() => setDraft({ ...draft, active: !draft.active })}>
+          {draft.active ? "Área ativa" : "Área inativa"}
+        </Button>
+        <Button size="sm" className="rounded-full" disabled={saving} onClick={() => onSave(draft)}>
+          <Save className="mr-1.5 size-4" /> {saving ? "Salvando..." : "Salvar área"}
+        </Button>
+        <Button variant="ghost" size="sm" className="rounded-full" onClick={() => onToggle(draft)}>
+          <MapPin className="mr-1.5 size-4" /> {draft.active ? "Desativar" : "Ativar"}
+        </Button>
+      </div>
     </div>
   );
 }
