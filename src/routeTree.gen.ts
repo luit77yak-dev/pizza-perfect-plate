@@ -49,10 +49,10 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/loja/$slug'
+  fullPaths: '/' | '/loja/$slug' | '/painel'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/loja/$slug'
-  id: '__root__' | '/' | '/loja/$slug'
+  to: '/' | '/loja/$slug' | '/painel'
+  id: '__root__' | '/' | '/loja/$slug' | '/painel'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -74,6 +74,13 @@ declare module '@tanstack/react-router' {
       path: '/loja/$slug'
       fullPath: '/loja/$slug'
       preLoaderRoute: typeof LojaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel': {
+      id: '/painel'
+      path: '/painel'
+      fullPath: '/painel'
+      preLoaderRoute: typeof PainelRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
