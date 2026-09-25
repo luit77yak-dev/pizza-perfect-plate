@@ -97,6 +97,7 @@ function StaffPanel() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [sizes, setSizes] = useState<ProductSize[]>([]);
   const [productPrices, setProductPrices] = useState<ProductPrice[]>([]);
+  const [productAddonIds, setProductAddonIds] = useState<Record<string, string[]>>({});
   const [imageUploading, setImageUploading] = useState<string | null>(null);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [savingProductId, setSavingProductId] = useState<string | null>(null);
@@ -141,18 +142,24 @@ function StaffPanel() {
   };
 
   const loadProducts = async (orgId: string) => {
-    const [productsResult, categoriesResult, sizesResult, pricesResult] = await Promise.all([
+    const [productsResult, categoriesResult, sizesResult, pricesResult, productAddonsResult] = await Promise.all([
       supabase.from("products").select("id, category_id, name, description, image_url, kind, base_price, allow_half, active, featured, available, sort_order").eq("organization_id", orgId).order("sort_order", { ascending: true }).order("name", { ascending: true }),
       supabase.from("categories").select("id, name, active, sort_order").eq("organization_id", orgId).order("sort_order", { ascending: true }).order("name", { ascending: true }),
       supabase.from("product_sizes").select("id, name, slices, active, sort_order").eq("organization_id", orgId).order("sort_order", { ascending: true }),
       supabase.from("product_prices").select("id, product_id, size_id, price").eq("organization_id", orgId),
+      supabase.from("product_addon_links").select("product_id, addon_id, sort_order").eq("organization_id", orgId).order("sort_order", { ascending: true }),
     ]);
-    const firstError = productsResult.error ?? categoriesResult.error ?? sizesResult.error ?? pricesResult.error;
+    const firstError = productsResult.error ?? categoriesResult.error ?? sizesResult.error ?? pricesResult.error ?? productAddonsResult.error;
     if (firstError) { setError(firstError.message); return; }
+    const addonMap: Record<string, string[]> = {};
+    for (const row of productAddonsResult.data ?? []) {
+      (addonMap[row.product_id] ??= []).push(row.addon_id);
+    }
     setProducts((productsResult.data ?? []) as Product[]);
     setCategories((categoriesResult.data ?? []) as Category[]);
     setSizes((sizesResult.data ?? []) as ProductSize[]);
     setProductPrices((pricesResult.data ?? []) as ProductPrice[]);
+    setProductAddonIds(addonMap);
   };
 
   const loadAddons = async (orgId: string) => {
@@ -246,7 +253,7 @@ function StaffPanel() {
     setAuthLoading(false);
   };
 
-  const saveProduct = async (draft: Product, sizePrices: Record<string, string>) => {
+  const saveProduct = async (draft: Product, sizePrices: Record<string, string>, addonIds: string[]) => {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
     if (!draft.name.trim()) { setError("Informe o nome do produto."); return; }
     const basePrice = Number(String(draft.base_price).replace(",", "."));
@@ -273,6 +280,23 @@ function StaffPanel() {
       const { error: pricesError } = await supabase.from("product_prices").insert(priceRows);
       if (pricesError) { setError(pricesError.message); setSavingProductId(null); return; }
     }
+
+    const { error: deleteAddonsError } = await supabase.from("product_addon_links").delete()
+      .eq("organization_id", organizationId).eq("product_id", draft.id);
+    if (deleteAddonsError) { setError(deleteAddonsError.message); setSavingProductId(null); return; }
+
+    const addonRows = [...new Set(addonIds)]
+      .map((addonId, index) => ({
+        organization_id: organizationId,
+        product_id: draft.id,
+        addon_id: addonId,
+        sort_order: index,
+      }));
+    if (addonRows.length) {
+      const { error: addonsError } = await supabase.from("product_addon_links").insert(addonRows);
+      if (addonsError) { setError(addonsError.message); setSavingProductId(null); return; }
+    }
+
     await loadProducts(organizationId);
     setEditingProductId(null);
     setSavingProductId(null);
@@ -452,6 +476,8 @@ function StaffPanel() {
             categories={categories}
             sizes={sizes}
             prices={productPrices}
+            addons={addons}
+            productAddonIds={productAddonIds}
             editingProductId={editingProductId}
             savingProductId={savingProductId}
             onCreate={createProduct}
@@ -511,11 +537,12 @@ function StaffPanel() {
 }
 
 function ProductCatalogManager({
-  products, categories, sizes, prices, editingProductId, savingProductId, onCreate, onEdit, onSave, onToggle,
+  products, categories, sizes, prices, addons, productAddonIds, editingProductId, savingProductId, onCreate, onEdit, onSave, onToggle,
 }: {
-  products: Product[]; categories: Category[]; sizes: ProductSize[]; prices: ProductPrice[];
+  products: Product[]; categories: Category[]; sizes: ProductSize[]; prices: ProductPrice[]; addons: Addon[];
+  productAddonIds: Record<string, string[]>;
   editingProductId: string | null; savingProductId: string | null; onCreate: () => void; onEdit: (id: string | null) => void;
-  onSave: (product: Product, sizePrices: Record<string, string>) => void;
+  onSave: (product: Product, sizePrices: Record<string, string>, addonIds: string[]) => void;
   onToggle: (product: Product, field: "active" | "available" | "featured") => void;
 }) {
   return (
@@ -531,6 +558,7 @@ function ProductCatalogManager({
       <div className="mt-5 space-y-2">
         {products.length === 0 ? <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">Nenhum produto cadastrado.</div> :
           products.map((product) => <ProductEditorRow key={product.id} product={product} categories={categories} sizes={sizes} prices={prices}
+            addons={addons} addonIds={productAddonIds[product.id] ?? []}
             expanded={editingProductId === product.id} saving={savingProductId === product.id} onEdit={() => onEdit(editingProductId === product.id ? null : product.id)}
             onSave={onSave} onToggle={onToggle} />)}
       </div>
@@ -539,14 +567,15 @@ function ProductCatalogManager({
 }
 
 function ProductEditorRow({
-  product, categories, sizes, prices, expanded, saving, onEdit, onSave, onToggle,
+  product, categories, sizes, prices, addons, addonIds, expanded, saving, onEdit, onSave, onToggle,
 }: {
-  product: Product; categories: Category[]; sizes: ProductSize[]; prices: ProductPrice[];
-  expanded: boolean; saving: boolean; onEdit: () => void; onSave: (product: Product, sizePrices: Record<string, string>) => void;
+  product: Product; categories: Category[]; sizes: ProductSize[]; prices: ProductPrice[]; addons: Addon[]; addonIds: string[];
+  expanded: boolean; saving: boolean; onEdit: () => void; onSave: (product: Product, sizePrices: Record<string, string>, addonIds: string[]) => void;
   onToggle: (product: Product, field: "active" | "available" | "featured") => void;
 }) {
   const [draft, setDraft] = useState(product);
   const [sizePrices, setSizePrices] = useState<Record<string, string>>({});
+  const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>(addonIds);
 
   useEffect(() => {
     setDraft(product);
@@ -556,7 +585,8 @@ function ProductEditorRow({
       initial[size.id] = row ? String(row.price) : "";
     });
     setSizePrices(initial);
-  }, [product, prices, sizes]);
+    setSelectedAddonIds(addonIds);
+  }, [product, prices, sizes, addonIds]);
 
   const categoryName = categories.find((category) => category.id === product.category_id)?.name;
 
@@ -614,6 +644,45 @@ function ProductEditorRow({
               </div>
             </div>
           )}
+          {addons.length > 0 && (
+            <div className="mt-4 rounded-2xl border bg-background p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold">Adicionais deste produto</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Escolha quais extras aparecem para o cliente ao montar este produto.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedAddonIds((current) => current.length === addons.length ? [] : addons.filter((addon) => addon.active).map((addon) => addon.id))}
+                  className="text-xs font-semibold text-primary"
+                >
+                  {selectedAddonIds.length > 0 ? "Limpar" : "Selecionar ativos"}
+                </button>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {addons.filter((addon) => addon.active || selectedAddonIds.includes(addon.id)).map((addon) => {
+                  const checked = selectedAddonIds.includes(addon.id);
+                  return (
+                    <button
+                      key={addon.id}
+                      type="button"
+                      onClick={() => setSelectedAddonIds((current) => checked ? current.filter((id) => id !== addon.id) : [...current, addon.id])}
+                      className={`flex items-center justify-between rounded-xl border px-3 py-2 text-left text-sm ${checked ? "border-primary bg-primary/5" : "bg-card"}`}
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className={`flex size-5 shrink-0 items-center justify-center rounded-md border ${checked ? "border-primary bg-primary text-primary-foreground" : ""}`}>
+                          {checked ? <Check className="size-3.5" /> : null}
+                        </span>
+                        <span className="truncate">{addon.name}</span>
+                      </span>
+                      <span className="ml-2 shrink-0 text-xs font-semibold">{formatCurrency(Number(addon.price))}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="mt-4 flex flex-wrap gap-2">
             <button type="button" onClick={() => setDraft({ ...draft, active: !draft.active })} className={`rounded-full border px-3 py-2 text-xs font-semibold ${draft.active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>No cardápio</button>
             <button type="button" onClick={() => setDraft({ ...draft, available: !draft.available })} className={`rounded-full border px-3 py-2 text-xs font-semibold ${draft.available ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>Disponível</button>
@@ -621,7 +690,7 @@ function ProductEditorRow({
             {draft.kind === "PIZZA" && <button type="button" onClick={() => setDraft({ ...draft, allow_half: !draft.allow_half })} className={`rounded-full border px-3 py-2 text-xs font-semibold ${draft.allow_half ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>Meio a meio</button>}
           </div>
           <div className="mt-4 flex justify-end gap-2"><Button variant="outline" onClick={onEdit} className="rounded-full"><X className="mr-1.5 size-4" /> Fechar</Button>
-            <Button onClick={() => onSave(draft, sizePrices)} disabled={saving} className="rounded-full"><Save className="mr-1.5 size-4" />{saving ? "Salvando..." : "Salvar alterações"}</Button>
+            <Button onClick={() => onSave(draft, sizePrices, selectedAddonIds)} disabled={saving} className="rounded-full"><Save className="mr-1.5 size-4" />{saving ? "Salvando..." : "Salvar alterações"}</Button>
           </div>
         </div>
       )}
