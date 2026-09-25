@@ -8,10 +8,10 @@
 - [ ] Regras de negócio centralizadas (src/lib/pricing.ts, store-hours.ts, order-status.ts) + Zod schemas
 
 ## Fase 2 — Loja pública
-- [ ] Layout da loja (/loja/:slug e / redirecionando para a demo)
-- [ ] Header, hero, banner de cupom, categorias, grid de produtos
-- [ ] Modal de produto (tamanho, meio a meio, borda, adicionais, observações)
-- [ ] Carrinho persistente
+- [x] Layout da loja (/loja/:slug e / redirecionando para a demo)
+- [x] Header, hero, status da loja, categorias, grid de produtos
+- [x] Modal de produto (tamanho, meio a meio, borda, adicionais, observações)
+- [x] Carrinho persistente
 - [ ] Checkout (entrega/retirada, zona, cupom, pagamento) com idempotência
 - [ ] Criação do pedido via server function (validação server-side)
 - [ ] Confirmação + mensagem WhatsApp + acompanhamento /pedido/:id
