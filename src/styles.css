@@ -377,7 +377,7 @@
 
   /* Keep the ordering UI recognizable, but give it the same visual language. */
   [role="dialog"] .rounded-3xl,
-  [role="dialog"] .rounded-[2rem] {
+  [role="dialog"] .rounded-\[2rem\] {
     border-radius: .5rem;
   }
 
