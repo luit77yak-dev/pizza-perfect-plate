@@ -223,49 +223,6 @@ export function Storefront({ slug }: { slug?: string }) {
           </Button>
         </section>
 
-        <section id="sobre" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-          <div className="grid overflow-hidden rounded-[1.5rem] border-2 bg-secondary text-secondary-foreground shadow-lifted lg:grid-cols-[1.1fr_.9fr]">
-            <div className="p-7 sm:p-10 lg:p-14">
-              <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary-foreground/70">A casa</p>
-              <h2 className="mt-3 text-4xl leading-[.92] sm:text-6xl">Feito para pedir. Pensado para voltar.</h2>
-              <p className="mt-5 max-w-xl text-sm leading-7 text-secondary-foreground/75 sm:text-base">
-                {data.settings.description || "Uma experiência de pizza simples, rápida e feita para transformar o cardápio em pedido."}
-              </p>
-            </div>
-            <div className="grid min-h-64 place-items-center bg-primary p-8 text-center">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary-foreground/75">Funcionamento</p>
-                <p className="mt-3 font-display text-3xl text-primary-foreground">{data.hours.length ? "Consulte nossos horários" : "Pedidos online"}</p>
-                <div className="mt-4 space-y-1 text-sm text-primary-foreground/80">
-                  {data.hours.slice(0, 4).map((hour) => (
-                    <p key={hour.weekday}>{hour.closed ? "Fechado" : (hour.opens_at?.slice(0, 5) ?? "") + " às " + (hour.closes_at?.slice(0, 5) ?? "")}</p>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="contato" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6">
-          <div className="rounded-[1.5rem] border-2 bg-primary p-7 text-primary-foreground shadow-lifted sm:p-10 lg:p-14">
-            <p className="text-xs font-semibold uppercase tracking-[.2em] opacity-75">Contato</p>
-            <h2 className="mt-2 text-[clamp(4rem,14vw,9rem)] leading-[.8]">Bora pedir?</h2>
-            <div className="mt-10 grid gap-3 sm:grid-cols-3">
-              <a href="#cardapio" className="rounded-xl bg-primary-foreground/10 p-4 transition-transform hover:-translate-y-1">
-                <span className="block text-xs uppercase tracking-widest opacity-70">Cardápio</span>
-                <span className="mt-1 block font-semibold">Escolher agora</span>
-              </a>
-              <div className="rounded-xl bg-primary-foreground/10 p-4">
-                <span className="block text-xs uppercase tracking-widest opacity-70">Atendimento</span>
-                <span className="mt-1 block font-semibold">{data.settings.delivery_enabled ? "Delivery" : "Retirada"} {data.settings.pickup_enabled && data.settings.delivery_enabled ? "e retirada" : ""}</span>
-              </div>
-              <div className="rounded-xl bg-primary-foreground/10 p-4">
-                <span className="block text-xs uppercase tracking-widest opacity-70">Pedido</span>
-                <span className="mt-1 block font-semibold">Online e direto na loja</span>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
     );
   }
@@ -484,6 +441,50 @@ export function Storefront({ slug }: { slug?: string }) {
             </div>
           )}
         </section>
+        <section id="sobre" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+          <div className="grid overflow-hidden rounded-[1.5rem] border-2 bg-secondary text-secondary-foreground shadow-lifted lg:grid-cols-[1.1fr_.9fr]">
+            <div className="p-7 sm:p-10 lg:p-14">
+              <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary-foreground/70">A casa</p>
+              <h2 className="mt-3 text-4xl leading-[.92] sm:text-6xl">Feito para pedir. Pensado para voltar.</h2>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-secondary-foreground/75 sm:text-base">
+                {data.settings.description || "Uma experiência de pizza simples, rápida e feita para transformar o cardápio em pedido."}
+              </p>
+            </div>
+            <div className="grid min-h-64 place-items-center bg-primary p-8 text-center">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary-foreground/75">Funcionamento</p>
+                <p className="mt-3 font-display text-3xl text-primary-foreground">{data.hours.length ? "Consulte nossos horários" : "Pedidos online"}</p>
+                <div className="mt-4 space-y-1 text-sm text-primary-foreground/80">
+                  {data.hours.slice(0, 4).map((hour) => (
+                    <p key={hour.weekday}>{hour.closed ? "Fechado" : (hour.opens_at?.slice(0, 5) ?? "") + " às " + (hour.closes_at?.slice(0, 5) ?? "")}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="contato" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6">
+          <div className="rounded-[1.5rem] border-2 bg-primary p-7 text-primary-foreground shadow-lifted sm:p-10 lg:p-14">
+            <p className="text-xs font-semibold uppercase tracking-[.2em] opacity-75">Contato</p>
+            <h2 className="mt-2 text-[clamp(4rem,14vw,9rem)] leading-[.8]">Bora pedir?</h2>
+            <div className="mt-10 grid gap-3 sm:grid-cols-3">
+              <a href="#cardapio" className="rounded-xl bg-primary-foreground/10 p-4 transition-transform hover:-translate-y-1">
+                <span className="block text-xs uppercase tracking-widest opacity-70">Cardápio</span>
+                <span className="mt-1 block font-semibold">Escolher agora</span>
+              </a>
+              <div className="rounded-xl bg-primary-foreground/10 p-4">
+                <span className="block text-xs uppercase tracking-widest opacity-70">Atendimento</span>
+                <span className="mt-1 block font-semibold">{data.settings.delivery_enabled ? "Delivery" : "Retirada"} {data.settings.pickup_enabled && data.settings.delivery_enabled ? "e retirada" : ""}</span>
+              </div>
+              <div className="rounded-xl bg-primary-foreground/10 p-4">
+                <span className="block text-xs uppercase tracking-widest opacity-70">Pedido</span>
+                <span className="mt-1 block font-semibold">Online e direto na loja</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </main>
 
       {selectedProduct && (
