@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Check,
@@ -192,7 +192,7 @@ export function Storefront() {
         {
           ...(primary ? { "--primary": primary } : {}),
           ...(secondary ? { "--secondary": secondary } : {}),
-        } as React.CSSProperties
+        } as CSSProperties
       }
     >
       <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur-xl">
