@@ -125,6 +125,7 @@ function StaffPanel() {
   const [error, setError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<PanelView>("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const loadSession = async () => {
     const { data } = await supabase.auth.getSession();
@@ -578,7 +579,7 @@ function StaffPanel() {
           title="Acompanhamento dos pedidos"
           description="Consulte rapidamente os últimos pedidos e avance o atendimento."
           />
-          <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} />
+          <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} onDetails={setSelectedOrder} />
         </div>
 
         {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "management" && (
