@@ -247,7 +247,7 @@ function StaffPanel() {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
     const date = new Date();
     date.setDate(date.getDate() + 1);
-    const dateValue = date.toISOString().slice(0, 10);
+    const dateValue = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     const { data, error: createError } = await supabase.from("special_hours").upsert({
       organization_id: organizationId, date: dateValue, opens_at: "18:00", closes_at: "23:00", closed: false, note: "",
     }, { onConflict: "organization_id,date" }).select("id, organization_id, date, opens_at, closes_at, closed, note").single();
