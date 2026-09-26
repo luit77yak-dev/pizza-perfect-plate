@@ -1000,6 +1000,10 @@ function StaffPanel() {
           </div>
         )}
         </div>
+
+        {selectedOrder && (
+          <OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+        )}
       </main>
     </PanelShell>
   );
@@ -1792,6 +1796,89 @@ function ProductImageManager({
         )}
       </div>
     </section>
+  );
+}
+
+
+function OrderDetailsModal({
+  order,
+  onClose,
+}: {
+  order: Order;
+  onClose: () => void;
+}) {
+  const address = [order.address_street, order.address_number].filter(Boolean).join(", ");
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-foreground/40 p-0 backdrop-blur-sm sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={"Detalhes do pedido #" + order.order_number}>
+      <button className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar detalhes" />
+      <section className="relative max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-[1.75rem] border bg-background p-5 shadow-lifted sm:rounded-[1.75rem] sm:p-7">
+        <div className="flex items-start justify-between gap-4 border-b pb-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Detalhes do pedido</p>
+            <h2 className="mt-1 text-3xl">Pedido #{order.order_number}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {new Date(order.created_at).toLocaleString("pt-BR")} · {statusLabel[order.status]}
+            </p>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Fechar"><X className="size-5" /></Button>
+        </div>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border bg-card p-4">
+            <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Cliente</p>
+            <p className="mt-2 font-semibold">{order.customer_name}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{order.customer_phone}</p>
+          </div>
+          <div className="rounded-2xl border bg-card p-4">
+            <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Pagamento</p>
+            <p className="mt-2 font-semibold">{paymentLabel[order.payment_method]}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{order.fulfillment === "DELIVERY" ? "Entrega" : "Retirada"}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl border bg-card p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Itens do pedido</p>
+              <p className="mt-1 text-sm text-muted-foreground">{order.order_items.length} item(ns)</p>
+            </div>
+            <p className="text-xl font-bold">{formatCurrency(order.total)}</p>
+          </div>
+
+          <div className="mt-4 divide-y">
+            {order.order_items.map((item) => (
+              <div key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">{item.quantity}</div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold">
+                    {item.product_name}{item.second_product_name ? " + " + item.second_product_name : ""}
+                  </p>
+                  <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                    {item.size_name && <span>Tamanho: {item.size_name}</span>}
+                    {item.crust_name && <span>Borda: {item.crust_name}</span>}
+                  </div>
+                  {item.notes && <p className="mt-2 rounded-lg bg-muted/50 px-3 py-2 text-xs">Observação: {item.notes}</p>}
+                </div>
+                <p className="shrink-0 font-semibold">{formatCurrency(Number(item.unit_price) * Number(item.quantity))}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {(address || order.address_neighborhood || order.address_complement || order.notes) && (
+          <div className="mt-4 rounded-2xl border bg-card p-4">
+            <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Entrega e observações</p>
+            {address && <p className="mt-2 text-sm">{address}</p>}
+            {order.address_neighborhood && <p className="mt-1 text-sm text-muted-foreground">Bairro: {order.address_neighborhood}</p>}
+            {order.address_complement && <p className="mt-1 text-sm text-muted-foreground">Complemento: {order.address_complement}</p>}
+            {order.notes && <p className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-sm">Obs. do cliente: {order.notes}</p>}
+          </div>
+        )}
+
+        <div className="mt-5 flex justify-end"><Button onClick={onClose} className="rounded-full">Fechar</Button></div>
+      </section>
+    </div>
   );
 }
 
