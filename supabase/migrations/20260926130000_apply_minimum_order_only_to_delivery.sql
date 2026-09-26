@@ -42,6 +42,8 @@ DECLARE
   v_addon_total numeric(10,2);
   v_product_id uuid;
   v_second_product_id uuid;
+  v_product_name text;
+  v_second_product_name text;
   v_size_id uuid;
   v_is_half boolean;
 BEGIN
@@ -140,6 +142,13 @@ BEGIN
       RAISE EXCEPTION 'Produto inválido';
     END IF;
 
+    v_product_name := NULLIF(trim(COALESCE(v_product.name, v_item->>'product_name', '')), '');
+    IF v_product_name IS NULL THEN
+      RAISE EXCEPTION 'Produto sem nome cadastrado';
+    END IF;
+
+    v_second_product_name := NULL;
+
     IF v_is_half THEN
       IF NOT v_product.allow_half OR v_second_product_id IS NULL THEN
         RAISE EXCEPTION 'Meia pizza inválida';
@@ -156,6 +165,11 @@ BEGIN
 
       IF NOT FOUND OR NOT v_second_product.allow_half THEN
         RAISE EXCEPTION 'Segundo produto inválido';
+      END IF;
+
+      v_second_product_name := NULLIF(trim(COALESCE(v_second_product.name, '')), '');
+      IF v_second_product_name IS NULL THEN
+        RAISE EXCEPTION 'Segundo produto sem nome cadastrado';
       END IF;
 
       IF v_second_product_id = v_product_id THEN
@@ -274,8 +288,8 @@ BEGIN
       second_product_name, is_half, size_id, size_name, crust_id, crust_name,
       crust_price, unit_price, quantity, total_price, notes
     ) VALUES (
-      v_org, v_order_id, v_product_id, v_product.name, 
-      v_second_product_id, CASE WHEN v_is_half THEN v_second_product.name ELSE NULL END,
+      v_org, v_order_id, v_product_id, v_product_name, 
+      v_second_product_id, CASE WHEN v_is_half THEN v_second_product_name ELSE NULL END,
       v_is_half, v_size_id, CASE WHEN v_size_id IS NOT NULL THEN v_size.name ELSE NULL END,
       v_crust_id, CASE WHEN v_crust_id IS NOT NULL THEN v_crust.name ELSE NULL END,
       round(COALESCE(v_crust.price, 0), 2), v_unit_price, v_quantity,
