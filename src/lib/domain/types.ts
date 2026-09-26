@@ -174,6 +174,13 @@ export interface CartItemAddon {
   price: number;
 }
 
+export interface CartItemComplement {
+  productId: string;
+  productName: string;
+  imageUrl: string | null;
+  price: number;
+}
+
 export interface CartItem {
   /** id local do item no carrinho */
   lineId: string;
@@ -189,6 +196,7 @@ export interface CartItem {
   crustName: string | null;
   crustPrice: number;
   addons: CartItemAddon[];
+  complements: CartItemComplement[];
   quantity: number;
   notes: string | null;
   /** preco unitario calculado (base + borda + adicionais) */
