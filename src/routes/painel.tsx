@@ -812,47 +812,48 @@ function StaffPanel() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
-        <section className={`mb-5 rounded-[1.5rem] border bg-card p-4 shadow-soft sm:p-5 ${activeView === "overview" ? "" : "hidden"}`}>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <section className={`mb-4 rounded-[1.35rem] border bg-card p-4 shadow-soft sm:p-5 ${activeView === "overview" ? "" : "hidden"}`}>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Resumo de hoje</p>
-              <h2 className="mt-1 text-2xl sm:text-3xl">Destaques do dia</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Uma visão rápida do movimento da sua loja hoje.</p>
-              <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
+              <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Painel</p>
+              <h2 className="mt-1 text-2xl font-semibold tracking-tight">Visão geral</h2>
+              <p className="mt-1 text-sm text-muted-foreground">O essencial da operação de hoje, em um só lugar.</p>
             </div>
-            <p className="text-xs text-muted-foreground">{todayHighlights.todayOrders.length} pedido(s) registrados hoje</p>
+            <p className="text-xs text-muted-foreground">{todayHighlights.todayOrders.length} pedido(s) hoje</p>
           </div>
 
-          <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-            <HighlightCard label="Pedidos hoje" value={String(todayHighlights.todayOrders.length)} hint="Todos os pedidos recebidos" />
-            <HighlightCard label="Em andamento" value={String(todayHighlights.inProgress.length)} hint="Pedidos que ainda não foram concluídos" />
-            <HighlightCard label="Faturamento" value={formatCurrency(todayHighlights.revenue)} hint="Pedidos entregues hoje" />
-            <HighlightCard label="Ticket médio" value={formatCurrency(todayHighlights.averageTicket)} hint="Média dos pedidos entregues" />
+          <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <HighlightCard label="Pedidos hoje" value={String(todayHighlights.todayOrders.length)} hint="Recebidos hoje" />
+            <HighlightCard label="Em andamento" value={String(todayHighlights.inProgress.length)} hint="Aguardando atendimento" />
+            <HighlightCard label="Faturamento" value={formatCurrency(todayHighlights.revenue)} hint="Pedidos entregues" />
+            <HighlightCard label="Ticket médio" value={formatCurrency(todayHighlights.averageTicket)} hint="Por pedido entregue" />
           </div>
 
-          <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
-            <div className="rounded-xl border bg-background p-3.5">
-              <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Status do dia</p>
-              <div className="mt-3 flex flex-wrap gap-2 text-sm">
-                <span className="rounded-full bg-primary/10 px-3 py-1.5 font-medium text-primary">{todayHighlights.completed.length} entregues</span>
-                <span className="rounded-full bg-muted px-3 py-1.5 font-medium">{todayHighlights.inProgress.length} em andamento</span>
-                <span className="rounded-full bg-destructive/10 px-3 py-1.5 font-medium text-destructive">{todayHighlights.cancelled.length} cancelados</span>
+          <div className="mt-2 grid gap-2 sm:grid-cols-[1.4fr_1fr]">
+            <div className="rounded-xl border bg-background p-3">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Status do dia</p>
+                <span className="text-xs text-muted-foreground">{todayHighlights.todayOrders.length} pedidos</span>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                <span className="rounded-full bg-primary/10 px-2.5 py-1 font-medium text-primary">{todayHighlights.completed.length} entregues</span>
+                <span className="rounded-full bg-muted px-2.5 py-1 font-medium">{todayHighlights.inProgress.length} em andamento</span>
+                <span className="rounded-full bg-destructive/10 px-2.5 py-1 font-medium text-destructive">{todayHighlights.cancelled.length} cancelados</span>
               </div>
             </div>
-            <div className="rounded-xl border bg-background p-3.5">
+            <div className="rounded-xl border bg-background p-3">
               <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Cardápio</p>
-              <p className="mt-2 text-2xl font-semibold">{products.filter((product) => product.active && product.available).length}</p>
-              <p className="text-sm text-muted-foreground">produtos ativos e disponíveis para venda</p>
+              <div className="mt-2 flex items-baseline gap-2">
+                <p className="text-xl font-semibold">{products.filter((product) => product.active && product.available).length}</p>
+                <p className="text-xs text-muted-foreground">produtos disponíveis</p>
+              </div>
             </div>
           </div>
         </section>
 
         <div className={activeView === "overview" ? "" : "hidden"}>
-          <SectionHeading
-          eyebrow="Operação"
-          title="Acompanhamento dos pedidos"
-          description="Consulte rapidamente os últimos pedidos e avance o atendimento."
-          />
           <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} onDetails={setSelectedOrder} />
         </div>
 
@@ -1108,13 +1109,12 @@ function RecentOrdersSection({
 }) {
   return (
     <section className="mb-5 rounded-[1.25rem] border bg-card p-4 shadow-soft sm:p-5">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Acompanhamento</p>
-          <h2 className="mt-1 text-2xl">Pedidos recentes</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Os últimos pedidos recebidos aparecem aqui para consulta rápida.</p>
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Atendimento</p>
+          <h2 className="mt-1 text-xl font-semibold">Pedidos recentes</h2>
         </div>
-        <span className="text-xs text-muted-foreground">Últimos {orders.length}</span>
+        <span className="text-xs text-muted-foreground">{orders.length} exibido(s)</span>
       </div>
 
       {orders.length === 0 ? (
