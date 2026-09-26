@@ -925,3 +925,33 @@
     }
   }
 }
+
+
+/* Mobile product ticker: keep the green strip full-bleed and readable on narrow screens. */
+@layer components {
+  @media (max-width: 639px) {
+    .ppp-product-ticker {
+      width: 100%;
+      margin-bottom: 2.5rem;
+      overflow: hidden;
+      border-width: 2px;
+    }
+
+    .ppp-product-ticker > .ppp-ticker-run {
+      width: max-content;
+      min-width: max-content;
+      gap: 1.5rem;
+      padding-block: .7rem;
+      padding-inline: 0;
+      font-size: .68rem;
+      line-height: 1;
+      letter-spacing: .1em;
+      will-change: transform;
+    }
+
+    .ppp-product-ticker > .ppp-ticker-run span {
+      gap: 1.5rem;
+      white-space: nowrap;
+    }
+  }
+}
