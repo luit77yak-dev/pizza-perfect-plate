@@ -22,6 +22,7 @@ import { formatCurrency } from "@/lib/domain/money";
 import type {
   Addon,
   CartItem,
+  CartItemComplement,
   Category,
   Crust,
   Organization,
@@ -378,7 +379,7 @@ export function Storefront({ slug }: { slug?: string }) {
             >
               Todos
             </button>
-            {data.categories.map((category) => (
+            {data.categories.filter((category) => mainProducts.some((product) => product.category_id === category.id)).map((category) => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
@@ -653,34 +654,19 @@ function ProductConfigurator({
       crustName: crust?.name ?? null,
       crustPrice: Number(crust?.price ?? 0),
       addons: addons.map((addon) => ({ id: addon.id, name: addon.name, price: Number(addon.price) })),
+      complements: comboProductIds
+        .map((id) => data.products.find((item) => item.id === id))
+        .filter((item): item is Product => Boolean(item))
+        .map((item) => ({ productId: item.id, productName: item.name, imageUrl: item.image_url, price: Number(item.base_price) || 0 })),
       quantity,
       notes: notes.trim() || null,
-      unitPrice,
+      unitPrice: unitPrice + comboProductIds.reduce((sum, id) => {
+        const item = data.products.find((product) => product.id === id);
+        return sum + (Number(item?.base_price) || 0);
+      }, 0),
     };
 
-    const comboItems = comboProductIds
-      .map((id) => data.products.find((item) => item.id === id))
-      .filter((item): item is Product => Boolean(item))
-      .map((comboProduct) => ({
-        lineId: crypto.randomUUID(),
-        productId: comboProduct.id,
-        productName: comboProduct.name,
-        imageUrl: comboProduct.image_url,
-        secondProductId: null,
-        secondProductName: null,
-        isHalf: false,
-        sizeId: null,
-        sizeName: null,
-        crustId: null,
-        crustName: null,
-        crustPrice: 0,
-        addons: [],
-        quantity: 1,
-        notes: null,
-        unitPrice: Number(comboProduct.base_price) || 0,
-      }));
-
-    onAdded([mainItem, ...comboItems]);
+    onAdded([mainItem]);
   };
 
   const stepTitle =
@@ -1154,18 +1140,28 @@ function CheckoutPanel({
         address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
         notes: notes.trim() || null,
         idempotency_key: crypto.randomUUID(),
-        items: items.map((item) => ({
-          product_id: item.productId,
-          second_product_id: item.secondProductId,
-          is_half: item.isHalf,
-          size_id: item.sizeId,
-          crust_id: item.crustId,
-          quantity: item.quantity,
-          notes: item.notes,
-          addons: item.addons.map((addon) => ({
-            id: addon.id,
+        items: items.flatMap((item) => [
+          {
+            product_id: item.productId,
+            second_product_id: item.secondProductId,
+            is_half: item.isHalf,
+            size_id: item.sizeId,
+            crust_id: item.crustId,
+            quantity: item.quantity,
+            notes: item.notes,
+            addons: item.addons.map((addon) => ({ id: addon.id })),
+          },
+          ...item.complements.map((complement) => ({
+            product_id: complement.productId,
+            second_product_id: null,
+            is_half: false,
+            size_id: null,
+            crust_id: null,
+            quantity: 1,
+            notes: "Complemento do pedido: " + item.productName,
+            addons: [],
           })),
-        })),
+        ]),
       };
 
       const { data: created, error: createError } = await supabase.rpc(
@@ -1430,6 +1426,7 @@ function CheckoutPanel({
                   <div>
                     <p className="font-medium">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
                     <p className="text-xs text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
+                    {item.complements.length > 0 && <p className="mt-1 text-xs text-primary">+ {item.complements.map((complement) => complement.productName).join(", ")}</p>}
                   </div>
                   <span className="font-semibold">{formatCurrency(item.unitPrice * item.quantity)}</span>
                 </div>
