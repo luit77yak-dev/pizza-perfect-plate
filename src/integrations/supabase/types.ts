@@ -1303,6 +1303,15 @@ export type Database = {
       is_org_manager: { Args: { _org: string }; Returns: boolean }
       is_org_staff: { Args: { _org: string }; Returns: boolean }
       next_order_number: { Args: { _org: string }; Returns: number }
+      update_order_status: {
+        Args: {
+          p_note?: string | null
+          p_order_id: string
+          p_organization_id: string
+          p_status: Database["public"]["Enums"]["order_status"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:
