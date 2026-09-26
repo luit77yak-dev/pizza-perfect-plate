@@ -917,16 +917,16 @@ function ProductConfigurator({
           </div>
           <div className="flex items-center gap-3">
             {step > 1 ? (
-              <Button variant="outline" className="h-12 rounded-full" onClick={previousStep}>Voltar</Button>
+              <Button type="button" variant="outline" className="h-12 rounded-full" onClick={previousStep}>Voltar</Button>
             ) : (
-              <Button variant="outline" className="h-12 rounded-full" onClick={onClose}>Cancelar</Button>
+              <Button type="button" variant="outline" className="h-12 rounded-full" onClick={onClose}>Cancelar</Button>
             )}
             {step < totalSteps ? (
-              <Button className="h-12 flex-1 rounded-full" onClick={nextStep}>
+              <Button type="button" className="h-12 flex-1 rounded-full" onClick={nextStep}>
                 Próxima etapa <ChevronRight className="ml-1 size-4" />
               </Button>
             ) : (
-              <Button className="h-12 flex-1 rounded-full" onClick={addToCart}>
+              <Button type="button" className="h-12 flex-1 rounded-full" onClick={addToCart}>
                 Adicionar ao carrinho · {formatCurrency(unitPrice * quantity)}
               </Button>
             )}
