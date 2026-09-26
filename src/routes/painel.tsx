@@ -1297,7 +1297,7 @@ function SizeRow({ size, onSave, onDelete }: { size: ProductSize; onSave: (size:
 
 function OperationsManager({
   hours, specialHours, savingHour, savingSpecialHour, onSaveHour, onCreateSpecial, onSaveSpecial, onRemoveSpecial,
-  zones, savingZoneId, onCreateZone, onSaveZone, onToggleZone,
+  zones, savingZoneId, onCreateZone, onSaveZone, onToggleZone, onDeleteZone,
 }: {
   hours: StoreHour[]; specialHours: SpecialHour[]; savingHour: number | null; savingSpecialHour: string | null;
   onSaveHour: (hour: StoreHour) => void; onCreateSpecial: () => void; onSaveSpecial: (hour: SpecialHour) => void; onRemoveSpecial: (hour: SpecialHour) => void;
