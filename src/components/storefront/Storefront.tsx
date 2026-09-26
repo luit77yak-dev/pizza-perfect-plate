@@ -611,9 +611,17 @@ function ProductConfigurator({
   const [quantity, setQuantity] = useState(1);
 
   const secondProduct = data.products.find((item) => item.id === secondProductId) ?? null;
-  const comboProducts = data.products.filter((item) =>
-    data.products.some((candidate) => candidate.id === item.id && complementProducts.some((complement) => complement.id === item.id)),
-  );
+  const comboProducts = data.products.filter((item) => {
+    const categoryName = data.categories.find((category) => category.id === item.category_id)?.name ?? "";
+    const normalizedCategory = categoryName
+      .normalize("NFD")
+      .replace(/[\\u0300-\\u036f]/g, "")
+      .toLocaleLowerCase("pt-BR");
+    return (
+      item.kind === "SIMPLE" ||
+      /(bebida|bebidas|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(normalizedCategory)
+    );
+  });
   const selectedSize = data.sizes.find((size) => size.id === sizeId) ?? null;
   const basePrice = getPrice(product, sizeId, data.prices);
   const secondBasePrice = secondProduct ? getPrice(secondProduct, sizeId, data.prices) : basePrice;
