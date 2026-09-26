@@ -308,10 +308,11 @@ BEGIN
   END LOOP;
 
   IF v_fulfillment = 'DELIVERY'
-     AND v_subtotal < COALESCE(
-       (SELECT min_order_amount FROM organization_settings WHERE organization_id = v_org),
-       0
-     ) THEN
+     AND COALESCE(NULLIF(p_order->>'subtotal','')::numeric, v_subtotal) <
+         COALESCE(
+           (SELECT min_order_amount FROM organization_settings WHERE organization_id = v_org),
+           0
+         ) THEN
     RAISE EXCEPTION 'Pedido abaixo do mínimo da loja';
   END IF;
 
