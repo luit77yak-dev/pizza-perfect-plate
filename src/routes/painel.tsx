@@ -151,6 +151,7 @@ function StaffPanel() {
   const [savingProductId, setSavingProductId] = useState<string | null>(null);
   const [addons, setAddons] = useState<Addon[]>([]);
   const [savingAddonId, setSavingAddonId] = useState<string | null>(null);
+  const [creatingCatalogItem, setCreatingCatalogItem] = useState<string | null>(null);
   const [crusts, setCrusts] = useState<Crust[]>([]);
   const [savingCrustId, setSavingCrustId] = useState<string | null>(null);
   const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
@@ -425,6 +426,12 @@ function StaffPanel() {
 
   const createCrust = async () => {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (creatingCatalogItem === "crust") return;
+    if (crusts.some((item) => item.name.trim().toLowerCase() === "nova borda")) {
+      setError("Você já tem uma borda em criação. Edite a existente antes de criar outra.");
+      return;
+    }
+    setCreatingCatalogItem("crust");
     setError(null);
     const { data, error: createError } = await supabase
       .from("product_crusts")
@@ -433,6 +440,7 @@ function StaffPanel() {
       .single();
     if (createError) setError(createError.message);
     else if (data) setCrusts((current) => [...current, data as Crust]);
+    setCreatingCatalogItem(null);
   };
 
   const saveCrust = async (draft: Crust) => {
@@ -553,15 +561,22 @@ function StaffPanel() {
 
   const createAddon = async () => {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (creatingCatalogItem === "addon") return;
+    if (addons.some((item) => item.name.trim().toLowerCase() === "novo adicional")) {
+      setError("Você já tem um adicional em criação. Edite o existente antes de criar outro.");
+      return;
+    }
+    setCreatingCatalogItem("addon");
     setError(null);
     const { data, error: createError } = await supabase
       .from("product_addons")
       .insert({ organization_id: organizationId, name: "Novo adicional", price: 0, active: true, sort_order: addons.length })
       .select("id, name, price, active, sort_order")
       .single();
-    if (createError) { setError(createError.message); return; }
+    if (createError) { setError(createError.message); setCreatingCatalogItem(null); return; }
     setAddons((current) => [...current, data as Addon]);
     setSavingAddonId(null);
+    setCreatingCatalogItem(null);
   };
 
   const toggleAddon = async (addon: Addon) => {
@@ -678,15 +693,22 @@ function StaffPanel() {
 
   const createProduct = async () => {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (creatingCatalogItem === "product") return;
+    if (products.some((item) => item.name.trim().toLowerCase() === "novo produto")) {
+      setError("Você já tem um produto em criação. Edite o existente antes de criar outro.");
+      return;
+    }
+    setCreatingCatalogItem("product");
     setError(null);
     const { data, error: createError } = await supabase.from("products").insert({
       organization_id: organizationId, name: "Novo produto", description: "", kind: "SIMPLE",
       base_price: 0, active: true, available: true, featured: false, allow_half: false, sort_order: products.length,
     }).select("id, category_id, name, description, image_url, kind, base_price, allow_half, active, featured, available, sort_order").single();
-    if (createError) { setError(createError.message); return; }
+    if (createError) { setError(createError.message); setCreatingCatalogItem(null); return; }
     const created = data as Product;
     setProducts((current) => [...current, created]);
     setEditingProductId(created.id);
+    setCreatingCatalogItem(null);
   };
 
   const toggleProduct = async (product: Product, field: "active" | "available" | "featured") => {
