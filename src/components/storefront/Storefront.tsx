@@ -195,6 +195,11 @@ export function Storefront({ slug }: { slug?: string }) {
     }
   }, [data?.organization?.id]);
 
+  useEffect(() => {
+    const interval = window.setInterval(() => setNow(new Date()), 30_000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   const filteredProducts = useMemo(() => {
     if (!data) return [];
     const term = searchTerm.trim().toLocaleLowerCase("pt-BR");
