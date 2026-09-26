@@ -245,11 +245,6 @@ export function Storefront({ slug }: { slug?: string }) {
     return pizzas.length > 0 ? pizzas : data.products;
   }, [data]);
 
-  const comboProducts = useMemo(
-    () => data?.products.filter((product) => product.kind === "SIMPLE") ?? [],
-    [data],
-  );
-
   const filteredProducts = useMemo(() => {
     if (!data) return [];
     const term = searchTerm.trim().toLocaleLowerCase("pt-BR");
@@ -600,6 +595,7 @@ function ProductConfigurator({
   const [quantity, setQuantity] = useState(1);
 
   const secondProduct = data.products.find((item) => item.id === secondProductId) ?? null;
+  const comboProducts = data.products.filter((item) => item.kind === "SIMPLE");
   const selectedSize = data.sizes.find((size) => size.id === sizeId) ?? null;
   const basePrice = getPrice(product, sizeId, data.prices);
   const secondBasePrice = secondProduct ? getPrice(secondProduct, sizeId, data.prices) : basePrice;
