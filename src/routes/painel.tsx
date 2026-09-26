@@ -1243,6 +1243,7 @@ function RecentOrdersSection({
 function CategoryManager({
   categories,
   onCreate,
+  onDelete,
   onSave,
 }: {
   categories: Category[];
@@ -1397,7 +1398,7 @@ function ProductCatalogManager({
 }
 
 function ProductEditorRow({
-  product, categories, sizes, prices, addons, addonIds, expanded, saving, onEdit, onSave, onToggle,
+  product, categories, sizes, prices, addons, addonIds, expanded, saving, onEdit, onSave, onToggle, onDelete,
 }: {
   product: Product; categories: Category[]; sizes: ProductSize[]; prices: ProductPrice[]; addons: Addon[]; addonIds: string[];
   expanded: boolean; saving: boolean; onEdit: () => void; onSave: (product: Product, sizePrices: Record<string, string>, addonIds: string[]) => void;
@@ -1536,6 +1537,7 @@ function CrustManager({
   onCreate,
   onSave,
   onToggle,
+  onDelete,
 }: {
   crusts: Crust[];
   savingCrustId: string | null;
@@ -1584,6 +1586,7 @@ function CrustEditorRow({
   saving,
   onSave,
   onToggle,
+  onDelete,
 }: {
   crust: Crust;
   saving: boolean;
@@ -1655,6 +1658,7 @@ function DeliveryZoneManager({
   onCreate,
   onSave,
   onToggle,
+  onDelete,
 }: {
   zones: DeliveryZone[];
   savingZoneId: string | null;
@@ -1703,6 +1707,7 @@ function DeliveryZoneEditorRow({
   saving,
   onSave,
   onToggle,
+  onDelete,
 }: {
   zone: DeliveryZone;
   saving: boolean;
@@ -1765,7 +1770,7 @@ function DeliveryZoneEditorRow({
 }
 
 function AddonManager({
-  addons, savingAddonId, onCreate, onSave, onToggle,
+  addons, savingAddonId, onCreate, onSave, onToggle, onDelete,
 }: {
   addons: Addon[];
   savingAddonId: string | null;
@@ -1810,7 +1815,7 @@ function AddonManager({
 }
 
 function AddonEditorRow({
-  addon, saving, onSave, onToggle,
+  addon, saving, onSave, onToggle, onDelete,
 }: {
   addon: Addon;
   saving: boolean;
