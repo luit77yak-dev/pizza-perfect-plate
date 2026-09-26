@@ -1187,6 +1187,7 @@ function CheckoutPanel({
     try {
       const payload = {
         organization_id: organization.id,
+        subtotal,
         customer_name: name.trim(),
         customer_phone: phone.trim(),
         fulfillment,
