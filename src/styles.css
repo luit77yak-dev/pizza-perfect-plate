@@ -532,11 +532,13 @@
       width: 100%;
       max-width: 100%;
       margin-inline: auto;
-      font-size: clamp(2.35rem, 11.5vw, 3.35rem);
-      line-height: .9;
+      font-size: clamp(2rem, 10vw, 2.65rem);
+      line-height: .92;
       letter-spacing: 0;
       text-align: center;
-      overflow-wrap: anywhere;
+      text-wrap: normal;
+      overflow-wrap: normal;
+      word-break: normal;
     }
 
     main#inicio > section:first-child > div > div:first-child > p + h1 + p {
