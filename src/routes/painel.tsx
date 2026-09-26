@@ -4,7 +4,7 @@ import { BarChart3, Check, ChevronUp, Clock3, ImagePlus, LogOut, MapPin, Menu, P
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
-import type { DeliveryZone, OrderStatus } from "@/lib/domain/types";
+import type { DeliveryZone, OrderStatus, SpecialHour, StoreHour } from "@/lib/domain/types";
 
 export const Route = createFileRoute("/painel")({
   component: StaffPanel,
@@ -154,6 +154,10 @@ function StaffPanel() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
   const [savingSettings, setSavingSettings] = useState(false);
+  const [storeHours, setStoreHours] = useState<StoreHour[]>([]);
+  const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
+  const [savingHour, setSavingHour] = useState<number | null>(null);
+  const [savingSpecialHour, setSavingSpecialHour] = useState<string | null>(null);
 
   const loadSession = async () => {
     const { data } = await supabase.auth.getSession();
@@ -187,7 +191,7 @@ function StaffPanel() {
     setRole(data.role);
     const org = data.organizations as { name?: string } | null;
     setOrganizationName(org?.name ?? "Sua loja");
-    await Promise.all([loadOrders(data.organization_id), loadProducts(data.organization_id), loadAddons(data.organization_id), loadDeliveryZones(data.organization_id), loadSettings(data.organization_id)]);
+    await Promise.all([loadOrders(data.organization_id), loadProducts(data.organization_id), loadAddons(data.organization_id), loadDeliveryZones(data.organization_id), loadSettings(data.organization_id), loadHours(data.organization_id)]);
   };
 
   const loadProducts = async (orgId: string) => {
@@ -209,6 +213,66 @@ function StaffPanel() {
     setSizes((sizesResult.data ?? []) as ProductSize[]);
     setProductPrices((pricesResult.data ?? []) as ProductPrice[]);
     setProductAddonIds(addonMap);
+  };
+
+  const loadHours = async (orgId: string) => {
+    const [weekly, special] = await Promise.all([
+      supabase.from("store_hours").select("id, organization_id, weekday, opens_at, closes_at, closed").eq("organization_id", orgId).order("weekday"),
+      supabase.from("special_hours").select("id, organization_id, date, opens_at, closes_at, closed, note").eq("organization_id", orgId).order("date", { ascending: true }),
+    ]);
+    const firstError = weekly.error ?? special.error;
+    if (firstError) { setError(firstError.message); return; }
+    setStoreHours((weekly.data ?? []) as StoreHour[]);
+    setSpecialHours((special.data ?? []) as SpecialHour[]);
+  };
+
+  const saveStoreHour = async (hour: StoreHour) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    setSavingHour(hour.weekday);
+    setError(null);
+    const payload = {
+      organization_id: organizationId,
+      weekday: hour.weekday,
+      opens_at: hour.closed ? null : (hour.opens_at || null),
+      closes_at: hour.closed ? null : (hour.closes_at || null),
+      closed: hour.closed,
+    };
+    const { error: saveError } = await supabase.from("store_hours").upsert(payload, { onConflict: "organization_id,weekday" });
+    if (saveError) setError(saveError.message);
+    else await loadHours(organizationId);
+    setSavingHour(null);
+  };
+
+  const createSpecialHour = async () => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+    const dateValue = date.toISOString().slice(0, 10);
+    const { data, error: createError } = await supabase.from("special_hours").upsert({
+      organization_id: organizationId, date: dateValue, opens_at: "18:00", closes_at: "23:00", closed: false, note: "",
+    }, { onConflict: "organization_id,date" }).select("id, organization_id, date, opens_at, closes_at, closed, note").single();
+    if (createError) setError(createError.message);
+    else if (data) setSpecialHours((current) => [...current.filter((item) => item.date !== data.date), data as SpecialHour].sort((a, b) => a.date.localeCompare(b.date)));
+  };
+
+  const saveSpecialHour = async (hour: SpecialHour) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!hour.date) { setError("Informe a data."); return; }
+    setSavingSpecialHour(hour.id);
+    setError(null);
+    const { error: saveError } = await supabase.from("special_hours").upsert({
+      organization_id: organizationId, date: hour.date, opens_at: hour.closed ? null : (hour.opens_at || null), closes_at: hour.closed ? null : (hour.closes_at || null), closed: hour.closed, note: hour.note?.trim() || null,
+    }, { onConflict: "organization_id,date" });
+    if (saveError) setError(saveError.message);
+    else await loadHours(organizationId);
+    setSavingSpecialHour(null);
+  };
+
+  const removeSpecialHour = async (hour: SpecialHour) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    const { error: deleteError } = await supabase.from("special_hours").delete().eq("id", hour.id).eq("organization_id", organizationId);
+    if (deleteError) setError(deleteError.message);
+    else setSpecialHours((current) => current.filter((item) => item.id !== hour.id));
   };
 
   const loadSettings = async (orgId: string) => {
@@ -766,6 +830,16 @@ function StaffPanel() {
                 if (updateError) setError(updateError.message); else await loadProducts(organizationId);
               }}
             />
+            <HoursManager
+              hours={storeHours}
+              specialHours={specialHours}
+              savingHour={savingHour}
+              savingSpecialHour={savingSpecialHour}
+              onSaveHour={saveStoreHour}
+              onCreateSpecial={createSpecialHour}
+              onSaveSpecial={saveSpecialHour}
+              onRemoveSpecial={removeSpecialHour}
+            />
             {settings && <StoreSettingsManager settings={settings} saving={savingSettings} onSave={saveSettings} />}
             <ProductCatalogManager
             products={products}
@@ -1017,6 +1091,33 @@ function SizeRow({ size, onSave }: { size: ProductSize; onSave: (size: ProductSi
   const [draft, setDraft] = useState(size);
   useEffect(() => setDraft(size), [size]);
   return <div className="flex flex-col gap-2 rounded-2xl border bg-background p-3 sm:flex-row sm:items-center"><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="h-11 min-w-0 flex-1 rounded-xl border bg-background px-3 outline-none focus:border-primary" /><input value={draft.slices ?? ""} onChange={(e) => setDraft({ ...draft, slices: e.target.value ? Number(e.target.value) : null })} type="number" min="1" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-28" placeholder="Fatias" aria-label="Fatias" /><input value={draft.sort_order} onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) || 0 })} type="number" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-24" aria-label="Ordem" /><Button variant={draft.active ? "outline" : "secondary"} size="sm" className="rounded-full" onClick={() => setDraft({ ...draft, active: !draft.active })}>{draft.active ? "Ativo" : "Inativo"}</Button><Button size="sm" className="rounded-full" onClick={() => onSave(draft)}><Save className="mr-1.5 size-4" />Salvar</Button></div>;
+}
+
+function HoursManager({
+  hours, specialHours, savingHour, savingSpecialHour, onSaveHour, onCreateSpecial, onSaveSpecial, onRemoveSpecial,
+}: {
+  hours: StoreHour[]; specialHours: SpecialHour[]; savingHour: number | null; savingSpecialHour: string | null;
+  onSaveHour: (hour: StoreHour) => void; onCreateSpecial: () => void; onSaveSpecial: (hour: SpecialHour) => void; onRemoveSpecial: (hour: SpecialHour) => void;
+}) {
+  const weekdays = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+  const normalized = weekdays.map((name, weekday) => hours.find((hour) => hour.weekday === weekday) ?? ({ id: `new-${weekday}`, organization_id: "", weekday, opens_at: "18:00", closes_at: "23:00", closed: weekday === 0 } as StoreHour));
+  return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
+    <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Operação</p><h2 className="mt-1 text-2xl">Horários de funcionamento</h2><p className="mt-1 text-sm text-muted-foreground">Defina quando a loja aceita pedidos. Você também pode cadastrar exceções para feriados e datas especiais.</p></div>
+    <div className="mt-5 grid gap-2">{normalized.map((hour) => <HourRow key={hour.weekday} hour={hour} label={weekdays[hour.weekday]} saving={savingHour === hour.weekday} onSave={onSaveHour} />)}</div>
+    <div className="mt-8 border-t pt-6"><div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Exceções</p><h3 className="mt-1 text-xl">Datas especiais</h3><p className="mt-1 text-sm text-muted-foreground">Feche a loja ou use horários diferentes em uma data específica.</p></div><Button onClick={onCreateSpecial} className="rounded-full"><Plus className="mr-2 size-4" />Adicionar data</Button></div><div className="mt-4 grid gap-3">{specialHours.map((hour) => <SpecialHourRow key={hour.id} hour={hour} saving={savingSpecialHour === hour.id} onSave={onSaveSpecial} onRemove={onRemoveSpecial} />)}{specialHours.length === 0 && <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">Nenhuma data especial cadastrada.</div>}</div></div>
+  </section>;
+}
+
+function HourRow({ hour, label, saving, onSave }: { hour: StoreHour; label: string; saving: boolean; onSave: (hour: StoreHour) => void }) {
+  const [draft, setDraft] = useState(hour);
+  useEffect(() => setDraft(hour), [hour]);
+  return <div className="grid gap-3 rounded-2xl border bg-background p-3 sm:grid-cols-[1fr_150px_150px_auto_auto] sm:items-center"><div className="font-medium">{label}</div><label className="text-xs text-muted-foreground">Abre<input type="time" disabled={draft.closed} value={draft.opens_at?.slice(0,5) ?? ""} onChange={(e) => setDraft({ ...draft, opens_at: e.target.value })} className="mt-1 h-10 w-full rounded-xl border bg-background px-3 text-sm text-foreground" /></label><label className="text-xs text-muted-foreground">Fecha<input type="time" disabled={draft.closed} value={draft.closes_at?.slice(0,5) ?? ""} onChange={(e) => setDraft({ ...draft, closes_at: e.target.value })} className="mt-1 h-10 w-full rounded-xl border bg-background px-3 text-sm text-foreground" /></label><Button variant={draft.closed ? "secondary" : "outline"} size="sm" className="rounded-full" onClick={() => setDraft({ ...draft, closed: !draft.closed })}>{draft.closed ? "Fechado" : "Aberto"}</Button><Button size="sm" className="rounded-full" disabled={saving} onClick={() => onSave(draft)}><Save className="mr-1.5 size-4" />{saving ? "Salvando" : "Salvar"}</Button></div>;
+}
+
+function SpecialHourRow({ hour, saving, onSave, onRemove }: { hour: SpecialHour; saving: boolean; onSave: (hour: SpecialHour) => void; onRemove: (hour: SpecialHour) => void }) {
+  const [draft, setDraft] = useState(hour);
+  useEffect(() => setDraft(hour), [hour]);
+  return <div className="grid gap-3 rounded-2xl border bg-background p-3 sm:grid-cols-[150px_130px_130px_1fr_auto_auto] sm:items-end"><label className="text-xs text-muted-foreground">Data<input type="date" value={draft.date} onChange={(e) => setDraft({ ...draft, date: e.target.value })} className="mt-1 h-10 w-full rounded-xl border bg-background px-3 text-sm text-foreground" /></label><label className="text-xs text-muted-foreground">Abre<input type="time" disabled={draft.closed} value={draft.opens_at?.slice(0,5) ?? ""} onChange={(e) => setDraft({ ...draft, opens_at: e.target.value })} className="mt-1 h-10 w-full rounded-xl border bg-background px-3 text-sm text-foreground" /></label><label className="text-xs text-muted-foreground">Fecha<input type="time" disabled={draft.closed} value={draft.closes_at?.slice(0,5) ?? ""} onChange={(e) => setDraft({ ...draft, closes_at: e.target.value })} className="mt-1 h-10 w-full rounded-xl border bg-background px-3 text-sm text-foreground" /></label><label className="text-xs text-muted-foreground">Observação<input value={draft.note ?? ""} onChange={(e) => setDraft({ ...draft, note: e.target.value })} className="mt-1 h-10 w-full rounded-xl border bg-background px-3 text-sm text-foreground" placeholder="Feriado, evento..." /></label><Button variant={draft.closed ? "secondary" : "outline"} size="sm" className="rounded-full" onClick={() => setDraft({ ...draft, closed: !draft.closed })}>{draft.closed ? "Fechado" : "Aberto"}</Button><div className="flex gap-2"><Button size="sm" className="rounded-full" disabled={saving} onClick={() => onSave(draft)}><Save className="mr-1.5 size-4" />Salvar</Button><Button variant="ghost" size="sm" className="rounded-full" onClick={() => onRemove(draft)}><Trash2 className="size-4" /></Button></div></div>;
 }
 
 function StoreSettingsManager({ settings, saving, onSave }: { settings: StoreSettings; saving: boolean; onSave: (settings: StoreSettings) => void }) {
