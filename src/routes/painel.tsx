@@ -225,6 +225,76 @@ function StaffPanel() {
     setProductAddonIds(addonMap);
   };
 
+  const deleteCategory = async (category: Category) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!window.confirm(`Excluir a categoria "${category.name}"? Produtos dessa categoria ficarão sem categoria.`)) return;
+    setError(null);
+    const { error: deleteError } = await supabase.from("categories").delete()
+      .eq("id", category.id).eq("organization_id", organizationId);
+    if (deleteError) setError(deleteError.message);
+    else await loadProducts(organizationId);
+  };
+
+  const deleteSize = async (size: ProductSize) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!window.confirm(`Excluir o tamanho "${size.name}"? Os preços vinculados a ele também serão removidos.`)) return;
+    setError(null);
+    const { error: deleteError } = await supabase.from("product_sizes").delete()
+      .eq("id", size.id).eq("organization_id", organizationId);
+    if (deleteError) setError(deleteError.message);
+    else await loadProducts(organizationId);
+  };
+
+  const deleteProduct = async (product: Product) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!window.confirm(`Excluir o produto "${product.name}"? Essa ação não pode ser desfeita.`)) return;
+    setError(null);
+    setEditingProductId(null);
+
+    if (product.image_url) {
+      const marker = "/storage/v1/object/public/product-images/";
+      const index = product.image_url.indexOf(marker);
+      const imagePath = index >= 0 ? decodeURIComponent(product.image_url.slice(index + marker.length)) : null;
+      if (imagePath) await supabase.storage.from("product-images").remove([imagePath]);
+    }
+
+    const { error: deleteError } = await supabase.from("products").delete()
+      .eq("id", product.id).eq("organization_id", organizationId);
+    if (deleteError) setError(deleteError.message);
+    else await loadProducts(organizationId);
+  };
+
+  const deleteAddon = async (addon: Addon) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!window.confirm(`Excluir o adicional "${addon.name}"?`)) return;
+    setError(null);
+    const { error: deleteError } = await supabase.from("product_addons").delete()
+      .eq("id", addon.id).eq("organization_id", organizationId);
+    if (deleteError) setError(deleteError.message);
+    else await loadAddons(organizationId);
+    if (!deleteError) await loadProducts(organizationId);
+  };
+
+  const deleteCrust = async (crust: Crust) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!window.confirm(`Excluir a borda "${crust.name}"?`)) return;
+    setError(null);
+    const { error: deleteError } = await supabase.from("product_crusts").delete()
+      .eq("id", crust.id).eq("organization_id", organizationId);
+    if (deleteError) setError(deleteError.message);
+    else await loadCrusts(organizationId);
+  };
+
+  const deleteDeliveryZone = async (zone: DeliveryZone) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!window.confirm(`Excluir a área "${zone.name}"? Pedidos antigos continuarão registrados.`)) return;
+    setError(null);
+    const { error: deleteError } = await supabase.from("delivery_zones").delete()
+      .eq("id", zone.id).eq("organization_id", organizationId);
+    if (deleteError) setError(deleteError.message);
+    else setDeliveryZones((current) => current.filter((item) => item.id !== zone.id));
+  };
+
   const loadHours = async (orgId: string) => {
     const [weekly, special] = await Promise.all([
       supabase.from("store_hours").select("id, organization_id, weekday, opens_at, closes_at, closed").eq("organization_id", orgId).order("weekday"),
@@ -865,6 +935,9 @@ function StaffPanel() {
               description="Organize categorias, tamanhos, produtos, adicionais, bordas e fotos."
             />
             <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
+            <div className="mb-4 rounded-xl border border-dashed bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+              Itens excluídos não voltam. Produtos já usados em pedidos mantêm o histórico do pedido.
+            </div>
             <div className="space-y-5">
               <CategoryManager
                 categories={categories}
@@ -873,6 +946,7 @@ function StaffPanel() {
                   const { error: createError } = await supabase.from("categories").insert({ organization_id: organizationId, name: "Nova categoria", active: true, sort_order: categories.length });
                   if (createError) setError(createError.message); else await loadProducts(organizationId);
                 }}
+                onDelete={deleteCategory}
                 onSave={async (category) => {
                   if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
                   if (!category.name.trim()) { setError("Informe o nome da categoria."); return; }
@@ -887,6 +961,7 @@ function StaffPanel() {
                   const { error: createError } = await supabase.from("product_sizes").insert({ organization_id: organizationId, name: "Novo tamanho", slices: null, active: true, sort_order: sizes.length });
                   if (createError) setError(createError.message); else await loadProducts(organizationId);
                 }}
+                onDelete={deleteSize}
                 onSave={async (size) => {
                   if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
                   if (!size.name.trim()) { setError("Informe o nome do tamanho."); return; }
@@ -907,6 +982,7 @@ function StaffPanel() {
                 onEdit={setEditingProductId}
                 onSave={saveProduct}
                 onToggle={toggleProduct}
+                onDelete={deleteProduct}
               />
               <AddonManager
                 addons={addons}
@@ -914,6 +990,7 @@ function StaffPanel() {
                 onCreate={createAddon}
                 onSave={saveAddon}
                 onToggle={toggleAddon}
+                onDelete={deleteAddon}
               />
               <CrustManager
                 crusts={crusts}
@@ -921,6 +998,7 @@ function StaffPanel() {
                 onCreate={createCrust}
                 onSave={saveCrust}
                 onToggle={toggleCrust}
+                onDelete={deleteCrust}
               />
               <ProductImageManager
                 products={products}
@@ -954,6 +1032,7 @@ function StaffPanel() {
               onCreateZone={createDeliveryZone}
               onSaveZone={saveDeliveryZone}
               onToggleZone={toggleDeliveryZone}
+              onDeleteZone={deleteDeliveryZone}
             />
           </>
         )}
@@ -1168,28 +1247,29 @@ function CategoryManager({
 }: {
   categories: Category[];
   onCreate: () => void;
+  onDelete: (category: Category) => void;
   onSave: (category: Category) => void;
 }) {
   return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Organização</p><h2 className="mt-1 text-2xl">Categorias</h2><p className="mt-1 text-sm text-muted-foreground">Crie e organize as seções do cardápio.</p></div><Button onClick={onCreate} className="rounded-full"><Plus className="mr-2 size-4" /> Nova categoria</Button></div>
-    <div className="mt-4 grid gap-2 sm:grid-cols-2">{categories.map((category) => <CategoryRow key={category.id} category={category} onSave={onSave} />)}</div>
+    <div className="mt-4 grid gap-2 sm:grid-cols-2">{categories.map((category) => <CategoryRow key={category.id} category={category} onSave={onSave} onDelete={onDelete} />)}</div>
   </section>;
 }
 
-function CategoryRow({ category, onSave }: { category: Category; onSave: (category: Category) => void }) {
+function CategoryRow({ category, onSave, onDelete }: { category: Category; onSave: (category: Category) => void; onDelete: (category: Category) => void }) {
   const [draft, setDraft] = useState(category);
   useEffect(() => setDraft(category), [category]);
-  return <div className="flex flex-col gap-2 rounded-2xl border bg-background p-3 sm:flex-row sm:items-center"><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="h-11 min-w-0 flex-1 rounded-xl border bg-background px-3 outline-none focus:border-primary" /><input value={draft.sort_order} onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) || 0 })} type="number" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-24" aria-label="Ordem" /><Button variant={draft.active ? "outline" : "secondary"} size="sm" className="rounded-full" onClick={() => setDraft({ ...draft, active: !draft.active })}>{draft.active ? "Ativa" : "Inativa"}</Button><Button size="sm" className="rounded-full" onClick={() => onSave(draft)}><Save className="mr-1.5 size-4" />Salvar</Button></div>;
+  return <div className="flex flex-col gap-2 rounded-2xl border bg-background p-3 sm:flex-row sm:items-center"><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="h-11 min-w-0 flex-1 rounded-xl border bg-background px-3 outline-none focus:border-primary" /><input value={draft.sort_order} onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) || 0 })} type="number" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-24" aria-label="Ordem" /><Button variant={draft.active ? "outline" : "secondary"} size="sm" className="rounded-full" onClick={() => setDraft({ ...draft, active: !draft.active })}>{draft.active ? "Ativa" : "Inativa"}</Button><Button size="sm" className="rounded-full" onClick={() => onSave(draft)}><Save className="mr-1.5 size-4" />Salvar</Button><Button variant="ghost" size="icon" className="rounded-full text-destructive" onClick={() => onDelete(draft)} aria-label="Excluir categoria"><Trash2 className="size-4" /></Button></div>;
 }
 
-function SizeManager({ sizes, onCreate, onSave }: { sizes: ProductSize[]; onCreate: () => void; onSave: (size: ProductSize) => void }) {
-  return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft"><div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Cardápio</p><h2 className="mt-1 text-2xl">Tamanhos</h2><p className="mt-1 text-sm text-muted-foreground">Defina os tamanhos e a quantidade de fatias.</p></div><Button onClick={onCreate} className="rounded-full"><Plus className="mr-2 size-4" /> Novo tamanho</Button></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{sizes.map((size) => <SizeRow key={size.id} size={size} onSave={onSave} />)}</div></section>;
+function SizeManager({ sizes, onCreate, onDelete, onSave }: { sizes: ProductSize[]; onCreate: () => void; onDelete: (size: ProductSize) => void; onSave: (size: ProductSize) => void }) {
+  return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft"><div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Cardápio</p><h2 className="mt-1 text-2xl">Tamanhos</h2><p className="mt-1 text-sm text-muted-foreground">Defina os tamanhos e a quantidade de fatias.</p></div><Button onClick={onCreate} className="rounded-full"><Plus className="mr-2 size-4" /> Novo tamanho</Button></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{sizes.map((size) => <SizeRow key={size.id} size={size} onSave={onSave} onDelete={onDelete} />)}</div></section>;
 }
 
-function SizeRow({ size, onSave }: { size: ProductSize; onSave: (size: ProductSize) => void }) {
+function SizeRow({ size, onSave, onDelete }: { size: ProductSize; onSave: (size: ProductSize) => void; onDelete: (size: ProductSize) => void }) {
   const [draft, setDraft] = useState(size);
   useEffect(() => setDraft(size), [size]);
-  return <div className="flex flex-col gap-2 rounded-2xl border bg-background p-3 sm:flex-row sm:items-center"><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="h-11 min-w-0 flex-1 rounded-xl border bg-background px-3 outline-none focus:border-primary" /><input value={draft.slices ?? ""} onChange={(e) => setDraft({ ...draft, slices: e.target.value ? Number(e.target.value) : null })} type="number" min="1" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-28" placeholder="Fatias" aria-label="Fatias" /><input value={draft.sort_order} onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) || 0 })} type="number" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-24" aria-label="Ordem" /><Button variant={draft.active ? "outline" : "secondary"} size="sm" className="rounded-full" onClick={() => setDraft({ ...draft, active: !draft.active })}>{draft.active ? "Ativo" : "Inativo"}</Button><Button size="sm" className="rounded-full" onClick={() => onSave(draft)}><Save className="mr-1.5 size-4" />Salvar</Button></div>;
+  return <div className="flex flex-col gap-2 rounded-2xl border bg-background p-3 sm:flex-row sm:items-center"><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="h-11 min-w-0 flex-1 rounded-xl border bg-background px-3 outline-none focus:border-primary" /><input value={draft.slices ?? ""} onChange={(e) => setDraft({ ...draft, slices: e.target.value ? Number(e.target.value) : null })} type="number" min="1" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-28" placeholder="Fatias" aria-label="Fatias" /><input value={draft.sort_order} onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) || 0 })} type="number" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-24" aria-label="Ordem" /><Button variant={draft.active ? "outline" : "secondary"} size="sm" className="rounded-full" onClick={() => setDraft({ ...draft, active: !draft.active })}>{draft.active ? "Ativo" : "Inativo"}</Button><Button size="sm" className="rounded-full" onClick={() => onSave(draft)}><Save className="mr-1.5 size-4" />Salvar</Button><Button variant="ghost" size="icon" className="rounded-full text-destructive" onClick={() => onDelete(draft)} aria-label="Excluir tamanho"><Trash2 className="size-4" /></Button></div>;
 }
 
 function OperationsManager({
@@ -1198,7 +1278,7 @@ function OperationsManager({
 }: {
   hours: StoreHour[]; specialHours: SpecialHour[]; savingHour: number | null; savingSpecialHour: string | null;
   onSaveHour: (hour: StoreHour) => void; onCreateSpecial: () => void; onSaveSpecial: (hour: SpecialHour) => void; onRemoveSpecial: (hour: SpecialHour) => void;
-  zones: DeliveryZone[]; savingZoneId: string | null; onCreateZone: () => void; onSaveZone: (zone: DeliveryZone) => void; onToggleZone: (zone: DeliveryZone) => void;
+  zones: DeliveryZone[]; savingZoneId: string | null; onCreateZone: () => void; onSaveZone: (zone: DeliveryZone) => void; onToggleZone: (zone: DeliveryZone) => void; onDeleteZone: (zone: DeliveryZone) => void;
 }) {
   const [section, setSection] = useState<"hours" | "delivery">("hours");
 
@@ -1239,6 +1319,7 @@ function OperationsManager({
           onCreate={onCreateZone}
           onSave={onSaveZone}
           onToggle={onToggleZone}
+          onDelete={onDeleteZone}
         />
       )}
     </div>
@@ -1292,6 +1373,7 @@ function ProductCatalogManager({
   editingProductId: string | null; savingProductId: string | null; onCreate: () => void; onEdit: (id: string | null) => void;
   onSave: (product: Product, sizePrices: Record<string, string>, addonIds: string[]) => void;
   onToggle: (product: Product, field: "active" | "available" | "featured") => void;
+  onDelete: (product: Product) => void;
 }) {
   return (
     <section id="produtos" className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
@@ -1308,7 +1390,7 @@ function ProductCatalogManager({
           products.map((product) => <ProductEditorRow key={product.id} product={product} categories={categories} sizes={sizes} prices={prices}
             addons={addons} addonIds={productAddonIds[product.id] ?? []}
             expanded={editingProductId === product.id} saving={savingProductId === product.id} onEdit={() => onEdit(editingProductId === product.id ? null : product.id)}
-            onSave={onSave} onToggle={onToggle} />)}
+            onSave={onSave} onToggle={onToggle} onDelete={onDelete} />)}
       </div>
     </section>
   );
@@ -1320,6 +1402,7 @@ function ProductEditorRow({
   product: Product; categories: Category[]; sizes: ProductSize[]; prices: ProductPrice[]; addons: Addon[]; addonIds: string[];
   expanded: boolean; saving: boolean; onEdit: () => void; onSave: (product: Product, sizePrices: Record<string, string>, addonIds: string[]) => void;
   onToggle: (product: Product, field: "active" | "available" | "featured") => void;
+  onDelete: (product: Product) => void;
 }) {
   const [draft, setDraft] = useState(product);
   const [sizePrices, setSizePrices] = useState<Record<string, string>>({});
@@ -1352,6 +1435,7 @@ function ProductEditorRow({
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" className="rounded-full" onClick={onEdit}>{expanded ? <ChevronUp className="mr-1.5 size-4" /> : <Pencil className="mr-1.5 size-4" />}{expanded ? "Fechar" : "Editar"}</Button>
+          <Button variant="ghost" size="icon" className="rounded-full text-destructive" onClick={() => onDelete(product)} aria-label="Excluir produto"><Trash2 className="size-4" /></Button>
           <Button variant={product.available ? "outline" : "secondary"} size="sm" className="rounded-full" onClick={() => onToggle(product, "available")}>{product.available ? "Disponível" : "Indisponível"}</Button>
         </div>
       </div>
@@ -1458,6 +1542,7 @@ function CrustManager({
   onCreate: () => void;
   onSave: (crust: Crust) => void;
   onToggle: (crust: Crust) => void;
+  onDelete: (crust: Crust) => void;
 }) {
   return (
     <section id="bordas" className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
@@ -1485,6 +1570,7 @@ function CrustManager({
               saving={savingCrustId === crust.id}
               onSave={onSave}
               onToggle={onToggle}
+              onDelete={onDelete}
             />
           ))
         )}
@@ -1503,6 +1589,7 @@ function CrustEditorRow({
   saving: boolean;
   onSave: (crust: Crust) => void;
   onToggle: (crust: Crust) => void;
+  onDelete: (crust: Crust) => void;
 }) {
   const [draft, setDraft] = useState(crust);
 
@@ -1574,6 +1661,7 @@ function DeliveryZoneManager({
   onCreate: () => void;
   onSave: (zone: DeliveryZone) => void;
   onToggle: (zone: DeliveryZone) => void;
+  onDelete: (zone: DeliveryZone) => void;
 }) {
   return (
     <section className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
@@ -1601,6 +1689,7 @@ function DeliveryZoneManager({
               saving={savingZoneId === zone.id}
               onSave={onSave}
               onToggle={onToggle}
+              onDelete={onDelete}
             />
           ))
         )}
@@ -1619,6 +1708,7 @@ function DeliveryZoneEditorRow({
   saving: boolean;
   onSave: (zone: DeliveryZone) => void;
   onToggle: (zone: DeliveryZone) => void;
+  onDelete: (zone: DeliveryZone) => void;
 }) {
   const [draft, setDraft] = useState(zone);
 
@@ -1668,6 +1758,7 @@ function DeliveryZoneEditorRow({
         <Button variant="ghost" size="sm" className="rounded-full" onClick={() => onToggle(draft)}>
           <MapPin className="mr-1.5 size-4" /> {draft.active ? "Desativar" : "Ativar"}
         </Button>
+        <Button variant="ghost" size="icon" className="rounded-full text-destructive" onClick={() => onDelete(draft)} aria-label="Excluir área"><Trash2 className="size-4" /></Button>
       </div>
     </div>
   );
@@ -1681,6 +1772,7 @@ function AddonManager({
   onCreate: () => void;
   onSave: (addon: Addon) => void;
   onToggle: (addon: Addon) => void;
+  onDelete: (addon: Addon) => void;
 }) {
   return (
     <section id="adicionais" className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
@@ -1708,6 +1800,7 @@ function AddonManager({
               saving={savingAddonId === addon.id}
               onSave={onSave}
               onToggle={onToggle}
+              onDelete={onDelete}
             />
           ))
         )}
@@ -1723,6 +1816,7 @@ function AddonEditorRow({
   saving: boolean;
   onSave: (addon: Addon) => void;
   onToggle: (addon: Addon) => void;
+  onDelete: (addon: Addon) => void;
 }) {
   const [draft, setDraft] = useState(addon);
 
@@ -1769,6 +1863,7 @@ function AddonEditorRow({
           <Save className="mr-1.5 size-4" />
           {saving ? "Salvando..." : "Salvar"}
         </Button>
+        <Button variant="ghost" size="icon" className="rounded-full text-destructive" onClick={() => onDelete(draft)} aria-label="Excluir adicional"><Trash2 className="size-4" /></Button>
       </div>
     </div>
   );
