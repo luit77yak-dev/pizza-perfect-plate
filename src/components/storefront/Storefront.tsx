@@ -518,6 +518,9 @@ export function Storefront({ slug }: { slug?: string }) {
           onClear={cart.clear}
           storeOpen={status.open}
           storeStatusLabel={status.label}
+          minOrderAmount={Number(data.settings.min_order_amount ?? 0)}
+          pickupEnabled={Boolean(data.settings.pickup_enabled)}
+          deliveryEnabled={Boolean(data.settings.delivery_enabled)}
           onCheckout={() => {
             setCartOpen(false);
             setCheckoutOpen(true);
@@ -953,6 +956,9 @@ function CartPanel({
   onClear,
   storeOpen,
   storeStatusLabel,
+  minOrderAmount,
+  pickupEnabled,
+  deliveryEnabled,
   onCheckout,
 }: {
   items: CartItem[];
@@ -963,6 +969,9 @@ function CartPanel({
   onClear: () => void;
   storeOpen: boolean;
   storeStatusLabel: string;
+  minOrderAmount: number;
+  pickupEnabled: boolean;
+  deliveryEnabled: boolean;
   onCheckout: () => void;
 }) {
   return (
@@ -1026,7 +1035,26 @@ function CartPanel({
           <p className="mt-2 text-xs leading-5 text-muted-foreground">
             A taxa de entrega e descontos serão calculados no checkout.
           </p>
-          <Button disabled={items.length === 0 || !storeOpen} className="mt-4 h-12 w-full rounded-full" onClick={onCheckout}>
+          {deliveryEnabled && minOrderAmount > 0 && subtotal < minOrderAmount && (
+            <div className="mt-3 rounded-2xl bg-primary/5 p-3 text-sm">
+              <p className="font-semibold text-primary">
+                Pedido mínimo para entrega: {formatCurrency(minOrderAmount)}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Faltam {formatCurrency(minOrderAmount - subtotal)} para atingir o mínimo.
+                {pickupEnabled ? " Para retirada, não há pedido mínimo." : ""}
+              </p>
+            </div>
+          )}
+          <Button
+            disabled={
+              items.length === 0 ||
+              !storeOpen ||
+              (deliveryEnabled && !pickupEnabled && minOrderAmount > 0 && subtotal < minOrderAmount)
+            }
+            className="mt-4 h-12 w-full rounded-full"
+            onClick={onCheckout}
+          >
             {storeOpen ? "Continuar para checkout" : "Loja fechada"}
           </Button>
           {!storeOpen && <p className="mt-2 text-center text-xs font-medium text-primary">{storeStatusLabel}</p>}
@@ -1143,9 +1171,14 @@ function CheckoutPanel({
         return;
       }
     }
-    if (subtotal < Number(settings.min_order_amount ?? 0)) {
+    const minOrderAmount = Number(settings.min_order_amount ?? 0);
+    if (
+      fulfillment === "DELIVERY" &&
+      minOrderAmount > 0 &&
+      subtotal < minOrderAmount
+    ) {
       setError(
-        `O pedido mínimo é ${formatCurrency(Number(settings.min_order_amount))}.`,
+        `Para entrega, o pedido mínimo é ${formatCurrency(minOrderAmount)}. Faltam ${formatCurrency(minOrderAmount - subtotal)}.`,
       );
       return;
     }
