@@ -22,7 +22,6 @@ import { formatCurrency } from "@/lib/domain/money";
 import type {
   Addon,
   CartItem,
-  CartItemComplement,
   Category,
   Crust,
   Organization,
@@ -972,7 +971,7 @@ function CartPanel({
                         <div>
                           <p className="font-semibold">{item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
                           <p className="text-xs text-muted-foreground">
-                            {[item.sizeName, item.crustName, item.addons.length ? `${item.addons.length} adicional(is)` : null].filter(Boolean).join(" · ")}
+                            {[item.sizeName, item.crustName, item.addons.length ? `${item.addons.length} adicional(is)` : null, (item.complements ?? []).length ? `${(item.complements ?? []).length} complemento(s)` : null].filter(Boolean).join(" · ")}
                           </p>
                         </div>
                         <button onClick={() => onRemove(item.lineId)} className="text-muted-foreground hover:text-destructive" aria-label={`Remover ${item.productName}`}><X className="size-4" /></button>
@@ -1151,7 +1150,7 @@ function CheckoutPanel({
             notes: item.notes,
             addons: item.addons.map((addon) => ({ id: addon.id })),
           },
-          ...item.complements.map((complement) => ({
+          ...(item.complements ?? []).map((complement) => ({
             product_id: complement.productId,
             second_product_id: null,
             is_half: false,
@@ -1426,7 +1425,7 @@ function CheckoutPanel({
                   <div>
                     <p className="font-medium">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
                     <p className="text-xs text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
-                    {item.complements.length > 0 && <p className="mt-1 text-xs text-primary">+ {item.complements.map((complement) => complement.productName).join(", ")}</p>}
+                    {(item.complements ?? []).length > 0 && <p className="mt-1 text-xs text-primary">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
                   </div>
                   <span className="font-semibold">{formatCurrency(item.unitPrice * item.quantity)}</span>
                 </div>
