@@ -162,6 +162,7 @@ function StaffPanel() {
   const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<PanelView>("overview");
+  const [catalogSection, setCatalogSection] = useState<"products" | "categories" | "sizes" | "addons" | "crusts" | "photos">("products");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
   const [savingSettings, setSavingSettings] = useState(false);
@@ -929,13 +930,35 @@ function StaffPanel() {
           <>
             <SectionHeading
               eyebrow="Cardápio"
-              title="Catálogo da loja"
-              description="Organize categorias, tamanhos, produtos, adicionais, bordas e fotos."
+              title="Cardápio da loja"
+              description="Gerencie cada parte do cardápio sem deixar tudo misturado na mesma tela."
             />
+
+            <div className="mb-4 flex gap-1 overflow-x-auto rounded-xl border bg-card p-1">
+              {([
+                ["products", "Produtos"],
+                ["categories", "Categorias"],
+                ["sizes", "Tamanhos"],
+                ["addons", "Adicionais"],
+                ["crusts", "Bordas"],
+                ["photos", "Fotos"],
+              ] as const).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setCatalogSection(value)}
+                  className={`shrink-0 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${catalogSection === value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
             <div className="mb-4 rounded-xl border border-dashed bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
               Itens excluídos não voltam. Produtos já usados em pedidos mantêm o histórico do pedido.
             </div>
-            <div className="space-y-5">
+
+            {catalogSection === "categories" && (
               <CategoryManager
                 categories={categories}
                 onCreate={async () => {
@@ -951,6 +974,9 @@ function StaffPanel() {
                   if (updateError) setError(updateError.message); else await loadProducts(organizationId);
                 }}
               />
+            )}
+
+            {catalogSection === "sizes" && (
               <SizeManager
                 sizes={sizes}
                 onCreate={async () => {
@@ -966,6 +992,9 @@ function StaffPanel() {
                   if (updateError) setError(updateError.message); else await loadProducts(organizationId);
                 }}
               />
+            )}
+
+            {catalogSection === "products" && (
               <ProductCatalogManager
                 products={products}
                 categories={categories}
@@ -981,6 +1010,9 @@ function StaffPanel() {
                 onToggle={toggleProduct}
                 onDelete={deleteProduct}
               />
+            )}
+
+            {catalogSection === "addons" && (
               <AddonManager
                 addons={addons}
                 savingAddonId={savingAddonId}
@@ -989,6 +1021,9 @@ function StaffPanel() {
                 onToggle={toggleAddon}
                 onDelete={deleteAddon}
               />
+            )}
+
+            {catalogSection === "crusts" && (
               <CrustManager
                 crusts={crusts}
                 savingCrustId={savingCrustId}
@@ -997,13 +1032,16 @@ function StaffPanel() {
                 onToggle={toggleCrust}
                 onDelete={deleteCrust}
               />
+            )}
+
+            {catalogSection === "photos" && (
               <ProductImageManager
                 products={products}
                 uploadingProductId={imageUploading}
                 onUpload={uploadProductImage}
                 onRemove={removeProductImage}
               />
-            </div>
+            )}
           </>
         )}
 
