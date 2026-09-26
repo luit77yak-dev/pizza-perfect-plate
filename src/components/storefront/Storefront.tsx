@@ -454,6 +454,8 @@ export function Storefront({ slug }: { slug?: string }) {
           onUpdate={cart.updateQuantity}
           onRemove={cart.removeItem}
           onClear={cart.clear}
+          storeOpen={status.open}
+          storeStatusLabel={status.label}
           onCheckout={() => {
             setCartOpen(false);
             setCheckoutOpen(true);
@@ -719,6 +721,8 @@ function CartPanel({
   onUpdate,
   onRemove,
   onClear,
+  storeOpen,
+  storeStatusLabel,
   onCheckout,
 }: {
   items: CartItem[];
@@ -727,6 +731,8 @@ function CartPanel({
   onUpdate: (lineId: string, quantity: number) => void;
   onRemove: (lineId: string) => void;
   onClear: () => void;
+  storeOpen: boolean;
+  storeStatusLabel: string;
   onCheckout: () => void;
 }) {
   return (
@@ -790,9 +796,10 @@ function CartPanel({
           <p className="mt-2 text-xs leading-5 text-muted-foreground">
             A taxa de entrega e descontos serão calculados no checkout.
           </p>
-          <Button disabled={items.length === 0} className="mt-4 h-12 w-full rounded-full" onClick={onCheckout}>
-            Continuar para checkout
+          <Button disabled={items.length === 0 || !storeOpen} className="mt-4 h-12 w-full rounded-full" onClick={onCheckout}>
+            {storeOpen ? "Continuar para checkout" : "Loja fechada"}
           </Button>
+          {!storeOpen && <p className="mt-2 text-center text-xs font-medium text-primary">{storeStatusLabel}</p>}
           {items.length > 0 && (
             <button onClick={onClear} className="mt-3 w-full text-center text-xs font-medium text-muted-foreground hover:text-destructive">
               Limpar carrinho
