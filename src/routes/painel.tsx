@@ -11,7 +11,7 @@ export const Route = createFileRoute("/painel")({
 });
 
 type BusinessType = "PIZZERIA" | "RESTAURANT" | "RETAIL" | "SERVICES" | "BEAUTY";
-type PanelView = "overview" | "management" | "orders";
+type PanelView = "overview" | "catalog" | "operations" | "settings" | "orders";
 
 type StoreSettings = {
   description: string | null;
@@ -789,10 +789,14 @@ function StaffPanel() {
         </div>
         {mobileMenuOpen && (
           <nav className="border-t px-4 py-3 sm:hidden" aria-label="Navegação do painel">
-            <div className="grid gap-2">
+            <div className="flex flex-col gap-1.5">
               <PanelNavButton active={activeView === "overview"} icon={BarChart3} label="Visão geral" onClick={() => { setActiveView("overview"); setMobileMenuOpen(false); }} />
               {["OWNER", "ADMIN"].includes(role ?? "") && (
-                <PanelNavButton active={activeView === "management"} icon={Settings2} label="Gestão" onClick={() => { setActiveView("management"); setMobileMenuOpen(false); }} />
+                <>
+                  <PanelNavButton active={activeView === "catalog"} icon={Package} label="Cardápio" onClick={() => { setActiveView("catalog"); setMobileMenuOpen(false); }} />
+                  <PanelNavButton active={activeView === "operations"} icon={MapPin} label="Operação" onClick={() => { setActiveView("operations"); setMobileMenuOpen(false); }} />
+                  <PanelNavButton active={activeView === "settings"} icon={Settings2} label="Configurações" onClick={() => { setActiveView("settings"); setMobileMenuOpen(false); }} />
+                </>
               )}
               <PanelNavButton active={activeView === "orders"} icon={ShoppingBag} label="Pedidos" onClick={() => { setActiveView("orders"); setMobileMenuOpen(false); }} />
             </div>
@@ -845,101 +849,121 @@ function StaffPanel() {
           <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} onDetails={setSelectedOrder} />
         </div>
 
-        {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "management" && (
+        {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "catalog" && (
           <>
             <SectionHeading
-              eyebrow="Gestão"
+              eyebrow="Cardápio"
               title="Catálogo da loja"
-              description="Organize produtos, adicionais e fotos em um único espaço."
+              description="Organize categorias, tamanhos, produtos, adicionais, bordas e fotos."
             />
             <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
+            <div className="space-y-5">
+              <CategoryManager
+                categories={categories}
+                onCreate={async () => {
+                  if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+                  const { error: createError } = await supabase.from("categories").insert({ organization_id: organizationId, name: "Nova categoria", active: true, sort_order: categories.length });
+                  if (createError) setError(createError.message); else await loadProducts(organizationId);
+                }}
+                onSave={async (category) => {
+                  if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+                  if (!category.name.trim()) { setError("Informe o nome da categoria."); return; }
+                  const { error: updateError } = await supabase.from("categories").update({ name: category.name.trim(), active: category.active, sort_order: category.sort_order }).eq("id", category.id).eq("organization_id", organizationId);
+                  if (updateError) setError(updateError.message); else await loadProducts(organizationId);
+                }}
+              />
+              <SizeManager
+                sizes={sizes}
+                onCreate={async () => {
+                  if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+                  const { error: createError } = await supabase.from("product_sizes").insert({ organization_id: organizationId, name: "Novo tamanho", slices: null, active: true, sort_order: sizes.length });
+                  if (createError) setError(createError.message); else await loadProducts(organizationId);
+                }}
+                onSave={async (size) => {
+                  if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+                  if (!size.name.trim()) { setError("Informe o nome do tamanho."); return; }
+                  const { error: updateError } = await supabase.from("product_sizes").update({ name: size.name.trim(), slices: size.slices == null ? null : Number(size.slices) || null, active: size.active, sort_order: size.sort_order }).eq("id", size.id).eq("organization_id", organizationId);
+                  if (updateError) setError(updateError.message); else await loadProducts(organizationId);
+                }}
+              />
+              <ProductCatalogManager
+                products={products}
+                categories={categories}
+                sizes={sizes}
+                prices={productPrices}
+                addons={addons}
+                productAddonIds={productAddonIds}
+                editingProductId={editingProductId}
+                savingProductId={savingProductId}
+                onCreate={createProduct}
+                onEdit={setEditingProductId}
+                onSave={saveProduct}
+                onToggle={toggleProduct}
+              />
+              <AddonManager
+                addons={addons}
+                savingAddonId={savingAddonId}
+                onCreate={createAddon}
+                onSave={saveAddon}
+                onToggle={toggleAddon}
+              />
+              <CrustManager
+                crusts={crusts}
+                savingCrustId={savingCrustId}
+                onCreate={createCrust}
+                onSave={saveCrust}
+                onToggle={toggleCrust}
+              />
+              <ProductImageManager
+                products={products}
+                uploadingProductId={imageUploading}
+                onUpload={uploadProductImage}
+                onRemove={removeProductImage}
+              />
+            </div>
           </>
         )}
 
-        {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "management" && (
-          <div className="space-y-5 rounded-[1.5rem] border bg-muted/20 p-1.5 sm:p-2">
-            <CategoryManager
-              categories={categories}
-              onCreate={async () => {
-                if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
-                const { error: createError } = await supabase.from("categories").insert({ organization_id: organizationId, name: "Nova categoria", active: true, sort_order: categories.length });
-                if (createError) setError(createError.message); else await loadProducts(organizationId);
-              }}
-              onSave={async (category) => {
-                if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
-                if (!category.name.trim()) { setError("Informe o nome da categoria."); return; }
-                const { error: updateError } = await supabase.from("categories").update({ name: category.name.trim(), active: category.active, sort_order: category.sort_order }).eq("id", category.id).eq("organization_id", organizationId);
-                if (updateError) setError(updateError.message); else await loadProducts(organizationId);
-              }}
+        {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "operations" && (
+          <>
+            <SectionHeading
+              eyebrow="Operação"
+              title="Funcionamento e entrega"
+              description="Defina horários da loja e as áreas atendidas pela entrega."
             />
-            <SizeManager
-              sizes={sizes}
-              onCreate={async () => {
-                if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
-                const { error: createError } = await supabase.from("product_sizes").insert({ organization_id: organizationId, name: "Novo tamanho", slices: null, active: true, sort_order: sizes.length });
-                if (createError) setError(createError.message); else await loadProducts(organizationId);
-              }}
-              onSave={async (size) => {
-                if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
-                if (!size.name.trim()) { setError("Informe o nome do tamanho."); return; }
-                const { error: updateError } = await supabase.from("product_sizes").update({ name: size.name.trim(), slices: size.slices == null ? null : Number(size.slices) || null, active: size.active, sort_order: size.sort_order }).eq("id", size.id).eq("organization_id", organizationId);
-                if (updateError) setError(updateError.message); else await loadProducts(organizationId);
-              }}
-            />
-            <HoursManager
-              hours={storeHours}
-              specialHours={specialHours}
-              savingHour={savingHour}
-              savingSpecialHour={savingSpecialHour}
-              onSaveHour={saveStoreHour}
-              onCreateSpecial={createSpecialHour}
-              onSaveSpecial={saveSpecialHour}
-              onRemoveSpecial={removeSpecialHour}
-            />
-            {settings && <StoreSettingsManager settings={settings} saving={savingSettings} onSave={saveSettings} />}
-            <ProductCatalogManager
-            products={products}
-            categories={categories}
-            sizes={sizes}
-            prices={productPrices}
-            addons={addons}
-            productAddonIds={productAddonIds}
-            editingProductId={editingProductId}
-            savingProductId={savingProductId}
-            onCreate={createProduct}
-            onEdit={setEditingProductId}
-            onSave={saveProduct}
-            onToggle={toggleProduct}
-          />
-            <AddonManager
-            addons={addons}
-            savingAddonId={savingAddonId}
-            onCreate={createAddon}
-            onSave={saveAddon}
-            onToggle={toggleAddon}
-          />
-            <CrustManager
-            crusts={crusts}
-            savingCrustId={savingCrustId}
-            onCreate={createCrust}
-            onSave={saveCrust}
-            onToggle={toggleCrust}
-          />
+            <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
+            <div className="space-y-5">
+              <HoursManager
+                hours={storeHours}
+                specialHours={specialHours}
+                savingHour={savingHour}
+                savingSpecialHour={savingSpecialHour}
+                onSaveHour={saveStoreHour}
+                onCreateSpecial={createSpecialHour}
+                onSaveSpecial={saveSpecialHour}
+                onRemoveSpecial={removeSpecialHour}
+              />
+              <DeliveryZoneManager
+                zones={deliveryZones}
+                savingZoneId={savingDeliveryZoneId}
+                onCreate={createDeliveryZone}
+                onSave={saveDeliveryZone}
+                onToggle={toggleDeliveryZone}
+              />
+            </div>
+          </>
+        )}
 
-            <DeliveryZoneManager
-            zones={deliveryZones}
-            savingZoneId={savingDeliveryZoneId}
-            onCreate={createDeliveryZone}
-            onSave={saveDeliveryZone}
-            onToggle={toggleDeliveryZone}
-          />
-            <ProductImageManager
-            products={products}
-            uploadingProductId={imageUploading}
-            onUpload={uploadProductImage}
-            onRemove={removeProductImage}
-          />
-          </div>
+        {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "settings" && (
+          <>
+            <SectionHeading
+              eyebrow="Configurações"
+              title="Configurações da loja"
+              description="Personalize a identidade, os canais e as regras de atendimento."
+            />
+            <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
+            {settings && <StoreSettingsManager settings={settings} saving={savingSettings} onSave={saveSettings} />}
+          </>
         )}
 
         <div className={activeView === "orders" ? "" : "hidden"}>
@@ -992,7 +1016,11 @@ function InlineViewNav({
 }) {
   const items: Array<{ view: PanelView; icon: typeof BarChart3; label: string }> = [
     { view: "overview", icon: BarChart3, label: "Visão geral" },
-    ...(["OWNER", "ADMIN"].includes(role ?? "") ? [{ view: "management" as PanelView, icon: Settings2, label: "Gestão" }] : []),
+    ...(["OWNER", "ADMIN"].includes(role ?? "") ? [
+      { view: "catalog" as PanelView, icon: Package, label: "Cardápio" },
+      { view: "operations" as PanelView, icon: MapPin, label: "Operação" },
+      { view: "settings" as PanelView, icon: Settings2, label: "Configurações" },
+    ] : []),
     { view: "orders", icon: ShoppingBag, label: "Pedidos" },
   ];
 
@@ -1031,7 +1059,7 @@ function PanelNavButton({
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+      className={`flex w-full items-center justify-start gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
       aria-current={active ? "page" : undefined}
     >
       <Icon className="size-4" />
