@@ -500,6 +500,36 @@
     }
 
     /* Hero */
+    /* Mobile hero media: the visual panel must become a full-width block below the copy. */
+    main#inicio > section:first-child > div > div:last-child {
+      grid-column: 1 / -1;
+      width: 100%;
+      min-width: 0;
+      min-height: 15rem;
+      height: 15rem;
+      overflow: hidden;
+      transform: none;
+    }
+
+    main#inicio > section:first-child > div > div:last-child img {
+      position: absolute;
+      inset: .85rem;
+      width: calc(100% - 1.7rem);
+      height: calc(100% - 1.7rem);
+      min-width: 0;
+      min-height: 0;
+      transform: none;
+      object-fit: cover;
+    }
+
+    main#inicio > section:first-child > div > div:last-child > div:first-child {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+    }
+
     main#inicio > section:first-child {
       padding: .85rem .75rem 1.5rem;
     }
