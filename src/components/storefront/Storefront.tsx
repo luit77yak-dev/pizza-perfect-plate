@@ -239,26 +239,37 @@ export function Storefront({ slug }: { slug?: string }) {
     return () => window.clearInterval(interval);
   }, []);
 
+  const mainProducts = useMemo(() => {
+    if (!data) return [];
+    const pizzas = data.products.filter((product) => product.kind === "PIZZA");
+    return pizzas.length > 0 ? pizzas : data.products;
+  }, [data]);
+
+  const comboProducts = useMemo(
+    () => data?.products.filter((product) => product.kind === "SIMPLE") ?? [],
+    [data],
+  );
+
   const filteredProducts = useMemo(() => {
     if (!data) return [];
     const term = searchTerm.trim().toLocaleLowerCase("pt-BR");
-    return data.products.filter((product) => {
+    return mainProducts.filter((product) => {
       const matchesCategory = selectedCategory === "all" || product.category_id === selectedCategory;
       const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
       const haystack = [product.name, product.description, categoryName].join(" ").toLocaleLowerCase("pt-BR");
       return matchesCategory && (!term || haystack.includes(term));
     });
-  }, [data, selectedCategory, searchTerm]);
+  }, [data, mainProducts, selectedCategory, searchTerm]);
 
   const categoryProducts = useMemo(() => {
     if (!data) return new Map<string, number>();
     return new Map(
       data.categories.map((category) => [
         category.id,
-        data.products.filter((product) => product.category_id === category.id).length,
+        mainProducts.filter((product) => product.category_id === category.id).length,
       ]),
     );
-  }, [data]);
+  }, [data, mainProducts]);
 
   const subtotal = calculateCartSubtotal(cart.items);
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -350,8 +361,8 @@ export function Storefront({ slug }: { slug?: string }) {
 
         <div className="ppp-product-ticker mb-12 overflow-hidden border-y-2 border-secondary bg-secondary text-secondary-foreground" aria-hidden="true">
           <div className="ppp-ticker-run flex min-w-max items-center gap-8 py-4 font-display text-sm uppercase tracking-[.08em]">
-            {data.products.slice(0, 8).map((product) => <span key={product.id} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
-            {data.products.slice(0, 8).map((product) => <span key={`ticker-${product.id}`} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
+            {mainProducts.slice(0, 8).map((product) => <span key={product.id} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
+            {mainProducts.slice(0, 8).map((product) => <span key={`ticker-${product.id}`} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
           </div>
         </div>
 
@@ -361,7 +372,7 @@ export function Storefront({ slug }: { slug?: string }) {
               <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">Cardápio</p>
               <h2 className="mt-1 text-4xl uppercase leading-[.9] sm:text-6xl">Escolha seu pedido</h2>
             </div>
-            <span className="hidden text-sm text-muted-foreground sm:block">{data.products.length} opções</span>
+            <span className="hidden text-sm text-muted-foreground sm:block">{mainProducts.length} opções</span>
           </div>
 
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -478,8 +489,8 @@ export function Storefront({ slug }: { slug?: string }) {
           product={selectedProduct}
           data={data}
           onClose={() => setSelectedProduct(null)}
-          onAdded={(item) => {
-            cart.addItem(item);
+          onAdded={(items) => {
+            items.forEach((item) => cart.addItem(item));
             setSelectedProduct(null);
             setCartOpen(true);
           }}
@@ -567,6 +578,7 @@ export function Storefront({ slug }: { slug?: string }) {
   );
 }
 
+
 function ProductConfigurator({
   product,
   data,
@@ -576,12 +588,14 @@ function ProductConfigurator({
   product: Product;
   data: StoreData;
   onClose: () => void;
-  onAdded: (item: CartItem) => void;
+  onAdded: (items: CartItem[]) => void;
 }) {
+  const [step, setStep] = useState(1);
   const [sizeId, setSizeId] = useState<string | null>(data.sizes[0]?.id ?? null);
   const [secondProductId, setSecondProductId] = useState<string | null>(null);
   const [crustId, setCrustId] = useState<string | null>(null);
   const [addonIds, setAddonIds] = useState<string[]>([]);
+  const [comboProductIds, setComboProductIds] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [quantity, setQuantity] = useState(1);
 
@@ -597,6 +611,15 @@ function ProductConfigurator({
   const availableAddonIds = new Set(productAddonIds);
   const availableAddons = data.addons.filter((item) => availableAddonIds.has(item.id));
   const addons = availableAddons.filter((item) => addonIds.includes(item.id));
+  const halfBasePrice = secondProduct
+    ? calculateProductUnitPrice({
+        basePrice,
+        secondBasePrice,
+        isHalf: true,
+        halfRule: data.settings.half_pizza_pricing_rule,
+        halfFixedPrice: data.settings.half_pizza_fixed_price,
+      })
+    : basePrice;
   const unitPrice = calculateProductUnitPrice({
     basePrice,
     secondBasePrice,
@@ -607,12 +630,20 @@ function ProductConfigurator({
     addonPrices: addons.map((item) => item.price),
   });
 
+  const totalSteps = product.allow_half ? 4 : 3;
+  const nextStep = () => setStep((current) => Math.min(totalSteps, current + 1));
+  const previousStep = () => setStep((current) => Math.max(1, current - 1));
+
   const toggleAddon = (id: string) => {
     setAddonIds((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]));
   };
 
+  const toggleCombo = (id: string) => {
+    setComboProductIds((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]));
+  };
+
   const addToCart = () => {
-    const item: CartItem = {
+    const mainItem: CartItem = {
       lineId: crypto.randomUUID(),
       productId: product.id,
       productName: product.name,
@@ -630,34 +661,78 @@ function ProductConfigurator({
       notes: notes.trim() || null,
       unitPrice,
     };
-    onAdded(item);
+
+    const comboItems = comboProductIds
+      .map((id) => data.products.find((item) => item.id === id))
+      .filter((item): item is Product => Boolean(item))
+      .map((comboProduct) => ({
+        lineId: crypto.randomUUID(),
+        productId: comboProduct.id,
+        productName: comboProduct.name,
+        imageUrl: comboProduct.image_url,
+        secondProductId: null,
+        secondProductName: null,
+        isHalf: false,
+        sizeId: null,
+        sizeName: null,
+        crustId: null,
+        crustName: null,
+        crustPrice: 0,
+        addons: [],
+        quantity: 1,
+        notes: null,
+        unitPrice: Number(comboProduct.base_price) || 0,
+      }));
+
+    onAdded([mainItem, ...comboItems]);
   };
 
+  const stepTitle =
+    step === 1
+      ? "Escolha o tamanho"
+      : product.allow_half && step === 2
+        ? "Monte meio a meio"
+        : step === (product.allow_half ? 3 : 2)
+          ? "Personalize sua pizza"
+          : "Complete seu pedido";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/45 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={`Configurar ${product.name}`}>
-      <div className="max-h-[94dvh] w-full max-w-2xl overflow-hidden rounded-t-[2rem] bg-background shadow-lifted sm:max-h-[92vh] sm:rounded-[2rem]">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/45 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
+      <div className="flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-background shadow-lifted sm:max-h-[92vh] sm:rounded-[2rem]">
         <div className="flex items-center justify-between border-b px-5 py-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Personalizar</p>
-            <h2 className="text-2xl">{product.name}</h2>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Montar pedido · Etapa {step} de {totalSteps}</p>
+            <h2 className="truncate text-2xl">{stepTitle}</h2>
+            <p className="mt-1 text-xs text-muted-foreground">{product.name}</p>
           </div>
           <button onClick={onClose} aria-label="Fechar" className="rounded-full p-2 hover:bg-muted">
             <X className="size-5" />
           </button>
         </div>
 
-        <div className="max-h-[calc(92vh-8rem)] overflow-y-auto px-5 py-5">
-          <div className="grid gap-6 sm:grid-cols-2">
-            <div>
+        <div className="flex gap-1.5 border-b px-5 py-3">
+          {Array.from({ length: totalSteps }).map((_, index) => (
+            <div key={index} className={"h-1.5 flex-1 rounded-full " + (index + 1 <= step ? "bg-primary" : "bg-muted")} />
+          ))}
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-5 py-5">
+          {step === 1 && (
+            <section>
+              <div className="mb-4 rounded-2xl border bg-card p-4">
+                <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Produto principal</p>
+                <p className="mt-1 text-lg font-semibold">{product.name}</p>
+                {product.description && <p className="mt-1 text-sm text-muted-foreground">{product.description}</p>}
+              </div>
               <p className="mb-2 text-sm font-semibold">Tamanho</p>
-              <div className="grid gap-2">
+              <div className="grid gap-2 sm:grid-cols-2">
                 {data.sizes.map((size) => {
                   const price = getPrice(product, size.id, data.prices);
                   return (
                     <button
                       key={size.id}
                       onClick={() => setSizeId(size.id)}
-                      className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left ${sizeId === size.id ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card"}`}
+                      className={"flex items-center justify-between rounded-2xl border px-4 py-3 text-left " + (sizeId === size.id ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")}
                     >
                       <span>
                         <span className="block text-sm font-semibold">{size.name}</span>
@@ -668,96 +743,194 @@ function ProductConfigurator({
                   );
                 })}
               </div>
-            </div>
+            </section>
+          )}
 
-            {product.allow_half && (
-              <div>
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-sm font-semibold">Meio a meio</p>
-                  {secondProduct && <button onClick={() => setSecondProductId(null)} className="text-xs text-primary">Remover</button>}
-                </div>
-                <div className="max-h-48 space-y-2 overflow-y-auto pr-1">
-                  {data.products
-                    .filter((item) => item.kind === "PIZZA" && item.id !== product.id)
-                    .map((item) => (
+          {product.allow_half && step === 2 && (
+            <section>
+              <div className="mb-4 rounded-2xl border bg-card p-4">
+                <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Primeira metade</p>
+                <p className="mt-1 font-semibold">{product.name}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {selectedSize?.name ? selectedSize.name + " · " + formatCurrency(basePrice) : "Escolha um tamanho"}
+                </p>
+              </div>
+              <div className="mb-3">
+                <p className="text-sm font-semibold">Escolha a segunda metade</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  Você paga pela regra configurada pela loja: {data.settings.half_pizza_pricing_rule === "highest_half" ? "maior metade" : data.settings.half_pizza_pricing_rule === "average_halves" ? "média das metades" : "preço fixo"}.
+                </p>
+              </div>
+              <div className="max-h-80 space-y-2 overflow-y-auto pr-1">
+                {data.products
+                  .filter((item) => item.kind === "PIZZA" && item.id !== product.id)
+                  .map((item) => {
+                    const price = getPrice(item, sizeId, data.prices);
+                    const selected = secondProductId === item.id;
+                    const previewPrice = calculateProductUnitPrice({
+                      basePrice,
+                      secondBasePrice: price,
+                      isHalf: true,
+                      halfRule: data.settings.half_pizza_pricing_rule,
+                      halfFixedPrice: data.settings.half_pizza_fixed_price,
+                    });
+                    return (
                       <button
                         key={item.id}
                         onClick={() => setSecondProductId(item.id)}
-                        className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm ${secondProductId === item.id ? "border-primary bg-primary/5" : "bg-card"}`}
+                        className={"flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left " + (selected ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")}
+                      >
+                        <span>
+                          <span className="block text-sm font-semibold">{item.name}</span>
+                          <span className="text-xs text-muted-foreground">Esta metade: {formatCurrency(price)}</span>
+                        </span>
+                        <span className="text-right">
+                          <span className="block text-sm font-bold">{formatCurrency(previewPrice)}</span>
+                          <span className="text-[11px] text-muted-foreground">pizza meio a meio</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+              </div>
+              {secondProduct && (
+                <div className="mt-4 rounded-2xl bg-primary/10 p-4 text-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <span><strong>{product.name}</strong> + <strong>{secondProduct.name}</strong></span>
+                    <span className="font-bold">{formatCurrency(halfBasePrice)}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">Preço da pizza antes de borda e adicionais.</p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {step === (product.allow_half ? 3 : 2) && (
+            <section className="space-y-7">
+              {data.crusts.length > 0 && (
+                <div>
+                  <p className="mb-2 text-sm font-semibold">Borda</p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {data.crusts.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setCrustId(crustId === item.id ? null : item.id)}
+                        className={"flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm " + (crustId === item.id ? "border-primary bg-primary/5" : "bg-card")}
                       >
                         <span>{item.name}</span>
-                        {secondProductId === item.id ? <Check className="size-4 text-primary" /> : null}
+                        <span className="font-semibold">{Number(item.price) > 0 ? "+" + formatCurrency(Number(item.price)) : "Grátis"}</span>
                       </button>
                     ))}
+                  </div>
                 </div>
-                {secondProduct && (
-                  <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                    Regra de preço: {data.settings.half_pizza_pricing_rule === "highest_half" ? "maior metade" : data.settings.half_pizza_pricing_rule === "average_halves" ? "média das metades" : "preço fixo"}.
+              )}
+
+              {availableAddons.length > 0 && (
+                <div>
+                  <p className="mb-2 text-sm font-semibold">Adicionais</p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {availableAddons.map((item) => {
+                      const checked = addonIds.includes(item.id);
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => toggleAddon(item.id)}
+                          className={"flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm " + (checked ? "border-primary bg-primary/5" : "bg-card")}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className={"flex size-5 items-center justify-center rounded-md border " + (checked ? "border-primary bg-primary text-primary-foreground" : "")}>
+                              {checked ? <Check className="size-3.5" /> : null}
+                            </span>
+                            {item.name}
+                          </span>
+                          <span className="font-semibold">+{formatCurrency(Number(item.price))}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="product-notes" className="mb-2 block text-sm font-semibold">Observações</label>
+                <Textarea id="product-notes" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Alguma observação para este item?" maxLength={300} />
+              </div>
+            </section>
+          )}
+
+          {step === totalSteps && (
+            <section>
+              <div className="mb-5 rounded-2xl border bg-card p-4">
+                <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Complete seu pedido</p>
+                <p className="mt-1 text-sm text-muted-foreground">Escolha bebidas e acompanhamentos para adicionar junto com esta pizza.</p>
+              </div>
+
+              {comboProducts.length > 0 ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {comboProducts.map((item) => {
+                    const checked = comboProductIds.includes(item.id);
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => toggleCombo(item.id)}
+                        className={"flex items-center gap-3 rounded-2xl border p-3 text-left " + (checked ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")}
+                      >
+                        <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
+                          {item.image_url ? <img src={item.image_url} alt="" className="size-full object-cover" /> : <div className="flex size-full items-center justify-center font-display text-lg text-primary/40">{item.name.charAt(0)}</div>}
+                        </div>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-semibold">{item.name}</span>
+                          <span className="text-xs text-muted-foreground">Adicionar ao pedido</span>
+                        </span>
+                        <span className="shrink-0 text-sm font-bold">{formatCurrency(Number(item.base_price) || 0)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                  Nenhum acompanhamento ou bebida disponível no momento.
+                </div>
+              )}
+
+              <div className="mt-5 rounded-2xl bg-muted p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold">{product.name}{secondProduct ? " + " + secondProduct.name : ""}</p>
+                    <p className="text-xs text-muted-foreground">{selectedSize?.name ?? "Sem tamanho"} · {addons.length} adicional(is){crust ? " · " + crust.name : ""}</p>
+                  </div>
+                  <p className="font-bold">{formatCurrency(unitPrice * quantity)}</p>
+                </div>
+                {comboProductIds.length > 0 && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    + {comboProductIds.length} complemento(s) serão adicionados ao carrinho.
                   </p>
                 )}
               </div>
-            )}
-          </div>
-
-          {data.crusts.length > 0 && (
-            <div className="mt-7">
-              <p className="mb-2 text-sm font-semibold">Borda</p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {data.crusts.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setCrustId(crustId === item.id ? null : item.id)}
-                    className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm ${crustId === item.id ? "border-primary bg-primary/5" : "bg-card"}`}
-                  >
-                    <span>{item.name}</span>
-                    <span className="font-semibold">{Number(item.price) > 0 ? `+${formatCurrency(Number(item.price))}` : "Grátis"}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            </section>
           )}
-
-          {availableAddons.length > 0 && (
-            <div className="mt-7">
-              <p className="mb-2 text-sm font-semibold">Adicionais</p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {availableAddons.map((item) => {
-                  const checked = addonIds.includes(item.id);
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => toggleAddon(item.id)}
-                      className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm ${checked ? "border-primary bg-primary/5" : "bg-card"}`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span className={`flex size-5 items-center justify-center rounded-md border ${checked ? "border-primary bg-primary text-primary-foreground" : ""}`}>
-                          {checked ? <Check className="size-3.5" /> : null}
-                        </span>
-                        {item.name}
-                      </span>
-                      <span className="font-semibold">+{formatCurrency(Number(item.price))}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          <div className="mt-7">
-            <label htmlFor="product-notes" className="mb-2 block text-sm font-semibold">Observações</label>
-            <Textarea id="product-notes" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Alguma observação para este item?" maxLength={300} />
-          </div>
         </div>
 
-        <div className="flex items-center gap-3 border-t bg-card px-5 py-4">
-          <div className="flex items-center rounded-full border bg-background">
-            <button onClick={() => setQuantity((value) => Math.max(1, value - 1))} className="p-3" aria-label="Diminuir quantidade"><Minus className="size-4" /></button>
-            <span className="w-8 text-center text-sm font-semibold">{quantity}</span>
-            <button onClick={() => setQuantity((value) => Math.min(99, value + 1))} className="p-3" aria-label="Aumentar quantidade"><Plus className="size-4" /></button>
+        <div className="border-t bg-card px-5 py-4">
+          <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
+            <span>{step < totalSteps ? "Próxima etapa" : "Total deste conjunto"}</span>
+            <span className="font-semibold text-foreground">{formatCurrency(unitPrice * quantity)}</span>
           </div>
-          <Button className="h-12 flex-1 rounded-full" onClick={addToCart}>
-            Adicionar · {formatCurrency(unitPrice * quantity)}
-          </Button>
+          <div className="flex items-center gap-3">
+            {step > 1 ? (
+              <Button variant="outline" className="h-12 rounded-full" onClick={previousStep}>Voltar</Button>
+            ) : (
+              <Button variant="outline" className="h-12 rounded-full" onClick={onClose}>Cancelar</Button>
+            )}
+            {step < totalSteps ? (
+              <Button className="h-12 flex-1 rounded-full" onClick={nextStep}>
+                Próxima etapa <ChevronRight className="ml-1 size-4" />
+              </Button>
+            ) : (
+              <Button className="h-12 flex-1 rounded-full" onClick={addToCart}>
+                Adicionar ao carrinho · {formatCurrency(unitPrice * quantity)}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>
