@@ -30,6 +30,7 @@ import type {
   ProductPrice,
   ProductSize,
   StoreHour,
+  SpecialHour,
   DeliveryZone,
   FulfillmentType,
   PaymentMethod,
@@ -45,6 +46,8 @@ type ProductAddonLink = {
 type StoreData = {
   organization: Organization;
   settings: OrganizationSettings;
+  storeOpen: boolean;
+  storeStatusLabel: string;
   categories: Category[];
   sizes: ProductSize[];
   products: Product[];
@@ -53,6 +56,7 @@ type StoreData = {
   addons: Addon[];
   productAddonLinks: ProductAddonLink[];
   hours: StoreHour[];
+  specialHours: SpecialHour[];
   deliveryZones: DeliveryZone[];
 };
 
@@ -81,6 +85,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     addonsResult,
     productAddonLinksResult,
     hoursResult,
+    specialHoursResult,
     deliveryZonesResult,
   ] = await Promise.all([
     supabase.from("organization_settings").select("*").eq("organization_id", organization.id).maybeSingle(),
@@ -92,6 +97,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     supabase.from("product_addons").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
     supabase.from("product_addon_links").select("product_id, addon_id, sort_order").eq("organization_id", organization.id).order("sort_order"),
     supabase.from("store_hours").select("*").eq("organization_id", organization.id).order("weekday"),
+    supabase.from("special_hours").select("*").eq("organization_id", organization.id).order("date"),
     supabase.from("delivery_zones").select("*").eq("organization_id", organization.id).eq("active", true).order("name"),
   ]);
 
@@ -105,6 +111,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     addonsResult.error ??
     productAddonLinksResult.error ??
     hoursResult.error ??
+    specialHoursResult.error ??
     deliveryZonesResult.error;
   if (error) throw error;
   if (!settingsResult.data) throw new Error("As configurações da loja ainda não foram cadastradas.");
@@ -120,6 +127,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     addons: (addonsResult.data ?? []) as Addon[],
     productAddonLinks: (productAddonLinksResult.data ?? []) as ProductAddonLink[],
     hours: (hoursResult.data ?? []) as StoreHour[],
+    specialHours: (specialHoursResult.data ?? []) as SpecialHour[],
     deliveryZones: (deliveryZonesResult.data ?? []) as DeliveryZone[],
   };
 }
@@ -139,23 +147,27 @@ function getPrice(product: Product, sizeId: string | null, prices: ProductPrice[
   return row ? Number(row.price) : Number(product.base_price) || 0;
 }
 
-function getStoreStatus(hours: StoreHour[]) {
-  const weekday = new Date().getDay();
-  const today = hours.find((hour) => hour.weekday === weekday);
+function getStoreStatus(hours: StoreHour[], specialHours: SpecialHour[], now = new Date()) {
+  const dateKey = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+  const special = specialHours.find((item) => item.date === dateKey);
+  const weekday = now.getDay();
+  const today = special ?? hours.find((hour) => hour.weekday === weekday);
+  const minutes = now.getHours() * 60 + now.getMinutes();
+
   if (!today || today.closed || !today.opens_at || !today.closes_at) {
-    return { open: false, label: "Fechada hoje" };
+    return { open: false, label: special?.note ? `Fechada hoje · ${special.note}` : "Fechada hoje" };
   }
 
-  const now = new Date();
-  const minutes = now.getHours() * 60 + now.getMinutes();
   const [openHour = 0, openMinute = 0] = today.opens_at.slice(0, 5).split(":").map(Number);
   const [closeHour = 0, closeMinute = 0] = today.closes_at.slice(0, 5).split(":").map(Number);
-  const open = minutes >= openHour * 60 + openMinute && minutes < closeHour * 60 + closeMinute;
+  const opening = openHour * 60 + openMinute;
+  const closing = closeHour * 60 + closeMinute;
+  const overnight = closing <= opening;
+  const open = overnight ? minutes >= opening || minutes < closing : minutes >= opening && minutes < closing;
 
-  return {
-    open,
-    label: open ? `Aberta até ${today.closes_at.slice(0, 5)}` : `Abre às ${today.opens_at.slice(0, 5)}`,
-  };
+  if (open) return { open: true, label: `Aberta até ${today.closes_at.slice(0, 5)}` };
+  if (minutes < opening) return { open: false, label: `Abre às ${today.opens_at.slice(0, 5)}` };
+  return { open: false, label: "Fechada agora" };
 }
 
 export function Storefront({ slug }: { slug?: string }) {
@@ -171,6 +183,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [trackedOrder, setTrackedOrder] = useState<{ id: string; number: number; phone: string } | null>(null);
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
     if (!data?.organization?.id) return;
@@ -227,7 +240,12 @@ export function Storefront({ slug }: { slug?: string }) {
     );
   }
 
-  const status = getStoreStatus(data.hours);
+  useEffect(() => {
+    const interval = window.setInterval(() => setNow(new Date()), 30_000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const status = getStoreStatus(data.hours, data.specialHours, now);
   const primary = data.settings.primary_color?.includes("%")
     ? `hsl(${data.settings.primary_color})`
     : undefined;
@@ -804,6 +822,8 @@ function CheckoutPanel({
   onClose: () => void;
   onSuccess: (order: { id: string; number: number; phone: string }) => void;
   trackedOrder?: { id: string; number: number; phone: string } | null;
+  storeOpen: boolean;
+  storeStatusLabel: string;
 }) {
   const [fulfillment, setFulfillment] = useState<FulfillmentType>(
     settings.delivery_enabled ? "DELIVERY" : "PICKUP",
@@ -862,6 +882,11 @@ function CheckoutPanel({
 
   const submitOrder = async () => {
     setError(null);
+
+    if (!storeOpen) {
+      setError(`A loja está fechada. ${storeStatusLabel}.`);
+      return;
+    }
 
     if (!name.trim() || !phone.trim()) {
       setError("Informe seu nome e telefone.");
@@ -1193,8 +1218,8 @@ function CheckoutPanel({
               <div className="flex justify-between pt-2 text-lg font-bold"><span>Total</span><span>{formatCurrency(total)}</span></div>
             </div>
             {error && <p className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
-            <Button disabled={submitting || items.length === 0} onClick={submitOrder} className="mt-5 h-12 w-full rounded-full">
-              {submitting ? "Enviando pedido..." : `Enviar pedido · ${formatCurrency(total)}`}
+            <Button disabled={submitting || items.length === 0 || !storeOpen} onClick={submitOrder} className="mt-5 h-12 w-full rounded-full">
+              {!storeOpen ? "Loja fechada" : submitting ? "Enviando pedido..." : `Enviar pedido · ${formatCurrency(total)}`}
             </Button>
             <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
               Ao enviar, o pedido será encaminhado diretamente para a loja.
