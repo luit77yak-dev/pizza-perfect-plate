@@ -240,10 +240,6 @@ export function Storefront({ slug }: { slug?: string }) {
     );
   }
 
-  useEffect(() => {
-    const interval = window.setInterval(() => setNow(new Date()), 30_000);
-    return () => window.clearInterval(interval);
-  }, []);
 
   const status = getStoreStatus(data.hours, data.specialHours, now);
   const primary = data.settings.primary_color?.includes("%")
