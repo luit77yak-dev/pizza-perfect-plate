@@ -239,11 +239,27 @@ export function Storefront({ slug }: { slug?: string }) {
     return () => window.clearInterval(interval);
   }, []);
 
+  const complementProducts = useMemo(() => {
+    if (!data) return [];
+    return data.products.filter((product) => {
+      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
+      const normalizedCategory = categoryName
+        .normalize("NFD")
+        .replace(/[\\u0300-\\u036f]/g, "")
+        .toLocaleLowerCase("pt-BR");
+      return (
+        product.kind === "SIMPLE" ||
+        /(bebida|bebidas|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(normalizedCategory)
+      );
+    });
+  }, [data]);
+
   const mainProducts = useMemo(() => {
     if (!data) return [];
-    const pizzas = data.products.filter((product) => product.kind === "PIZZA");
-    return pizzas.length > 0 ? pizzas : data.products;
-  }, [data]);
+    const complementIds = new Set(complementProducts.map((product) => product.id));
+    const pizzas = data.products.filter((product) => product.kind === "PIZZA" && !complementIds.has(product.id));
+    return pizzas.length > 0 ? pizzas : data.products.filter((product) => !complementIds.has(product.id));
+  }, [data, complementProducts]);
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
@@ -595,7 +611,9 @@ function ProductConfigurator({
   const [quantity, setQuantity] = useState(1);
 
   const secondProduct = data.products.find((item) => item.id === secondProductId) ?? null;
-  const comboProducts = data.products.filter((item) => item.kind === "SIMPLE");
+  const comboProducts = data.products.filter((item) =>
+    data.products.some((candidate) => candidate.id === item.id && complementProducts.some((complement) => complement.id === item.id)),
+  );
   const selectedSize = data.sizes.find((size) => size.id === sizeId) ?? null;
   const basePrice = getPrice(product, sizeId, data.prices);
   const secondBasePrice = secondProduct ? getPrice(secondProduct, sizeId, data.prices) : basePrice;
@@ -1176,11 +1194,13 @@ function CheckoutPanel({
       setSuccessStatus("RECEIVED");
       onSuccess({ id: String(order.order_id), number: Number(order.order_number), phone: phone.trim() });
     } catch (submitError) {
-      setError(
+      const message =
         submitError instanceof Error
           ? submitError.message
-          : "Não foi possível enviar o pedido.",
-      );
+          : typeof submitError === "object" && submitError !== null && "message" in submitError
+            ? String((submitError as { message?: unknown }).message ?? "Não foi possível enviar o pedido.")
+            : "Não foi possível enviar o pedido.";
+      setError(message);
     } finally {
       setSubmitting(false);
     }
