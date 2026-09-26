@@ -46,8 +46,6 @@ type ProductAddonLink = {
 type StoreData = {
   organization: Organization;
   settings: OrganizationSettings;
-  storeOpen: boolean;
-  storeStatusLabel: string;
   categories: Category[];
   sizes: ProductSize[];
   products: Product[];
@@ -472,6 +470,8 @@ export function Storefront({ slug }: { slug?: string }) {
           items={cart.items}
           subtotal={subtotal}
           onClose={() => setCheckoutOpen(false)}
+          storeOpen={status.open}
+          storeStatusLabel={status.label}
           trackedOrder={trackedOrder}
           onSuccess={(order) => {
             cart.clear();
