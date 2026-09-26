@@ -13,6 +13,30 @@ export const Route = createFileRoute("/painel")({
 type BusinessType = "PIZZERIA" | "RESTAURANT" | "RETAIL" | "SERVICES" | "BEAUTY";
 type PanelView = "overview" | "management" | "orders";
 
+type StoreSettings = {
+  description: string | null;
+  whatsapp_phone: string | null;
+  address_street: string | null;
+  address_number: string | null;
+  address_neighborhood: string | null;
+  address_city: string | null;
+  address_state: string | null;
+  address_zip: string | null;
+  logo_url: string | null;
+  hero_image_url: string | null;
+  hero_title: string | null;
+  hero_subtitle: string | null;
+  hero_cta_label: string | null;
+  primary_color: string;
+  secondary_color: string;
+  delivery_enabled: boolean;
+  pickup_enabled: boolean;
+  pickup_instructions: string | null;
+  min_order_amount: number;
+  estimated_delivery_minutes: number;
+  estimated_pickup_minutes: number;
+};
+
 type BusinessProfile = {
   type: BusinessType;
   displayName: string;
@@ -128,6 +152,8 @@ function StaffPanel() {
   const [activeView, setActiveView] = useState<PanelView>("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [settings, setSettings] = useState<StoreSettings | null>(null);
+  const [savingSettings, setSavingSettings] = useState(false);
 
   const loadSession = async () => {
     const { data } = await supabase.auth.getSession();
@@ -161,7 +187,7 @@ function StaffPanel() {
     setRole(data.role);
     const org = data.organizations as { name?: string } | null;
     setOrganizationName(org?.name ?? "Sua loja");
-    await Promise.all([loadOrders(data.organization_id), loadProducts(data.organization_id), loadAddons(data.organization_id), loadDeliveryZones(data.organization_id)]);
+    await Promise.all([loadOrders(data.organization_id), loadProducts(data.organization_id), loadAddons(data.organization_id), loadDeliveryZones(data.organization_id), loadSettings(data.organization_id)]);
   };
 
   const loadProducts = async (orgId: string) => {
@@ -183,6 +209,51 @@ function StaffPanel() {
     setSizes((sizesResult.data ?? []) as ProductSize[]);
     setProductPrices((pricesResult.data ?? []) as ProductPrice[]);
     setProductAddonIds(addonMap);
+  };
+
+  const loadSettings = async (orgId: string) => {
+    const { data, error: settingsError } = await supabase
+      .from("organization_settings")
+      .select("*")
+      .eq("organization_id", orgId)
+      .maybeSingle();
+    if (settingsError) setError(settingsError.message);
+    else if (data) setSettings(data as StoreSettings);
+  };
+
+  const saveSettings = async (draft: StoreSettings) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    setSavingSettings(true);
+    setError(null);
+    const { error: updateError } = await supabase
+      .from("organization_settings")
+      .update({
+        description: draft.description?.trim() || null,
+        whatsapp_phone: draft.whatsapp_phone?.trim() || null,
+        address_street: draft.address_street?.trim() || null,
+        address_number: draft.address_number?.trim() || null,
+        address_neighborhood: draft.address_neighborhood?.trim() || null,
+        address_city: draft.address_city?.trim() || null,
+        address_state: draft.address_state?.trim() || null,
+        address_zip: draft.address_zip?.trim() || null,
+        hero_title: draft.hero_title?.trim() || null,
+        hero_subtitle: draft.hero_subtitle?.trim() || null,
+        hero_cta_label: draft.hero_cta_label?.trim() || null,
+        logo_url: draft.logo_url?.trim() || null,
+        hero_image_url: draft.hero_image_url?.trim() || null,
+        primary_color: draft.primary_color,
+        secondary_color: draft.secondary_color,
+        delivery_enabled: draft.delivery_enabled,
+        pickup_enabled: draft.pickup_enabled,
+        pickup_instructions: draft.pickup_instructions?.trim() || null,
+        min_order_amount: Number(draft.min_order_amount) || 0,
+        estimated_delivery_minutes: Number(draft.estimated_delivery_minutes) || 0,
+        estimated_pickup_minutes: Number(draft.estimated_pickup_minutes) || 0,
+      })
+      .eq("organization_id", organizationId);
+    if (updateError) setError(updateError.message);
+    else await loadSettings(organizationId);
+    setSavingSettings(false);
   };
 
   const loadAddons = async (orgId: string) => {
@@ -667,6 +738,35 @@ function StaffPanel() {
 
         {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "management" && (
           <div className="space-y-5 rounded-[1.5rem] border bg-muted/20 p-1.5 sm:p-2">
+            <CategoryManager
+              categories={categories}
+              onCreate={async () => {
+                if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+                const { error: createError } = await supabase.from("categories").insert({ organization_id: organizationId, name: "Nova categoria", active: true, sort_order: categories.length });
+                if (createError) setError(createError.message); else await loadProducts(organizationId);
+              }}
+              onSave={async (category) => {
+                if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+                if (!category.name.trim()) { setError("Informe o nome da categoria."); return; }
+                const { error: updateError } = await supabase.from("categories").update({ name: category.name.trim(), active: category.active, sort_order: category.sort_order }).eq("id", category.id).eq("organization_id", organizationId);
+                if (updateError) setError(updateError.message); else await loadProducts(organizationId);
+              }}
+            />
+            <SizeManager
+              sizes={sizes}
+              onCreate={async () => {
+                if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+                const { error: createError } = await supabase.from("product_sizes").insert({ organization_id: organizationId, name: "Novo tamanho", slices: null, active: true, sort_order: sizes.length });
+                if (createError) setError(createError.message); else await loadProducts(organizationId);
+              }}
+              onSave={async (size) => {
+                if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+                if (!size.name.trim()) { setError("Informe o nome do tamanho."); return; }
+                const { error: updateError } = await supabase.from("product_sizes").update({ name: size.name.trim(), slices: size.slices == null ? null : Number(size.slices) || null, active: size.active, sort_order: size.sort_order }).eq("id", size.id).eq("organization_id", organizationId);
+                if (updateError) setError(updateError.message); else await loadProducts(organizationId);
+              }}
+            />
+            {settings && <StoreSettingsManager settings={settings} saving={savingSettings} onSave={saveSettings} />}
             <ProductCatalogManager
             products={products}
             categories={categories}
@@ -886,6 +986,44 @@ function RecentOrdersSection({
       )}
     </section>
   );
+}
+
+function CategoryManager({
+  categories,
+  onCreate,
+  onSave,
+}: {
+  categories: Category[];
+  onCreate: () => void;
+  onSave: (category: Category) => void;
+}) {
+  return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Organização</p><h2 className="mt-1 text-2xl">Categorias</h2><p className="mt-1 text-sm text-muted-foreground">Crie e organize as seções do cardápio.</p></div><Button onClick={onCreate} className="rounded-full"><Plus className="mr-2 size-4" /> Nova categoria</Button></div>
+    <div className="mt-4 grid gap-2 sm:grid-cols-2">{categories.map((category) => <CategoryRow key={category.id} category={category} onSave={onSave} />)}</div>
+  </section>;
+}
+
+function CategoryRow({ category, onSave }: { category: Category; onSave: (category: Category) => void }) {
+  const [draft, setDraft] = useState(category);
+  useEffect(() => setDraft(category), [category]);
+  return <div className="flex flex-col gap-2 rounded-2xl border bg-background p-3 sm:flex-row sm:items-center"><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="h-11 min-w-0 flex-1 rounded-xl border bg-background px-3 outline-none focus:border-primary" /><input value={draft.sort_order} onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) || 0 })} type="number" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-24" aria-label="Ordem" /><Button variant={draft.active ? "outline" : "secondary"} size="sm" className="rounded-full" onClick={() => setDraft({ ...draft, active: !draft.active })}>{draft.active ? "Ativa" : "Inativa"}</Button><Button size="sm" className="rounded-full" onClick={() => onSave(draft)}><Save className="mr-1.5 size-4" />Salvar</Button></div>;
+}
+
+function SizeManager({ sizes, onCreate, onSave }: { sizes: ProductSize[]; onCreate: () => void; onSave: (size: ProductSize) => void }) {
+  return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft"><div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Cardápio</p><h2 className="mt-1 text-2xl">Tamanhos</h2><p className="mt-1 text-sm text-muted-foreground">Defina os tamanhos e a quantidade de fatias.</p></div><Button onClick={onCreate} className="rounded-full"><Plus className="mr-2 size-4" /> Novo tamanho</Button></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{sizes.map((size) => <SizeRow key={size.id} size={size} onSave={onSave} />)}</div></section>;
+}
+
+function SizeRow({ size, onSave }: { size: ProductSize; onSave: (size: ProductSize) => void }) {
+  const [draft, setDraft] = useState(size);
+  useEffect(() => setDraft(size), [size]);
+  return <div className="flex flex-col gap-2 rounded-2xl border bg-background p-3 sm:flex-row sm:items-center"><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="h-11 min-w-0 flex-1 rounded-xl border bg-background px-3 outline-none focus:border-primary" /><input value={draft.slices ?? ""} onChange={(e) => setDraft({ ...draft, slices: e.target.value ? Number(e.target.value) : null })} type="number" min="1" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-28" placeholder="Fatias" aria-label="Fatias" /><input value={draft.sort_order} onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) || 0 })} type="number" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-24" aria-label="Ordem" /><Button variant={draft.active ? "outline" : "secondary"} size="sm" className="rounded-full" onClick={() => setDraft({ ...draft, active: !draft.active })}>{draft.active ? "Ativo" : "Inativo"}</Button><Button size="sm" className="rounded-full" onClick={() => onSave(draft)}><Save className="mr-1.5 size-4" />Salvar</Button></div>;
+}
+
+function StoreSettingsManager({ settings, saving, onSave }: { settings: StoreSettings; saving: boolean; onSave: (settings: StoreSettings) => void }) {
+  const [draft, setDraft] = useState(settings);
+  useEffect(() => setDraft(settings), [settings]);
+  const field = (key: keyof StoreSettings, label: string, placeholder = "") => <label className="text-sm"><span className="mb-1.5 block text-xs font-medium text-muted-foreground">{label}</span><input value={String(draft[key] ?? "")} onChange={(e) => setDraft({ ...draft, [key]: e.target.value })} placeholder={placeholder} className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" /></label>;
+  return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Configurações</p><h2 className="mt-1 text-2xl">Identidade e operação</h2><p className="mt-1 text-sm text-muted-foreground">Edite as informações que aparecem no cardápio e no checkout.</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2">{field("hero_title","Título principal","Pizza de verdade.");}{field("hero_subtitle","Subtítulo","Pizzas artesanais feitas na hora.");}{field("hero_cta_label","Texto do botão","Ver cardápio");}{field("whatsapp_phone","WhatsApp","5562999999999");}{field("address_street","Rua");}{field("address_number","Número");}{field("address_neighborhood","Bairro");}{field("address_city","Cidade");}{field("address_state","Estado");}{field("address_zip","CEP");}{field("logo_url","URL da logo");}{field("hero_image_url","URL da imagem principal");}<label className="text-sm sm:col-span-2"><span className="mb-1.5 block text-xs font-medium text-muted-foreground">Descrição</span><textarea value={draft.description ?? ""} onChange={(e) => setDraft({ ...draft, description: e.target.value })} rows={3} className="w-full rounded-xl border bg-background px-3 py-2 outline-none focus:border-primary" /></label></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><label className="flex items-center gap-2 rounded-xl border bg-background p-3 text-sm"><input type="checkbox" checked={draft.delivery_enabled} onChange={(e) => setDraft({ ...draft, delivery_enabled: e.target.checked })} /> Delivery ativo</label><label className="flex items-center gap-2 rounded-xl border bg-background p-3 text-sm"><input type="checkbox" checked={draft.pickup_enabled} onChange={(e) => setDraft({ ...draft, pickup_enabled: e.target.checked })} /> Retirada ativa</label>{field("min_order_amount","Pedido mínimo","0")}{field("estimated_delivery_minutes","Tempo delivery","40")}</div><div className="mt-3 grid gap-3 sm:grid-cols-2">{field("estimated_pickup_minutes","Tempo retirada","20")}{field("pickup_instructions","Instruções de retirada")}</div><div className="mt-4 flex justify-end"><Button onClick={() => onSave(draft)} disabled={saving} className="rounded-full"><Save className="mr-1.5 size-4" />{saving ? "Salvando..." : "Salvar configurações"}</Button></div></section>;
 }
 
 function ProductCatalogManager({
