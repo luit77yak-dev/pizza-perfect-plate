@@ -985,3 +985,312 @@
     }
   }
 }
+
+
+/* ============================================================
+ * PREMIUM / SOPHISTICATED VISUAL THEME
+ * Keeps the existing storefront structure and business logic.
+ * ============================================================ */
+
+@layer base {
+  :root {
+    --radius: 1rem;
+    --font-body: "Sora", ui-sans-serif, system-ui, sans-serif;
+    --font-heading: "Fraunces", ui-serif, Georgia, serif;
+
+    --background: oklch(0.975 0.012 82);
+    --foreground: oklch(0.18 0.018 45);
+    --surface: oklch(0.955 0.012 82);
+    --surface-foreground: oklch(0.18 0.018 45);
+    --card: oklch(0.995 0.004 85);
+    --card-foreground: oklch(0.19 0.018 45);
+    --popover: oklch(0.995 0.004 85);
+    --popover-foreground: oklch(0.19 0.018 45);
+
+    /* Restrained champagne accent + deep charcoal. */
+    --primary: oklch(0.53 0.105 72);
+    --primary-foreground: oklch(0.985 0.008 82);
+    --secondary: oklch(0.20 0.018 45);
+    --secondary-foreground: oklch(0.975 0.012 82);
+    --muted: oklch(0.94 0.01 82);
+    --muted-foreground: oklch(0.47 0.018 48);
+    --accent: oklch(0.88 0.045 78);
+    --accent-foreground: oklch(0.22 0.02 45);
+    --border: oklch(0.86 0.012 76);
+    --input: oklch(0.86 0.012 76);
+    --ring: oklch(0.53 0.105 72);
+  }
+
+  body {
+    letter-spacing: -0.005em;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.025em;
+  }
+}
+
+@layer components {
+  /* Remove the previous street-poster language. */
+  main#inicio > section:first-child::before {
+    display: none;
+  }
+
+  .ppp-ticker-run {
+    animation: none;
+  }
+
+  /* Header: quiet, editorial, premium. */
+  header {
+    background: color-mix(in oklab, var(--color-background) 92%, transparent) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid color-mix(in oklab, var(--color-border) 72%, transparent);
+    box-shadow: 0 8px 30px -24px oklch(0.18 0.018 45 / 0.35);
+  }
+
+  header > div {
+    max-width: 80rem;
+  }
+
+  header a[href="#inicio"] p {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* Hero: luxury editorial composition instead of poster/shadow blocks. */
+  main#inicio > section:first-child {
+    padding-top: clamp(1.5rem, 4vw, 3.5rem);
+    padding-bottom: clamp(2rem, 5vw, 4rem);
+  }
+
+  main#inicio > section:first-child > div {
+    border: 1px solid color-mix(in oklab, var(--color-border) 78%, transparent);
+    border-radius: 1.5rem;
+    box-shadow: 0 24px 70px -42px oklch(0.18 0.018 45 / 0.42);
+    overflow: hidden;
+    background: var(--color-card);
+  }
+
+  main#inicio > section:first-child .shadow-lifted {
+    border-radius: 1.5rem;
+    box-shadow: 0 24px 70px -42px oklch(0.18 0.018 45 / 0.42);
+  }
+
+  main#inicio > section:first-child h1 {
+    font-size: clamp(3rem, 7vw, 6.4rem);
+    line-height: 0.92;
+    letter-spacing: -0.055em;
+    animation: ppp-float-in 650ms cubic-bezier(.2,.75,.25,1) both;
+  }
+
+  main#inicio > section:first-child a[href="#cardapio"] {
+    border-radius: 999px;
+    box-shadow: none;
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: var(--font-body);
+    font-weight: 600;
+    transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  }
+
+  main#inicio > section:first-child a[href="#cardapio"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -16px oklch(0.18 0.018 45 / 0.55);
+  }
+
+  main#inicio > section:first-child a[href="#cardapio"]:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
+  main#inicio > section:first-child > div:last-child > div {
+    border-radius: 1rem;
+    border-width: 1px;
+    box-shadow: 0 16px 40px -28px oklch(0.18 0.018 45 / 0.38);
+  }
+
+  main#inicio > section:first-child img {
+    filter: saturate(0.94) contrast(1.02);
+  }
+
+  /* Menu heading: elegant, not shouting. */
+  #cardapio h2 {
+    font-size: clamp(2.7rem, 6vw, 4.8rem);
+    line-height: 0.92;
+    text-transform: none;
+    letter-spacing: -0.045em;
+  }
+
+  #cardapio > div:first-child::after {
+    display: none;
+  }
+
+  #cardapio .scrollbar-none button {
+    border-radius: 999px;
+    border-width: 1px;
+    font-family: var(--font-body);
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+    transition: all 180ms ease;
+  }
+
+  #cardapio .scrollbar-none button:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Product cards: gallery/editorial feel. */
+  #cardapio .group {
+    border-radius: 1rem;
+    border-width: 1px;
+    box-shadow: 0 14px 38px -28px oklch(0.18 0.018 45 / 0.45);
+    overflow: hidden;
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  }
+
+  #cardapio .group:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 44px -28px oklch(0.18 0.018 45 / 0.52);
+  }
+
+  #cardapio .group > div:first-child {
+    border-bottom: 0;
+  }
+
+  #cardapio .group > div:last-child > div:first-child > div:last-child span {
+    border-radius: 999px;
+    transform: none;
+    box-shadow: none;
+  }
+
+  #cardapio .group img {
+    filter: saturate(0.95) contrast(1.03);
+    transition: transform 500ms cubic-bezier(.2,.65,.25,1), filter 300ms ease;
+  }
+
+  #cardapio .group:hover img {
+    transform: scale(1.035);
+    filter: saturate(1) contrast(1.04);
+  }
+
+  /* Keep prices and CTAs visually decisive without looking loud. */
+  #cardapio .group .text-primary {
+    font-weight: 650;
+  }
+
+  /* Product configurator / dialogs. */
+  [role="dialog"] > div {
+    border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
+    border-radius: 1.5rem;
+    box-shadow: 0 30px 90px -40px oklch(0.12 0.02 45 / 0.48);
+  }
+
+  [role="dialog"] .rounded-3xl,
+  [role="dialog"] .rounded-\[2rem\] {
+    border-radius: 1rem;
+  }
+
+  [role="dialog"] button {
+    transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease;
+  }
+
+  [role="dialog"] button:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Cart drawer. */
+  [aria-label="Carrinho"] aside {
+    border-left: 1px solid color-mix(in oklab, var(--color-border) 82%, transparent);
+    box-shadow: -24px 0 70px -50px oklch(0.12 0.02 45 / 0.5);
+  }
+
+  [aria-label="Carrinho"] .rounded-2xl {
+    border-radius: 1rem;
+  }
+
+  /* Checkout surfaces. */
+  .fixed.inset-0.z-\[60px\] .rounded-3xl {
+    border-radius: 1rem;
+    border-color: color-mix(in oklab, var(--color-border) 82%, transparent);
+    box-shadow: 0 12px 38px -30px oklch(0.12 0.02 45 / 0.3);
+  }
+
+  .fixed.inset-0.z-\[60px\] button.rounded-full,
+  .fixed.inset-0.z-\[60px\] .h-12.rounded-full {
+    box-shadow: none;
+  }
+
+  /* Floating cart/order bar. */
+  .fixed.inset-x-0.bottom-4 {
+    filter: drop-shadow(0 14px 28px oklch(0.12 0.02 45 / 0.18));
+  }
+
+  /* About/contact sections. */
+  #sobre > div,
+  #contato > div {
+    border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 60px -42px oklch(0.18 0.018 45 / 0.4);
+  }
+
+  /* Premium motion: subtle, never playful. */
+  @media (prefers-reduced-motion: reduce) {
+    #cardapio .group,
+    #cardapio .group:hover,
+    #cardapio .group img,
+    #cardapio .group:hover img,
+    main#inicio > section:first-child a[href="#cardapio"] {
+      transform: none;
+      transition: none;
+    }
+  }
+
+  @media (max-width: 639px) {
+    main#inicio > section:first-child {
+      padding-top: 1rem;
+      padding-bottom: 2rem;
+    }
+
+    main#inicio > section:first-child > div,
+    main#inicio > section:first-child .shadow-lifted {
+      border-radius: 1rem;
+      box-shadow: 0 18px 45px -34px oklch(0.18 0.018 45 / 0.45);
+    }
+
+    main#inicio > section:first-child h1 {
+      font-size: clamp(2.65rem, 12vw, 4.3rem);
+      line-height: 0.93;
+      letter-spacing: -0.045em;
+    }
+
+    main#inicio > section:first-child a[href="#cardapio"] {
+      border-radius: 999px;
+    }
+
+    #cardapio h2 {
+      font-size: clamp(2.5rem, 11vw, 3.5rem);
+      text-transform: none;
+    }
+
+    #cardapio .scrollbar-none button {
+      border-width: 1px;
+      min-height: 2.55rem;
+    }
+
+    #cardapio .group {
+      border-radius: .9rem;
+      box-shadow: 0 12px 30px -24px oklch(0.18 0.018 45 / 0.42);
+    }
+
+    #cardapio .group:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 34px -24px oklch(0.18 0.018 45 / 0.46);
+    }
+
+    [role="dialog"] > div {
+      border-radius: 1rem 1rem 0 0;
+    }
+  }
+}
