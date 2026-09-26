@@ -97,6 +97,13 @@ type Order = {
     quantity: number;
     unit_price: number;
     notes: string | null;
+    order_item_addons: Array<{
+      id: string;
+      addon_id: string | null;
+      name: string;
+      price: number;
+      quantity: number;
+    }>;
   }>;
 };
 
@@ -505,7 +512,7 @@ function StaffPanel() {
     setError(null);
     const { data, error: ordersError } = await supabase
       .from("orders")
-      .select("*, order_items(*)")
+      .select("*, order_items(*, order_item_addons(*))")
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false })
       .limit(80);
@@ -1858,6 +1865,19 @@ function OrderDetailsModal({
                     {item.size_name && <span>Tamanho: {item.size_name}</span>}
                     {item.crust_name && <span>Borda: {item.crust_name}</span>}
                   </div>
+                  {item.order_item_addons?.length > 0 && (
+                    <div className="mt-2 rounded-lg bg-muted/50 px-3 py-2">
+                      <p className="text-xs font-semibold text-muted-foreground">Adicionais</p>
+                      <ul className="mt-1 space-y-0.5 text-xs">
+                        {item.order_item_addons.map((addon) => (
+                          <li key={addon.id}>
+                            + {addon.name}{addon.quantity > 1 ? " (" + addon.quantity + "x)" : ""}
+                            {Number(addon.price) > 0 ? " · " + formatCurrency(Number(addon.price) * Number(addon.quantity)) : ""}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   {item.notes && <p className="mt-2 rounded-lg bg-muted/50 px-3 py-2 text-xs">Observação: {item.notes}</p>}
                 </div>
                 <p className="shrink-0 font-semibold">{formatCurrency(Number(item.unit_price) * Number(item.quantity))}</p>
@@ -1917,6 +1937,11 @@ function OrderCard({
               {item.second_product_name ? ` + ${item.second_product_name}` : ""}
               {item.size_name ? ` · ${item.size_name}` : ""}
               {item.crust_name ? ` · borda ${item.crust_name}` : ""}
+              {item.order_item_addons?.length > 0 ? (
+                <span className="block text-xs text-muted-foreground">
+                  Adicionais: {item.order_item_addons.map((addon) => addon.name + (addon.quantity > 1 ? " (" + addon.quantity + "x)" : "")).join(", ")}
+                </span>
+              ) : null}
               {item.notes ? <span className="block text-xs text-muted-foreground">Obs.: {item.notes}</span> : null}
             </span>
             <span className="shrink-0 font-medium">{formatCurrency(item.unit_price * item.quantity)}</span>
