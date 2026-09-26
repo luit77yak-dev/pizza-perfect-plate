@@ -275,10 +275,10 @@ export function Storefront({ slug }: { slug?: string }) {
       <main id="inicio">
         <section className="mx-auto max-w-6xl px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-7">
           <div className="relative overflow-hidden rounded-sm border-2 border-secondary bg-background shadow-[8px_8px_0_rgba(0,0,0,.9)]">
-            <div className="grid min-h-[560px] lg:grid-cols-[1.05fr_.95fr]">
-              <div className="relative z-10 flex flex-col justify-center p-7 sm:p-10 lg:p-14">
+            <div className="grid min-h-0 lg:min-h-[560px] lg:grid-cols-[1.05fr_.95fr]">
+              <div className="relative z-10 flex min-w-0 flex-col justify-center p-7 sm:p-10 lg:p-14">
                 <p className="mb-4 w-fit bg-secondary px-3 py-1 font-display text-xs uppercase tracking-[.18em] text-secondary-foreground">Pizza artesanal</p>
-                <h1 className="max-w-3xl text-[clamp(3.6rem,8vw,7.4rem)] uppercase leading-[.82] tracking-[-.04em]">{data.settings.hero_title || "O sabor que chega até você"}</h1>
+                <h1 className="w-full max-w-3xl text-[2.35rem] uppercase leading-[.9] tracking-normal sm:text-6xl sm:leading-[.86] lg:text-[clamp(3.6rem,8vw,7.4rem)] lg:leading-[.82]">{data.settings.hero_title || "O sabor que chega até você"}</h1>
                 <p className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">{data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
                 <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-sm bg-primary px-6 py-4 font-display text-sm uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.85)] transition-transform hover:-translate-y-1">{data.settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
               </div>
