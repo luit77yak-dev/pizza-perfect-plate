@@ -901,24 +901,13 @@ function StaffPanel() {
             <HighlightCard label="Ticket médio" value={formatCurrency(todayHighlights.averageTicket)} hint="Por pedido entregue" />
           </div>
 
-          <div className="mt-2 grid gap-2 sm:grid-cols-[1.4fr_1fr]">
-            <div className="rounded-xl border bg-background p-3">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Status do dia</p>
-                <span className="text-xs text-muted-foreground">{todayHighlights.todayOrders.length} pedidos</span>
-              </div>
-              <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
-                <span className="rounded-full bg-primary/10 px-2.5 py-1 font-medium text-primary">{todayHighlights.completed.length} entregues</span>
-                <span className="rounded-full bg-muted px-2.5 py-1 font-medium">{todayHighlights.inProgress.length} em andamento</span>
-                <span className="rounded-full bg-destructive/10 px-2.5 py-1 font-medium text-destructive">{todayHighlights.cancelled.length} cancelados</span>
-              </div>
-            </div>
-            <div className="rounded-xl border bg-background p-3">
-              <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Cardápio</p>
-              <div className="mt-2 flex items-baseline gap-2">
-                <p className="text-xl font-semibold">{products.filter((product) => product.active && product.available).length}</p>
-                <p className="text-xs text-muted-foreground">produtos disponíveis</p>
-              </div>
+          <div className="mt-2 rounded-xl border bg-background p-3">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-semibold uppercase tracking-[.14em] text-muted-foreground">Status do dia</span>
+              <span className="text-muted-foreground">•</span>
+              <span className="rounded-full bg-primary/10 px-2.5 py-1 font-medium text-primary">{todayHighlights.completed.length} entregues</span>
+              <span className="rounded-full bg-muted px-2.5 py-1 font-medium">{todayHighlights.inProgress.length} em andamento</span>
+              <span className="rounded-full bg-destructive/10 px-2.5 py-1 font-medium text-destructive">{todayHighlights.cancelled.length} cancelados</span>
             </div>
           </div>
         </section>
