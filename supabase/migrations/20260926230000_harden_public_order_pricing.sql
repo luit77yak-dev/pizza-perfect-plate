@@ -87,12 +87,34 @@ BEGIN
     v_delivery_fee := round(COALESCE(v_zone.delivery_fee, 0), 2);
   END IF;
 
+  v_number := next_order_number(v_org);
+
+  INSERT INTO orders (
+    organization_id, order_number, customer_name, customer_phone, fulfillment,
+    payment_method, status, subtotal, discount, delivery_fee, total,
+    delivery_zone_id, address_street, address_number, address_complement,
+    address_neighborhood, address_reference, notes, idempotency_key, is_demo, source
+  ) VALUES (
+    v_org, v_number, v_name, v_phone, v_fulfillment, v_payment, 'RECEIVED',
+    0, 0, v_delivery_fee, v_delivery_fee, v_zone_id,
+    NULLIF(trim(p_order->>'address_street'), ''),
+    NULLIF(trim(p_order->>'address_number'), ''),
+    NULLIF(trim(p_order->>'address_complement'), ''),
+    NULLIF(v_neighborhood, ''),
+    NULLIF(trim(p_order->>'address_reference'), ''),
+    NULLIF(trim(p_order->>'notes'), ''),
+    v_idempotency, (SELECT demo_mode FROM organizations WHERE id = v_org), 'PUBLIC'
+  ) RETURNING id INTO v_order_id;
+
   FOR v_item IN SELECT * FROM jsonb_array_elements(p_order->'items') LOOP
     v_product_id := NULLIF(v_item->>'product_id','')::uuid;
     v_second_product_id := NULLIF(v_item->>'second_product_id','')::uuid;
     v_size_id := NULLIF(v_item->>'size_id','')::uuid;
     v_crust_id := NULLIF(v_item->>'crust_id','')::uuid;
     v_is_half := COALESCE((v_item->>'is_half')::boolean, false);
+    v_size := NULL;
+    v_second_size_price := NULL;
+    v_crust := NULL;
     v_quantity := GREATEST(1, LEAST(99, COALESCE((v_item->>'quantity')::integer, 1)));
 
     IF v_product_id IS NULL THEN
@@ -287,24 +309,12 @@ BEGIN
   END IF;
 
   v_total := round(v_subtotal + v_delivery_fee, 2);
-  v_number := next_order_number(v_org);
 
-  INSERT INTO orders (
-    organization_id, order_number, customer_name, customer_phone, fulfillment,
-    payment_method, status, subtotal, discount, delivery_fee, total,
-    delivery_zone_id, address_street, address_number, address_complement,
-    address_neighborhood, address_reference, notes, idempotency_key, is_demo, source
-  ) VALUES (
-    v_org, v_number, v_name, v_phone, v_fulfillment, v_payment, 'RECEIVED',
-    v_subtotal, 0, v_delivery_fee, v_total, v_zone_id,
-    NULLIF(trim(p_order->>'address_street'), ''),
-    NULLIF(trim(p_order->>'address_number'), ''),
-    NULLIF(trim(p_order->>'address_complement'), ''),
-    NULLIF(v_neighborhood, ''),
-    NULLIF(trim(p_order->>'address_reference'), ''),
-    NULLIF(trim(p_order->>'notes'), ''),
-    v_idempotency, (SELECT demo_mode FROM organizations WHERE id = v_org), 'PUBLIC'
-  ) RETURNING id INTO v_order_id;
+  UPDATE orders
+  SET subtotal = v_subtotal,
+      delivery_fee = v_delivery_fee,
+      total = v_total
+  WHERE id = v_order_id;
 
   RETURN QUERY SELECT v_order_id, v_number;
 END;
