@@ -4,7 +4,7 @@ import { BarChart3, Check, ChevronUp, Clock3, ImagePlus, LogOut, MapPin, Menu, P
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
-import type { DeliveryZone, OrderStatus, SpecialHour, StoreHour, PaymentMethod } from "@/lib/domain/types";
+import type { Addon as DomainAddon, Crust, DeliveryZone, OrderStatus, SpecialHour, StoreHour, PaymentMethod } from "@/lib/domain/types";
 
 export const Route = createFileRoute("/painel")({
   component: StaffPanel,
@@ -144,6 +144,8 @@ function StaffPanel() {
   const [savingProductId, setSavingProductId] = useState<string | null>(null);
   const [addons, setAddons] = useState<Addon[]>([]);
   const [savingAddonId, setSavingAddonId] = useState<string | null>(null);
+  const [crusts, setCrusts] = useState<Crust[]>([]);
+  const [savingCrustId, setSavingCrustId] = useState<string | null>(null);
   const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
   const [savingDeliveryZoneId, setSavingDeliveryZoneId] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -192,7 +194,7 @@ function StaffPanel() {
     setRole(data.role);
     const org = data.organizations as { name?: string } | null;
     setOrganizationName(org?.name ?? "Sua loja");
-    await Promise.all([loadOrders(data.organization_id), loadProducts(data.organization_id), loadAddons(data.organization_id), loadDeliveryZones(data.organization_id), loadSettings(data.organization_id), loadHours(data.organization_id)]);
+    await Promise.all([loadOrders(data.organization_id), loadProducts(data.organization_id), loadAddons(data.organization_id), loadCrusts(data.organization_id), loadDeliveryZones(data.organization_id), loadSettings(data.organization_id), loadHours(data.organization_id)]);
   };
 
   const loadProducts = async (orgId: string) => {
@@ -331,6 +333,58 @@ function StaffPanel() {
       .order("name", { ascending: true });
     if (addonsError) setError(addonsError.message);
     else setAddons((data ?? []) as Addon[]);
+  };
+
+  const loadCrusts = async (orgId: string) => {
+    const { data, error: crustsError } = await supabase
+      .from("product_crusts")
+      .select("id, organization_id, name, price, sort_order, active")
+      .eq("organization_id", orgId)
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+    if (crustsError) setError(crustsError.message);
+    else setCrusts((data ?? []) as Crust[]);
+  };
+
+  const createCrust = async () => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    setError(null);
+    const { data, error: createError } = await supabase
+      .from("product_crusts")
+      .insert({ organization_id: organizationId, name: "Nova borda", price: 0, active: true, sort_order: crusts.length })
+      .select("id, organization_id, name, price, sort_order, active")
+      .single();
+    if (createError) setError(createError.message);
+    else if (data) setCrusts((current) => [...current, data as Crust]);
+  };
+
+  const saveCrust = async (draft: Crust) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    if (!draft.name.trim()) { setError("Informe o nome da borda."); return; }
+    const price = Number(String(draft.price).replace(",", "."));
+    if (!Number.isFinite(price) || price < 0) { setError("Informe um preço válido."); return; }
+    setSavingCrustId(draft.id);
+    setError(null);
+    const { error: updateError } = await supabase
+      .from("product_crusts")
+      .update({ name: draft.name.trim(), price, active: draft.active, sort_order: draft.sort_order })
+      .eq("id", draft.id)
+      .eq("organization_id", organizationId);
+    if (updateError) setError(updateError.message);
+    else await loadCrusts(organizationId);
+    setSavingCrustId(null);
+  };
+
+  const toggleCrust = async (crust: Crust) => {
+    if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
+    const next = !crust.active;
+    const { error: updateError } = await supabase
+      .from("product_crusts")
+      .update({ active: next })
+      .eq("id", crust.id)
+      .eq("organization_id", organizationId);
+    if (updateError) setError(updateError.message);
+    else setCrusts((current) => current.map((item) => item.id === crust.id ? { ...item, active: next } : item));
   };
 
   const loadDeliveryZones = async (orgId: string) => {
@@ -864,6 +918,14 @@ function StaffPanel() {
             onSave={saveAddon}
             onToggle={toggleAddon}
           />
+            <CrustManager
+            crusts={crusts}
+            savingCrustId={savingCrustId}
+            onCreate={createCrust}
+            onSave={saveCrust}
+            onToggle={toggleCrust}
+          />
+
             <DeliveryZoneManager
             zones={deliveryZones}
             savingZoneId={savingDeliveryZoneId}
@@ -1292,6 +1354,122 @@ function ProductEditorRow({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function CrustManager({
+  crusts,
+  savingCrustId,
+  onCreate,
+  onSave,
+  onToggle,
+}: {
+  crusts: Crust[];
+  savingCrustId: string | null;
+  onCreate: () => void;
+  onSave: (crust: Crust) => void;
+  onToggle: (crust: Crust) => void;
+}) {
+  return (
+    <section id="bordas" className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Personalização</p>
+          <h2 className="mt-1 text-2xl">Bordas</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Cadastre as opções de borda e o adicional cobrado no pedido.</p>
+        </div>
+        <Button onClick={onCreate} className="rounded-full">
+          <Plus className="mr-2 size-4" /> Nova borda
+        </Button>
+      </div>
+
+      <div className="mt-4 space-y-1.5">
+        {crusts.length === 0 ? (
+          <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+            Nenhuma borda cadastrada.
+          </div>
+        ) : (
+          crusts.map((crust) => (
+            <CrustEditorRow
+              key={crust.id}
+              crust={crust}
+              saving={savingCrustId === crust.id}
+              onSave={onSave}
+              onToggle={onToggle}
+            />
+          ))
+        )}
+      </div>
+    </section>
+  );
+}
+
+function CrustEditorRow({
+  crust,
+  saving,
+  onSave,
+  onToggle,
+}: {
+  crust: Crust;
+  saving: boolean;
+  onSave: (crust: Crust) => void;
+  onToggle: (crust: Crust) => void;
+}) {
+  const [draft, setDraft] = useState(crust);
+
+  useEffect(() => {
+    setDraft(crust);
+  }, [crust]);
+
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl border bg-background p-3 sm:flex-row sm:items-center">
+      <div className="min-w-0 flex-1">
+        <label className="block text-xs font-medium text-muted-foreground">Nome</label>
+        <input
+          value={draft.name}
+          onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+          className="mt-1 h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+          placeholder="Ex.: Catupiry"
+        />
+      </div>
+      <div className="w-full sm:w-32">
+        <label className="block text-xs font-medium text-muted-foreground">Preço</label>
+        <input
+          value={draft.price}
+          onChange={(e) => setDraft({ ...draft, price: Number(e.target.value.replace(",", ".")) || 0 })}
+          inputMode="decimal"
+          className="mt-1 h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+          placeholder="0,00"
+        />
+      </div>
+      <div className="flex flex-wrap gap-2 sm:pt-5">
+        <Button
+          variant={draft.active ? "outline" : "secondary"}
+          size="sm"
+          className="rounded-full"
+          onClick={() => setDraft({ ...draft, active: !draft.active })}
+        >
+          {draft.active ? "Ativa" : "Inativa"}
+        </Button>
+        <Button
+          size="sm"
+          className="rounded-full"
+          onClick={() => onSave(draft)}
+          disabled={saving}
+        >
+          <Save className="mr-1.5 size-4" />
+          {saving ? "Salvando..." : "Salvar"}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="rounded-full"
+          onClick={() => onToggle(draft)}
+        >
+          {draft.active ? "Desativar" : "Ativar"}
+        </Button>
+      </div>
     </div>
   );
 }
