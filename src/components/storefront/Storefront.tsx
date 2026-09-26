@@ -607,6 +607,7 @@ function ProductConfigurator({
   const [step, setStep] = useState(1);
   const [sizeId, setSizeId] = useState<string | null>(data.sizes[0]?.id ?? null);
   const [secondProductId, setSecondProductId] = useState<string | null>(null);
+  const [halfMode, setHalfMode] = useState(false);
   const [crustId, setCrustId] = useState<string | null>(null);
   const [addonIds, setAddonIds] = useState<string[]>([]);
   const [comboProductIds, setComboProductIds] = useState<string[]>([]);
@@ -648,14 +649,14 @@ function ProductConfigurator({
   const unitPrice = calculateProductUnitPrice({
     basePrice,
     secondBasePrice,
-    isHalf: Boolean(secondProductId),
+    isHalf: halfMode && Boolean(secondProductId),
     halfRule: data.settings.half_pizza_pricing_rule,
     halfFixedPrice: data.settings.half_pizza_fixed_price,
     crustPrice: crust?.price ?? 0,
     addonPrices: addons.map((item) => item.price),
   });
 
-  const totalSteps = product.allow_half ? 4 : 3;
+  const totalSteps = 3;
   const nextStep = () => setStep((current) => Math.min(totalSteps, current + 1));
   const previousStep = () => setStep((current) => Math.max(1, current - 1));
 
@@ -675,7 +676,7 @@ function ProductConfigurator({
       imageUrl: product.image_url,
       secondProductId: secondProduct?.id ?? null,
       secondProductName: secondProduct?.name ?? null,
-      isHalf: Boolean(secondProduct),
+      isHalf: halfMode && Boolean(secondProduct),
       sizeId,
       sizeName: selectedSize?.name ?? null,
       crustId,
@@ -699,12 +700,10 @@ function ProductConfigurator({
 
   const stepTitle =
     step === 1
-      ? "Escolha o tamanho"
-      : product.allow_half && step === 2
-        ? "Monte meio a meio"
-        : step === (product.allow_half ? 3 : 2)
-          ? "Personalize sua pizza"
-          : "Complete seu pedido";
+      ? "Monte sua pizza"
+      : step === 2
+        ? "Personalize sua pizza"
+        : "Complete seu pedido";
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/45 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
@@ -728,93 +727,116 @@ function ProductConfigurator({
 
         <div className="flex-1 overflow-y-auto px-5 py-5">
           {step === 1 && (
-            <section>
-              <div className="mb-4 rounded-2xl border bg-card p-4">
+            <section className="space-y-6">
+              <div className="rounded-2xl border bg-card p-4">
                 <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Produto principal</p>
                 <p className="mt-1 text-lg font-semibold">{product.name}</p>
                 {product.description && <p className="mt-1 text-sm text-muted-foreground">{product.description}</p>}
               </div>
-              <p className="mb-2 text-sm font-semibold">Tamanho</p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {data.sizes.map((size) => {
-                  const price = getPrice(product, size.id, data.prices);
-                  return (
-                    <button
-                      key={size.id}
-                      onClick={() => setSizeId(size.id)}
-                      className={"flex items-center justify-between rounded-2xl border px-4 py-3 text-left " + (sizeId === size.id ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")}
-                    >
-                      <span>
-                        <span className="block text-sm font-semibold">{size.name}</span>
-                        {size.slices ? <span className="text-xs text-muted-foreground">{size.slices} fatias</span> : null}
-                      </span>
-                      <span className="text-sm font-semibold">{formatCurrency(price)}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          )}
 
-          {product.allow_half && step === 2 && (
-            <section>
-              <div className="mb-4 rounded-2xl border bg-card p-4">
-                <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Primeira metade</p>
-                <p className="mt-1 font-semibold">{product.name}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {selectedSize?.name ? selectedSize.name + " · " + formatCurrency(basePrice) : "Escolha um tamanho"}
-                </p>
-              </div>
-              <div className="mb-3">
-                <p className="text-sm font-semibold">Escolha a segunda metade</p>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  Você paga pela regra configurada pela loja: {data.settings.half_pizza_pricing_rule === "highest_half" ? "maior metade" : data.settings.half_pizza_pricing_rule === "average_halves" ? "média das metades" : "preço fixo"}.
-                </p>
-              </div>
-              <div className="max-h-80 space-y-2 overflow-y-auto pr-1">
-                {data.products
-                  .filter((item) => item.kind === "PIZZA" && item.id !== product.id)
-                  .map((item) => {
-                    const price = getPrice(item, sizeId, data.prices);
-                    const selected = secondProductId === item.id;
-                    const previewPrice = calculateProductUnitPrice({
-                      basePrice,
-                      secondBasePrice: price,
-                      isHalf: true,
-                      halfRule: data.settings.half_pizza_pricing_rule,
-                      halfFixedPrice: data.settings.half_pizza_fixed_price,
-                    });
+              <div>
+                <p className="mb-2 text-sm font-semibold">1. Escolha o tamanho</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {data.sizes.map((size) => {
+                    const price = getPrice(product, size.id, data.prices);
                     return (
                       <button
-                        key={item.id}
-                        onClick={() => setSecondProductId(item.id)}
-                        className={"flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left " + (selected ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")}
+                        key={size.id}
+                        onClick={() => setSizeId(size.id)}
+                        className={"flex items-center justify-between rounded-2xl border px-4 py-3 text-left " + (sizeId === size.id ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")}
                       >
                         <span>
-                          <span className="block text-sm font-semibold">{item.name}</span>
-                          <span className="text-xs text-muted-foreground">Esta metade: {formatCurrency(price)}</span>
+                          <span className="block text-sm font-semibold">{size.name}</span>
+                          {size.slices ? <span className="text-xs text-muted-foreground">{size.slices} fatias</span> : null}
                         </span>
-                        <span className="text-right">
-                          <span className="block text-sm font-bold">{formatCurrency(previewPrice)}</span>
-                          <span className="text-[11px] text-muted-foreground">pizza meio a meio</span>
-                        </span>
+                        <span className="text-sm font-semibold">{formatCurrency(price)}</span>
                       </button>
                     );
                   })}
+                </div>
               </div>
-              {secondProduct && (
-                <div className="mt-4 rounded-2xl bg-primary/10 p-4 text-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <span><strong>{product.name}</strong> + <strong>{secondProduct.name}</strong></span>
-                    <span className="font-bold">{formatCurrency(halfBasePrice)}</span>
+
+              {product.allow_half && (
+                <div>
+                  <p className="mb-2 text-sm font-semibold">2. Como você quer sua pizza?</p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setHalfMode(false);
+                        setSecondProductId(null);
+                      }}
+                      className={"rounded-2xl border p-4 text-left transition-colors " + (!halfMode ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")}
+                    >
+                      <p className="font-semibold">1 sabor</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Pizza inteira com {product.name}</p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHalfMode(true)}
+                      className={"rounded-2xl border p-4 text-left transition-colors " + (halfMode ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")}
+                    >
+                      <p className="font-semibold">Meio a meio</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Escolha outro sabor para a segunda metade</p>
+                    </button>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">Preço da pizza antes de borda e adicionais.</p>
+                </div>
+              )}
+
+              {product.allow_half && halfMode && (
+                <div className="rounded-2xl border bg-card p-4">
+                  <div className="mb-3">
+                    <p className="text-sm font-semibold">Escolha o segundo sabor</p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      {selectedSize?.name ? selectedSize.name + " · " + formatCurrency(basePrice) : "Escolha um tamanho primeiro"}
+                    </p>
+                  </div>
+                  <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
+                    {data.products
+                      .filter((item) => item.kind === "PIZZA" && item.id !== product.id)
+                      .map((item) => {
+                        const price = getPrice(item, sizeId, data.prices);
+                        const selected = secondProductId === item.id;
+                        const previewPrice = calculateProductUnitPrice({
+                          basePrice,
+                          secondBasePrice: price,
+                          isHalf: true,
+                          halfRule: data.settings.half_pizza_pricing_rule,
+                          halfFixedPrice: data.settings.half_pizza_fixed_price,
+                        });
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => setSecondProductId(item.id)}
+                            className={"flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left " + (selected ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background")}
+                          >
+                            <span>
+                              <span className="block text-sm font-semibold">{item.name}</span>
+                              <span className="text-xs text-muted-foreground">Segunda metade · {formatCurrency(price)}</span>
+                            </span>
+                            <span className="text-right">
+                              <span className="block text-sm font-bold">{formatCurrency(previewPrice)}</span>
+                              <span className="text-[11px] text-muted-foreground">total da pizza</span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                  </div>
+                  {secondProduct && (
+                    <div className="mt-3 rounded-xl bg-primary/10 p-3 text-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <span><strong>{product.name}</strong> + <strong>{secondProduct.name}</strong></span>
+                        <span className="font-bold">{formatCurrency(halfBasePrice)}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </section>
           )}
 
-          {step === (product.allow_half ? 3 : 2) && (
+          {step === 2 && (
             <section className="space-y-7">
               {data.crusts.length > 0 && (
                 <div>
@@ -867,7 +889,7 @@ function ProductConfigurator({
             </section>
           )}
 
-          {step === totalSteps && (
+          {step === 3 && (
             <section>
               <div className="mb-5 rounded-2xl border bg-card p-4">
                 <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Complete seu pedido</p>
