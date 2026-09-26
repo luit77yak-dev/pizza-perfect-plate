@@ -162,6 +162,7 @@ function StaffPanel() {
   const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<PanelView>("overview");
+  const [operationsSection, setOperationsSection] = useState<"hours" | "delivery">("hours");
   const [catalogSection, setCatalogSection] = useState<"products" | "categories" | "sizes" | "addons" | "crusts" | "photos">("products");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
@@ -1049,25 +1050,63 @@ function StaffPanel() {
           <>
             <SectionHeading
               eyebrow="Operação"
-              title="Funcionamento e entrega"
-              description="Defina horários da loja e as áreas atendidas pela entrega."
+              title="Operação da loja"
+              description="Gerencie horários e entrega em áreas separadas."
             />
-            <OperationsManager
-              hours={storeHours}
-              specialHours={specialHours}
-              savingHour={savingHour}
-              savingSpecialHour={savingSpecialHour}
-              onSaveHour={saveStoreHour}
-              onCreateSpecial={createSpecialHour}
-              onSaveSpecial={saveSpecialHour}
-              onRemoveSpecial={removeSpecialHour}
-              zones={deliveryZones}
-              savingZoneId={savingDeliveryZoneId}
-              onCreateZone={createDeliveryZone}
-              onSaveZone={saveDeliveryZone}
-              onToggleZone={toggleDeliveryZone}
-              onDeleteZone={deleteDeliveryZone}
-            />
+
+            <div className="mb-4 flex gap-1 overflow-x-auto rounded-xl border bg-card p-1">
+              {([
+                ["hours", "Horários"],
+                ["delivery", "Entrega"],
+              ] as const).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setOperationsSection(value)}
+                  className={`shrink-0 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${operationsSection === value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {operationsSection === "hours" && (
+              <OperationsManager
+                hours={storeHours}
+                specialHours={specialHours}
+                savingHour={savingHour}
+                savingSpecialHour={savingSpecialHour}
+                onSaveHour={saveStoreHour}
+                onCreateSpecial={createSpecialHour}
+                onSaveSpecial={saveSpecialHour}
+                onRemoveSpecial={removeSpecialHour}
+                zones={[]}
+                savingZoneId={null}
+                onCreateZone={async () => {}}
+                onSaveZone={async () => {}}
+                onToggleZone={async () => {}}
+                onDeleteZone={async () => {}}
+              />
+            )}
+
+            {operationsSection === "delivery" && (
+              <OperationsManager
+                hours={[]}
+                specialHours={[]}
+                savingHour={null}
+                savingSpecialHour={null}
+                onSaveHour={async () => {}}
+                onCreateSpecial={async () => {}}
+                onSaveSpecial={async () => {}}
+                onRemoveSpecial={async () => {}}
+                zones={deliveryZones}
+                savingZoneId={savingDeliveryZoneId}
+                onCreateZone={createDeliveryZone}
+                onSaveZone={saveDeliveryZone}
+                onToggleZone={toggleDeliveryZone}
+                onDeleteZone={deleteDeliveryZone}
+              />
+            )}
           </>
         )}
 
