@@ -1289,10 +1289,7 @@ export type Database = {
           updated_at: string
         }[]
       }
-      get_public_storefront_settings: {
-        Args: { p_org: string }
-        Returns: Json
-      }
+      get_public_storefront_settings: { Args: { p_org: string }; Returns: Json }
       has_org_role: {
         Args: {
           _org: string
@@ -1305,7 +1302,7 @@ export type Database = {
       next_order_number: { Args: { _org: string }; Returns: number }
       update_order_status: {
         Args: {
-          p_note?: string | null
+          p_note?: string
           p_order_id: string
           p_organization_id: string
           p_status: Database["public"]["Enums"]["order_status"]
