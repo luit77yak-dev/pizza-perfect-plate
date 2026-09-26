@@ -821,6 +821,8 @@ function CheckoutPanel({
   onClose,
   onSuccess,
   trackedOrder,
+  storeOpen,
+  storeStatusLabel,
 }: {
   organization: Organization;
   settings: OrganizationSettings;
