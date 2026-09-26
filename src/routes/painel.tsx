@@ -939,25 +939,21 @@ function StaffPanel() {
               description="Defina horários da loja e as áreas atendidas pela entrega."
             />
             <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
-            <div className="space-y-5">
-              <HoursManager
-                hours={storeHours}
-                specialHours={specialHours}
-                savingHour={savingHour}
-                savingSpecialHour={savingSpecialHour}
-                onSaveHour={saveStoreHour}
-                onCreateSpecial={createSpecialHour}
-                onSaveSpecial={saveSpecialHour}
-                onRemoveSpecial={removeSpecialHour}
-              />
-              <DeliveryZoneManager
-                zones={deliveryZones}
-                savingZoneId={savingDeliveryZoneId}
-                onCreate={createDeliveryZone}
-                onSave={saveDeliveryZone}
-                onToggle={toggleDeliveryZone}
-              />
-            </div>
+            <OperationsManager
+              hours={storeHours}
+              specialHours={specialHours}
+              savingHour={savingHour}
+              savingSpecialHour={savingSpecialHour}
+              onSaveHour={saveStoreHour}
+              onCreateSpecial={createSpecialHour}
+              onSaveSpecial={saveSpecialHour}
+              onRemoveSpecial={removeSpecialHour}
+              zones={deliveryZones}
+              savingZoneId={savingDeliveryZoneId}
+              onCreateZone={createDeliveryZone}
+              onSaveZone={saveDeliveryZone}
+              onToggleZone={toggleDeliveryZone}
+            />
           </>
         )}
 
@@ -1194,6 +1190,59 @@ function SizeRow({ size, onSave }: { size: ProductSize; onSave: (size: ProductSi
   const [draft, setDraft] = useState(size);
   useEffect(() => setDraft(size), [size]);
   return <div className="flex flex-col gap-2 rounded-2xl border bg-background p-3 sm:flex-row sm:items-center"><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="h-11 min-w-0 flex-1 rounded-xl border bg-background px-3 outline-none focus:border-primary" /><input value={draft.slices ?? ""} onChange={(e) => setDraft({ ...draft, slices: e.target.value ? Number(e.target.value) : null })} type="number" min="1" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-28" placeholder="Fatias" aria-label="Fatias" /><input value={draft.sort_order} onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) || 0 })} type="number" className="h-11 w-full rounded-xl border bg-background px-3 sm:w-24" aria-label="Ordem" /><Button variant={draft.active ? "outline" : "secondary"} size="sm" className="rounded-full" onClick={() => setDraft({ ...draft, active: !draft.active })}>{draft.active ? "Ativo" : "Inativo"}</Button><Button size="sm" className="rounded-full" onClick={() => onSave(draft)}><Save className="mr-1.5 size-4" />Salvar</Button></div>;
+}
+
+function OperationsManager({
+  hours, specialHours, savingHour, savingSpecialHour, onSaveHour, onCreateSpecial, onSaveSpecial, onRemoveSpecial,
+  zones, savingZoneId, onCreateZone, onSaveZone, onToggleZone,
+}: {
+  hours: StoreHour[]; specialHours: SpecialHour[]; savingHour: number | null; savingSpecialHour: string | null;
+  onSaveHour: (hour: StoreHour) => void; onCreateSpecial: () => void; onSaveSpecial: (hour: SpecialHour) => void; onRemoveSpecial: (hour: SpecialHour) => void;
+  zones: DeliveryZone[]; savingZoneId: string | null; onCreateZone: () => void; onSaveZone: (zone: DeliveryZone) => void; onToggleZone: (zone: DeliveryZone) => void;
+}) {
+  const [section, setSection] = useState<"hours" | "delivery">("hours");
+
+  return (
+    <div className="mt-4">
+      <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl border bg-card p-1.5">
+        <button
+          type="button"
+          onClick={() => setSection("hours")}
+          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${section === "hours" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+        >
+          <Clock3 className="size-4" /> Horários
+        </button>
+        <button
+          type="button"
+          onClick={() => setSection("delivery")}
+          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${section === "delivery" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+        >
+          <MapPin className="size-4" /> Entrega
+        </button>
+      </div>
+
+      {section === "hours" ? (
+        <HoursManager
+          hours={hours}
+          specialHours={specialHours}
+          savingHour={savingHour}
+          savingSpecialHour={savingSpecialHour}
+          onSaveHour={onSaveHour}
+          onCreateSpecial={onCreateSpecial}
+          onSaveSpecial={onSaveSpecial}
+          onRemoveSpecial={onRemoveSpecial}
+        />
+      ) : (
+        <DeliveryZoneManager
+          zones={zones}
+          savingZoneId={savingZoneId}
+          onCreate={onCreateZone}
+          onSave={onSaveZone}
+          onToggle={onToggleZone}
+        />
+      )}
+    </div>
+  );
 }
 
 function HoursManager({
