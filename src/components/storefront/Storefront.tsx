@@ -185,12 +185,53 @@ export function Storefront({ slug }: { slug?: string }) {
 
   useEffect(() => {
     if (!data?.organization?.id) return;
-    try {
-      const raw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
-      setTrackedOrder(raw ? JSON.parse(raw) : null);
-    } catch {
-      setTrackedOrder(null);
-    }
+
+    let cancelled = false;
+
+    const loadTrackedOrder = async () => {
+      try {
+        const raw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
+        if (!raw) {
+          if (!cancelled) setTrackedOrder(null);
+          return;
+        }
+
+        const stored = JSON.parse(raw) as { id: string; number: number; phone: string };
+        if (!stored?.id || !stored?.phone) {
+          localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
+          if (!cancelled) setTrackedOrder(null);
+          return;
+        }
+
+        const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
+          p_order_id: stored.id,
+          p_customer_phone: stored.phone,
+        });
+
+        if (cancelled) return;
+
+        const current = Array.isArray(tracking) ? tracking[0] : tracking;
+        const status = current?.status as OrderStatus | undefined;
+        const finished = status === "DELIVERED" || status === "CANCELLED";
+
+        if (!error && finished) {
+          localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
+          setTrackedOrder(null);
+          return;
+        }
+
+        // If the status lookup fails, keep the stored order so the customer can
+        // still try to track it instead of silently losing the tracking reference.
+        setTrackedOrder(stored);
+      } catch {
+        if (!cancelled) setTrackedOrder(null);
+      }
+    };
+
+    void loadTrackedOrder();
+    return () => {
+      cancelled = true;
+    };
   }, [data?.organization?.id]);
 
   useEffect(() => {
@@ -480,6 +521,14 @@ export function Storefront({ slug }: { slug?: string }) {
               localStorage.setItem(`ppp:last-order:${data.organization.id}`, JSON.stringify(order));
             } catch {
               // Ignore storage failures; tracking still works for the current session.
+            }
+          }}
+          onOrderFinished={() => {
+            setTrackedOrder(null);
+            try {
+              localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
+            } catch {
+              // Ignore storage failures.
             }
           }}
         />
@@ -823,6 +872,7 @@ function CheckoutPanel({
   trackedOrder,
   storeOpen,
   storeStatusLabel,
+  onOrderFinished,
 }: {
   organization: Organization;
   settings: OrganizationSettings;
@@ -834,6 +884,7 @@ function CheckoutPanel({
   trackedOrder?: { id: string; number: number; phone: string } | null;
   storeOpen: boolean;
   storeStatusLabel: string;
+  onOrderFinished: () => void;
 }) {
   const [fulfillment, setFulfillment] = useState<FulfillmentType>(
     settings.delivery_enabled ? "DELIVERY" : "PICKUP",
@@ -998,8 +1049,13 @@ function CheckoutPanel({
 
       const current = Array.isArray(tracking) ? tracking[0] : tracking;
       if (current?.status) {
-        setSuccessStatus(current.status as OrderStatus);
+        const currentStatus = current.status as OrderStatus;
+        setSuccessStatus(currentStatus);
         setTrackingError(null);
+
+        if (currentStatus === "DELIVERED" || currentStatus === "CANCELLED") {
+          onOrderFinished();
+        }
       }
     };
 
@@ -1009,7 +1065,7 @@ function CheckoutPanel({
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [successOrderId, phone]);
+  }, [successOrderId, phone, onOrderFinished]);
 
   if (successNumber != null && successOrderId != null) {
     return (
