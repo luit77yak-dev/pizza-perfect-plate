@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { BarChart3, Check, ChevronUp, Clock3, ImagePlus, LogOut, MapPin, Menu, Package, Pencil, Plus, RefreshCw, Save, Settings2, ShoppingBag, Tag, Trash2, Upload, UserRound, X } from "lucide-react";
+import { BarChart3, Check, ChevronUp, Clock3, ImagePlus, LogOut, MapPin, Package, Pencil, Plus, RefreshCw, Save, Settings2, ShoppingBag, Tag, Trash2, Upload, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
+import { TopPanelNav } from "@/components/panel/TopPanelNav";
 import type { Addon as DomainAddon, Crust, DeliveryZone, OrderStatus, SpecialHour, StoreHour, PaymentMethod } from "@/lib/domain/types";
 
 export const Route = createFileRoute("/painel")({
@@ -161,7 +162,6 @@ function StaffPanel() {
   const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<PanelView>("overview");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
   const [savingSettings, setSavingSettings] = useState(false);
@@ -874,27 +874,12 @@ function StaffPanel() {
             <Button variant="ghost" size="icon" onClick={() => void supabase.auth.signOut()} aria-label="Sair">
               <LogOut className="size-4" />
             </Button>
-            <Button variant="outline" size="icon" className="rounded-full sm:hidden" onClick={() => setMobileMenuOpen((current) => !current)} aria-label="Abrir menu" aria-expanded={mobileMenuOpen}>
-              <Menu className="size-5" />
-            </Button>
           </div>
         </div>
-        {mobileMenuOpen && (
-          <nav className="border-t px-4 py-3 sm:hidden" aria-label="Navegação do painel">
-            <div className="flex flex-col gap-1.5">
-              <PanelNavButton active={activeView === "overview"} icon={BarChart3} label="Visão geral" onClick={() => { setActiveView("overview"); setMobileMenuOpen(false); }} />
-              {["OWNER", "ADMIN"].includes(role ?? "") && (
-                <>
-                  <PanelNavButton active={activeView === "catalog"} icon={Package} label="Cardápio" onClick={() => { setActiveView("catalog"); setMobileMenuOpen(false); }} />
-                  <PanelNavButton active={activeView === "operations"} icon={MapPin} label="Operação" onClick={() => { setActiveView("operations"); setMobileMenuOpen(false); }} />
-                  <PanelNavButton active={activeView === "settings"} icon={Settings2} label="Configurações" onClick={() => { setActiveView("settings"); setMobileMenuOpen(false); }} />
-                </>
-              )}
-              <PanelNavButton active={activeView === "orders"} icon={ShoppingBag} label="Pedidos" onClick={() => { setActiveView("orders"); setMobileMenuOpen(false); }} />
-            </div>
-          </nav>
-        )}
+
       </header>
+
+      <TopPanelNav activeView={activeView} onChange={setActiveView} role={role} />
 
       <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
         <section className={`mb-4 rounded-[1.35rem] border bg-card p-4 shadow-soft sm:p-5 ${activeView === "overview" ? "" : "hidden"}`}>
@@ -906,8 +891,6 @@ function StaffPanel() {
             </div>
             <p className="text-xs text-muted-foreground">{todayHighlights.todayOrders.length} pedido(s) hoje</p>
           </div>
-
-          <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
 
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <HighlightCard label="Pedidos hoje" value={String(todayHighlights.todayOrders.length)} hint="Recebidos hoje" />
@@ -949,7 +932,6 @@ function StaffPanel() {
               title="Catálogo da loja"
               description="Organize categorias, tamanhos, produtos, adicionais, bordas e fotos."
             />
-            <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
             <div className="mb-4 rounded-xl border border-dashed bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
               Itens excluídos não voltam. Produtos já usados em pedidos mantêm o histórico do pedido.
             </div>
@@ -1032,7 +1014,6 @@ function StaffPanel() {
               title="Funcionamento e entrega"
               description="Defina horários da loja e as áreas atendidas pela entrega."
             />
-            <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
             <OperationsManager
               hours={storeHours}
               specialHours={specialHours}
@@ -1059,7 +1040,6 @@ function StaffPanel() {
               title="Configurações da loja"
               description="Personalize a identidade, os canais e as regras de atendimento."
             />
-            <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
             {settings && <StoreSettingsManager settings={settings} saving={savingSettings} onSave={saveSettings} />}
           </>
         )}
@@ -1070,7 +1050,6 @@ function StaffPanel() {
           title="Fila de pedidos"
           description="Pedidos que ainda precisam de alguma ação da equipe."
           />
-          <InlineViewNav activeView={activeView} onChange={setActiveView} role={role} />
 
         <div id="pedidos" className="mb-5 mt-6 scroll-mt-24 flex items-end justify-between gap-4">
           <div>
@@ -1104,69 +1083,6 @@ function StaffPanel() {
         )}
       </main>
     </PanelShell>
-  );
-}
-
-function InlineViewNav({
-  activeView,
-  onChange,
-  role,
-}: {
-  activeView: PanelView;
-  onChange: (view: PanelView) => void;
-  role: string | null;
-}) {
-  const items: Array<{ view: PanelView; icon: typeof BarChart3; label: string }> = [
-    { view: "overview", icon: BarChart3, label: "Visão geral" },
-    ...(["OWNER", "ADMIN"].includes(role ?? "") ? [
-      { view: "catalog" as PanelView, icon: Package, label: "Cardápio" },
-      { view: "operations" as PanelView, icon: MapPin, label: "Operação" },
-      { view: "settings" as PanelView, icon: Settings2, label: "Configurações" },
-    ] : []),
-    { view: "orders", icon: ShoppingBag, label: "Pedidos" },
-  ];
-
-  return (
-    <nav className="mt-3 flex flex-wrap gap-1 rounded-xl border bg-background p-1" aria-label="Navegação desta página">
-      {items.filter((item) => item.view !== activeView).map((item) => {
-        const Icon = item.icon;
-        return (
-          <button
-            key={item.view}
-            type="button"
-            onClick={() => onChange(item.view)}
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-3 sm:text-sm"
-          >
-            <Icon className="size-3.5 sm:size-4" />
-            {item.label}
-          </button>
-        );
-      })}
-    </nav>
-  );
-}
-
-function PanelNavButton({
-  active,
-  icon: Icon,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  icon: typeof BarChart3;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex w-full items-center justify-start gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-      aria-current={active ? "page" : undefined}
-    >
-      <Icon className="size-4" />
-      {label}
-    </button>
   );
 }
 
