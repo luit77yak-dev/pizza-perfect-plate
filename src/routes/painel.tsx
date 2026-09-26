@@ -796,7 +796,6 @@ function StaffPanel() {
       p_order_id: order.id,
       p_organization_id: organizationId,
       p_status: nextStatus,
-      p_note: undefined,
     });
 
     if (updateError) {
