@@ -1072,6 +1072,7 @@ function StaffPanel() {
 
             {operationsSection === "hours" && (
               <OperationsManager
+                mode="hours"
                 hours={storeHours}
                 specialHours={specialHours}
                 savingHour={savingHour}
@@ -1091,6 +1092,7 @@ function StaffPanel() {
 
             {operationsSection === "delivery" && (
               <OperationsManager
+                mode="delivery"
                 hours={[]}
                 specialHours={[]}
                 savingHour={null}
@@ -1259,7 +1261,7 @@ function CategoryManager({
   onDelete: (category: Category) => void;
   onSave: (category: Category) => void;
 }) {
-  return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
+  return <section className="rounded-xl border bg-card p-3.5">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Organização</p><h2 className="mt-1 text-2xl">Categorias</h2><p className="mt-1 text-sm text-muted-foreground">Crie e organize as seções do cardápio.</p></div><Button onClick={onCreate} className="rounded-full"><Plus className="mr-2 size-4" /> Nova categoria</Button></div>
     <div className="mt-4 grid gap-2 sm:grid-cols-2">{categories.map((category) => <CategoryRow key={category.id} category={category} onSave={onSave} onDelete={onDelete} />)}</div>
   </section>;
@@ -1282,54 +1284,19 @@ function SizeRow({ size, onSave, onDelete }: { size: ProductSize; onSave: (size:
 }
 
 function OperationsManager({
-  hours, specialHours, savingHour, savingSpecialHour, onSaveHour, onCreateSpecial, onSaveSpecial, onRemoveSpecial,
+  mode, hours, specialHours, savingHour, savingSpecialHour, onSaveHour, onCreateSpecial, onSaveSpecial, onRemoveSpecial,
   zones, savingZoneId, onCreateZone, onSaveZone, onToggleZone, onDeleteZone,
 }: {
-  hours: StoreHour[]; specialHours: SpecialHour[]; savingHour: number | null; savingSpecialHour: string | null;
+  mode: "hours" | "delivery"; hours: StoreHour[]; specialHours: SpecialHour[]; savingHour: number | null; savingSpecialHour: string | null;
   onSaveHour: (hour: StoreHour) => void; onCreateSpecial: () => void; onSaveSpecial: (hour: SpecialHour) => void; onRemoveSpecial: (hour: SpecialHour) => void;
   zones: DeliveryZone[]; savingZoneId: string | null; onCreateZone: () => void; onSaveZone: (zone: DeliveryZone) => void; onToggleZone: (zone: DeliveryZone) => void; onDeleteZone: (zone: DeliveryZone) => void;
 }) {
-  const [section, setSection] = useState<"hours" | "delivery">("hours");
-
   return (
-    <div className="mt-4">
-      <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl border bg-card p-1.5">
-        <button
-          type="button"
-          onClick={() => setSection("hours")}
-          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${section === "hours" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-        >
-          <Clock3 className="size-4" /> Horários
-        </button>
-        <button
-          type="button"
-          onClick={() => setSection("delivery")}
-          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${section === "delivery" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-        >
-          <MapPin className="size-4" /> Entrega
-        </button>
-      </div>
-
-      {section === "hours" ? (
-        <HoursManager
-          hours={hours}
-          specialHours={specialHours}
-          savingHour={savingHour}
-          savingSpecialHour={savingSpecialHour}
-          onSaveHour={onSaveHour}
-          onCreateSpecial={onCreateSpecial}
-          onSaveSpecial={onSaveSpecial}
-          onRemoveSpecial={onRemoveSpecial}
-        />
+    <div className="mt-3">
+      {mode === "hours" ? (
+        <HoursManager hours={hours} specialHours={specialHours} savingHour={savingHour} savingSpecialHour={savingSpecialHour} onSaveHour={onSaveHour} onCreateSpecial={onCreateSpecial} onSaveSpecial={onSaveSpecial} onRemoveSpecial={onRemoveSpecial} />
       ) : (
-        <DeliveryZoneManager
-          zones={zones}
-          savingZoneId={savingZoneId}
-          onCreate={onCreateZone}
-          onSave={onSaveZone}
-          onToggle={onToggleZone}
-          onDelete={onDeleteZone}
-        />
+        <DeliveryZoneManager zones={zones} savingZoneId={savingZoneId} onCreate={onCreateZone} onSave={onSaveZone} onToggle={onToggleZone} onDelete={onDeleteZone} />
       )}
     </div>
   );
@@ -1345,7 +1312,7 @@ function HoursManager({
   const normalized = weekdays.map((name, weekday) => hours.find((hour) => hour.weekday === weekday) ?? ({ id: `new-${weekday}`, organization_id: "", weekday, opens_at: "18:00", closes_at: "23:00", closed: weekday === 0 } as StoreHour));
   return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
     <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Operação</p><h2 className="mt-1 text-2xl">Horários de funcionamento</h2><p className="mt-1 text-sm text-muted-foreground">Defina quando a loja aceita pedidos. Você também pode cadastrar exceções para feriados e datas especiais.</p></div>
-    <div className="mt-5 grid gap-2">{normalized.map((hour) => <HourRow key={hour.weekday} hour={hour} label={weekdays[hour.weekday] ?? ""} saving={savingHour === hour.weekday} onSave={onSaveHour} />)}</div>
+    <div className="mt-4 grid gap-1.5">{normalized.map((hour) => <HourRow key={hour.weekday} hour={hour} label={weekdays[hour.weekday] ?? ""} saving={savingHour === hour.weekday} onSave={onSaveHour} />)}</div>
     <div className="mt-8 border-t pt-6"><div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Exceções</p><h3 className="mt-1 text-xl">Datas especiais</h3><p className="mt-1 text-sm text-muted-foreground">Feche a loja ou use horários diferentes em uma data específica.</p></div><Button onClick={onCreateSpecial} className="rounded-full"><Plus className="mr-2 size-4" />Adicionar data</Button></div><div className="mt-4 grid gap-3">{specialHours.map((hour) => <SpecialHourRow key={hour.id} hour={hour} saving={savingSpecialHour === hour.id} onSave={onSaveSpecial} onRemove={onRemoveSpecial} />)}{specialHours.length === 0 && <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">Nenhuma data especial cadastrada.</div>}</div></div>
   </section>;
 }
