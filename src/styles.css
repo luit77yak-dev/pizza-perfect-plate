@@ -530,14 +530,16 @@
 
     main#inicio > section:first-child h1 {
       width: 100%;
-      max-width: 24ch;
+      max-width: 100%;
       margin-inline: auto;
-      font-size: clamp(1.9rem, 7vw, 2.5rem);
-      line-height: .94;
+      padding-inline: .35rem;
+      box-sizing: border-box;
+      font-size: clamp(1.75rem, 8vw, 2.2rem);
+      line-height: .95;
       letter-spacing: -.018em;
       text-align: center;
       text-wrap: balance;
-      overflow-wrap: normal;
+      overflow-wrap: break-word;
       word-break: normal;
     }
 
