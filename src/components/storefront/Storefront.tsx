@@ -86,7 +86,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     specialHoursResult,
     deliveryZonesResult,
   ] = await Promise.all([
-    supabase.from("organization_settings").select("*").eq("organization_id", organization.id).maybeSingle(),
+    supabase.rpc("get_public_storefront_settings", { p_org: organization.id }),
     supabase.from("categories").select("*").eq("organization_id", organization.id).eq("active", true).is("deleted_at", null).order("sort_order"),
     supabase.from("product_sizes").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
     supabase.from("products").select("*").eq("organization_id", organization.id).eq("active", true).eq("available", true).is("deleted_at", null).order("sort_order"),
@@ -112,11 +112,11 @@ async function loadStore(slug?: string): Promise<StoreData> {
     specialHoursResult.error ??
     deliveryZonesResult.error;
   if (error) throw error;
-  if (!settingsResult.data) throw new Error("As configurações da loja ainda não foram cadastradas.");
+  if (!settingsResult.data) throw new Error("As configurações públicas da loja ainda não foram cadastradas.");
 
   return {
     organization: organization as Organization,
-    settings: settingsResult.data as OrganizationSettings,
+    settings: settingsResult.data as unknown as OrganizationSettings,
     categories: (categoriesResult.data ?? []) as Category[],
     sizes: (sizesResult.data ?? []) as ProductSize[],
     products: (productsResult.data ?? []) as Product[],
