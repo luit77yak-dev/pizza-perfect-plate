@@ -1289,6 +1289,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_public_storefront_settings: {
+        Args: { p_org: string }
+        Returns: Json
+      }
       has_org_role: {
         Args: {
           _org: string
