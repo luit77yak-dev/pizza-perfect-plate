@@ -954,8 +954,14 @@ function ProductConfigurator({
               <Button type="button" variant="outline" className="h-12 rounded-full" onClick={onClose}>Cancelar</Button>
             )}
             {step < totalSteps ? (
-              <Button type="button" className="h-12 flex-1 rounded-full" onClick={nextStep}>
-                Próxima etapa <ChevronRight className="ml-1 size-4" />
+              <Button
+                type="button"
+                className="h-12 flex-1 rounded-full"
+                onClick={nextStep}
+                disabled={step === 1 && product.allow_half && halfMode && !secondProductId}
+              >
+                {step === 1 && product.allow_half && halfMode && !secondProductId ? "Escolha o segundo sabor" : "Próxima etapa"}
+                {!(step === 1 && product.allow_half && halfMode && !secondProductId) && <ChevronRight className="ml-1 size-4" />}
               </Button>
             ) : (
               <Button type="button" className="h-12 flex-1 rounded-full" onClick={addToCart}>
