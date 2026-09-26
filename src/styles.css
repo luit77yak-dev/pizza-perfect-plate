@@ -519,8 +519,8 @@
     main#inicio > section:first-child > div > div:first-child {
       min-height: 0;
       padding: 1.5rem 1rem 1.65rem;
-      align-items: center;
-      text-align: center;
+      align-items: flex-start;
+      text-align: left;
     }
 
     main#inicio > section:first-child > div > div:first-child > p {
@@ -537,7 +537,7 @@
       font-size: clamp(1.75rem, 8vw, 2.2rem);
       line-height: .95;
       letter-spacing: -.018em;
-      text-align: center;
+      text-align: left;
       text-wrap: balance;
       overflow-wrap: break-word;
       word-break: normal;
@@ -546,14 +546,14 @@
     main#inicio > section:first-child > div > div:first-child > p + h1 + p {
       width: 100%;
       max-width: 34rem;
-      margin: .85rem auto 0;
+      margin: .85rem 0 0;
       font-size: .84rem;
       line-height: 1.45;
-      text-align: center;
+      text-align: left;
     }
 
     main#inicio > section:first-child a[href="#cardapio"] {
-      margin: 1rem auto 0;
+      margin: 1rem 0 0;
       min-height: 2.85rem;
       padding: .65rem .9rem;
       font-size: .72rem;
