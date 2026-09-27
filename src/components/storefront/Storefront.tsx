@@ -59,6 +59,16 @@ type StoreData = {
   deliveryZones: DeliveryZone[];
 };
 
+type PublicTrackedOrder = {
+  id: string;
+  number: number;
+  phone: string;
+  items?: CartItem[];
+  subtotal?: number;
+  total?: number;
+  fulfillment?: FulfillmentType;
+};
+
 async function loadStore(slug?: string): Promise<StoreData> {
   const { data: organization, error: organizationError } = await supabase
     .from("organizations")
@@ -182,7 +192,8 @@ export function Storefront({ slug }: { slug?: string }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [trackingOpen, setTrackingOpen] = useState(false);
-  const [trackedOrder, setTrackedOrder] = useState<{ id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType } | null>(null);
+  const [trackedOrders, setTrackedOrders] = useState<PublicTrackedOrder[]>([]);
+  const [selectedTrackedOrder, setSelectedTrackedOrder] = useState<PublicTrackedOrder | null>(null);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -190,47 +201,62 @@ export function Storefront({ slug }: { slug?: string }) {
 
     let cancelled = false;
 
-    const loadTrackedOrder = async () => {
+    const persistTrackedOrders = (orders: PublicTrackedOrder[]) => {
       try {
-        const raw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
-        if (!raw) {
-          if (!cancelled) setTrackedOrder(null);
-          return;
-        }
-
-        const stored = JSON.parse(raw) as { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType };
-        if (!stored?.id || !stored?.phone) {
-          localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
-          if (!cancelled) setTrackedOrder(null);
-          return;
-        }
-
-        const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
-          p_order_id: stored.id,
-          p_customer_phone: stored.phone,
-        });
-
-        if (cancelled) return;
-
-        const current = Array.isArray(tracking) ? tracking[0] : tracking;
-        const status = current?.status as OrderStatus | undefined;
-        const finished = status === "DELIVERED" || status === "CANCELLED";
-
-        if (!error && finished) {
-          localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
-          setTrackedOrder(null);
-          return;
-        }
-
-        // If the status lookup fails, keep the stored order so the customer can
-        // still try to track it instead of silently losing the tracking reference.
-        setTrackedOrder(stored);
+        localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(orders));
       } catch {
-        if (!cancelled) setTrackedOrder(null);
+        // Ignore storage failures; the current session still keeps the orders.
       }
     };
 
-    void loadTrackedOrder();
+    const loadTrackedOrders = async () => {
+      try {
+        const arrayRaw = localStorage.getItem(`ppp:last-orders:${data.organization.id}`);
+        const legacyRaw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
+        const parsed = arrayRaw ? JSON.parse(arrayRaw) : legacyRaw ? JSON.parse(legacyRaw) : [];
+        const storedOrders: PublicTrackedOrder[] = Array.isArray(parsed) ? parsed : parsed?.id ? [parsed] : [];
+        const validOrders = storedOrders.filter((order) => order?.id && order?.phone);
+
+        if (validOrders.length === 0) {
+          if (!cancelled) setTrackedOrders([]);
+          return;
+        }
+
+        const results = await Promise.all(
+          validOrders.map(async (order) => {
+            try {
+              const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
+                p_order_id: order.id,
+                p_customer_phone: order.phone,
+              });
+              if (error) return order;
+              const current = Array.isArray(tracking) ? tracking[0] : tracking;
+              const status = current?.status as OrderStatus | undefined;
+              return status === "DELIVERED" || status === "CANCELLED" ? null : order;
+            } catch {
+              return order;
+            }
+          }),
+        );
+
+        const activeOrders = results.filter((order): order is PublicTrackedOrder => Boolean(order));
+        if (cancelled) return;
+
+        setTrackedOrders(activeOrders);
+        persistTrackedOrders(activeOrders);
+        if (legacyRaw) {
+          try {
+            localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
+          } catch {
+            // Ignore storage failures.
+          }
+        }
+      } catch {
+        if (!cancelled) setTrackedOrders([]);
+      }
+    };
+
+    void loadTrackedOrders();
     return () => {
       cancelled = true;
     };
@@ -559,6 +585,13 @@ export function Storefront({ slug }: { slug?: string }) {
         <CartPanel
           items={cart.items}
           subtotal={subtotal}
+          trackedOrders={trackedOrders}
+          onTrackOrder={(order) => {
+            setSelectedTrackedOrder(order);
+            setTrackingOpen(true);
+            setCartOpen(false);
+            setCheckoutOpen(true);
+          }}
           onClose={() => setCartOpen(false)}
           onUpdate={cart.updateQuantity}
           onRemove={cart.removeItem}
@@ -570,6 +603,7 @@ export function Storefront({ slug }: { slug?: string }) {
           onCheckout={() => {
             setCartOpen(false);
             setTrackingOpen(false);
+            setSelectedTrackedOrder(null);
             setCheckoutOpen(true);
           }}
         />
@@ -585,57 +619,37 @@ export function Storefront({ slug }: { slug?: string }) {
           onClose={() => setCheckoutOpen(false)}
           storeOpen={status.open}
           storeStatusLabel={status.label}
-          trackedOrder={trackingOpen ? trackedOrder : null}
+          trackedOrder={trackingOpen ? selectedTrackedOrder : null}
           onSuccess={(order) => {
             setTrackingOpen(false);
             cart.clear();
-            setTrackedOrder(order);
-            try {
-              localStorage.setItem(`ppp:last-order:${data.organization.id}`, JSON.stringify(order));
-            } catch {
-              // Ignore storage failures; tracking still works for the current session.
-            }
+            setSelectedTrackedOrder(null);
+            setTrackedOrders((previous) => {
+              const next = [...previous.filter((item) => item.id !== order.id), order];
+              try {
+                localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(next));
+              } catch {
+                // Ignore storage failures; tracking still works for the current session.
+              }
+              return next;
+            });
           }}
-          onOrderFinished={() => {
-            setTrackedOrder(null);
+          onOrderFinished={(orderId) => {
+            setTrackedOrders((previous) => {
+              const next = previous.filter((item) => item.id !== orderId);
+              try {
+                localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(next));
+              } catch {
+                // Ignore storage failures.
+              }
+              return next;
+            });
+            setSelectedTrackedOrder(null);
             setTrackingOpen(false);
-            try {
-              localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
-            } catch {
-              // Ignore storage failures.
-            }
           }}
         />
       )}
 
-      {trackedOrder && !checkoutOpen && !cartOpen && itemCount === 0 && (
-        <div className="fixed inset-x-0 bottom-3 z-[120] mx-auto w-[calc(100%-1.5rem)] max-w-md px-0 sm:bottom-4 sm:w-[calc(100%-2rem)]">
-          <button
-            onClick={() => {
-              setTrackingOpen(true);
-              setCheckoutOpen(true);
-            }}
-            className="group flex w-full items-center gap-3 rounded-2xl border border-black/10 bg-foreground px-3.5 py-3 text-left text-background shadow-[0_14px_35px_rgba(0,0,0,.22)] backdrop-blur-xl transition active:scale-[.99] sm:px-4 sm:py-3.5"
-          >
-            <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
-              <Pizza className="size-4.5" />
-              <span className="absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-foreground bg-primary" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="flex items-center gap-2">
-                <span className="text-[9px] font-black uppercase tracking-[.16em] text-primary">Pedido em andamento</span>
-                <span className="size-1 rounded-full bg-primary" />
-                <span className="text-[9px] font-bold text-background/45">#{trackedOrder.number}</span>
-              </span>
-              <span className="mt-0.5 block truncate text-xs font-bold sm:text-sm">Acompanhar pedido</span>
-              <span className="mt-0.5 block text-[9px] text-background/45">Toque para ver o status atualizado</span>
-            </span>
-            <span className="grid size-8 shrink-0 place-items-center rounded-full border border-background/10 bg-background/5 transition group-hover:bg-primary group-hover:text-primary-foreground">
-              <ChevronRight className="size-4" />
-            </span>
-          </button>
-        </div>
-      )}
 
       {itemCount > 0 && !cartOpen && !checkoutOpen && (
         <div className="fixed inset-x-0 bottom-4 z-30 mx-auto w-[calc(100%-2rem)] max-w-md">
@@ -1215,6 +1229,8 @@ function ProductConfigurator({
 function CartPanel({
   items,
   subtotal,
+  trackedOrders,
+  onTrackOrder,
   onClose,
   onUpdate,
   onRemove,
@@ -1227,6 +1243,8 @@ function CartPanel({
 }: {
   items: CartItem[];
   subtotal: number;
+  trackedOrders: PublicTrackedOrder[];
+  onTrackOrder: (order: PublicTrackedOrder) => void;
   onClose: () => void;
   onUpdate: (lineId: string, quantity: number) => void;
   onRemove: (lineId: string) => void;
@@ -1250,6 +1268,40 @@ function CartPanel({
         </div>
 
         <div className="flex-1 overflow-y-auto p-5">
+          {trackedOrders.length > 0 && (
+            <section className="mb-5 rounded-2xl border border-black/8 bg-card p-4 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Pedidos em andamento</p>
+                  <h3 className="mt-1 text-base font-bold">Acompanhe seus pedidos</h3>
+                </div>
+                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold text-primary">{trackedOrders.length}</span>
+              </div>
+              <div className="mt-3 space-y-2">
+                {trackedOrders.map((order) => (
+                  <button
+                    key={order.id}
+                    type="button"
+                    onClick={() => onTrackOrder(order)}
+                    className="flex w-full items-center gap-3 rounded-xl border border-black/8 bg-background p-3 text-left transition hover:border-primary/40 hover:bg-primary/5"
+                  >
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                      <Clock3 className="size-4" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2">
+                        <span className="text-[9px] font-black uppercase tracking-[.14em] text-primary">Em andamento</span>
+                        <span className="text-[9px] font-bold text-muted-foreground">#{order.number}</span>
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs font-semibold">Acompanhar pedido</span>
+                    </span>
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
               <div className="flex size-16 items-center justify-center rounded-full bg-muted"><ShoppingBag className="size-7 text-muted-foreground" /></div>
@@ -1340,7 +1392,7 @@ function CheckoutPanel({
   trackedOrder?: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType } | null;
   storeOpen: boolean;
   storeStatusLabel: string;
-  onOrderFinished: () => void;
+  onOrderFinished: (orderId: string) => void;
 }) {
   const [fulfillment, setFulfillment] = useState<FulfillmentType>(
     settings.delivery_enabled ? "DELIVERY" : "PICKUP",
