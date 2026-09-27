@@ -836,7 +836,11 @@ function ProductConfigurator({
                       className={"group relative overflow-hidden rounded-3xl border p-4 text-left transition-all " + (!halfMode ? "border-primary bg-primary text-primary-foreground shadow-[0_12px_30px_hsl(var(--primary)/.18)] ring-2 ring-primary/20" : "bg-card hover:border-primary/50 hover:shadow-md")}
                     >
                       <div className="mb-4 flex items-center justify-between">
-                        <div className={"grid size-12 place-items-center rounded-2xl text-2xl " + (!halfMode ? "bg-primary-foreground/10" : "bg-muted")}>🍕</div>
+                        <div className={"relative grid size-12 place-items-center overflow-hidden rounded-2xl border text-xl " + (!halfMode ? "border-primary-foreground/15 bg-primary-foreground/10" : "border-border bg-muted")}>
+                          <div className="absolute inset-y-0 left-0 w-1/2 bg-background/15" />
+                          <div className="absolute inset-y-0 right-0 w-1/2 bg-primary/30" />
+                          <Pizza className="relative z-10 size-6" />
+                        </div>
                         {!halfMode && <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest">Escolhido</span>}
                       </div>
                       <p className="font-bold">1 sabor</p>
@@ -1017,11 +1021,13 @@ function ProductConfigurator({
           )}
         </div>
 
-        <div className="relative z-20 shrink-0 border-t bg-card px-4 pb-[calc(.75rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(0,0,0,.12)] sm:px-6 sm:py-4">
-          <div className="mb-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
-            <span className="whitespace-nowrap rounded-full bg-primary/10 px-3 py-1 font-semibold text-primary">{quantity} {quantity === 1 ? "pizza" : "pizzas"}</span>
-            <span className="min-w-0 flex-1 truncate text-center px-1">{step < totalSteps ? "Seu pedido está ficando pronto" : "Total deste conjunto"}</span>
-            <span className="whitespace-nowrap font-semibold text-foreground">{formatCurrency(unitPrice * quantity)}</span>
+        <div className="relative z-20 shrink-0 border-t bg-card px-3 pb-[calc(.6rem+env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-10px_28px_rgba(0,0,0,.16)] sm:px-5 sm:py-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold text-primary-foreground shadow-sm">{quantity} {quantity === 1 ? "pizza" : "pizzas"}</span>
+            <div className="flex min-w-0 items-baseline gap-2">
+              <span className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">{step < totalSteps ? "Seu pedido" : "Total"}</span>
+              <span className="whitespace-nowrap text-base font-black tracking-tight text-foreground">{formatCurrency(unitPrice * quantity)}</span>
+            </div>
           </div>
           <div className="flex items-stretch gap-2 sm:gap-3">
             {step > 1 ? (
