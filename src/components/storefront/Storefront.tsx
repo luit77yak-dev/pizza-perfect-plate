@@ -1401,7 +1401,7 @@ function CheckoutPanel({
       : null;
 
   const matchedNeighborhood =
-    selectedZone?.neighborhoods.find(
+    (selectedZone?.neighborhoods ?? []).find(
       (item) => normalizeNeighborhood(item) === normalizeNeighborhood(neighborhood),
     ) ?? null;
 
@@ -1480,6 +1480,7 @@ function CheckoutPanel({
             size_id: item.sizeId,
             crust_id: item.crustId,
             quantity: item.quantity,
+            unit_price: item.unitPrice,
             notes: item.notes,
             addons: (item.addons ?? []).map((addon) => ({ id: addon.id })),
           },
@@ -1490,6 +1491,7 @@ function CheckoutPanel({
             size_id: null,
             crust_id: null,
             quantity: 1,
+            unit_price: complement.price,
             notes: "Complemento do pedido: " + item.productName,
             addons: [],
           })),
