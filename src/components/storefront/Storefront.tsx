@@ -737,7 +737,7 @@ export function Storefront({ slug }: { slug?: string }) {
           onClose={() => setCheckoutOpen(false)}
           storeOpen={status.open}
           storeStatusLabel={status.label}
-          selectedTrackedOrder={trackingOpen ? selectedTrackedOrder : null}
+          trackedOrder={trackingOpen ? selectedTrackedOrder : null}
           addingToOrder={addingToOrder}
           onAddToOrder={() => {
             if (!selectedTrackedOrder) return;
