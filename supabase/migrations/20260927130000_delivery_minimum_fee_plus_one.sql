@@ -308,8 +308,8 @@ BEGIN
   END LOOP;
 
 
-  IF v_fulfillment = 'DELIVERY' AND v_subtotal < (v_delivery_fee + 1) THEN
-    RAISE EXCEPTION 'Pedido abaixo do mínimo para entrega. O mínimo é a taxa de entrega + R$ 1,00';
+  IF v_fulfillment = 'DELIVERY' AND v_subtotal < 1 THEN
+    RAISE EXCEPTION 'Pedido abaixo do mínimo para entrega. O valor mínimo dos produtos é R$ 1,00, além da taxa de entrega';
   END IF;
 
   v_total := round(v_subtotal + v_delivery_fee, 2);
