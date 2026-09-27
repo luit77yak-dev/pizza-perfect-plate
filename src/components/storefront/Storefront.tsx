@@ -1029,7 +1029,7 @@ function ProductConfigurator({
               <span className="whitespace-nowrap text-sm font-black tracking-tight text-foreground">{formatCurrency(unitPrice * quantity)}</span>
             </div>
           </div>
-          <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-2 sm:grid-cols-[112px_minmax(0,1fr)] sm:gap-2.5">
+          <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
             <button
               type="button"
               onClick={step > 1 ? previousStep : onClose}
