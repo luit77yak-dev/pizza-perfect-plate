@@ -2242,3 +2242,45 @@
     }
   }
 }
+
+/* Final overrides: neutralize legacy hero treatment so the reference layout wins. */
+@layer components {
+  .ppp-reference-storefront > .ppp-reference-hero::before {
+    display: none !important;
+    content: none !important;
+  }
+
+  .ppp-reference-storefront .ppp-reference-hero-media > div:last-child {
+    display: none !important;
+  }
+
+  .ppp-reference-storefront .ppp-reference-hero-media > div:first-child {
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  @media (max-width: 639px) {
+    .ppp-reference-storefront > .ppp-reference-hero > div > div:last-child {
+      height: 100svh !important;
+      min-height: 100svh !important;
+      padding: 0 !important;
+    }
+
+    .ppp-reference-storefront > .ppp-reference-hero > div > div:last-child img.ppp-reference-hero-image {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      min-width: 0 !important;
+      min-height: 100% !important;
+      object-fit: cover !important;
+      transform: scale(1.015) !important;
+    }
+
+    .ppp-reference-storefront > .ppp-reference-hero > div > div:last-child > div:last-child {
+      display: none !important;
+    }
+  }
+}
