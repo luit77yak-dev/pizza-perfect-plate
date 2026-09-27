@@ -871,12 +871,12 @@ function StaffPanel() {
   return (
     <PanelShell>
       <header className="ppp-admin-header sticky top-0 z-30 border-b bg-background/95 backdrop-blur-xl">
-        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+        <div className="mx-auto flex min-h-14 max-w-7xl items-center justify-between gap-2 px-3 sm:min-h-16 sm:gap-3 sm:px-6">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Painel</p>
-            <h1 className="truncate text-xl font-semibold">{organizationName}</h1>
+            <h1 className="truncate text-base font-semibold sm:text-xl">{organizationName}</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <Button variant="outline" size="sm" onClick={() => void loadOrders()} disabled={loading} className="rounded-full">
               <RefreshCw className={`mr-1.5 size-4 ${loading ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Atualizar</span>
@@ -891,9 +891,9 @@ function StaffPanel() {
 
       <TopPanelNav activeView={activeView} onChange={setActiveView} role={role} />
 
-      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
+      <main className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-8">
         {successMessage && (
-          <div className="ppp-admin-feedback ppp-admin-feedback-success" role="status">
+          <div className="ppp-admin-feedback ppp-admin-feedback-success mx-0 sm:mx-0" role="status">
             <Check className="size-4 shrink-0" />
             <span>{successMessage}</span>
           </div>
@@ -908,7 +908,7 @@ function StaffPanel() {
             <p className="text-xs text-muted-foreground">{todayHighlights.todayOrders.length} pedido(s) hoje</p>
           </div>
 
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <HighlightCard label="Pedidos hoje" value={String(todayHighlights.todayOrders.length)} hint="Recebidos hoje" />
             <HighlightCard label="Em andamento" value={String(todayHighlights.inProgress.length)} hint="Aguardando atendimento" />
             <HighlightCard label="Faturamento" value={formatCurrency(todayHighlights.revenue)} hint="Pedidos entregues" />
@@ -940,7 +940,7 @@ function StaffPanel() {
               description="Gerencie cada parte do cardápio sem deixar tudo misturado na mesma tela."
             />
 
-            <div className="mb-4 flex gap-1 overflow-x-auto rounded-xl border bg-card p-1">
+            <div className="mb-3 flex gap-1 overflow-x-auto rounded-xl border bg-card p-1.5 scrollbar-none">
               {([
                 ["products", "Produtos"],
                 ["categories", "Categorias"],
@@ -953,7 +953,7 @@ function StaffPanel() {
                   key={value}
                   type="button"
                   onClick={() => setCatalogSection(value)}
-                  className={`shrink-0 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${catalogSection === value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                  className={`shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 sm:py-2 sm:text-sm ${catalogSection === value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
                 >
                   {label}
                 </button>
@@ -1061,7 +1061,7 @@ function StaffPanel() {
               description="Gerencie horários e entrega em áreas separadas."
             />
 
-            <div className="mb-4 flex gap-1 overflow-x-auto rounded-xl border bg-card p-1">
+            <div className="mb-3 flex gap-1 overflow-x-auto rounded-xl border bg-card p-1.5 scrollbar-none">
               {([
                 ["hours", "Horários"],
                 ["delivery", "Entrega"],
@@ -1070,7 +1070,7 @@ function StaffPanel() {
                   key={value}
                   type="button"
                   onClick={() => setOperationsSection(value)}
-                  className={`shrink-0 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${operationsSection === value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                  className={`shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors sm:px-3 sm:py-2 sm:text-sm ${operationsSection === value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
                 >
                   {label}
                 </button>
@@ -1141,7 +1141,7 @@ function StaffPanel() {
         <div id="pedidos" className="mb-5 mt-6 scroll-mt-24 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm text-muted-foreground">{activeOrders.length} pedido(s) em andamento</p>
-            <h2 className="mt-1 text-3xl">Pedidos</h2>
+            <h2 className="mt-1 text-2xl sm:text-3xl">Pedidos</h2>
           </div>
           <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
             <Clock3 className="size-4" /> Atualização manual
@@ -1151,7 +1151,7 @@ function StaffPanel() {
         {error && <div className="ppp-admin-feedback ppp-admin-feedback-error" role="alert">{error}</div>}
 
         {activeOrders.length === 0 ? (
-          <div className="rounded-3xl border border-dashed bg-card p-12 text-center">
+          <div className="rounded-3xl border border-dashed bg-card p-8 text-center sm:p-12">
             <Package className="mx-auto size-8 text-muted-foreground" />
             <p className="mt-3 font-semibold">Nenhum pedido em andamento</p>
             <p className="mt-1 text-sm text-muted-foreground">Quando chegar um pedido, ele aparecerá aqui.</p>
@@ -1309,7 +1309,7 @@ function CategoryRow({ category, onSave, onDelete }: { category: Category; onSav
 }
 
 function SizeManager({ sizes, onCreate, onDelete, onSave }: { sizes: ProductSize[]; onCreate: () => void; onDelete: (size: ProductSize) => void; onSave: (size: ProductSize) => void }) {
-  return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft"><div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Cardápio</p><h2 className="mt-1 text-2xl">Tamanhos</h2><p className="mt-1 text-sm text-muted-foreground">Defina os tamanhos e a quantidade de fatias.</p></div><Button onClick={onCreate} className="rounded-full"><Plus className="mr-2 size-4" /> Novo tamanho</Button></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{sizes.map((size) => <SizeRow key={size.id} size={size} onSave={onSave} onDelete={onDelete} />)}</div></section>;
+  return <section className="rounded-[1.5rem] border bg-card p-3.5 shadow-soft sm:p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Cardápio</p><h2 className="mt-1 text-2xl">Tamanhos</h2><p className="mt-1 text-sm text-muted-foreground">Defina os tamanhos e a quantidade de fatias.</p></div><Button onClick={onCreate} className="rounded-full"><Plus className="mr-2 size-4" /> Novo tamanho</Button></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{sizes.map((size) => <SizeRow key={size.id} size={size} onSave={onSave} onDelete={onDelete} />)}</div></section>;
 }
 
 function SizeRow({ size, onSave, onDelete }: { size: ProductSize; onSave: (size: ProductSize) => void; onDelete: (size: ProductSize) => void }) {
@@ -1345,7 +1345,7 @@ function HoursManager({
 }) {
   const weekdays = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
   const normalized = weekdays.map((name, weekday) => hours.find((hour) => hour.weekday === weekday) ?? ({ id: `new-${weekday}`, organization_id: "", weekday, opens_at: "18:00", closes_at: "23:00", closed: weekday === 0 } as StoreHour));
-  return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
+  return <section className="rounded-[1.5rem] border bg-card p-3.5 shadow-soft sm:p-5">
     <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Operação</p><h2 className="mt-1 text-2xl">Horários de funcionamento</h2><p className="mt-1 text-sm text-muted-foreground">Defina quando a loja aceita pedidos. Você também pode cadastrar exceções para feriados e datas especiais.</p></div>
     <div className="mt-4 grid gap-1.5">{normalized.map((hour) => <HourRow key={hour.weekday} hour={hour} label={weekdays[hour.weekday] ?? ""} saving={savingHour === hour.weekday} onSave={onSaveHour} />)}</div>
     <div className="mt-8 border-t pt-6"><div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Exceções</p><h3 className="mt-1 text-xl">Datas especiais</h3><p className="mt-1 text-sm text-muted-foreground">Feche a loja ou use horários diferentes em uma data específica.</p></div><Button onClick={onCreateSpecial} className="rounded-full"><Plus className="mr-2 size-4" />Adicionar data</Button></div><div className="mt-4 grid gap-3">{specialHours.map((hour) => <SpecialHourRow key={hour.id} hour={hour} saving={savingSpecialHour === hour.id} onSave={onSaveSpecial} onRemove={onRemoveSpecial} />)}{specialHours.length === 0 && <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">Nenhuma data especial cadastrada.</div>}</div></div>
@@ -1375,7 +1375,7 @@ function StoreSettingsManager({ settings, saving, onSave }: { settings: StoreSet
     { value: "CARD_ON_SITE", label: "Cartão no local", description: "Cartão na retirada" },
   ];
   const togglePayment = (method: PaymentMethod) => setDraft({ ...draft, payment_methods: draft.payment_methods.includes(method) ? draft.payment_methods.filter((item) => item !== method) : [...draft.payment_methods, method] });
-  return <section className="rounded-[1.5rem] border bg-card p-5 shadow-soft"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Configurações</p><h2 className="mt-1 text-2xl">Identidade e operação</h2><p className="mt-1 text-sm text-muted-foreground">Edite as informações que aparecem no cardápio e no checkout.</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2">{field("hero_title","Título principal","Pizza de verdade.")}{field("hero_subtitle","Subtítulo","Pizzas artesanais feitas na hora.")}{field("hero_cta_label","Texto do botão","Ver cardápio")}{field("whatsapp_phone","WhatsApp","5562999999999")}{field("address_street","Rua")}{field("address_number","Número")}{field("address_neighborhood","Bairro")}{field("address_city","Cidade")}{field("address_state","Estado")}{field("address_zip","CEP")}{field("logo_url","URL da logo")}{field("hero_image_url","URL da imagem principal")}<label className="text-sm sm:col-span-2"><span className="mb-1.5 block text-xs font-medium text-muted-foreground">Descrição</span><textarea value={draft.description ?? ""} onChange={(e) => setDraft({ ...draft, description: e.target.value })} rows={3} className="w-full rounded-xl border bg-background px-3 py-2 outline-none focus:border-primary" /></label></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><label className="flex items-center gap-2 rounded-xl border bg-background p-3 text-sm"><input type="checkbox" checked={draft.delivery_enabled} onChange={(e) => setDraft({ ...draft, delivery_enabled: e.target.checked })} /> Delivery ativo</label><label className="flex items-center gap-2 rounded-xl border bg-background p-3 text-sm"><input type="checkbox" checked={draft.pickup_enabled} onChange={(e) => setDraft({ ...draft, pickup_enabled: e.target.checked })} /> Retirada ativa</label>{field("min_order_amount","Pedido mínimo","0")}{field("estimated_delivery_minutes","Tempo delivery","40")}</div><div className="mt-3 grid gap-3 sm:grid-cols-2">{field("estimated_pickup_minutes","Tempo retirada","20")}{field("pickup_instructions","Instruções de retirada")}</div><div className="mt-5 rounded-2xl border bg-background p-4"><div><p className="text-sm font-semibold">Formas de pagamento</p><p className="mt-1 text-xs text-muted-foreground">Escolha quais opções aparecem no checkout da sua loja.</p></div><div className="mt-3 grid gap-2 sm:grid-cols-2">{paymentOptions.map((option) => <button type="button" key={option.value} onClick={() => togglePayment(option.value)} className={`flex items-start gap-3 rounded-xl border p-3 text-left transition-colors ${draft.payment_methods.includes(option.value) ? "border-primary bg-primary/5" : "bg-card"}`}><span className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border text-xs ${draft.payment_methods.includes(option.value) ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/30"}`}>{draft.payment_methods.includes(option.value) ? "✓" : ""}</span><span><span className="block text-sm font-semibold">{option.label}</span><span className="block text-xs text-muted-foreground">{option.description}</span></span></button>)}</div>{draft.payment_methods.length === 0 && <p className="mt-3 text-xs font-medium text-primary">Selecione pelo menos uma forma de pagamento.</p>}</div><div className="mt-4 flex justify-end"><Button onClick={() => onSave(draft)} disabled={saving || draft.payment_methods.length === 0} className="rounded-full"><Save className="mr-1.5 size-4" />{saving ? "Salvando..." : "Salvar configurações"}</Button></div></section>;
+  return <section className="rounded-[1.5rem] border bg-card p-3.5 shadow-soft sm:p-5"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Configurações</p><h2 className="mt-1 text-2xl">Identidade e operação</h2><p className="mt-1 text-sm text-muted-foreground">Edite as informações que aparecem no cardápio e no checkout.</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2">{field("hero_title","Título principal","Pizza de verdade.")}{field("hero_subtitle","Subtítulo","Pizzas artesanais feitas na hora.")}{field("hero_cta_label","Texto do botão","Ver cardápio")}{field("whatsapp_phone","WhatsApp","5562999999999")}{field("address_street","Rua")}{field("address_number","Número")}{field("address_neighborhood","Bairro")}{field("address_city","Cidade")}{field("address_state","Estado")}{field("address_zip","CEP")}{field("logo_url","URL da logo")}{field("hero_image_url","URL da imagem principal")}<label className="text-sm sm:col-span-2"><span className="mb-1.5 block text-xs font-medium text-muted-foreground">Descrição</span><textarea value={draft.description ?? ""} onChange={(e) => setDraft({ ...draft, description: e.target.value })} rows={3} className="w-full rounded-xl border bg-background px-3 py-2 outline-none focus:border-primary" /></label></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><label className="flex items-center gap-2 rounded-xl border bg-background p-3 text-sm"><input type="checkbox" checked={draft.delivery_enabled} onChange={(e) => setDraft({ ...draft, delivery_enabled: e.target.checked })} /> Delivery ativo</label><label className="flex items-center gap-2 rounded-xl border bg-background p-3 text-sm"><input type="checkbox" checked={draft.pickup_enabled} onChange={(e) => setDraft({ ...draft, pickup_enabled: e.target.checked })} /> Retirada ativa</label>{field("min_order_amount","Pedido mínimo","0")}{field("estimated_delivery_minutes","Tempo delivery","40")}</div><div className="mt-3 grid gap-3 sm:grid-cols-2">{field("estimated_pickup_minutes","Tempo retirada","20")}{field("pickup_instructions","Instruções de retirada")}</div><div className="mt-5 rounded-2xl border bg-background p-4"><div><p className="text-sm font-semibold">Formas de pagamento</p><p className="mt-1 text-xs text-muted-foreground">Escolha quais opções aparecem no checkout da sua loja.</p></div><div className="mt-3 grid gap-2 sm:grid-cols-2">{paymentOptions.map((option) => <button type="button" key={option.value} onClick={() => togglePayment(option.value)} className={`flex items-start gap-3 rounded-xl border p-3 text-left transition-colors ${draft.payment_methods.includes(option.value) ? "border-primary bg-primary/5" : "bg-card"}`}><span className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border text-xs ${draft.payment_methods.includes(option.value) ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/30"}`}>{draft.payment_methods.includes(option.value) ? "✓" : ""}</span><span><span className="block text-sm font-semibold">{option.label}</span><span className="block text-xs text-muted-foreground">{option.description}</span></span></button>)}</div>{draft.payment_methods.length === 0 && <p className="mt-3 text-xs font-medium text-primary">Selecione pelo menos uma forma de pagamento.</p>}</div><div className="mt-4 flex flex-col sm:flex-row sm:justify-end"><Button onClick={() => onSave(draft)} disabled={saving || draft.payment_methods.length === 0} className="rounded-full"><Save className="mr-1.5 size-4" />{saving ? "Salvando..." : "Salvar configurações"}</Button></div></section>;
 }
 function ProductCatalogManager({
   products, categories, sizes, prices, addons, productAddonIds, editingProductId, savingProductId, onCreate, onEdit, onSave, onToggle, onDelete }: {
@@ -1387,7 +1387,7 @@ function ProductCatalogManager({
   onDelete: (product: Product) => void;
 }) {
   return (
-    <section id="produtos" className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
+    <section id="produtos" className="rounded-[1.5rem] border bg-card p-3.5 shadow-soft sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Cardápio</p>
@@ -1557,7 +1557,7 @@ function CrustManager({
   onDelete: (crust: Crust) => void;
 }) {
   return (
-    <section id="bordas" className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
+    <section id="bordas" className="mt-3.5 rounded-[1.5rem] border bg-card p-3.5 shadow-soft sm:mt-5 sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Personalização</p>
@@ -1678,7 +1678,7 @@ function DeliveryZoneManager({
   onDelete: (zone: DeliveryZone) => void;
 }) {
   return (
-    <section className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
+    <section className="mt-3.5 rounded-[1.5rem] border bg-card p-3.5 shadow-soft sm:mt-5 sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Logística</p>
@@ -1790,7 +1790,7 @@ function AddonManager({
   onDelete: (addon: Addon) => void;
 }) {
   return (
-    <section id="adicionais" className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
+    <section id="adicionais" className="mt-3.5 rounded-[1.5rem] border bg-card p-3.5 shadow-soft sm:mt-5 sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Personalização</p>
@@ -1899,7 +1899,7 @@ function ProductImageManager({
   onRemove: (product: Product) => void;
 }) {
   return (
-    <section id="fotos" className="mt-5 rounded-[1.5rem] border bg-card p-5 shadow-soft">
+    <section id="fotos" className="mt-3.5 rounded-[1.5rem] border bg-card p-3.5 shadow-soft sm:mt-5 sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Vitrine</p>
@@ -1982,7 +1982,7 @@ function OrderDetailsModal({
         <div className="flex items-start justify-between gap-4 border-b pb-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Detalhes do pedido</p>
-            <h2 className="mt-1 text-3xl">Pedido #{order.order_number}</h2>
+            <h2 className="mt-1 text-2xl sm:text-3xl">Pedido #{order.order_number}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               {new Date(order.created_at).toLocaleString("pt-BR")} · {statusLabel[order.status]}
             </p>
@@ -2074,7 +2074,7 @@ function OrderCard({
   const neighborhood = order.address_neighborhood;
 
   return (
-    <article className="rounded-[1.5rem] border bg-card p-5 shadow-soft">
+    <article className="rounded-[1.5rem] border bg-card p-3.5 shadow-soft sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">
