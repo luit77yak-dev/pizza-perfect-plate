@@ -1778,6 +1778,7 @@ function CheckoutPanel({
                 ) : <p className="mt-3 text-xs leading-5 text-muted-foreground">O pedido foi confirmado. O detalhamento não está disponível nesta sessão, mas o número do pedido é #{successNumber}.</p>}
               </section>
 
+              <section className="rounded-[1.75rem] border border-black/8 bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,.05)] sm:p-6">
                 <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Precisa sair?</p>
                 <h3 className="mt-1 font-display text-2xl tracking-tight">Voltar ao cardápio</h3>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">Você pode continuar navegando. O pedido segue sendo acompanhado automaticamente.</p>
