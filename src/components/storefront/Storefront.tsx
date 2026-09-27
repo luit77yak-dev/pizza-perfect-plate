@@ -1402,7 +1402,7 @@ function CheckoutPanel({
   );
   const deliveryFee = selectedZone?.delivery_fee ?? 0;
   // Delivery: pedido mínimo = taxa da região + R$ 1. Retirada: sem mínimo.
-  const deliveryMinimum = fulfillment === "DELIVERY" && selectedZone ? deliveryFee + 1 : 0;
+  const deliveryMinimum = fulfillment === "DELIVERY" && selectedZone ? 1 : 0;
   const total = subtotal + deliveryFee;
 
   const availablePayments = (settings.payment_methods ?? []).length
@@ -2053,8 +2053,8 @@ function CheckoutPanel({
                       <div className="flex justify-between gap-3 text-background/60"><span>Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "A calcular"}</span></div>
                       {selectedZone && (
                         <div className="mt-2 rounded-lg bg-primary/10 px-3 py-2 text-[10px] leading-4 text-background/65">
-                          Pedido mínimo para entrega: <strong className="text-background">{formatCurrency(deliveryMinimum)}</strong>
-                          <span className="mt-0.5 block text-[9px] text-background/45">Taxa de entrega {formatCurrency(deliveryFee)} + R$ 1,00</span>
+                          Pedido mínimo dos produtos: <strong className="text-background">{formatCurrency(deliveryMinimum)}</strong>
+                          <span className="mt-0.5 block text-[9px] text-background/45">+ taxa de entrega {formatCurrency(deliveryFee)}</span>
                         </div>
                       )}
                     </>
