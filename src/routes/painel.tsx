@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { BarChart3, Check, ChevronUp, Clock3, ImagePlus, LogOut, MapPin, Package, Pencil, Plus, RefreshCw, Save, Settings2, ShoppingBag, Tag, Trash2, Upload, UserRound, X } from "lucide-react";
+import { BarChart3, Check, ChevronDown, ChevronUp, Clock3, ImagePlus, LogOut, MapPin, Package, Pencil, Plus, RefreshCw, Save, Settings2, ShoppingBag, Tag, Trash2, Upload, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
@@ -884,7 +884,7 @@ function StaffPanel() {
       <TopPanelNav activeView={activeView} onChange={setActiveView} role={role} />
 
       <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
-        <section className={`mb-4 rounded-[1.35rem] border bg-card p-4 shadow-soft sm:p-5 ${activeView === "overview" ? "" : "hidden"}`}>
+        <section className={`mb-4 rounded-[1.35rem] border bg-card shadow-soft ${activeView === "overview" ? "" : "hidden"}`}><CompactSection title="Resumo de hoje" description="Indicadores rápidos da operação" defaultOpen><div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Painel</p>
@@ -1108,7 +1108,7 @@ function StaffPanel() {
               title="Configurações da loja"
               description="Personalize a identidade, os canais e as regras de atendimento."
             />
-            {settings && <StoreSettingsManager settings={settings} saving={savingSettings} onSave={saveSettings} />}
+            {settings && <CompactSection title="Identidade e operação" description="Informações da loja, checkout e pagamentos"><StoreSettingsManager settings={settings} saving={savingSettings} onSave={saveSettings} /></CompactSection>}
           </>
         )}
 
@@ -1151,6 +1151,33 @@ function StaffPanel() {
         )}
       </main>
     </PanelShell>
+  );
+}
+
+function CompactSection({
+  title,
+  description,
+  children,
+  defaultOpen = false,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  return (
+    <details className="ppp-admin-compact-section group" open={defaultOpen}>
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 sm:px-5 [&::-webkit-details-marker]:hidden">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold">{title}</p>
+          {description && <p className="mt-0.5 truncate text-xs text-muted-foreground">{description}</p>}
+        </div>
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground transition-transform group-open:rotate-180">
+          <ChevronDown className="size-4" />
+        </span>
+      </summary>
+      <div className="border-t px-2 py-2 sm:px-3 sm:py-3">{children}</div>
+    </details>
   );
 }
 
