@@ -257,10 +257,10 @@ export function Storefront({ slug }: { slug?: string }) {
 
   const mainProducts = useMemo(() => {
     if (!data) return [];
-    const complementIds = new Set(complementProducts.map((product) => product.id));
-    const pizzas = data.products.filter((product) => product.kind === "PIZZA" && !complementIds.has(product.id));
-    return pizzas.length > 0 ? pizzas : data.products.filter((product) => !complementIds.has(product.id));
-  }, [data, complementProducts]);
+    // O cardápio público deve mostrar todos os produtos. Produtos simples,
+    // como bebidas, podem ser adicionados diretamente sem passar pelo montador de pizza.
+    return data.products;
+  }, [data]);
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
@@ -285,6 +285,31 @@ export function Storefront({ slug }: { slug?: string }) {
 
   const subtotal = calculateCartSubtotal(cart.items);
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
+  const addSimpleProduct = (product: Product) => {
+    const item: CartItem = {
+      lineId: crypto.randomUUID(),
+      productId: product.id,
+      productName: product.name,
+      imageUrl: product.image_url,
+      secondProductId: null,
+      secondProductName: null,
+      isHalf: false,
+      sizeId: null,
+      sizeName: null,
+      crustId: null,
+      crustName: null,
+      crustPrice: 0,
+      addons: [],
+      complements: [],
+      quantity: 1,
+      notes: null,
+      unitPrice: Number(product.base_price) || 0,
+    };
+
+    cart.addItem(item);
+    setCartOpen(true);
+  };
 
   if (isLoading) return <StorefrontSkeleton />;
   if (isError || !data) {
@@ -388,8 +413,8 @@ export function Storefront({ slug }: { slug?: string }) {
         <section id="cardapio" className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6">
           <div className="ppp-reference-menu-heading mb-8 flex flex-col items-center justify-center gap-3 text-center">
             <p className="text-xs font-semibold uppercase tracking-[.35em] text-primary">Cardápio</p>
-            <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">Escolha sua <em>pizza.</em></h2>
-            <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">Escolha uma categoria e encontre seu próximo sabor.</p>
+            <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">Escolha o que vai no seu <em>pedido.</em></h2>
+            <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">Pizzas, bebidas e acompanhamentos no mesmo carrinho.</p>
           </div>
 
           <div className="ppp-reference-category-accordion mb-8">
@@ -454,7 +479,7 @@ export function Storefront({ slug }: { slug?: string }) {
                 return (
                   <button
                     key={product.id}
-                    onClick={() => setSelectedProduct(product)}
+                    onClick={() => product.kind === "SIMPLE" ? addSimpleProduct(product) : setSelectedProduct(product)}
                     className={`group relative overflow-visible rounded-sm border-2 border-secondary bg-card text-left shadow-[7px_7px_0_rgba(0,0,0,.82)] transition-all duration-200 hover:-translate-y-1.5 hover:rotate-[-.45deg] hover:shadow-[11px_11px_0_rgba(0,0,0,.82)] active:translate-x-1 active:translate-y-1 active:shadow-[3px_3px_0_rgba(0,0,0,.82)] ${index % 5 === 2 ? "lg:rotate-[.35deg]" : ""}`}
                   >
                     <div className="relative aspect-[1.18] overflow-hidden border-b-2 border-secondary bg-muted">
@@ -499,7 +524,7 @@ export function Storefront({ slug }: { slug?: string }) {
                         </span>
                       </div>
                       <div className="mt-4 flex items-center justify-between border-t-2 border-secondary pt-3 text-xs font-bold uppercase tracking-[.08em]">
-                        <span>{product.allow_half ? "Meio a meio" : "Personalizar"}</span>
+                        <span>{product.kind === "SIMPLE" ? "Adicionar ao pedido" : product.allow_half ? "Meio a meio" : "Personalizar"}</span>
                         <span className="inline-flex size-8 items-center justify-center border-2 border-secondary bg-background transition-transform group-hover:translate-x-1">
                           <ChevronRight className="size-4" />
                         </span>
@@ -1226,7 +1251,7 @@ function CartPanel({
             <div className="flex h-full flex-col items-center justify-center text-center">
               <div className="flex size-16 items-center justify-center rounded-full bg-muted"><ShoppingBag className="size-7 text-muted-foreground" /></div>
               <p className="mt-4 font-semibold">Seu carrinho está vazio</p>
-              <p className="mt-1 text-sm text-muted-foreground">Adicione uma pizza para começar.</p>
+              <p className="mt-1 text-sm text-muted-foreground">Adicione qualquer item do cardápio para começar.</p>
             </div>
           ) : (
             <div className="space-y-3">
