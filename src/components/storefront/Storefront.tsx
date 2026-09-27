@@ -701,7 +701,7 @@ export function Storefront({ slug }: { slug?: string }) {
             setAddingToOrder(false);
             setTrackingOpen(true);
             setCartOpen(false);
-            setCheckoutOpen(true);
+            setCheckoutOpen(false);
           }}
           onClose={() => setCartOpen(false)}
           onUpdate={cart.updateQuantity}
