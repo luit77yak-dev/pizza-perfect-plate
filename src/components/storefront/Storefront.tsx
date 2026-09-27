@@ -1877,114 +1877,123 @@ function CartPanel({
   onCheckout: () => void;
 }) {
   return (
-    <div className="ppp-cart-panel fixed inset-0 z-[150] bg-foreground/35 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Carrinho">
+    <div className="ppp-cart-panel fixed inset-0 z-[150] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label="Carrinho">
       <button className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar carrinho" />
-      <aside className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-background shadow-lifted">
-        <div className="flex items-center justify-between border-b px-5 py-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Seu pedido</p>
-            <h2 className="text-2xl">Carrinho</h2>
-          </div>
-          <button onClick={onClose} aria-label="Fechar" className="rounded-full p-2 hover:bg-muted"><X className="size-5" /></button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-5">
-          {selectedTrackedOrders.length > 0 && (
-            <section className="mb-5 rounded-2xl border border-black/8 bg-card p-4 shadow-sm">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Pedidos em andamento</p>
-                  <h3 className="mt-1 text-base font-bold">Acompanhe seus pedidos</h3>
+      <aside className="relative z-10 flex h-[94dvh] max-h-[760px] w-full min-w-0 flex-col overflow-hidden rounded-t-[2rem] border border-black/10 bg-[#0d1117] text-background shadow-2xl sm:h-[88dvh] sm:max-w-2xl sm:rounded-[2rem]">
+        <header className="shrink-0 border-b border-background/10 bg-[#10151d] px-4 pb-4 pt-3 sm:px-6 sm:pt-5">
+          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-background/20 sm:hidden" />
+          <div className="flex min-w-0 items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/20">
+                  <ShoppingBag className="size-5" />
                 </div>
-                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold text-primary">{selectedTrackedOrders.length}</span>
-              </div>
-              <div className="mt-3 space-y-2">
-                {selectedTrackedOrders.map((order) => (
-                  <button
-                    key={order.id}
-                    type="button"
-                    onClick={() => onTrackOrder(order)}
-                    className="flex w-full items-center gap-3 rounded-xl border border-black/8 bg-background p-3 text-left transition hover:border-primary/40 hover:bg-primary/5"
-                  >
-                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-                      <Clock3 className="size-4" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-2">
-                        <span className="text-[9px] font-black uppercase tracking-[.14em] text-primary">Em andamento</span>
-                        <span className="text-[9px] font-bold text-muted-foreground">#{order.number}</span>
-                      </span>
-                      <span className="mt-0.5 block truncate text-xs font-semibold">Acompanhar pedido</span>
-                    </span>
-                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-                  </button>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {items.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center text-center">
-              <div className="flex size-16 items-center justify-center rounded-full bg-muted"><ShoppingBag className="size-7 text-muted-foreground" /></div>
-              <p className="mt-4 font-semibold">Seu carrinho está vazio</p>
-              <p className="mt-1 text-sm text-muted-foreground">Adicione qualquer item do cardápio para começar.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {items.map((item) => (
-                <div key={item.lineId} className="rounded-2xl border bg-card p-4">
-                  <div className="flex gap-3">
-                    <div className="size-16 shrink-0 overflow-hidden rounded-xl bg-muted">
-                      {item.imageUrl ? <img src={item.imageUrl} alt="" className="size-full object-cover" /> : <div className="flex size-full items-center justify-center font-display text-xl text-primary/40">{item.productName.charAt(0)}</div>}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex justify-between gap-2">
-                        <div>
-                          <p className="font-semibold">{item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {[item.sizeName, item.crustName, (item.addons ?? []).length ? `${(item.addons ?? []).length} adicional(is)` : null, (item.complements ?? []).length ? `${(item.complements ?? []).length} complemento(s)` : null].filter(Boolean).join(" · ")}
-                          </p>
-                        </div>
-                        <button onClick={() => onRemove(item.lineId)} className="text-muted-foreground hover:text-destructive" aria-label={`Remover ${item.productName}`}><X className="size-4" /></button>
-                      </div>
-                      <div className="mt-3 flex items-center justify-between">
-                        <div className="flex items-center rounded-full border">
-                          <button onClick={() => onUpdate(item.lineId, item.quantity - 1)} className="p-2" aria-label="Diminuir"><Minus className="size-3.5" /></button>
-                          <span className="w-7 text-center text-xs font-semibold">{item.quantity}</span>
-                          <button onClick={() => onUpdate(item.lineId, item.quantity + 1)} className="p-2" aria-label="Aumentar"><Plus className="size-3.5" /></button>
-                        </div>
-                        <span className="font-semibold">{formatCurrency(item.unitPrice * item.quantity)}</span>
-                      </div>
-                    </div>
-                  </div>
+                <div className="min-w-0">
+                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Seu pedido</p>
+                  <h2 className="truncate text-xl font-display tracking-tight sm:text-2xl">Carrinho</h2>
                 </div>
-              ))}
+              </div>
+              <p className="mt-2 text-xs leading-5 text-background/55">Confira seus itens antes de continuar para a finalização.</p>
             </div>
-          )}
-        </div>
-
-        <div className="border-t bg-card p-5">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span className="text-xl font-bold">{formatCurrency(subtotal)}</span>
-          </div>
-          <p className="mt-2 text-xs leading-5 text-muted-foreground">
-            A taxa de entrega e descontos serão calculados no checkout.
-          </p>
-          <Button
-            disabled={items.length === 0 || !storeOpen}
-            className="mt-4 h-12 w-full rounded-full"
-            onClick={onCheckout}
-          >
-            {storeOpen ? "Continuar para checkout" : "Loja fechada"}
-          </Button>
-          {!storeOpen && <p className="mt-2 text-center text-xs font-medium text-primary">{storeStatusLabel}</p>}
-          {items.length > 0 && (
-            <button onClick={onClear} className="mt-3 w-full text-center text-xs font-medium text-muted-foreground hover:text-destructive">
-              Limpar carrinho
+            <button onClick={onClose} aria-label="Fechar" className="grid size-9 shrink-0 place-items-center rounded-full border border-background/10 bg-background/5 text-background/70 transition hover:bg-background/10 hover:text-background">
+              <X className="size-4" />
             </button>
-          )}
+          </div>
+        </header>
+
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <main className="p-4 sm:p-5">
+            {selectedTrackedOrders.length > 0 && (
+              <section className="mb-4 overflow-hidden rounded-2xl border border-primary/15 bg-background/[.035] shadow-sm">
+                <div className="flex items-center justify-between gap-3 border-b border-background/10 px-4 py-3.5">
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Pedidos em andamento</p>
+                    <h3 className="mt-1 text-base font-bold">Acompanhe seus pedidos</h3>
+                  </div>
+                  <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold text-primary">{selectedTrackedOrders.length}</span>
+                </div>
+                <div className="space-y-2 p-3">
+                  {selectedTrackedOrders.map((order) => (
+                    <button key={order.id} type="button" onClick={() => onTrackOrder(order)} className="group flex w-full items-center gap-3 rounded-xl border border-background/10 bg-background/[.035] p-3 text-left transition hover:border-primary/40 hover:bg-primary/5">
+                      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Clock3 className="size-4" /></span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-2">
+                          <span className="text-[9px] font-black uppercase tracking-[.14em] text-primary">Em andamento</span>
+                          <span className="text-[9px] font-bold text-background/45">#{order.number}</span>
+                        </span>
+                        <span className="mt-0.5 block truncate text-xs font-semibold text-background/85">Acompanhar pedido</span>
+                      </span>
+                      <ChevronRight className="size-4 shrink-0 text-background/40 transition group-hover:translate-x-0.5 group-hover:text-primary" />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {items.length === 0 ? (
+              <div className="flex min-h-[45vh] flex-col items-center justify-center px-6 text-center">
+                <div className="grid size-16 place-items-center rounded-2xl border border-background/10 bg-background/[.035] text-primary"><ShoppingBag className="size-7" /></div>
+                <p className="mt-4 font-semibold">Seu carrinho está vazio</p>
+                <p className="mt-1 max-w-xs text-sm leading-5 text-background/45">Adicione qualquer item do cardápio para começar.</p>
+              </div>
+            ) : (
+              <section>
+                <div className="mb-3 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Itens</p>
+                    <h3 className="mt-1 text-lg font-display">Seu pedido</h3>
+                  </div>
+                  <span className="rounded-full border border-background/10 bg-background/[.035] px-2.5 py-1 text-[9px] font-bold text-background/55">{itemCountLabel(items)}</span>
+                </div>
+                <div className="space-y-2.5">
+                  {items.map((item) => (
+                    <div key={item.lineId} className="flex min-w-0 gap-3 rounded-2xl border border-background/10 bg-background/[.035] p-2.5 sm:p-3">
+                      <div className="size-16 shrink-0 overflow-hidden rounded-xl bg-background/10 ring-1 ring-background/10">
+                        {item.imageUrl ? <img src={item.imageUrl} alt="" className="size-full object-cover" /> : <div className="grid size-full place-items-center font-display text-xl text-primary/50">{item.productName.charAt(0)}</div>}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-bold">{item.productName}{item.secondProductName ? " + " + item.secondProductName : ""}</p>
+                            <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-background/45">
+                              {[item.sizeName, item.crustName, (item.addons ?? []).length ? (item.addons ?? []).length + " adicional(is)" : null, (item.complements ?? []).length ? (item.complements ?? []).length + " complemento(s)" : null].filter(Boolean).join(" · ")}
+                            </p>
+                          </div>
+                          <button onClick={() => onRemove(item.lineId)} className="grid size-7 shrink-0 place-items-center rounded-full text-background/35 transition hover:bg-red-400/10 hover:text-red-300" aria-label={"Remover " + item.productName}><X className="size-3.5" /></button>
+                        </div>
+                        <div className="mt-3 flex items-center justify-between gap-3">
+                          <div className="flex items-center rounded-full border border-background/10 bg-background/5">
+                            <button onClick={() => onUpdate(item.lineId, item.quantity - 1)} className="grid size-8 place-items-center text-background/45 transition hover:text-background" aria-label="Diminuir"><Minus className="size-3.5" /></button>
+                            <span className="w-7 text-center text-xs font-black">{item.quantity}</span>
+                            <button onClick={() => onUpdate(item.lineId, item.quantity + 1)} className="grid size-8 place-items-center text-primary transition hover:text-background" aria-label="Aumentar"><Plus className="size-3.5" /></button>
+                          </div>
+                          <span className="text-sm font-black">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </main>
         </div>
+
+        <footer className="shrink-0 border-t border-background/10 bg-[#0a0e14] p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] sm:p-4">
+          <div className="mx-auto max-w-2xl">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[.16em] text-background/40">Subtotal</p>
+                <p className="mt-0.5 font-display text-2xl tracking-tight">{formatCurrency(subtotal)}</p>
+              </div>
+              <span className="text-right text-[9px] leading-4 text-background/40">Entrega e descontos<br />calculados no checkout</span>
+            </div>
+            {!storeOpen && <p className="mt-2 rounded-xl bg-primary/10 px-3 py-2 text-center text-[10px] font-semibold text-primary">{storeStatusLabel}</p>}
+            <Button disabled={items.length === 0 || !storeOpen} className="mt-3 h-12 w-full rounded-xl text-sm font-black shadow-[0_8px_24px_hsl(var(--primary)/.22)]" onClick={onCheckout}>
+              {storeOpen ? "Continuar para checkout" : "Loja fechada"}
+            </Button>
+            {items.length > 0 && <button onClick={onClear} className="mt-2.5 w-full text-center text-[10px] font-bold uppercase tracking-[.12em] text-background/35 transition hover:text-red-300">Limpar carrinho</button>}
+          </div>
+        </footer>
       </aside>
     </div>
   );
@@ -2054,9 +2063,9 @@ function CheckoutPanel({
 
 
   return (
-    <div className="ppp-checkout-panel fixed inset-0 z-[60] min-h-[100dvh] overflow-x-hidden overflow-y-auto overscroll-contain bg-[#f7f4ef] text-foreground">
-      <div className="mx-auto min-h-[100dvh] w-full max-w-6xl px-[clamp(.75rem,2.5vw,1.5rem)] pb-28 pt-[clamp(.75rem,2.5vw,1.5rem)] sm:px-6 sm:pb-12 sm:pt-6">
-        <header className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-foreground text-background shadow-[0_18px_45px_rgba(0,0,0,.12)] sm:rounded-[2rem]">
+    <div className="ppp-checkout-panel fixed inset-0 z-[300] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5">
+      <div className="relative flex h-[94dvh] max-h-[760px] w-full min-w-0 flex-col overflow-hidden rounded-t-[2rem] border border-black/10 bg-[#0d1117] text-background shadow-2xl sm:h-[92dvh] sm:max-w-6xl sm:rounded-[2rem]">
+        <header className="shrink-0 overflow-hidden border-b border-background/10 bg-[#10151d] text-background">
           <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
             <div className="flex min-w-0 items-center gap-3">
               <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm sm:size-11">
@@ -2088,39 +2097,39 @@ function CheckoutPanel({
           </div>
         </header>
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5"><div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <main className="space-y-3">
             {addingToOrder ? (
-              <section className="rounded-[1.5rem] border border-primary/15 bg-white p-5 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-6">
+              <section className="rounded-[1.5rem] border border-primary/15 bg-[#111820] p-5 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-6">
                 <div className="flex items-start gap-3">
                   <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Plus className="size-5" /></div>
                   <div>
                     <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Adicionar ao pedido #{trackedOrder?.number}</p>
                     <h2 className="mt-1 text-xl font-display tracking-tight">Mais alguma coisa?</h2>
-                    <p className="mt-2 text-xs leading-5 text-muted-foreground">Os itens abaixo serão acrescentados ao pedido existente. O endereço, forma de recebimento e telefone continuam os mesmos.</p>
+                    <p className="mt-2 text-xs leading-5 text-background/50">Os itens abaixo serão acrescentados ao pedido existente. O endereço, forma de recebimento e telefone continuam os mesmos.</p>
                   </div>
                 </div>
-                <div className="mt-5 rounded-2xl bg-[#faf9f7] p-4">
-                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-muted-foreground">Novos itens</p>
+                <div className="mt-5 rounded-2xl bg-[#0d1117] p-4">
+                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-background/50">Novos itens</p>
                   <div className="mt-3 space-y-2">
                     {items.map((item) => (
-                      <div key={item.lineId} className="flex items-start justify-between gap-3 rounded-xl border border-black/8 bg-white p-3">
+                      <div key={item.lineId} className="flex items-start justify-between gap-3 rounded-xl border border-background/10 bg-[#111820] p-3">
                         <div className="min-w-0">
                           <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
-                          <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
+                          <p className="mt-1 text-[10px] text-background/50">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
                           {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}
-                          {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-muted-foreground">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
+                          {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-background/50">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
                         </div>
                         <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="mt-4 rounded-xl border border-black/8 bg-muted/40 p-3 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Acréscimo:</strong> {formatCurrency(subtotal)} · o total do pedido será atualizado após a confirmação.</div>
+                <div className="mt-4 rounded-xl border border-background/10 bg-background/[.035] p-3 text-xs leading-5 text-background/50"><strong className="text-background">Acréscimo:</strong> {formatCurrency(subtotal)} · o total do pedido será atualizado após a confirmação.</div>
               </section>
             ) : (
               <>
-            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
+            <section className="rounded-[1.5rem] border border-background/10 bg-[#111820] p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
               <div className="flex items-start gap-3">
                 <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                   <Store className="size-4.5" />
@@ -2128,42 +2137,42 @@ function CheckoutPanel({
                 <div className="min-w-0 flex-1">
                   <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">01 · Entrega</p>
                   <h2 className="mt-0.5 text-base font-bold tracking-tight sm:text-lg">Como você quer receber?</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">Escolha a forma mais conveniente para você.</p>
+                  <p className="mt-1 text-xs text-background/50">Escolha a forma mais conveniente para você.</p>
                 </div>
               </div>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {settings.delivery_enabled && (
                   <button
                     onClick={() => setFulfillment("DELIVERY")}
-                    className={`group rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] sm:p-4 ${fulfillment === "DELIVERY" ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.18)] ring-1 ring-primary" : "border-black/8 bg-[#faf9f7] hover:border-primary/40"}`}
+                    className={`group rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] sm:p-4 ${fulfillment === "DELIVERY" ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.18)] ring-1 ring-primary" : "border-background/10 bg-[#0d1117] hover:border-primary/40"}`}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-sm font-bold">Entrega</span>
-                      <span className={`grid size-6 place-items-center rounded-full ${fulfillment === "DELIVERY" ? "bg-white/15" : "bg-primary/10 text-primary"}`}>
+                      <span className={`grid size-6 place-items-center rounded-full ${fulfillment === "DELIVERY" ? "bg-[#111820]/15" : "bg-primary/10 text-primary"}`}>
                         {fulfillment === "DELIVERY" ? <Check className="size-3.5" /> : <ChevronRight className="size-3.5" />}
                       </span>
                     </div>
-                    <p className={`mt-1 text-[11px] ${fulfillment === "DELIVERY" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>Receba no endereço informado</p>
+                    <p className={`mt-1 text-[11px] ${fulfillment === "DELIVERY" ? "text-primary-foreground/70" : "text-background/50"}`}>Receba no endereço informado</p>
                   </button>
                 )}
                 {settings.pickup_enabled && (
                   <button
                     onClick={() => setFulfillment("PICKUP")}
-                    className={`group rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] sm:p-4 ${fulfillment === "PICKUP" ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.18)] ring-1 ring-primary" : "border-black/8 bg-[#faf9f7] hover:border-primary/40"}`}
+                    className={`group rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] sm:p-4 ${fulfillment === "PICKUP" ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.18)] ring-1 ring-primary" : "border-background/10 bg-[#0d1117] hover:border-primary/40"}`}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-sm font-bold">Retirada</span>
-                      <span className={`grid size-6 place-items-center rounded-full ${fulfillment === "PICKUP" ? "bg-white/15" : "bg-primary/10 text-primary"}`}>
+                      <span className={`grid size-6 place-items-center rounded-full ${fulfillment === "PICKUP" ? "bg-[#111820]/15" : "bg-primary/10 text-primary"}`}>
                         {fulfillment === "PICKUP" ? <Check className="size-3.5" /> : <ChevronRight className="size-3.5" />}
                       </span>
                     </div>
-                    <p className={`mt-1 text-[11px] ${fulfillment === "PICKUP" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>Retire diretamente na loja</p>
+                    <p className={`mt-1 text-[11px] ${fulfillment === "PICKUP" ? "text-primary-foreground/70" : "text-background/50"}`}>Retire diretamente na loja</p>
                   </button>
                 )}
               </div>
             </section>
 
-            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
+            <section className="rounded-[1.5rem] border border-background/10 bg-[#111820] p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
               <div className="flex items-start gap-3">
                 <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-secondary-foreground">
                   <span className="text-xs font-black">02</span>
@@ -2171,23 +2180,23 @@ function CheckoutPanel({
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Seus dados</p>
                   <h2 className="mt-0.5 text-base font-bold tracking-tight sm:text-lg">Onde podemos encontrar você?</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">Usaremos estes dados apenas para identificar o pedido.</p>
+                  <p className="mt-1 text-xs text-background/50">Usaremos estes dados apenas para identificar o pedido.</p>
                 </div>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <label className="text-sm">
-                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Nome *</span>
-                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-background/50">Nome *</span>
+                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" className="h-11 w-full rounded-xl border border-background/10 bg-[#0d1117] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-[#111820] focus:ring-2 focus:ring-primary/10" />
                 </label>
                 <label className="text-sm">
-                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Telefone *</span>
-                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(00) 00000-0000" inputMode="tel" className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-background/50">Telefone *</span>
+                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(00) 00000-0000" inputMode="tel" className="h-11 w-full rounded-xl border border-background/10 bg-[#0d1117] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-[#111820] focus:ring-2 focus:ring-primary/10" />
                 </label>
               </div>
             </section>
 
             {fulfillment === "DELIVERY" && (
-              <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
+              <section className="rounded-[1.5rem] border border-background/10 bg-[#111820] p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
                 <div className="flex items-start gap-3">
                   <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-secondary-foreground">
                     <span className="text-xs font-black">03</span>
@@ -2199,22 +2208,22 @@ function CheckoutPanel({
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_110px]">
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Rua *</span>
-                    <input value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Rua, avenida..." className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-background/50">Rua *</span>
+                    <input value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Rua, avenida..." className="h-11 w-full rounded-xl border border-background/10 bg-[#0d1117] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-[#111820] focus:ring-2 focus:ring-primary/10" />
                   </label>
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Número *</span>
-                    <input value={number} onChange={(e) => setNumber(e.target.value)} placeholder="123" className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-background/50">Número *</span>
+                    <input value={number} onChange={(e) => setNumber(e.target.value)} placeholder="123" className="h-11 w-full rounded-xl border border-background/10 bg-[#0d1117] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-[#111820] focus:ring-2 focus:ring-primary/10" />
                   </label>
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Bairro *</span>
+                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-background/50">Bairro *</span>
                     <select
                       value={matchedNeighborhood ?? ""}
                       onChange={(e) => setNeighborhood(e.target.value)}
                       disabled={availableNeighborhoods.length === 0}
-                      className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="h-11 w-full rounded-xl border border-background/10 bg-[#0d1117] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-[#111820] focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <option value="">
                         {availableNeighborhoods.length > 0 ? "Selecione seu bairro" : "Áreas de entrega indisponíveis"}
@@ -2225,16 +2234,16 @@ function CheckoutPanel({
                     </select>
                   </label>
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Complemento</span>
-                    <input value={complement} onChange={(e) => setComplement(e.target.value)} placeholder="Apto, casa..." className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-background/50">Complemento</span>
+                    <input value={complement} onChange={(e) => setComplement(e.target.value)} placeholder="Apto, casa..." className="h-11 w-full rounded-xl border border-background/10 bg-[#0d1117] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-[#111820] focus:ring-2 focus:ring-primary/10" />
                   </label>
                 </div>
                 <label className="mt-3 block text-sm">
-                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Referência</span>
-                  <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Próximo a..." className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-background/50">Referência</span>
+                  <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Próximo a..." className="h-11 w-full rounded-xl border border-background/10 bg-[#0d1117] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-[#111820] focus:ring-2 focus:ring-primary/10" />
                 </label>
                 {deliveryZones.length > 0 && (
-                  <div className={`mt-3 rounded-xl px-3.5 py-2.5 text-[11px] ${selectedZone ? "bg-primary/8 text-foreground" : "bg-muted text-muted-foreground"}`}>
+                  <div className={`mt-3 rounded-xl px-3.5 py-2.5 text-[11px] ${selectedZone ? "bg-primary/8 text-background" : "bg-background/5 text-background/50"}`}>
                     {selectedZone
                       ? <span><strong>Entrega:</strong> {formatCurrency(deliveryFee)} · aproximadamente {selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min</span>
                       : availableNeighborhoods.length > 0 ? "Informe um bairro atendido para calcular a taxa." : "As áreas de entrega ainda não foram cadastradas. Entre em contato com a loja para confirmar o atendimento."}
@@ -2243,7 +2252,7 @@ function CheckoutPanel({
               </section>
             )}
 
-            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
+            <section className="rounded-[1.5rem] border border-background/10 bg-[#111820] p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
               <div className="flex items-start gap-3">
                 <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-secondary-foreground">
                   <span className="text-xs font-black">04</span>
@@ -2258,15 +2267,15 @@ function CheckoutPanel({
                   <button
                     key={method}
                     onClick={() => setPaymentMethod(method)}
-                    className={`rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] ${paymentMethod === method ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary" : "border-black/8 bg-[#faf9f7] hover:border-primary/40"}`}
+                    className={`rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] ${paymentMethod === method ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary" : "border-background/10 bg-[#0d1117] hover:border-primary/40"}`}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-sm font-bold">{method === "PIX" ? "PIX" : method === "CASH" ? "Dinheiro" : method === "CARD_ON_DELIVERY" ? "Cartão na entrega" : "Cartão no local"}</span>
-                      <span className={`grid size-6 place-items-center rounded-full ${paymentMethod === method ? "bg-white/15" : "bg-primary/10 text-primary"}`}>
+                      <span className={`grid size-6 place-items-center rounded-full ${paymentMethod === method ? "bg-[#111820]/15" : "bg-primary/10 text-primary"}`}>
                         {paymentMethod === method ? <Check className="size-3.5" /> : <ChevronRight className="size-3.5" />}
                       </span>
                     </div>
-                    <p className={`mt-1 text-[10px] ${paymentMethod === method ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                    <p className={`mt-1 text-[10px] ${paymentMethod === method ? "text-primary-foreground/70" : "text-background/50"}`}>
                       {method === "PIX" ? "Pagamento via PIX" : "Pagamento combinado com a loja"}
                     </p>
                   </button>
@@ -2274,22 +2283,22 @@ function CheckoutPanel({
               </div>
             </section>
 
-            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
+            <section className="rounded-[1.5rem] border border-background/10 bg-[#111820] p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Opcional</p>
                   <label htmlFor="checkout-notes" className="mt-0.5 block text-base font-bold tracking-tight">Observações do pedido</label>
                 </div>
-                <span className="text-[9px] text-muted-foreground">{notes.length}/500</span>
+                <span className="text-[9px] text-background/50">{notes.length}/500</span>
               </div>
-              <Textarea id="checkout-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-3 min-h-20 resize-none rounded-xl border-black/10 bg-[#faf9f7]" placeholder="Ex.: tocar a campainha, tirar cebola..." maxLength={500} />
+              <Textarea id="checkout-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-3 min-h-20 resize-none rounded-xl border-background/10 bg-[#0d1117]" placeholder="Ex.: tocar a campainha, tirar cebola..." maxLength={500} />
             </section>
               </>
             )}
           </main>
 
           <aside className="lg:sticky lg:top-5">
-            <div className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-foreground text-background shadow-[0_18px_45px_rgba(0,0,0,.14)] sm:rounded-[2rem]">
+            <div className="overflow-hidden rounded-[1.5rem] border border-background/10 bg-foreground text-background shadow-[0_18px_45px_rgba(0,0,0,.14)] sm:rounded-[2rem]">
               <div className="border-b border-background/10 px-4 py-4 sm:px-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
@@ -2363,10 +2372,10 @@ function CheckoutPanel({
           </aside>
         </div>
 
-        <div className="fixed inset-x-0 bottom-0 z-[70] border-t border-black/10 bg-white/95 px-3 py-2.5 backdrop-blur-xl lg:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-[70] border-t border-background/10 bg-[#111820]/95 px-3 py-2.5 backdrop-blur-xl lg:hidden">
           <div className="mx-auto flex max-w-2xl items-center gap-2">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[9px] font-bold uppercase tracking-[.12em] text-muted-foreground">Total</p>
+              <p className="truncate text-[9px] font-bold uppercase tracking-[.12em] text-background/50">Total</p>
               <p className="text-lg font-black leading-none">{formatCurrency(total)}</p>
             </div>
             <Button
