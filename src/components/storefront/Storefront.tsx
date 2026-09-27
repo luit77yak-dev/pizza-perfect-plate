@@ -413,7 +413,7 @@ export function Storefront({ slug }: { slug?: string }) {
       setAdditionQuantities({});
       setAdditionModalOpen(false);
       setTrackingOpen(true);
-      setCheckoutOpen(true);
+      setCheckoutOpen(false);
       setCartOpen(false);
     } catch (submitError) {
       const message = submitError instanceof Error
@@ -725,6 +725,21 @@ export function Storefront({ slug }: { slug?: string }) {
         />
       )}
 
+      {trackingOpen && selectedTrackedOrder && !checkoutOpen && (
+        <TrackedOrderPanel
+          order={selectedTrackedOrder}
+          onClose={() => {
+            setTrackingOpen(false);
+            setSelectedTrackedOrder(null);
+          }}
+          onAddToOrder={() => {
+            setAdditionError(null);
+            setAdditionQuantities({});
+            setAdditionModalOpen(true);
+          }}
+        />
+      )}
+
       {checkoutOpen && (
         <CheckoutPanel
           organization={data.organization}
@@ -768,6 +783,7 @@ export function Storefront({ slug }: { slug?: string }) {
               setSelectedTrackedOrder(order);
               setAddingToOrder(false);
               setTrackingOpen(true);
+              setCheckoutOpen(false);
             } else {
               setTrackingOpen(false);
               setSelectedTrackedOrder(null);
@@ -845,6 +861,90 @@ export function Storefront({ slug }: { slug?: string }) {
   );
 }
 
+
+function getTrackedOrderStatusLabel(status?: OrderStatus) {
+  switch (status) {
+    case "RECEIVED": return "Pedido recebido";
+    case "CONFIRMED": return "Pedido confirmado";
+    case "PREPARING": return "Em preparo";
+    case "READY": return "Pronto";
+    case "OUT_FOR_DELIVERY": return "Saiu para entrega";
+    case "DELIVERED": return "Entregue";
+    case "CANCELLED": return "Cancelado";
+    default: return "Em andamento";
+  }
+}
+
+function TrackedOrderPanel({
+  order,
+  onClose,
+  onAddToOrder,
+}: {
+  order: PublicTrackedOrder;
+  onClose: () => void;
+  onAddToOrder: () => void;
+}) {
+  const canAddMore = ["RECEIVED", "CONFIRMED", "PREPARING", "READY"].includes(order.status ?? "RECEIVED");
+  const items = order.items ?? [];
+
+  return (
+    <div className="fixed inset-0 z-[180] bg-foreground/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`Acompanhar pedido #${order.number}`}>
+      <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar acompanhamento" />
+      <section className="absolute inset-x-0 bottom-0 mx-auto max-h-[92dvh] w-full max-w-2xl overflow-hidden rounded-t-[2rem] bg-background shadow-2xl sm:inset-y-6 sm:bottom-auto sm:rounded-[2rem]">
+        <header className="flex items-center justify-between gap-3 border-b bg-foreground px-5 py-4 text-background sm:px-6">
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Acompanhamento</p>
+            <h2 className="mt-1 font-display text-2xl">Pedido #{order.number}</h2>
+          </div>
+          <button type="button" onClick={onClose} className="grid size-9 place-items-center rounded-full bg-background/10 hover:bg-background/20" aria-label="Fechar">
+            <X className="size-4" />
+          </button>
+        </header>
+
+        <div className="max-h-[calc(92dvh-145px)] overflow-y-auto p-5 sm:p-6">
+          <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">
+            <p className="text-[9px] font-black uppercase tracking-[.16em] text-primary">Status atual</p>
+            <p className="mt-1 text-lg font-black">{getTrackedOrderStatusLabel(order.status)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {canAddMore ? "Você ainda pode adicionar itens enquanto o pedido não saiu para entrega." : "Este pedido não aceita novos itens neste momento."}
+            </p>
+          </div>
+
+          <div className="mt-4 rounded-2xl border bg-card p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[9px] font-black uppercase tracking-[.16em] text-muted-foreground">Itens do pedido</p>
+              <span className="text-xs font-bold text-muted-foreground">{items.reduce((sum, item) => sum + item.quantity, 0)} itens</span>
+            </div>
+            <div className="mt-3 space-y-2">
+              {items.length > 0 ? items.map((item) => (
+                <div key={item.lineId} className="flex items-start justify-between gap-3 rounded-xl bg-muted/50 p-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
+                    <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
+                  </div>
+                  <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                </div>
+              )) : (
+                <p className="text-sm text-muted-foreground">Os itens deste pedido não estão disponíveis nesta sessão.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-end justify-between border-t pt-4">
+            <span className="text-sm text-muted-foreground">Total do pedido</span>
+            <span className="font-display text-2xl">{formatCurrency(Number(order.total ?? order.subtotal ?? 0))}</span>
+          </div>
+
+          {canAddMore && (
+            <Button type="button" onClick={onAddToOrder} className="mt-5 h-12 w-full rounded-xl text-sm font-black">
+              <Plus className="mr-2 size-4" /> Esqueceu alguma coisa? Adicionar ao pedido
+            </Button>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
 
 function ProductConfigurator({
   product,
