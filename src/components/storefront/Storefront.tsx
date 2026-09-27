@@ -514,13 +514,7 @@ export function Storefront({ slug }: { slug?: string }) {
               <span>{itemCount > 0 ? "Sacola" : "Pedir"}</span>
               {itemCount > 0 && <Badge className="rounded-full bg-white px-1.5 text-foreground">{itemCount}</Badge>}
             </Button>
-            {trackedOrders.length > 0 && (
-              <Button size="sm" variant="outline" className="gap-1.5 rounded-none border-white/35 bg-black/30 px-3 font-body text-[10px] font-bold uppercase tracking-[.12em] text-white backdrop-blur-sm hover:bg-white/10 hover:text-white" onClick={() => setCartOpen(true)}>
-                <Clock3 className="size-3.5" />
-                <span className="hidden sm:inline">Pedidos</span>
-                <span className="grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[8px] font-black text-primary-foreground">{trackedOrders.length}</span>
-              </Button>
-            )}
+            {trackedOrders.length > 0 && <span className="flex items-center gap-1 rounded-full border border-white/25 bg-black/30 px-2 py-1 text-[9px] font-bold text-white/85"><Clock3 className="size-3" />{trackedOrders.length}</span>}
           </div>
         </div>
       </header>
@@ -876,31 +870,7 @@ export function Storefront({ slug }: { slug?: string }) {
       )}
 
 
-      {(itemCount > 0 || trackedOrders.length > 0) && !cartOpen && !checkoutOpen && (
-        <div className="fixed inset-x-0 bottom-3 z-30 mx-auto flex w-[calc(100%-1.5rem)] max-w-md gap-2 sm:bottom-4">
-          {itemCount > 0 && (
-            <button onClick={() => setCartOpen(true)} className="flex min-w-0 flex-1 items-center justify-between rounded-2xl bg-secondary px-3.5 py-3 text-secondary-foreground shadow-lifted ring-1 ring-white/10 sm:px-4 sm:py-3.5">
-              <span className="flex min-w-0 items-center gap-2.5 text-sm font-semibold">
-                <span className="relative grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground sm:size-10">
-                  <ShoppingBag className="size-4" />
-                  <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-white px-1 text-[9px] font-black text-foreground">{itemCount}</span>
-                </span>
-                <span className="min-w-0 text-left"><span className="block truncate font-bold">Sua sacola</span><span className="block truncate text-[10px] text-secondary-foreground/65">{formatCurrency(subtotal)}</span></span>
-              </span>
-              <ChevronRight className="size-4 shrink-0 opacity-60" />
-            </button>
-          )}
-          {trackedOrders.length > 0 && (
-            <button onClick={() => setCartOpen(true)} className="flex min-w-0 flex-1 items-center justify-between rounded-2xl border border-primary/40 bg-background px-3.5 py-3 text-left text-foreground shadow-lifted ring-1 ring-primary/10 sm:px-4 sm:py-3.5">
-              <span className="flex min-w-0 items-center gap-2.5">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary sm:size-10"><Clock3 className="size-4" /></span>
-                <span className="min-w-0"><span className="block truncate text-[11px] font-black uppercase tracking-[.08em]">Pedidos</span><span className="block truncate text-[10px] text-muted-foreground">{trackedOrders.length === 1 ? "1 em andamento" : trackedOrders.length + " em andamento"}</span></span>
-              </span>
-              <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-            </button>
-          )}
-        </div>
-      )}
+}
     </div>
   );
 }
