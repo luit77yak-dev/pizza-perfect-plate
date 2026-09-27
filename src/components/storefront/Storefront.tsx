@@ -421,9 +421,11 @@ export function Storefront({ slug }: { slug?: string }) {
             <a href="#contato" className="transition-colors hover:text-white">Contato</a>
           </nav>
 
-          <Button size="sm" style={{ backgroundColor: "#f97316", borderColor: "#f97316", color: "#ffffff" }} className="relative z-[110] gap-2 rounded-none px-4 font-body text-[10px] font-medium uppercase tracking-[.22em] text-white shadow-[3px_3px_0_rgba(0,0,0,.45)] transition-transform hover:-translate-y-0.5" onClick={() => setCartOpen(true)}>
-            <span>Pedir</span>
-            {itemCount > 0 && <Badge className="rounded-full bg-primary px-1.5 text-primary-foreground">{itemCount}</Badge>}
+          <Button size="sm" style={{ backgroundColor: "#f97316", borderColor: "#f97316", color: "#ffffff" }} className="relative z-[110] gap-2 rounded-none px-3.5 font-body text-[10px] font-medium uppercase tracking-[.16em] text-white shadow-[3px_3px_0_rgba(0,0,0,.45)] transition-transform hover:-translate-y-0.5 sm:px-4" onClick={() => setCartOpen(true)}>
+            {trackedOrders.length > 0 ? <Clock3 className="size-3.5" /> : <ShoppingBag className="size-3.5" />}
+            <span>{trackedOrders.length > 0 ? "Pedidos" : "Pedir"}</span>
+            {trackedOrders.length > 0 && <Badge className="rounded-full bg-secondary px-1.5 text-secondary-foreground">{trackedOrders.length}</Badge>}
+            {itemCount > 0 && <Badge className="rounded-full bg-white/20 px-1.5 text-white">{itemCount}</Badge>}
           </Button>
         </div>
       </header>
@@ -778,17 +780,25 @@ export function Storefront({ slug }: { slug?: string }) {
       )}
 
 
-      {itemCount > 0 && !cartOpen && !checkoutOpen && (
+      {(itemCount > 0 || trackedOrders.length > 0) && !cartOpen && !checkoutOpen && (
         <div className="fixed inset-x-0 bottom-4 z-30 mx-auto w-[calc(100%-2rem)] max-w-md">
           <button
             onClick={() => setCartOpen(true)}
-            className="flex w-full items-center justify-between rounded-2xl bg-secondary px-5 py-4 text-secondary-foreground shadow-lifted"
+            className="flex w-full items-center justify-between rounded-2xl bg-secondary px-4 py-3.5 text-secondary-foreground shadow-lifted ring-1 ring-white/10"
           >
-            <span className="flex items-center gap-2 text-sm font-semibold">
-              <ShoppingBag className="size-4" />
-              {itemCount} {itemCount === 1 ? "item" : "itens"}
+            <span className="flex min-w-0 items-center gap-3 text-sm font-semibold">
+              <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
+                <ShoppingBag className="size-4" />
+                {itemCount > 0 && <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-white px-1 text-[9px] font-black text-foreground">{itemCount}</span>}
+              </span>
+              <span className="min-w-0 text-left">
+                <span className="block truncate">{itemCount > 0 ? "Sua sacola" : "Pedidos em andamento"}</span>
+                {trackedOrders.length > 0 && <span className="mt-0.5 flex items-center gap-1 text-[10px] font-bold text-primary"><Clock3 className="size-3" /> {trackedOrders.length === 1 ? "1 pedido em andamento" : trackedOrders.length + " pedidos em andamento"}</span>}
+              </span>
             </span>
-            <span className="font-bold">{formatCurrency(subtotal)}</span>
+            <span className="shrink-0 text-right">
+              {itemCount > 0 ? <span className="block font-bold">{formatCurrency(subtotal)}</span> : <span className="block text-[10px] font-bold uppercase tracking-[.12em] text-primary">Acompanhar</span>}
+            </span>
           </button>
         </div>
       )}
