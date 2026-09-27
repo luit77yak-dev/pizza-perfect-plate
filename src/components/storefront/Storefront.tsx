@@ -2003,11 +2003,16 @@ function CheckoutPanel({
   organization,
   settings,
   deliveryZones,
+  products,
+  categories,
   items,
   subtotal,
   onClose,
   onSuccess,
   trackedOrder,
+  addingToOrder,
+  onAddToOrder,
+  onOpenAdditions,
   storeOpen,
   storeStatusLabel,
   onOrderFinished,
@@ -2015,14 +2020,19 @@ function CheckoutPanel({
   organization: Organization;
   settings: OrganizationSettings;
   deliveryZones: DeliveryZone[];
+  products: Product[];
+  categories: Category[];
   items: CartItem[];
   subtotal: number;
   onClose: () => void;
-  onSuccess: (order: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType }) => void;
-  trackedOrder?: { id: string; number: number; phone: string } | null;
+  onSuccess: (order: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType; status?: OrderStatus; isAddition?: boolean }) => void;
+  trackedOrder?: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType; status?: OrderStatus } | null;
+  addingToOrder: boolean;
+  onAddToOrder: () => void;
+  onOpenAdditions: () => void;
   storeOpen: boolean;
   storeStatusLabel: string;
-  onOrderFinished: () => void;
+  onOrderFinished: (orderId: string) => void;
 }) {
   const [fulfillment, setFulfillment] = useState<FulfillmentType>(
     settings.delivery_enabled ? "DELIVERY" : "PICKUP",
@@ -2184,7 +2194,65 @@ function CheckoutPanel({
     }
   };
 
-  return () => {
+  useEffect(() => {
+    if (!successOrderId) return;
+
+    let cancelled = false;
+
+    const applyStatus = (value: unknown) => {
+      const currentStatus = value as OrderStatus;
+      if (!currentStatus || cancelled) return;
+
+      setSuccessStatus(currentStatus);
+      setTrackingError(null);
+      setLastTrackingUpdate(new Date());
+
+      if (currentStatus === "DELIVERED" || currentStatus === "CANCELLED") {
+        onOrderFinished(successOrderId);
+      }
+    };
+
+    const loadStatus = async () => {
+      const { data: tracking, error: trackingQueryError } = await supabase.rpc(
+        "get_public_order_status",
+        { p_order_id: successOrderId, p_customer_phone: phone.trim() },
+      );
+
+      if (cancelled) return;
+      if (trackingQueryError) {
+        setTrackingError("Não foi possível atualizar o status agora.");
+        return;
+      }
+
+      const current = Array.isArray(tracking) ? tracking[0] : tracking;
+      if (current?.status) applyStatus(current.status);
+    };
+
+    void loadStatus();
+
+    const channel = supabase
+      .channel(`public-order-tracking:${successOrderId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "orders",
+          filter: `id=eq.${successOrderId}`,
+        },
+        (payload) => {
+          const nextStatus = (payload.new as { status?: OrderStatus })?.status;
+          if (nextStatus) applyStatus(nextStatus);
+        },
+      )
+      .subscribe((status) => {
+        if (cancelled) return;
+        setTrackingLive(status === "SUBSCRIBED");
+      });
+
+    const interval = window.setInterval(loadStatus, 5000);
+
+    return () => {
       cancelled = true;
       setTrackingLive(false);
       window.clearInterval(interval);
@@ -2208,9 +2276,9 @@ function CheckoutPanel({
     const progress = currentIndex >= 0 ? ((currentIndex + 1) / trackingSteps.length) * 100 : 0;
 
     return (
-      <div className="ppp-checkout-panel fixed inset-0 z-[200] overflow-y-auto bg-[#f4f1eb] text-background">
+      <div className="ppp-checkout-panel fixed inset-0 z-[200] overflow-y-auto bg-[#0d1117] text-background">
         <div className="min-h-screen">
-          <header className="bg-foreground text-background">
+          <header className="bg-[#10151d] text-background">
             <div className="mx-auto max-w-5xl px-4 pb-5 pt-4 sm:px-8 sm:pb-9 sm:pt-7">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -2325,7 +2393,7 @@ function CheckoutPanel({
             </section>
 
             <aside className="space-y-5">
-              <section className="rounded-[1.75rem] bg-foreground p-5 text-background shadow-[0_18px_45px_rgba(0,0,0,.12)] sm:p-6">
+              <section className="rounded-[1.75rem] bg-[#10151d] p-5 text-background shadow-[0_18px_45px_rgba(0,0,0,.12)] sm:p-6">
                 <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Pedido</p>
                 <p className="mt-1 font-display text-3xl tracking-tight">#{successNumber}</p>
                 <div className="mt-5 border-t border-background/10 pt-4">
@@ -2353,9 +2421,9 @@ function CheckoutPanel({
     );
   }
   return (
-    <div className="ppp-checkout-panel fixed inset-0 z-[60] overflow-y-auto bg-[#f7f4ef] text-background">
+    <div className="ppp-checkout-panel fixed inset-0 z-[60] overflow-y-auto bg-[#0d1117] text-background">
       <div className="mx-auto min-h-screen w-full max-w-6xl px-3 pb-28 pt-3 sm:px-6 sm:pb-12 sm:pt-6">
-        <header className="shrink-0 overflow-hidden border-b border-background/10 bg-[#10151d] text-background">
+        <header className="overflow-hidden rounded-[1.5rem] border border-background/10 bg-[#10151d] text-background shadow-[0_18px_45px_rgba(0,0,0,.12)] sm:rounded-[2rem]">
           <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
             <div className="flex min-w-0 items-center gap-3">
               <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm sm:size-11">
@@ -2388,7 +2456,7 @@ function CheckoutPanel({
           </div>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5"><div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <main className="space-y-3">
             <section className="rounded-[1.5rem] border border-background/10 bg-[#111820] p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
               <div className="flex items-start gap-3">
@@ -2557,7 +2625,7 @@ function CheckoutPanel({
           </main>
 
           <aside className="lg:sticky lg:top-5">
-            <div className="overflow-hidden rounded-[1.5rem] border border-background/10 bg-foreground text-background shadow-[0_18px_45px_rgba(0,0,0,.14)] sm:rounded-[2rem]">
+            <div className="overflow-hidden rounded-[1.5rem] border border-background/10 bg-[#10151d] text-background shadow-[0_18px_45px_rgba(0,0,0,.14)] sm:rounded-[2rem]">
               <div className="border-b border-background/10 px-4 py-4 sm:px-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
@@ -2623,7 +2691,7 @@ function CheckoutPanel({
           </aside>
         </div>
 
-        <div className="shrink-0 border-t border-background/10 bg-[#0a0e14]/95 px-3 py-2.5 pb-[max(.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-[70] border-t border-background/10 bg-[#111820]/95 px-3 py-2.5 backdrop-blur-xl lg:hidden">
           <div className="mx-auto flex max-w-2xl items-center gap-2">
             <div className="min-w-0 flex-1">
               <p className="truncate text-[9px] font-bold uppercase tracking-[.12em] text-background/50">Total</p>
