@@ -161,7 +161,10 @@ function StaffPanel() {
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);\n  const [orderAlert, setOrderAlert] = useState<{ orderId: string; orderNumber: number; productName: string } | null>(null);\n  const knownOrderIdsRef = useRef<Set<string>>(new Set());\n  const audioContextRef = useRef<AudioContext | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [orderAlert, setOrderAlert] = useState<{ orderId: string; orderNumber: number; productName: string } | null>(null);
+  const knownOrderIdsRef = useRef<Set<string>>(new Set());
+  const audioContextRef = useRef<AudioContext | null>(null);
   const [activeView, setActiveView] = useState<PanelView>("overview");
   const [operationsSection, setOperationsSection] = useState<"hours" | "delivery">("hours");
   const [catalogSection, setCatalogSection] = useState<"products" | "categories" | "sizes" | "addons" | "crusts" | "photos">("products");
