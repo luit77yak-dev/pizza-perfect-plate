@@ -947,6 +947,25 @@ function StaffPanel() {
 
   return (
     <PanelShell>
+      {orderAlert && (
+        <div className="pointer-events-none fixed inset-x-3 top-3 z-[200] flex justify-center sm:inset-x-auto sm:right-5 sm:left-auto sm:w-[min(420px,calc(100vw-2rem))]">
+          <div className="pointer-events-auto w-full rounded-2xl border border-primary/25 bg-card/95 p-4 shadow-[0_18px_50px_rgba(0,0,0,.18)] backdrop-blur-xl">
+            <div className="flex items-start gap-3">
+              <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                <ShoppingBag className="size-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">Novo acréscimo</p>
+                <p className="mt-1 text-sm font-semibold">Cliente adicionou item ao pedido #{orderAlert.orderNumber}</p>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">+ {orderAlert.productName}</p>
+              </div>
+              <button type="button" onClick={() => setOrderAlert(null)} className="rounded-full p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" aria-label="Fechar aviso">
+                <X className="size-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <header className="ppp-admin-header sticky top-0 z-30 border-b bg-background/95 backdrop-blur-xl">
         <div className="mx-auto flex min-h-14 w-full max-w-7xl items-center justify-between gap-2 px-[clamp(.75rem,2.5vw,1.5rem)] sm:min-h-16 sm:gap-3">
           <div className="min-w-0">
