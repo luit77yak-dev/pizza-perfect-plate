@@ -636,6 +636,7 @@ function ProductConfigurator({
   const [notes, setNotes] = useState("");
   const [quantity, setQuantity] = useState(1);
   const personalizationScrollRef = useRef<HTMLDivElement | null>(null);
+  const stepScrollRef = useRef<HTMLDivElement | null>(null);
 
   const secondProduct = data.products.find((item) => item.id === secondProductId) ?? null;
   const comboProducts = data.products.filter((item) => {
@@ -682,6 +683,12 @@ function ProductConfigurator({
   const totalSteps = 3;
   const nextStep = () => setStep((current) => Math.min(totalSteps, current + 1));
   const previousStep = () => setStep((current) => Math.max(1, current - 1));
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      stepScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }, [step]);
 
   useEffect(() => {
     if (!halfMode) return;
@@ -781,7 +788,7 @@ function ProductConfigurator({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
+        <div ref={stepScrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
           {step === 1 && (
             <section className="space-y-6">
               <div className="rounded-2xl border bg-card p-4">
