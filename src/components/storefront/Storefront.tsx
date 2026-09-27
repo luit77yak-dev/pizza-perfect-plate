@@ -181,6 +181,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [trackingOpen, setTrackingOpen] = useState(false);
   const [trackedOrder, setTrackedOrder] = useState<{ id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType } | null>(null);
   const [now, setNow] = useState(() => new Date());
 
@@ -555,6 +556,7 @@ export function Storefront({ slug }: { slug?: string }) {
           deliveryEnabled={Boolean(data.settings.delivery_enabled)}
           onCheckout={() => {
             setCartOpen(false);
+            setTrackingOpen(false);
             setCheckoutOpen(true);
           }}
         />
@@ -570,8 +572,9 @@ export function Storefront({ slug }: { slug?: string }) {
           onClose={() => setCheckoutOpen(false)}
           storeOpen={status.open}
           storeStatusLabel={status.label}
-          trackedOrder={trackedOrder}
+          trackedOrder={trackingOpen ? trackedOrder : null}
           onSuccess={(order) => {
+            setTrackingOpen(false);
             cart.clear();
             setTrackedOrder(order);
             try {
@@ -582,6 +585,7 @@ export function Storefront({ slug }: { slug?: string }) {
           }}
           onOrderFinished={() => {
             setTrackedOrder(null);
+            setTrackingOpen(false);
             try {
               localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
             } catch {
@@ -594,7 +598,10 @@ export function Storefront({ slug }: { slug?: string }) {
       {trackedOrder && !checkoutOpen && !cartOpen && itemCount === 0 && (
         <div className="fixed inset-x-0 bottom-3 z-[120] mx-auto w-[calc(100%-1.5rem)] max-w-md px-0 sm:bottom-4 sm:w-[calc(100%-2rem)]">
           <button
-            onClick={() => setCheckoutOpen(true)}
+            onClick={() => {
+              setTrackingOpen(true);
+              setCheckoutOpen(true);
+            }}
             className="group flex w-full items-center gap-3 rounded-2xl border border-black/10 bg-foreground px-3.5 py-3 text-left text-background shadow-[0_14px_35px_rgba(0,0,0,.22)] backdrop-blur-xl transition active:scale-[.99] sm:px-4 sm:py-3.5"
           >
             <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
