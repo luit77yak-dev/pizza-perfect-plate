@@ -634,7 +634,8 @@ function ProductConfigurator({
   const [addonIds, setAddonIds] = useState<string[]>([]);
   const [comboProductIds, setComboProductIds] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
-  const [quantity, setQuantity] = useState(1);\n  const personalizationScrollRef = useRef<HTMLDivElement | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const personalizationScrollRef = useRef<HTMLDivElement | null>(null);
 
   const secondProduct = data.products.find((item) => item.id === secondProductId) ?? null;
   const comboProducts = data.products.filter((item) => {
@@ -680,7 +681,14 @@ function ProductConfigurator({
 
   const totalSteps = 3;
   const nextStep = () => setStep((current) => Math.min(totalSteps, current + 1));
-  const previousStep = () => setStep((current) => Math.max(1, current - 1));\n\n  useEffect(() => {\n    if (!halfMode) return;\n    requestAnimationFrame(() => {\n      personalizationScrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });\n    });\n  }, [halfMode]);
+  const previousStep = () => setStep((current) => Math.max(1, current - 1));
+
+  useEffect(() => {
+    if (!halfMode) return;
+    requestAnimationFrame(() => {
+      personalizationScrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [halfMode]);
 
   const toggleAddon = (id: string) => {
     setAddonIds((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]));
@@ -850,7 +858,12 @@ function ProductConfigurator({
 
                     <button
                       type="button"
-                      onClick={() => {\n                        setHalfMode(true);\n                        requestAnimationFrame(() => {\n                          personalizationScrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });\n                        });\n                      }}
+                      onClick={() => {
+                        setHalfMode(true);
+                        requestAnimationFrame(() => {
+                          personalizationScrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        });
+                      }}
                       className={"group relative overflow-hidden rounded-2xl border p-4 text-left transition-all " + (halfMode ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20" : "bg-card hover:border-primary/50 hover:shadow-md")}
                       aria-pressed={halfMode}
                     >
