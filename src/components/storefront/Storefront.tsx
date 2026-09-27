@@ -337,7 +337,10 @@ export function Storefront({ slug }: { slug?: string }) {
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toLocaleLowerCase("pt-BR");
-      return /(bebida|refrigerante|suco|acompanhamento|acompanhamentos|adicional|adicionais|sobremesa|sobremesas|doce|doces)/i.test(normalized);
+      return (
+        product.kind === "SIMPLE" &&
+        /(bebida|refrigerante|suco|acompanhamento|acompanhamentos|adicional|adicionais|sobremesa|sobremesas|doce|doces)/i.test(normalized)
+      );
     });
   }, [data]);
 
