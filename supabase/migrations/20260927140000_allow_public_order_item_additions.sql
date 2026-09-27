@@ -39,6 +39,7 @@ DECLARE
   v_second_product_id uuid;
   v_size_id uuid;
   v_is_half boolean;
+  v_item_id uuid;
   v_added_subtotal numeric(10,2) := 0;
   v_new_subtotal numeric(10,2);
   v_new_total numeric(10,2);
@@ -266,7 +267,8 @@ BEGIN
       v_quantity,
       round(v_unit_price * v_quantity, 2),
       NULLIF(trim(v_item->>'notes'), '')
-    );
+    )
+    RETURNING id INTO v_item_id;
 
     FOR v_addon IN SELECT * FROM jsonb_array_elements(COALESCE(v_item->'addons', '[]'::jsonb)) LOOP
       SELECT a.name, a.price
@@ -286,18 +288,16 @@ BEGIN
       INSERT INTO public.order_item_addons (
         organization_id, order_item_id, addon_id, name, price, quantity
       )
-      SELECT
+      INSERT INTO public.order_item_addons (
+        organization_id, order_item_id, addon_id, name, price, quantity
+      ) VALUES (
         v_order.organization_id,
-        oi.id,
+        v_item_id,
         NULLIF(v_addon->>'id', '')::uuid,
         v_addon_row.name,
         round(v_addon_row.price, 2),
         v_quantity
-      FROM public.order_items oi
-      WHERE oi.order_id = v_order.id
-        AND oi.product_id = v_product_id
-      ORDER BY oi.created_at DESC
-      LIMIT 1;
+      );
     END LOOP;
   END LOOP;
 
