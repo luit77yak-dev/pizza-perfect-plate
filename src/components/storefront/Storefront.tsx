@@ -328,27 +328,26 @@ export function Storefront({ slug }: { slug?: string }) {
     >
       <div className="ppp-top-ticker overflow-hidden bg-secondary text-secondary-foreground" aria-hidden="true"><div className="ppp-ticker-run flex min-w-max items-center gap-8 py-2 font-display text-[11px] uppercase tracking-[.16em]">{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={index} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={`repeat-${index}`} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}</div></div>
 
-      <header className="ppp-reference-header sticky top-0 z-40 border-b-2 border-secondary bg-background/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-          <a href="#inicio" className="flex min-w-0 items-center gap-3">
+      <header className="ppp-reference-header absolute inset-x-0 top-0 z-40">
+        <div className="mx-auto flex h-[5.5rem] max-w-[1400px] items-center justify-between gap-6 px-5 sm:h-[6rem] sm:px-8 lg:px-12">
+          <a href="#inicio" className="group flex min-w-0 items-center gap-3 text-white">
             {data.settings.logo_url ? (
-              <img src={data.settings.logo_url} alt="" className="size-10 rounded-sm border-2 border-secondary object-cover" />
+              <img src={data.settings.logo_url} alt="" className="size-9 rounded-full border border-white/35 object-cover sm:size-10" />
             ) : (
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-sm border-2 border-secondary bg-primary font-display text-lg font-semibold text-primary-foreground">
-                {data.organization.name.charAt(0)}
-              </div>
+              <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/40 bg-black/20 font-display text-lg sm:size-10">{data.organization.name.charAt(0)}</span>
             )}
-            <p className="truncate font-display text-xl font-semibold uppercase tracking-tight">{data.organization.name}</p>
+            <span className="truncate font-display text-xl font-medium tracking-[-.03em] sm:text-2xl">{data.organization.name}</span>
           </a>
-          <nav className="hidden items-center gap-6 text-xs font-bold uppercase tracking-[.14em] md:flex">
-            <a href="#cardapio" className="transition-opacity hover:opacity-60">Cardápio</a>
-            <a href="#sobre" className="transition-opacity hover:opacity-60">A casa</a>
-            <a href="#contato" className="transition-opacity hover:opacity-60">Contato</a>
+
+          <nav className="hidden items-center gap-10 text-[10px] font-medium uppercase tracking-[.38em] text-white/75 md:flex">
+            <a href="#cardapio" className="transition-colors hover:text-white">Cardápio</a>
+            <a href="#sobre" className="transition-colors hover:text-white">A casa</a>
+            <a href="#contato" className="transition-colors hover:text-white">Contato</a>
           </nav>
-          <Button size="sm" className="gap-2 rounded-sm border-2 border-secondary px-4 font-display uppercase shadow-[3px_3px_0_rgba(0,0,0,.8)] transition-transform hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5" onClick={() => setCartOpen(true)}>
-            <ShoppingBag className="size-4" />
-            <span>Pedir agora</span>
-            {itemCount > 0 && <Badge className="rounded-sm bg-background px-2 text-foreground">{itemCount}</Badge>}
+
+          <Button size="sm" className="gap-2 rounded-none border border-white/35 bg-black/20 px-4 font-body text-[10px] font-medium uppercase tracking-[.22em] text-white backdrop-blur-md hover:bg-white/10" onClick={() => setCartOpen(true)}>
+            <span>Pedir</span>
+            {itemCount > 0 && <Badge className="rounded-full bg-primary px-1.5 text-primary-foreground">{itemCount}</Badge>}
           </Button>
         </div>
       </header>
@@ -358,8 +357,8 @@ export function Storefront({ slug }: { slug?: string }) {
           <div className="ppp-reference-hero-frame relative overflow-hidden">
             <div className="ppp-reference-hero-grid grid min-h-0 lg:min-h-[760px] lg:grid-cols-1">
               <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-7 sm:p-10 lg:p-14">
-                <p className="mb-4 w-fit bg-secondary px-3 py-1 font-display text-xs uppercase tracking-[.18em] text-secondary-foreground">Pizza artesanal</p>
-                <h1 className="w-full max-w-3xl text-[2.35rem] uppercase leading-[.9] tracking-normal sm:text-6xl sm:leading-[.86] lg:text-[clamp(3.6rem,8vw,7.4rem)] lg:leading-[.82]">{data.settings.hero_title && !/MASSA DE FERMENTA/i.test(data.settings.hero_title) ? data.settings.hero_title : "PIZZA DE VERDADE."}</h1>
+                <p className="mb-5 w-fit bg-transparent px-0 font-body text-[10px] uppercase tracking-[.42em] text-white/75">Feita na hora · Est. 2026</p>
+                <h1 className="w-full max-w-4xl text-[2.35rem] leading-[.86] tracking-[-.045em] sm:text-6xl lg:text-[clamp(4rem,8.5vw,8rem)]">{data.settings.hero_title && !/MASSA DE FERMENTA/i.test(data.settings.hero_title) ? data.settings.hero_title : "Pizza que fica na memória."}</h1>
                 <p className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">{data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
                 <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-sm bg-primary px-6 py-4 font-display text-sm uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.85)] transition-transform hover:-translate-y-1">{data.settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
               </div>
