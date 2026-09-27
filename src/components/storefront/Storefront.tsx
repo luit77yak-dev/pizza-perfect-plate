@@ -1262,7 +1262,7 @@ function CartPanel({
                         <div>
                           <p className="font-semibold">{item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
                           <p className="text-xs text-muted-foreground">
-                            {[item.sizeName, item.crustName, item.addons.length ? `${item.addons.length} adicional(is)` : null, (item.complements ?? []).length ? `${(item.complements ?? []).length} complemento(s)` : null].filter(Boolean).join(" · ")}
+                            {[item.sizeName, item.crustName, (item.addons ?? []).length ? `${(item.addons ?? []).length} adicional(is)` : null, (item.complements ?? []).length ? `${(item.complements ?? []).length} complemento(s)` : null].filter(Boolean).join(" · ")}
                           </p>
                         </div>
                         <button onClick={() => onRemove(item.lineId)} className="text-muted-foreground hover:text-destructive" aria-label={`Remover ${item.productName}`}><X className="size-4" /></button>
@@ -1475,10 +1475,15 @@ function CheckoutPanel({
         items: items.flatMap((item) => [
           {
             product_id: item.productId,
+            product_name: item.productName,
             second_product_id: item.secondProductId,
+            second_product_name: item.secondProductName,
             is_half: item.isHalf,
             size_id: item.sizeId,
+            size_name: item.sizeName,
             crust_id: item.crustId,
+            crust_name: item.crustName,
+            crust_price: item.crustPrice,
             quantity: item.quantity,
             unit_price: item.unitPrice,
             notes: item.notes,
