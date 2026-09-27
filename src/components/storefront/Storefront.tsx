@@ -371,6 +371,10 @@ export function Storefront({ slug }: { slug?: string }) {
     return data.products.filter((product) => product.kind === "SIMPLE" && categoryIds.has(product.category_id));
   }, [data]);
 
+  const trackedItems = Array.isArray(selectedTrackedOrder?.items)
+    ? selectedTrackedOrder.items.filter((item): item is CartItem => Boolean(item && typeof item === "object"))
+    : [];
+
   const additionTotal = additionProducts.reduce(
     (sum, product) => sum + (additionQuantities[product.id] ?? 0) * (Number(product.base_price) || 0),
     0,
@@ -849,7 +853,7 @@ export function Storefront({ slug }: { slug?: string }) {
             aria-label="Fechar"
           />
 
-          <section className="relative z-10 flex h-[min(94dvh,760px)] w-full min-w-0 flex-col overflow-hidden rounded-t-[2rem] border border-black/10 bg-[#0d1117] text-background shadow-2xl sm:h-[min(88dvh,760px)] sm:max-w-5xl sm:rounded-[2rem]">
+          <section className="relative z-10 flex h-[94dvh] max-h-[760px] w-full min-w-0 flex-col overflow-hidden rounded-t-[2rem] border border-black/10 bg-[#0d1117] text-background shadow-2xl sm:h-[88dvh] max-h-[760px] sm:max-w-5xl sm:rounded-[2rem]">
             <header className="shrink-0 border-b border-background/10 bg-[#10151d] px-4 pb-4 pt-3 sm:px-6 sm:pt-5">
               <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-background/20 sm:hidden" />
               <div className="flex min-w-0 items-start justify-between gap-3">
@@ -889,7 +893,7 @@ export function Storefront({ slug }: { slug?: string }) {
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold">Pedido #{selectedTrackedOrder.number}</p>
                         <p className="mt-0.5 truncate text-[10px] text-background/45">
-                          {Array.isArray(selectedTrackedOrder.items) ? selectedTrackedOrder.items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0) : 0} itens no pedido atual
+                          {trackedItems.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)} itens no pedido atual
                         </p>
                       </div>
                       <div className="text-right">
@@ -969,7 +973,7 @@ export function Storefront({ slug }: { slug?: string }) {
                   </div>
 
                   <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
-                    {(Array.isArray(selectedTrackedOrder.items) ? selectedTrackedOrder.items : []).slice(0, 8).map((item, index) => (
+                    {trackedItems.slice(0, 8).map((item, index) => (
                       <div key={item.lineId || `${item.productId}-${index}`} className="flex min-w-0 gap-2.5 rounded-xl bg-background/[.035] p-2.5">
                         <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-background/5 text-[9px] font-black text-background/55">
                           {item.quantity}×
