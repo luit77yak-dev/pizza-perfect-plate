@@ -943,7 +943,7 @@ function TrackedOrderPanel({
       className="fixed inset-0 z-[180] flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
-      aria-label={\`Acompanhar pedido #${orderNumber}\`}
+      aria-label={`Acompanhar pedido #${orderNumber}`}
     >
       <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar acompanhamento" />
       <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-background shadow-[0_-20px_70px_rgba(0,0,0,.22)] sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem] sm:shadow-2xl">
@@ -958,7 +958,7 @@ function TrackedOrderPanel({
                 </span>
                 <div>
                   <p className="text-[9px] font-black uppercase tracking-[.2em] text-primary">Acompanhamento</p>
-                  <h2 className="mt-0.5 truncate font-display text-2xl tracking-tight sm:text-3xl">Pedido #${orderNumber}</h2>
+                  <h2 className="mt-0.5 truncate font-display text-2xl tracking-tight sm:text-3xl">Pedido #{orderNumber}</h2>
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-background/60">
@@ -994,7 +994,7 @@ function TrackedOrderPanel({
                 {!isCancelled && (
                   <div className="mt-5">
                     <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: \`${progressPercent}%\` }} />
+                      <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${progressPercent}%` }} />
                     </div>
                     <div className={steps.length === 5 ? "mt-4 grid grid-cols-5 gap-1" : "mt-4 grid grid-cols-4 gap-1"}>
                       {steps.map((step, index) => {
@@ -1044,7 +1044,7 @@ function TrackedOrderPanel({
                   <p className="text-[9px] font-black uppercase tracking-[.18em] text-muted-foreground">Resumo</p>
                   <h3 className="mt-0.5 text-base font-black">Itens do pedido</h3>
                 </div>
-                <span className="rounded-full bg-muted px-2.5 py-1 text-[9px] font-bold text-muted-foreground">${itemCount} {itemCount === 1 ? "item" : "itens"}</span>
+                <span className="rounded-full bg-muted px-2.5 py-1 text-[9px] font-bold text-muted-foreground">{itemCount} {itemCount === 1 ? "item" : "itens"}</span>
               </div>
 
               <div className="divide-y">
@@ -1063,7 +1063,7 @@ function TrackedOrderPanel({
                         <Pizza className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold">${quantity}× {item.productName || "Item"}{item.secondProductName ? " + " + item.secondProductName : ""}</p>
+                        <p className="text-sm font-bold">{quantity}× {item.productName || "Item"}{item.secondProductName ? " + " + item.secondProductName : ""}</p>
                         {extras.length > 0 && <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-muted-foreground">{extras.join(" · ")}</p>}
                       </div>
                       <span className="shrink-0 pt-0.5 text-sm font-bold">{formatCurrency(unitPrice * quantity)}</span>
