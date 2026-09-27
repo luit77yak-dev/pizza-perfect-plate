@@ -353,18 +353,18 @@ export function Storefront({ slug }: { slug?: string }) {
         </div>
       </header>
 
-      <main id="inicio">
-        <section className="mx-auto max-w-6xl px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-7">
-          <div className="relative overflow-hidden rounded-sm border-2 border-secondary bg-background shadow-[8px_8px_0_rgba(0,0,0,.9)]">
-            <div className="grid min-h-0 lg:min-h-[560px] lg:grid-cols-[1.05fr_.95fr]">
-              <div className="relative z-10 flex min-w-0 flex-col justify-center p-7 sm:p-10 lg:p-14">
+      <main id="inicio" className="ppp-reference-storefront">
+        <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
+          <div className="ppp-reference-hero-frame relative overflow-hidden">
+            <div className="ppp-reference-hero-grid grid min-h-0 lg:min-h-[760px] lg:grid-cols-1">
+              <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-7 sm:p-10 lg:p-14">
                 <p className="mb-4 w-fit bg-secondary px-3 py-1 font-display text-xs uppercase tracking-[.18em] text-secondary-foreground">Pizza artesanal</p>
                 <h1 className="w-full max-w-3xl text-[2.35rem] uppercase leading-[.9] tracking-normal sm:text-6xl sm:leading-[.86] lg:text-[clamp(3.6rem,8vw,7.4rem)] lg:leading-[.82]">{data.settings.hero_title && !/MASSA DE FERMENTA/i.test(data.settings.hero_title) ? data.settings.hero_title : "PIZZA DE VERDADE."}</h1>
                 <p className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">{data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
                 <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-sm bg-primary px-6 py-4 font-display text-sm uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.85)] transition-transform hover:-translate-y-1">{data.settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
               </div>
-              <div className="relative min-h-[420px] overflow-hidden bg-secondary p-4 sm:p-6 lg:min-h-full lg:p-8">
-                <div className="relative h-full min-h-[390px] overflow-hidden rounded-sm border-2 border-secondary bg-background/10 p-1 shadow-[8px_8px_0_rgba(0,0,0,.65)]">
+              <div className="ppp-reference-hero-media absolute inset-0 z-0 min-h-[560px] overflow-hidden bg-secondary p-0 sm:min-h-[680px] lg:min-h-[760px]">
+                <div className="relative h-full min-h-[560px] overflow-hidden bg-background/10 p-0 sm:min-h-[680px] lg:min-h-[760px]">
                   {data.settings.hero_image_url || data.categories.some((category) => category.image_url) ? (
                     <ImageAccordion
                       items={[
@@ -378,7 +378,7 @@ export function Storefront({ slug }: { slug?: string }) {
                           .slice(0, 5)
                           .map((product) => ({ image: product.image_url!, title: product.name, subtitle: "No nosso cardápio" })),
                       ]}
-                      className="h-[390px] sm:h-[440px] lg:h-[500px]"
+                      className="h-full min-h-[560px] sm:min-h-[680px] lg:min-h-[760px]"
                     />
                   ) : (
                     <div className="grid h-full min-h-[390px] place-items-center text-secondary-foreground/50"><Pizza className="size-28" strokeWidth={1} /></div>
@@ -397,13 +397,27 @@ export function Storefront({ slug }: { slug?: string }) {
           </div>
         </div>
 
-        <section id="cardapio" className="mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6">
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">Cardápio</p>
-              <h2 className="mt-1 text-4xl uppercase leading-[.9] sm:text-6xl">Escolha seu pedido</h2>
-            </div>
-            <span className="hidden text-sm text-muted-foreground sm:block">{mainProducts.length} opções</span>
+        <section id="cardapio" className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6">
+          <div className="ppp-reference-menu-heading mb-8 flex flex-col items-center justify-center gap-3 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[.35em] text-primary">Cardápio</p>
+            <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">Escolha sua <em>pizza.</em></h2>
+            <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">Escolha uma categoria e encontre seu próximo sabor.</p>
+          </div>
+
+          <div className="ppp-reference-category-accordion mb-8">
+            <ImageAccordion
+              items={[
+                ...data.categories
+                  .filter((category) => Boolean(category.image_url))
+                  .slice(0, 6)
+                  .map((category) => ({ image: category.image_url!, title: category.name, subtitle: "Confira os sabores" })),
+                ...mainProducts
+                  .filter((product) => Boolean(product.image_url))
+                  .slice(0, 6)
+                  .map((product) => ({ image: product.image_url!, title: product.name, subtitle: "Feito na hora" })),
+              ]}
+              className="h-[330px] sm:h-[410px] lg:h-[460px]"
+            />
           </div>
 
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
