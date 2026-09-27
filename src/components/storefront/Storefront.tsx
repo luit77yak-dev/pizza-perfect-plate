@@ -193,12 +193,8 @@ export function Storefront({ slug }: { slug?: string }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [trackingOpen, setTrackingOpen] = useState(false);
-  const [trackedOrders, setTrackedOrders] = useState<PublicTrackedOrder[]>([]);
+  const [selectedTrackedOrders, setSelectedTrackedOrders] = useState<PublicTrackedOrder[]>([]);
   const [selectedTrackedOrder, setSelectedTrackedOrder] = useState<PublicTrackedOrder | null>(null);
-  const [additionModalOpen, setAdditionModalOpen] = useState(false);
-  const [additionQuantities, setAdditionQuantities] = useState<Record<string, number>>({});
-  const [additionSubmitting, setAdditionSubmitting] = useState(false);
-  const [additionError, setAdditionError] = useState<string | null>(null);
   const [addingToOrder, setAddingToOrder] = useState(false);
   const [now, setNow] = useState(() => new Date());
 
@@ -209,7 +205,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
     const persistTrackedOrders = (orders: PublicTrackedOrder[]) => {
       try {
-        localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(orders));
+        localStorage.setItem(`ppp:last-orders:${organization.id}`, JSON.stringify(orders));
       } catch {
         // Ignore storage failures; the current session still keeps the orders.
       }
@@ -217,14 +213,14 @@ export function Storefront({ slug }: { slug?: string }) {
 
     const loadTrackedOrders = async () => {
       try {
-        const arrayRaw = localStorage.getItem(`ppp:last-orders:${data.organization.id}`);
-        const legacyRaw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
+        const arrayRaw = localStorage.getItem(`ppp:last-orders:${organization.id}`);
+        const legacyRaw = localStorage.getItem(`ppp:last-order:${organization.id}`);
         const parsed = arrayRaw ? JSON.parse(arrayRaw) : legacyRaw ? JSON.parse(legacyRaw) : [];
         const storedOrders: PublicTrackedOrder[] = Array.isArray(parsed) ? parsed : parsed?.id ? [parsed] : [];
         const validOrders = storedOrders.filter((order) => order?.id && order?.phone);
 
         if (validOrders.length === 0) {
-          if (!cancelled) setTrackedOrders([]);
+          if (!cancelled) setSelectedTrackedOrders([]);
           return;
         }
 
@@ -248,17 +244,17 @@ export function Storefront({ slug }: { slug?: string }) {
         const activeOrders = results.filter((order): order is PublicTrackedOrder => Boolean(order));
         if (cancelled) return;
 
-        setTrackedOrders(activeOrders);
+        setSelectedTrackedOrders(activeOrders);
         persistTrackedOrders(activeOrders);
         if (legacyRaw) {
           try {
-            localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
+            localStorage.removeItem(`ppp:last-order:${organization.id}`);
           } catch {
             // Ignore storage failures.
           }
         }
       } catch {
-        if (!cancelled) setTrackedOrders([]);
+        if (!cancelled) setSelectedTrackedOrders([]);
       }
     };
 
@@ -329,128 +325,6 @@ export function Storefront({ slug }: { slug?: string }) {
     if (openCart) setCartOpen(true);
   };
 
-  const additionProducts = useMemo(() => {
-    if (!data) return [];
-    return data.products.filter((product) => {
-      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
-      const normalized = categoryName
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLocaleLowerCase("pt-BR");
-      return (
-        product.kind === "SIMPLE" &&
-        /(bebida|refrigerante|suco|acompanhamento|acompanhamentos|adicional|adicionais|sobremesa|sobremesas|doce|doces)/i.test(normalized)
-      );
-    });
-  }, [data]);
-
-  const additionTotal = additionProducts.reduce(
-    (sum, product) => sum + (additionQuantities[product.id] ?? 0) * (Number(product.base_price) || 0),
-    0,
-  );
-
-  const additionCount = Object.values(additionQuantities).reduce((sum, quantity) => sum + quantity, 0);
-
-  const confirmAdditions = async () => {
-    if (!selectedTrackedOrder || additionCount === 0 || additionSubmitting) return;
-
-    setAdditionSubmitting(true);
-    setAdditionError(null);
-
-    try {
-      const selectedItems = additionProducts
-        .map((product) => ({
-          product,
-          quantity: additionQuantities[product.id] ?? 0,
-        }))
-        .filter(({ quantity }) => quantity > 0);
-
-      const appendItems = selectedItems.map(({ product, quantity }) => ({
-        product_id: product.id,
-        second_product_id: null,
-        is_half: false,
-        size_id: null,
-        crust_id: null,
-        quantity,
-        notes: null,
-        addons: [],
-      }));
-
-      const { data: appended, error: appendError } = await supabase.rpc(
-        "append_public_order_items",
-        {
-          p_order_id: selectedTrackedOrder.id,
-          p_customer_phone: selectedTrackedOrder.phone,
-          p_items: appendItems,
-        },
-      );
-
-      if (appendError) throw appendError;
-
-      const order = Array.isArray(appended) ? appended[0] : appended;
-      if (!order?.order_id || !order?.order_number) {
-        throw new Error("Não foi possível adicionar os itens ao pedido.");
-      }
-
-      const addedCartItems: CartItem[] = selectedItems.map(({ product, quantity }) => ({
-        lineId: crypto.randomUUID(),
-        productId: product.id,
-        productName: product.name,
-        imageUrl: product.image_url,
-        secondProductId: null,
-        secondProductName: null,
-        isHalf: false,
-        sizeId: null,
-        sizeName: null,
-        crustId: null,
-        crustName: null,
-        crustPrice: 0,
-        addons: [],
-        complements: [],
-        quantity,
-        notes: null,
-        unitPrice: Number(product.base_price) || 0,
-      }));
-
-      const updatedOrder: PublicTrackedOrder = {
-        ...selectedTrackedOrder,
-        id: String(order.order_id),
-        number: Number(order.order_number),
-        items: [...(selectedTrackedOrder.items ?? []), ...addedCartItems],
-        subtotal: Number(order.subtotal ?? selectedTrackedOrder.subtotal ?? 0),
-        total: Number(order.total ?? selectedTrackedOrder.total ?? 0),
-        status: (order.status as OrderStatus) ?? selectedTrackedOrder.status,
-        isAddition: true,
-      };
-
-      setSelectedTrackedOrder(updatedOrder);
-      setTrackedOrders((previous) => {
-        const next = [...previous.filter((item) => item.id !== updatedOrder.id), updatedOrder];
-        try {
-          localStorage.setItem("ppp:last-orders:" + data.organization.id, JSON.stringify(next));
-        } catch {
-          // Ignore storage failures.
-        }
-        return next;
-      });
-
-      setAdditionQuantities({});
-      setAdditionModalOpen(false);
-      setTrackingOpen(true);
-      setCheckoutOpen(true);
-      setCartOpen(false);
-    } catch (submitError) {
-      const message =
-        submitError instanceof Error
-          ? submitError.message
-          : typeof submitError === "object" && submitError !== null && "message" in submitError
-            ? String((submitError as { message?: unknown }).message ?? "Não foi possível adicionar os itens.")
-            : "Não foi possível adicionar os itens.";
-      setAdditionError(message);
-    } finally {
-      setAdditionSubmitting(false);
-    }
-  };
 
   if (isLoading) return <StorefrontSkeleton />;
   if (isError || !data) {
@@ -517,7 +391,7 @@ export function Storefront({ slug }: { slug?: string }) {
               <span>{itemCount > 0 ? "Sacola" : "Pedir"}</span>
               {itemCount > 0 && <Badge className="rounded-full bg-white px-1.5 text-foreground">{itemCount}</Badge>}
             </Button>
-            {trackedOrders.length > 0 && <span className="flex items-center gap-1 rounded-full border border-white/25 bg-black/30 px-2 py-1 text-[9px] font-bold text-white/85"><Clock3 className="size-3" />{trackedOrders.length}</span>}
+            {selectedTrackedOrders.length > 0 && <span className="flex items-center gap-1 rounded-full border border-white/25 bg-black/30 px-2 py-1 text-[9px] font-bold text-white/85"><Clock3 className="size-3" />{selectedTrackedOrders.length}</span>}
           </div>
         </div>
       </header>
@@ -782,7 +656,7 @@ export function Storefront({ slug }: { slug?: string }) {
         <CartPanel
           items={cart.items}
           subtotal={subtotal}
-          trackedOrders={trackedOrders}
+          selectedTrackedOrders={selectedTrackedOrders}
           onTrackOrder={(order) => {
             setSelectedTrackedOrder(order);
             setAddingToOrder(false);
@@ -824,7 +698,7 @@ export function Storefront({ slug }: { slug?: string }) {
           onClose={() => setCheckoutOpen(false)}
           storeOpen={status.open}
           storeStatusLabel={status.label}
-          trackedOrder={trackingOpen ? selectedTrackedOrder : null}
+          selectedTrackedOrder={trackingOpen ? selectedTrackedOrder : null}
           addingToOrder={addingToOrder}
           onAddToOrder={() => {
             if (!selectedTrackedOrder) return;
@@ -835,10 +709,10 @@ export function Storefront({ slug }: { slug?: string }) {
           }}
           onSuccess={(order) => {
             cart.clear();
-            setTrackedOrders((previous) => {
+            setSelectedTrackedOrders((previous) => {
               const next = [...previous.filter((item) => item.id !== order.id), order];
               try {
-                localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(next));
+                localStorage.setItem(`ppp:last-orders:${organization.id}`, JSON.stringify(next));
               } catch {
                 // Ignore storage failures; tracking still works for the current session.
               }
@@ -856,10 +730,10 @@ export function Storefront({ slug }: { slug?: string }) {
             }
           }}
           onOrderFinished={(orderId) => {
-            setTrackedOrders((previous) => {
+            setSelectedTrackedOrders((previous) => {
               const next = previous.filter((item) => item.id !== orderId);
               try {
-                localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(next));
+                localStorage.setItem(`ppp:last-orders:${organization.id}`, JSON.stringify(next));
               } catch {
                 // Ignore storage failures.
               }
@@ -1443,7 +1317,7 @@ function itemCountLabel(items: CartItem[]) {
 function CartPanel({
   items,
   subtotal,
-  trackedOrders,
+  selectedTrackedOrders,
   onTrackOrder,
   onClose,
   onUpdate,
@@ -1457,7 +1331,7 @@ function CartPanel({
 }: {
   items: CartItem[];
   subtotal: number;
-  trackedOrders: PublicTrackedOrder[];
+  selectedTrackedOrders: PublicTrackedOrder[];
   onTrackOrder: (order: PublicTrackedOrder) => void;
   onClose: () => void;
   onUpdate: (lineId: string, quantity: number) => void;
@@ -1482,17 +1356,17 @@ function CartPanel({
         </div>
 
         <div className="flex-1 overflow-y-auto p-5">
-          {trackedOrders.length > 0 && (
+          {selectedTrackedOrders.length > 0 && (
             <section className="mb-5 rounded-2xl border border-black/8 bg-card p-4 shadow-sm">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Pedidos em andamento</p>
                   <h3 className="mt-1 text-base font-bold">Acompanhe seus pedidos</h3>
                 </div>
-                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold text-primary">{trackedOrders.length}</span>
+                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold text-primary">{selectedTrackedOrders.length}</span>
               </div>
               <div className="mt-3 space-y-2">
-                {trackedOrders.map((order) => (
+                {selectedTrackedOrders.map((order) => (
                   <button
                     key={order.id}
                     type="button"
@@ -1642,6 +1516,118 @@ function CheckoutPanel({
   const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);
   const [confirmedTotal, setConfirmedTotal] = useState(0);
   const [confirmedFulfillment, setConfirmedFulfillment] = useState<FulfillmentType>(settings.delivery_enabled ? "DELIVERY" : "PICKUP");
+
+  // Acréscimos pertencem ao acompanhamento do pedido, não ao carrinho principal.
+  // Mantemos toda a lógica aqui para que o botão "Esqueceu alguma coisa?" tenha
+  // acesso ao pedido selecionado e aos produtos carregados pelo próprio CheckoutPanel.
+  const [additionModalOpen, setAdditionModalOpen] = useState(false);
+  const [additionQuantities, setAdditionQuantities] = useState<Record<string, number>>({});
+  const [additionSubmitting, setAdditionSubmitting] = useState(false);
+  const [additionError, setAdditionError] = useState<string | null>(null);
+
+  const additionProducts = useMemo(() => {
+    const categoryIds = new Set(
+      categories
+        .filter((category) => /(bebida|refrigerante|suco|acompanhamento|acompanhamentos|adicional|adicionais|sobremesa|sobremesas|doce|doces)/i.test(
+          category.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        ))
+        .map((category) => category.id),
+    );
+
+    return products.filter((product) => product.kind === "SIMPLE" && categoryIds.has(product.category_id));
+  }, [products, categories]);
+
+  const additionTotal = additionProducts.reduce(
+    (sum, product) => sum + (additionQuantities[product.id] ?? 0) * (Number(product.base_price) || 0),
+    0,
+  );
+
+  const additionCount = Object.values(additionQuantities).reduce((sum, quantity) => sum + quantity, 0);
+
+  const confirmAdditions = async () => {
+    if (!trackedOrder || additionCount === 0 || additionSubmitting) return;
+
+    setAdditionSubmitting(true);
+    setAdditionError(null);
+
+    try {
+      const selectedItems = additionProducts
+        .map((product) => ({
+          product,
+          quantity: additionQuantities[product.id] ?? 0,
+        }))
+        .filter(({ quantity }) => quantity > 0);
+
+      const appendItems = selectedItems.map(({ product, quantity }) => ({
+        product_id: product.id,
+        second_product_id: null,
+        is_half: false,
+        size_id: null,
+        crust_id: null,
+        quantity,
+        notes: null,
+        addons: [],
+      }));
+
+      const { data: appended, error: appendError } = await supabase.rpc("append_public_order_items", {
+        p_order_id: trackedOrder.id,
+        p_customer_phone: trackedOrder.phone,
+        p_items: appendItems,
+      });
+
+      if (appendError) throw appendError;
+
+      const order = Array.isArray(appended) ? appended[0] : appended;
+      if (!order?.order_id || !order?.order_number) {
+        throw new Error("O servidor não retornou o pedido atualizado.");
+      }
+
+      const addedCartItems: CartItem[] = selectedItems.map(({ product, quantity }) => ({
+        lineId: crypto.randomUUID(),
+        productId: product.id,
+        productName: product.name,
+        imageUrl: product.image_url,
+        secondProductId: null,
+        secondProductName: null,
+        isHalf: false,
+        sizeId: null,
+        sizeName: null,
+        crustId: null,
+        crustName: null,
+        crustPrice: 0,
+        addons: [],
+        complements: [],
+        quantity,
+        notes: null,
+        unitPrice: Number(product.base_price) || 0,
+      }));
+
+      const updatedOrder = {
+        ...trackedOrder,
+        id: String(order.order_id),
+        number: Number(order.order_number),
+        items: [...(trackedOrder.items ?? []), ...addedCartItems],
+        subtotal: Number(order.subtotal ?? trackedOrder.subtotal ?? 0),
+        total: Number(order.total ?? trackedOrder.total ?? 0),
+        status: (order.status as OrderStatus) ?? trackedOrder.status,
+        isAddition: true,
+      };
+
+      setAdditionQuantities({});
+      setAdditionModalOpen(false);
+      onSuccess(updatedOrder);
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error
+          ? submitError.message
+          : typeof submitError === "object" && submitError !== null && "message" in submitError
+            ? String((submitError as { message?: unknown }).message ?? "Não foi possível adicionar os itens.")
+            : "Não foi possível adicionar os itens.";
+      setAdditionError(message);
+    } finally {
+      setAdditionSubmitting(false);
+    }
+  };
   const [addItemsOpen, setAddItemsOpen] = useState(false);
   const [selectedAdditions, setSelectedAdditions] = useState<Record<string, number>>({});
   const [addingItemsNow, setAddingItemsNow] = useState(false);
