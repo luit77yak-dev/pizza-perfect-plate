@@ -892,6 +892,12 @@ function StaffPanel() {
       <TopPanelNav activeView={activeView} onChange={setActiveView} role={role} />
 
       <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
+        {successMessage && (
+          <div className="ppp-admin-feedback ppp-admin-feedback-success" role="status">
+            <Check className="size-4 shrink-0" />
+            <span>{successMessage}</span>
+          </div>
+        )}
         <section className={`mb-4 rounded-[1.35rem] border bg-card shadow-soft ${activeView === "overview" ? "" : "hidden"}`}><CompactSection title="Resumo de hoje" description="Indicadores rápidos da operação" defaultOpen><div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -1142,12 +1148,6 @@ function StaffPanel() {
           </div>
         </div>
 
-        {successMessage && (
-          <div className="ppp-admin-feedback ppp-admin-feedback-success" role="status">
-            <Check className="size-4 shrink-0" />
-            <span>{successMessage}</span>
-          </div>
-        )}
         {error && <div className="ppp-admin-feedback ppp-admin-feedback-error" role="alert">{error}</div>}
 
         {activeOrders.length === 0 ? (
