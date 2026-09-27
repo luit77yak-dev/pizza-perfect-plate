@@ -161,6 +161,7 @@ function StaffPanel() {
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<PanelView>("overview");
   const [operationsSection, setOperationsSection] = useState<"hours" | "delivery">("hours");
   const [catalogSection, setCatalogSection] = useState<"products" | "categories" | "sizes" | "addons" | "crusts" | "photos">("products");
@@ -171,6 +172,12 @@ function StaffPanel() {
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
   const [savingHour, setSavingHour] = useState<number | null>(null);
   const [savingSpecialHour, setSavingSpecialHour] = useState<string | null>(null);
+
+  const notifySuccess = (message: string) => {
+    setError(null);
+    setSuccessMessage(message);
+    window.setTimeout(() => setSuccessMessage(null), 3200);
+  };
 
   const loadSession = async () => {
     const { data } = await supabase.auth.getSession();
@@ -230,27 +237,27 @@ function StaffPanel() {
 
   const deleteCategory = async (category: Category) => {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
-    if (!window.confirm(`Excluir a categoria "${category.name}"? Produtos dessa categoria ficarão sem categoria.`)) return;
+    if (!window.confirm(`Excluir a categoria "${category.name}"? Os produtos continuarão no cardápio, mas ficarão sem categoria.`)) return;
     setError(null);
     const { error: deleteError } = await supabase.from("categories").delete()
       .eq("id", category.id).eq("organization_id", organizationId);
     if (deleteError) setError(deleteError.message);
-    else await loadProducts(organizationId);
+    else { await loadProducts(organizationId); notifySuccess("Categoria excluída."); }
   };
 
   const deleteSize = async (size: ProductSize) => {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
-    if (!window.confirm(`Excluir o tamanho "${size.name}"? Os preços vinculados a ele também serão removidos.`)) return;
+    if (!window.confirm(`Excluir o tamanho "${size.name}"? Os preços desse tamanho também serão removidos.`)) return;
     setError(null);
     const { error: deleteError } = await supabase.from("product_sizes").delete()
       .eq("id", size.id).eq("organization_id", organizationId);
     if (deleteError) setError(deleteError.message);
-    else await loadProducts(organizationId);
+    else { await loadProducts(organizationId); notifySuccess("Tamanho excluído."); }
   };
 
   const deleteProduct = async (product: Product) => {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
-    if (!window.confirm(`Excluir o produto "${product.name}"? Essa ação não pode ser desfeita.`)) return;
+    if (!window.confirm(`Excluir "${product.name}" do cardápio? O produto será removido e não aparecerá mais para os clientes.`)) return;
     setError(null);
     setEditingProductId(null);
 
@@ -264,38 +271,37 @@ function StaffPanel() {
     const { error: deleteError } = await supabase.from("products").delete()
       .eq("id", product.id).eq("organization_id", organizationId);
     if (deleteError) setError(deleteError.message);
-    else await loadProducts(organizationId);
+    else { await loadProducts(organizationId); notifySuccess("Produto excluído do cardápio."); }
   };
 
   const deleteAddon = async (addon: Addon) => {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
-    if (!window.confirm(`Excluir o adicional "${addon.name}"?`)) return;
+    if (!window.confirm(`Excluir o adicional "${addon.name}"? Ele deixará de aparecer nas opções de personalização.`)) return;
     setError(null);
     const { error: deleteError } = await supabase.from("product_addons").delete()
       .eq("id", addon.id).eq("organization_id", organizationId);
     if (deleteError) setError(deleteError.message);
-    else await loadAddons(organizationId);
-    if (!deleteError) await loadProducts(organizationId);
+    else { await loadAddons(organizationId); await loadProducts(organizationId); notifySuccess("Adicional excluído."); }
   };
 
   const deleteCrust = async (crust: Crust) => {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
-    if (!window.confirm(`Excluir a borda "${crust.name}"?`)) return;
+    if (!window.confirm(`Excluir a borda "${crust.name}"? Ela deixará de aparecer nas opções do pedido.`)) return;
     setError(null);
     const { error: deleteError } = await supabase.from("product_crusts").delete()
       .eq("id", crust.id).eq("organization_id", organizationId);
     if (deleteError) setError(deleteError.message);
-    else await loadCrusts(organizationId);
+    else { await loadCrusts(organizationId); notifySuccess("Borda excluída."); }
   };
 
   const deleteDeliveryZone = async (zone: DeliveryZone) => {
     if (!organizationId || !["OWNER", "ADMIN"].includes(role ?? "")) return;
-    if (!window.confirm(`Excluir a área "${zone.name}"? Pedidos antigos continuarão registrados.`)) return;
+    if (!window.confirm(`Excluir a área "${zone.name}"? Ela deixará de ser usada para novos pedidos. Os pedidos antigos continuam registrados.`)) return;
     setError(null);
     const { error: deleteError } = await supabase.from("delivery_zones").delete()
       .eq("id", zone.id).eq("organization_id", organizationId);
     if (deleteError) setError(deleteError.message);
-    else setDeliveryZones((current) => current.filter((item) => item.id !== zone.id));
+    else { setDeliveryZones((current) => current.filter((item) => item.id !== zone.id)); notifySuccess("Área de entrega excluída."); }
   };
 
   const loadHours = async (orgId: string) => {
@@ -335,7 +341,7 @@ function StaffPanel() {
       organization_id: organizationId, date: dateValue, opens_at: "18:00", closes_at: "23:00", closed: false, note: "",
     }, { onConflict: "organization_id,date" }).select("id, organization_id, date, opens_at, closes_at, closed, note").single();
     if (createError) setError(createError.message);
-    else if (data) setSpecialHours((current) => [...current.filter((item) => item.date !== data.date), data as SpecialHour].sort((a, b) => a.date.localeCompare(b.date)));
+    else if (data) { setSpecialHours((current) => [...current.filter((item) => item.date !== data.date), data as SpecialHour].sort((a, b) => a.date.localeCompare(b.date))); notifySuccess("Horário especial adicionado."); }
   };
 
   const saveSpecialHour = async (hour: SpecialHour) => {
@@ -441,7 +447,7 @@ function StaffPanel() {
       .select("id, organization_id, name, price, sort_order, active")
       .single();
     if (createError) setError(createError.message);
-    else if (data) setCrusts((current) => [...current, data as Crust]);
+    else if (data) { setCrusts((current) => [...current, data as Crust]); notifySuccess("Nova borda adicionada. Edite os dados e salve."); }
     setCreatingCatalogItem(null);
   };
 
@@ -501,7 +507,7 @@ function StaffPanel() {
       .select("id, organization_id, name, neighborhoods, minimum_order, delivery_fee, estimated_minutes, active")
       .single();
     if (createError) setError(createError.message);
-    else if (data) setDeliveryZones((current) => [...current, data as DeliveryZone]);
+    else if (data) { setDeliveryZones((current) => [...current, data as DeliveryZone]); notifySuccess("Nova área adicionada. Edite os dados e salve."); }
   };
 
   const saveDeliveryZone = async (draft: DeliveryZone) => {
@@ -577,6 +583,7 @@ function StaffPanel() {
       .single();
     if (createError) { setError(createError.message); setCreatingCatalogItem(null); return; }
     setAddons((current) => [...current, data as Addon]);
+    notifySuccess("Novo adicional adicionado. Edite os dados e salve.");
     setSavingAddonId(null);
     setCreatingCatalogItem(null);
   };
@@ -710,6 +717,7 @@ function StaffPanel() {
     const created = data as Product;
     setProducts((current) => [...current, created]);
     setEditingProductId(created.id);
+    notifySuccess("Novo produto adicionado. Preencha os dados e clique em “Salvar alterações”.");
     setCreatingCatalogItem(null);
   };
 
@@ -1134,7 +1142,13 @@ function StaffPanel() {
           </div>
         </div>
 
-        {error && <div className="mb-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
+        {successMessage && (
+          <div className="ppp-admin-feedback ppp-admin-feedback-success" role="status">
+            <Check className="size-4 shrink-0" />
+            <span>{successMessage}</span>
+          </div>
+        )}
+        {error && <div className="ppp-admin-feedback ppp-admin-feedback-error" role="alert">{error}</div>}
 
         {activeOrders.length === 0 ? (
           <div className="rounded-3xl border border-dashed bg-card p-12 text-center">
