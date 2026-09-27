@@ -271,7 +271,6 @@ export function Storefront({ slug }: { slug?: string }) {
 
   const subtotal = calculateCartSubtotal(cart.items);
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
-  const minOrderExempt = cart.items.length > 0 && cart.items.every((item) => data.products.find((product) => product.id === item.productId)?.kind === "SIMPLE");
 
   const addSimpleProduct = (product: Product) => {
     const item: CartItem = {
@@ -552,8 +551,6 @@ export function Storefront({ slug }: { slug?: string }) {
           onClear={cart.clear}
           storeOpen={status.open}
           storeStatusLabel={status.label}
-          minOrderAmount={Number(data.settings.min_order_amount ?? 0)}
-          minOrderExempt={minOrderExempt}
           pickupEnabled={Boolean(data.settings.pickup_enabled)}
           deliveryEnabled={Boolean(data.settings.delivery_enabled)}
           onCheckout={() => {
@@ -571,7 +568,6 @@ export function Storefront({ slug }: { slug?: string }) {
           deliveryZones={data.deliveryZones}
           items={cart.items}
           subtotal={subtotal}
-          minOrderExempt={minOrderExempt}
           onClose={() => setCheckoutOpen(false)}
           storeOpen={status.open}
           storeStatusLabel={status.label}
@@ -1211,8 +1207,6 @@ function CartPanel({
   onClear,
   storeOpen,
   storeStatusLabel,
-  minOrderAmount,
-  minOrderExempt,
   pickupEnabled,
   deliveryEnabled,
   onCheckout,
@@ -1225,8 +1219,6 @@ function CartPanel({
   onClear: () => void;
   storeOpen: boolean;
   storeStatusLabel: string;
-  minOrderAmount: number;
-  minOrderExempt: boolean;
   pickupEnabled: boolean;
   deliveryEnabled: boolean;
   onCheckout: () => void;
@@ -1292,23 +1284,8 @@ function CartPanel({
           <p className="mt-2 text-xs leading-5 text-muted-foreground">
             A taxa de entrega e descontos serão calculados no checkout.
           </p>
-          {deliveryEnabled && !minOrderExempt && minOrderAmount > 0 && subtotal < minOrderAmount && (
-            <div className="mt-3 rounded-2xl bg-primary/5 p-3 text-sm">
-              <p className="font-semibold text-primary">
-                Pedido mínimo para entrega: {formatCurrency(minOrderAmount)}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Faltam {formatCurrency(minOrderAmount - subtotal)} para atingir o mínimo.
-                {pickupEnabled ? " Para retirada, não há pedido mínimo." : ""}
-              </p>
-            </div>
-          )}
           <Button
-            disabled={
-              items.length === 0 ||
-              !storeOpen ||
-              (deliveryEnabled && !pickupEnabled && !minOrderExempt && minOrderAmount > 0 && subtotal < minOrderAmount)
-            }
+            disabled={items.length === 0 || !storeOpen}
             className="mt-4 h-12 w-full rounded-full"
             onClick={onCheckout}
           >
@@ -1332,7 +1309,6 @@ function CheckoutPanel({
   deliveryZones,
   items,
   subtotal,
-  minOrderExempt,
   onClose,
   onSuccess,
   trackedOrder,
@@ -1345,7 +1321,6 @@ function CheckoutPanel({
   deliveryZones: DeliveryZone[];
   items: CartItem[];
   subtotal: number;
-  minOrderExempt: boolean;
   onClose: () => void;
   onSuccess: (order: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType }) => void;
   trackedOrder?: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType } | null;
@@ -1443,18 +1418,6 @@ function CheckoutPanel({
         setError("Selecione um bairro cadastrado na lista para continuar.");
         return;
       }
-    }
-    const minOrderAmount = Number(settings.min_order_amount ?? 0);
-    if (
-      fulfillment === "DELIVERY" &&
-      !minOrderExempt &&
-      minOrderAmount > 0 &&
-      subtotal < minOrderAmount
-    ) {
-      setError(
-        `Para entrega, o pedido mínimo é ${formatCurrency(minOrderAmount)}. Faltam ${formatCurrency(minOrderAmount - subtotal)}.`,
-      );
-      return;
     }
 
     setSubmitting(true);
