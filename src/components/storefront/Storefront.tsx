@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { MenuFilters } from "@/components/storefront/MenuFilters";
 import { StorefrontHero } from "@/components/storefront/StorefrontHero";
+import { StorefrontLoadError } from "@/components/storefront/StorefrontLoadError";
 import { ProductTicker } from "@/components/storefront/ProductTicker";
 import { MenuImageAccordion } from "@/components/storefront/MenuImageAccordion";
 import { MenuSectionHeading } from "@/components/storefront/MenuSectionHeading";
@@ -465,16 +466,7 @@ export function Storefront({ slug }: { slug?: string }) {
   if (isLoading) return <StorefrontSkeleton />;
   if (isError || !data) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background px-6">
-        <section className="w-full max-w-md rounded-3xl border bg-card p-8 text-center shadow-soft">
-          <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-muted">
-            <Store className="size-6 text-muted-foreground" />
-          </div>
-          <h1 className="text-2xl">A loja ainda não está pronta</h1>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            {error instanceof Error ? error.message : "Não foi possível carregar o cardápio."}
-          </p>
-          <Button className="mt-6" onClick={() => refetch()}>
+      <main cla<StorefrontLoadError error={error} onRetry={refetch} /> => refetch()}>
             Tentar novamente
           </Button>
         </section>
