@@ -1029,26 +1029,34 @@ function ProductConfigurator({
               <span className="whitespace-nowrap text-base font-black tracking-tight text-foreground">{formatCurrency(unitPrice * quantity)}</span>
             </div>
           </div>
-          <div className="flex items-stretch gap-2 sm:gap-3">
-            {step > 1 ? (
-              <Button type="button" variant="outline" className="h-12 min-w-[92px] shrink-0 rounded-full px-5" onClick={previousStep}>Voltar</Button>
-            ) : (
-              <Button type="button" variant="outline" className="h-12 min-w-[92px] shrink-0 rounded-full px-5" onClick={onClose}>Cancelar</Button>
-            )}
+          <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={step > 1 ? previousStep : onClose}
+              className="flex h-12 min-w-[88px] shrink-0 items-center justify-center rounded-full border border-border bg-background px-4 text-sm font-semibold text-foreground shadow-sm transition active:scale-[.98] hover:border-primary/50 hover:bg-muted"
+            >
+              {step > 1 ? "Voltar" : "Cancelar"}
+            </button>
             {step < totalSteps ? (
-              <Button
+              <button
                 type="button"
-                className="h-12 min-w-0 flex-1 rounded-full px-4 text-sm sm:px-6"
                 onClick={nextStep}
                 disabled={step === 1 && product.allow_half && halfMode && !secondProductId}
+                className="flex h-12 min-w-0 items-center justify-center gap-1 rounded-full bg-primary px-4 text-sm font-bold text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.2)] transition active:scale-[.98] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6"
               >
-                {step === 1 && product.allow_half && halfMode && !secondProductId ? "Escolha o segundo sabor" : "Próxima etapa"}
-                {!(step === 1 && product.allow_half && halfMode && !secondProductId) && <ChevronRight className="ml-1 size-4" />}
-              </Button>
+                <span className="truncate">
+                  {step === 1 && product.allow_half && halfMode && !secondProductId ? "Escolha o segundo sabor" : "Próxima etapa"}
+                </span>
+                {!(step === 1 && product.allow_half && halfMode && !secondProductId) && <ChevronRight className="size-4 shrink-0" />}
+              </button>
             ) : (
-              <Button type="button" className="h-12 min-w-0 flex-1 rounded-full px-3 text-sm sm:px-6" onClick={addToCart}>
-                Adicionar ao carrinho · {formatCurrency(unitPrice * quantity)}
-              </Button>
+              <button
+                type="button"
+                onClick={addToCart}
+                className="flex h-12 min-w-0 items-center justify-center rounded-full bg-primary px-3 text-sm font-bold text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.2)] transition active:scale-[.98] hover:brightness-105 sm:px-6"
+              >
+                <span className="truncate">Adicionar ao carrinho · {formatCurrency(unitPrice * quantity)}</span>
+              </button>
             )}
           </div>
         </div>
