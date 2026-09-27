@@ -1029,11 +1029,11 @@ function ProductConfigurator({
               <span className="whitespace-nowrap text-sm font-black tracking-tight text-foreground">{formatCurrency(unitPrice * quantity)}</span>
             </div>
           </div>
-          <div className="grid grid-cols-[minmax(78px,.62fr)_minmax(0,1.38fr)] gap-1.5 sm:grid-cols-[100px_minmax(0,1fr)] sm:gap-2">
+          <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-2 sm:grid-cols-[112px_minmax(0,1fr)] sm:gap-2.5">
             <button
               type="button"
               onClick={step > 1 ? previousStep : onClose}
-              className="flex h-10 min-w-0 items-center justify-center rounded-full border border-foreground bg-foreground px-2.5 text-xs font-semibold text-background shadow-sm transition active:scale-[.98] hover:bg-foreground/90"
+              className="flex h-10 w-full min-w-0 items-center justify-center whitespace-nowrap rounded-full border border-foreground bg-foreground px-2 text-xs font-semibold text-background shadow-sm transition active:scale-[.98] hover:bg-foreground/90"
             >
               {step > 1 ? "Voltar" : "Cancelar"}
             </button>
@@ -1042,7 +1042,7 @@ function ProductConfigurator({
                 type="button"
                 onClick={nextStep}
                 disabled={step === 1 && product.allow_half && halfMode && !secondProductId}
-                className="flex h-10 min-w-0 items-center justify-center gap-1 overflow-hidden rounded-full bg-primary px-2.5 text-xs font-bold text-primary-foreground shadow-[0_6px_16px_hsl(var(--primary)/.18)] transition active:scale-[.98] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"
+                className="flex h-10 w-full min-w-0 items-center justify-center gap-1 overflow-hidden rounded-full bg-primary px-2 text-xs font-bold text-primary-foreground shadow-[0_6px_16px_hsl(var(--primary)/.18)] transition active:scale-[.98] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"
               >
                 <span className="truncate">
                   {step === 1 && product.allow_half && halfMode && !secondProductId ? "Escolha o segundo sabor" : "Próxima etapa"}
@@ -1053,7 +1053,7 @@ function ProductConfigurator({
               <button
                 type="button"
                 onClick={addToCart}
-                className="flex h-10 min-w-0 items-center justify-center overflow-hidden rounded-full bg-primary px-2 text-xs font-bold text-primary-foreground shadow-[0_6px_16px_hsl(var(--primary)/.18)] transition active:scale-[.98] hover:brightness-105 sm:px-4"
+                className="flex h-10 w-full min-w-0 items-center justify-center overflow-hidden rounded-full bg-primary px-2 text-xs font-bold text-primary-foreground shadow-[0_6px_16px_hsl(var(--primary)/.18)] transition active:scale-[.98] hover:brightness-105 sm:px-4"
               >
                 <span className="truncate">Adicionar ao carrinho · {formatCurrency(unitPrice * quantity)}</span>
               </button>
