@@ -2331,3 +2331,61 @@
     }
   }
 }
+
+@layer components {
+  /* Compact first fold: the reference reaches the menu faster. */
+  .ppp-reference-storefront .ppp-reference-hero-frame,
+  .ppp-reference-storefront .ppp-reference-hero-grid,
+  .ppp-reference-storefront .ppp-reference-hero-media,
+  .ppp-reference-storefront .ppp-reference-hero-copy {
+    min-height: 62svh !important;
+    height: 62svh !important;
+  }
+
+  .ppp-reference-storefront .ppp-reference-hero-copy {
+    padding-top: 5.25rem;
+    padding-bottom: 2rem;
+  }
+
+  .ppp-reference-storefront .ppp-reference-hero-copy h1 {
+    font-size: clamp(3rem, 8vw, 6.5rem) !important;
+  }
+
+  /* Actual ImageAccordion DOM: its buttons are direct children of the root. */
+  .ppp-reference-storefront .ppp-reference-category-accordion > div > button {
+    flex-basis: 0 !important;
+    border-radius: 1.25rem !important;
+  }
+
+  .ppp-reference-storefront .ppp-reference-category-accordion > div > button[aria-pressed="true"] {
+    flex-grow: 5 !important;
+  }
+
+  .ppp-reference-storefront .ppp-reference-category-accordion > div > button:not([aria-pressed="true"]) {
+    flex-grow: 1 !important;
+  }
+
+  @media (max-width: 639px) {
+    .ppp-reference-storefront .ppp-reference-hero-frame,
+    .ppp-reference-storefront .ppp-reference-hero-grid,
+    .ppp-reference-storefront .ppp-reference-hero-media,
+    .ppp-reference-storefront .ppp-reference-hero-copy {
+      min-height: 60svh !important;
+      height: 60svh !important;
+    }
+
+    .ppp-reference-storefront .ppp-reference-hero-copy {
+      padding-top: 4.75rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .ppp-reference-storefront .ppp-reference-hero-copy h1 {
+      font-size: clamp(2.65rem, 13vw, 4.5rem) !important;
+      line-height: .88 !important;
+    }
+
+    .ppp-reference-storefront .ppp-reference-category-accordion > div {
+      height: 280px !important;
+    }
+  }
+}
