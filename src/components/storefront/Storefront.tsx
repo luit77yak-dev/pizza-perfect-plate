@@ -98,7 +98,7 @@ async function loadStore(slug?: string): Promise<StoreData> {
     specialHoursResult,
     deliveryZonesResult,
   ] = await Promise.all([
-    supabase.rpc("get_public_storefront_settings", { p_org:  }),
+    supabase.rpc("get_public_storefront_settings", { p_org: organization.id }),
     supabase.from("categories").select("*").eq("organization_id", organization.id).eq("active", true).is("deleted_at", null).order("sort_order"),
     supabase.from("product_sizes").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
     supabase.from("products").select("*").eq("organization_id", organization.id).eq("active", true).eq("available", true).is("deleted_at", null).order("sort_order"),
