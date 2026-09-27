@@ -98,17 +98,17 @@ async function loadStore(slug?: string): Promise<StoreData> {
     specialHoursResult,
     deliveryZonesResult,
   ] = await Promise.all([
-    supabase.rpc("get_public_storefront_settings", { p_org: organization.id }),
-    supabase.from("categories").select("*").eq("organization_id", organization.id).eq("active", true).is("deleted_at", null).order("sort_order"),
-    supabase.from("product_sizes").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
-    supabase.from("products").select("*").eq("organization_id", organization.id).eq("active", true).eq("available", true).is("deleted_at", null).order("sort_order"),
-    supabase.from("product_prices").select("*").eq("organization_id", organization.id),
-    supabase.from("product_crusts").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
-    supabase.from("product_addons").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
-    supabase.from("product_addon_links").select("product_id, addon_id, sort_order").eq("organization_id", organization.id).order("sort_order"),
-    supabase.from("store_hours").select("*").eq("organization_id", organization.id).order("weekday"),
-    supabase.from("special_hours").select("*").eq("organization_id", organization.id).order("date"),
-    supabase.from("delivery_zones").select("*").eq("organization_id", organization.id).eq("active", true).order("name"),
+    supabase.rpc("get_public_storefront_settings", { p_org: data.organization.id }),
+    supabase.from("categories").select("*").eq("organization_id", data.organization.id).eq("active", true).is("deleted_at", null).order("sort_order"),
+    supabase.from("product_sizes").select("*").eq("organization_id", data.organization.id).eq("active", true).order("sort_order"),
+    supabase.from("products").select("*").eq("organization_id", data.organization.id).eq("active", true).eq("available", true).is("deleted_at", null).order("sort_order"),
+    supabase.from("product_prices").select("*").eq("organization_id", data.organization.id),
+    supabase.from("product_crusts").select("*").eq("organization_id", data.organization.id).eq("active", true).order("sort_order"),
+    supabase.from("product_addons").select("*").eq("organization_id", data.organization.id).eq("active", true).order("sort_order"),
+    supabase.from("product_addon_links").select("product_id, addon_id, sort_order").eq("organization_id", data.organization.id).order("sort_order"),
+    supabase.from("store_hours").select("*").eq("organization_id", data.organization.id).order("weekday"),
+    supabase.from("special_hours").select("*").eq("organization_id", data.organization.id).order("date"),
+    supabase.from("delivery_zones").select("*").eq("organization_id", data.organization.id).eq("active", true).order("name"),
   ]);
 
   const error =
@@ -193,9 +193,13 @@ export function Storefront({ slug }: { slug?: string }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [trackingOpen, setTrackingOpen] = useState(false);
-  const [selectedTrackedOrders, setSelectedTrackedOrders] = useState<PublicTrackedOrder[]>([]);
+  const [selectedTrackedOrders, setTrackedOrders] = useState<PublicTrackedOrder[]>([]);
   const [selectedTrackedOrder, setSelectedTrackedOrder] = useState<PublicTrackedOrder | null>(null);
   const [addingToOrder, setAddingToOrder] = useState(false);
+  const [additionModalOpen, setAdditionModalOpen] = useState(false);
+  const [additionQuantities, setAdditionQuantities] = useState<Record<string, number>>({});
+  const [additionSubmitting, setAdditionSubmitting] = useState(false);
+  const [additionError, setAdditionError] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -205,7 +209,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
     const persistTrackedOrders = (orders: PublicTrackedOrder[]) => {
       try {
-        localStorage.setItem(`ppp:last-orders:${organization.id}`, JSON.stringify(orders));
+        localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(orders));
       } catch {
         // Ignore storage failures; the current session still keeps the orders.
       }
@@ -213,14 +217,14 @@ export function Storefront({ slug }: { slug?: string }) {
 
     const loadTrackedOrders = async () => {
       try {
-        const arrayRaw = localStorage.getItem(`ppp:last-orders:${organization.id}`);
-        const legacyRaw = localStorage.getItem(`ppp:last-order:${organization.id}`);
+        const arrayRaw = localStorage.getItem(`ppp:last-orders:${data.organization.id}`);
+        const legacyRaw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
         const parsed = arrayRaw ? JSON.parse(arrayRaw) : legacyRaw ? JSON.parse(legacyRaw) : [];
         const storedOrders: PublicTrackedOrder[] = Array.isArray(parsed) ? parsed : parsed?.id ? [parsed] : [];
         const validOrders = storedOrders.filter((order) => order?.id && order?.phone);
 
         if (validOrders.length === 0) {
-          if (!cancelled) setSelectedTrackedOrders([]);
+          if (!cancelled) setTrackedOrders([]);
           return;
         }
 
@@ -244,17 +248,17 @@ export function Storefront({ slug }: { slug?: string }) {
         const activeOrders = results.filter((order): order is PublicTrackedOrder => Boolean(order));
         if (cancelled) return;
 
-        setSelectedTrackedOrders(activeOrders);
+        setTrackedOrders(activeOrders);
         persistTrackedOrders(activeOrders);
         if (legacyRaw) {
           try {
-            localStorage.removeItem(`ppp:last-order:${organization.id}`);
+            localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
           } catch {
             // Ignore storage failures.
           }
         }
       } catch {
-        if (!cancelled) setSelectedTrackedOrders([]);
+        if (!cancelled) setTrackedOrders([]);
       }
     };
 
@@ -325,6 +329,103 @@ export function Storefront({ slug }: { slug?: string }) {
     if (openCart) setCartOpen(true);
   };
 
+
+  const additionProducts = useMemo(() => {
+    if (!data) return [];
+    const categoryIds = new Set(
+      data.categories
+        .filter((category) => /(bebida|refrigerante|suco|acompanhamento|acompanhamentos|adicional|adicionais|sobremesa|sobremesas|doce|doces)/i.test(
+          category.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        ))
+        .map((category) => category.id),
+    );
+    return data.products.filter((product) => product.kind === "SIMPLE" && categoryIds.has(product.category_id));
+  }, [data]);
+
+  const additionTotal = additionProducts.reduce(
+    (sum, product) => sum + (additionQuantities[product.id] ?? 0) * (Number(product.base_price) || 0),
+    0,
+  );
+  const additionCount = Object.values(additionQuantities).reduce((sum, quantity) => sum + quantity, 0);
+
+  const confirmAdditions = async () => {
+    if (!selectedTrackedOrder || additionCount === 0 || additionSubmitting) return;
+    setAdditionSubmitting(true);
+    setAdditionError(null);
+    try {
+      const selectedItems = additionProducts
+        .map((product) => ({ product, quantity: additionQuantities[product.id] ?? 0 }))
+        .filter(({ quantity }) => quantity > 0);
+      const appendItems = selectedItems.map(({ product, quantity }) => ({
+        product_id: product.id,
+        second_product_id: null,
+        is_half: false,
+        size_id: null,
+        crust_id: null,
+        quantity,
+        notes: null,
+        addons: [],
+      }));
+      const { data: appended, error: appendError } = await supabase.rpc("append_public_order_items", {
+        p_order_id: selectedTrackedOrder.id,
+        p_customer_phone: selectedTrackedOrder.phone,
+        p_items: appendItems,
+      });
+      if (appendError) throw appendError;
+      const order = Array.isArray(appended) ? appended[0] : appended;
+      if (!order?.order_id || !order?.order_number) throw new Error("O servidor não retornou o pedido atualizado.");
+
+      const addedCartItems: CartItem[] = selectedItems.map(({ product, quantity }) => ({
+        lineId: crypto.randomUUID(),
+        productId: product.id,
+        productName: product.name,
+        imageUrl: product.image_url,
+        secondProductId: null,
+        secondProductName: null,
+        isHalf: false,
+        sizeId: null,
+        sizeName: null,
+        crustId: null,
+        crustName: null,
+        crustPrice: 0,
+        addons: [],
+        complements: [],
+        quantity,
+        notes: null,
+        unitPrice: Number(product.base_price) || 0,
+      }));
+
+      const updatedOrder: PublicTrackedOrder = {
+        ...selectedTrackedOrder,
+        id: String(order.order_id),
+        number: Number(order.order_number),
+        items: [...(selectedTrackedOrder.items ?? []), ...addedCartItems],
+        subtotal: Number(order.subtotal ?? selectedTrackedOrder.subtotal ?? 0),
+        total: Number(order.total ?? selectedTrackedOrder.total ?? 0),
+        status: (order.status as OrderStatus) ?? selectedTrackedOrder.status,
+      };
+      setSelectedTrackedOrder(updatedOrder);
+      setTrackedOrders((previous) => {
+        const next = [...previous.filter((item) => item.id !== updatedOrder.id), updatedOrder];
+        try { localStorage.setItem("ppp:last-orders:" + data.organization.id, JSON.stringify(next)); } catch {}
+        return next;
+      });
+      setAdditionQuantities({});
+      setAdditionModalOpen(false);
+      setTrackingOpen(true);
+      setCheckoutOpen(true);
+      setCartOpen(false);
+    } catch (submitError) {
+      const message = submitError instanceof Error
+        ? submitError.message
+        : typeof submitError === "object" && submitError !== null && "message" in submitError
+          ? String((submitError as { message?: unknown }).message ?? "Não foi possível adicionar os itens.")
+          : "Não foi possível adicionar os itens.";
+      setAdditionError(message);
+    } finally {
+      setAdditionSubmitting(false);
+    }
+  };
 
   if (isLoading) return <StorefrontSkeleton />;
   if (isError || !data) {
@@ -645,12 +746,18 @@ export function Storefront({ slug }: { slug?: string }) {
             setCheckoutOpen(true);
             setCartOpen(false);
           }}
+          onOpenAdditions={() => {
+            if (!selectedTrackedOrder) return;
+            setAdditionError(null);
+            setAdditionQuantities({});
+            setAdditionModalOpen(true);
+          }}
           onSuccess={(order) => {
             cart.clear();
-            setSelectedTrackedOrders((previous) => {
+            setTrackedOrders((previous) => {
               const next = [...previous.filter((item) => item.id !== order.id), order];
               try {
-                localStorage.setItem(`ppp:last-orders:${organization.id}`, JSON.stringify(next));
+                localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(next));
               } catch {
                 // Ignore storage failures; tracking still works for the current session.
               }
@@ -668,10 +775,10 @@ export function Storefront({ slug }: { slug?: string }) {
             }
           }}
           onOrderFinished={(orderId) => {
-            setSelectedTrackedOrders((previous) => {
+            setTrackedOrders((previous) => {
               const next = previous.filter((item) => item.id !== orderId);
               try {
-                localStorage.setItem(`ppp:last-orders:${organization.id}`, JSON.stringify(next));
+                localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(next));
               } catch {
                 // Ignore storage failures.
               }
@@ -1408,6 +1515,7 @@ function CheckoutPanel({
   trackedOrder,
   addingToOrder,
   onAddToOrder,
+  onOpenAdditions,
   storeOpen,
   storeStatusLabel,
   onOrderFinished,
@@ -1424,6 +1532,7 @@ function CheckoutPanel({
   trackedOrder?: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType; status?: OrderStatus } | null;
   addingToOrder: boolean;
   onAddToOrder: () => void;
+  onOpenAdditions: () => void;
   storeOpen: boolean;
   storeStatusLabel: string;
   onOrderFinished: (orderId: string) => void;
@@ -1455,722 +1564,6 @@ function CheckoutPanel({
   const [confirmedTotal, setConfirmedTotal] = useState(0);
   const [confirmedFulfillment, setConfirmedFulfillment] = useState<FulfillmentType>(settings.delivery_enabled ? "DELIVERY" : "PICKUP");
 
-  // Acréscimos pertencem ao acompanhamento do pedido, não ao carrinho principal.
-  // Mantemos toda a lógica aqui para que o botão "Esqueceu alguma coisa?" tenha
-  // acesso ao pedido selecionado e aos produtos carregados pelo próprio CheckoutPanel.
-  const [additionModalOpen, setAdditionModalOpen] = useState(false);
-  const [additionQuantities, setAdditionQuantities] = useState<Record<string, number>>({});
-  const [additionSubmitting, setAdditionSubmitting] = useState(false);
-  const [additionError, setAdditionError] = useState<string | null>(null);
-
-  const additionProducts = useMemo(() => {
-    const categoryIds = new Set(
-      categories
-        .filter((category) => /(bebida|refrigerante|suco|acompanhamento|acompanhamentos|adicional|adicionais|sobremesa|sobremesas|doce|doces)/i.test(
-          category.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        ))
-        .map((category) => category.id),
-    );
-
-    return products.filter((product) => product.kind === "SIMPLE" && categoryIds.has(product.category_id));
-  }, [products, categories]);
-
-  const additionTotal = additionProducts.reduce(
-    (sum, product) => sum + (additionQuantities[product.id] ?? 0) * (Number(product.base_price) || 0),
-    0,
-  );
-
-  const additionCount = Object.values(additionQuantities).reduce((sum, quantity) => sum + quantity, 0);
-
-  const confirmAdditions = async () => {
-    if (!trackedOrder || additionCount === 0 || additionSubmitting) return;
-
-    setAdditionSubmitting(true);
-    setAdditionError(null);
-
-    try {
-      const selectedItems = additionProducts
-        .map((product) => ({
-          product,
-          quantity: additionQuantities[product.id] ?? 0,
-        }))
-        .filter(({ quantity }) => quantity > 0);
-
-      const appendItems = selectedItems.map(({ product, quantity }) => ({
-        product_id: product.id,
-        second_product_id: null,
-        is_half: false,
-        size_id: null,
-        crust_id: null,
-        quantity,
-        notes: null,
-        addons: [],
-      }));
-
-      const { data: appended, error: appendError } = await supabase.rpc("append_public_order_items", {
-        p_order_id: trackedOrder.id,
-        p_customer_phone: trackedOrder.phone,
-        p_items: appendItems,
-      });
-
-      if (appendError) throw appendError;
-
-      const order = Array.isArray(appended) ? appended[0] : appended;
-      if (!order?.order_id || !order?.order_number) {
-        throw new Error("O servidor não retornou o pedido atualizado.");
-      }
-
-      const addedCartItems: CartItem[] = selectedItems.map(({ product, quantity }) => ({
-        lineId: crypto.randomUUID(),
-        productId: product.id,
-        productName: product.name,
-        imageUrl: product.image_url,
-        secondProductId: null,
-        secondProductName: null,
-        isHalf: false,
-        sizeId: null,
-        sizeName: null,
-        crustId: null,
-        crustName: null,
-        crustPrice: 0,
-        addons: [],
-        complements: [],
-        quantity,
-        notes: null,
-        unitPrice: Number(product.base_price) || 0,
-      }));
-
-      const updatedOrder = {
-        ...trackedOrder,
-        id: String(order.order_id),
-        number: Number(order.order_number),
-        items: [...(trackedOrder.items ?? []), ...addedCartItems],
-        subtotal: Number(order.subtotal ?? trackedOrder.subtotal ?? 0),
-        total: Number(order.total ?? trackedOrder.total ?? 0),
-        status: (order.status as OrderStatus) ?? trackedOrder.status,
-        isAddition: true,
-      };
-
-      setAdditionQuantities({});
-      setAdditionModalOpen(false);
-      onSuccess(updatedOrder);
-    } catch (submitError) {
-      const message =
-        submitError instanceof Error
-          ? submitError.message
-          : typeof submitError === "object" && submitError !== null && "message" in submitError
-            ? String((submitError as { message?: unknown }).message ?? "Não foi possível adicionar os itens.")
-            : "Não foi possível adicionar os itens.";
-      setAdditionError(message);
-    } finally {
-      setAdditionSubmitting(false);
-    }
-  };
-  const [addItemsOpen, setAddItemsOpen] = useState(false);
-  const [selectedAdditions, setSelectedAdditions] = useState<Record<string, number>>({});
-  const [addingItemsNow, setAddingItemsNow] = useState(false);
-
-  useEffect(() => {
-    if (!trackedOrder) return;
-    setSuccessOrderId(trackedOrder.id);
-    setSuccessNumber(trackedOrder.number);
-    setSuccessStatus(trackedOrder.status ?? "RECEIVED");
-    setPhone(trackedOrder.phone);
-    setConfirmedItems(trackedOrder.items ?? []);
-    setConfirmedSubtotal(trackedOrder.subtotal ?? 0);
-    setConfirmedTotal(trackedOrder.total ?? 0);
-    setConfirmedFulfillment(trackedOrder.fulfillment ?? (settings.delivery_enabled ? "DELIVERY" : "PICKUP"));
-  }, [trackedOrder]);
-
-  const selectedZone =
-    fulfillment === "DELIVERY"
-      ? deliveryZones.find((zone) =>
-          (zone.neighborhoods ?? []).some(
-            (item) => normalizeNeighborhood(item) === normalizeNeighborhood(neighborhood),
-          ),
-        ) ?? null
-      : null;
-
-  const matchedNeighborhood =
-    (selectedZone?.neighborhoods ?? []).find(
-      (item) => normalizeNeighborhood(item) === normalizeNeighborhood(neighborhood),
-    ) ?? null;
-
-  const availableNeighborhoods = Array.from(
-    new Set(
-      deliveryZones.flatMap((zone) => (zone.neighborhoods ?? []).map((item) => item.trim()).filter(Boolean)),
-    ),
-  );
-  const deliveryFee = selectedZone?.delivery_fee ?? 0;
-  // Delivery: pedido mínimo = taxa da região + R$ 1. Retirada: sem mínimo.
-  const deliveryMinimum = fulfillment === "DELIVERY" && selectedZone ? 1 : 0;
-  const total = subtotal + deliveryFee;
-  const displayTotal = addingToOrder ? subtotal : total;
-
-  const availablePayments = (settings.payment_methods ?? []).length
-    ? settings.payment_methods ?? []
-    : (["PIX"] as PaymentMethod[]);
-
-  const submitOrder = async () => {
-    setError(null);
-
-    if (addingToOrder && trackedOrder) {
-      if (items.length === 0) {
-        setError("Adicione pelo menos um item antes de continuar.");
-        return;
-      }
-
-      setSubmitting(true);
-      try {
-        const appendItems = items.flatMap((item) => [
-          {
-            product_id: item.productId,
-            second_product_id: item.secondProductId,
-            is_half: item.isHalf,
-            size_id: item.sizeId,
-            crust_id: item.crustId,
-            quantity: item.quantity,
-            notes: item.notes,
-            addons: (item.addons ?? []).map((addon) => ({ id: addon.id })),
-          },
-          ...(item.complements ?? []).map((complement) => ({
-            product_id: complement.productId,
-            second_product_id: null,
-            is_half: false,
-            size_id: null,
-            crust_id: null,
-            quantity: 1,
-            notes: "Complemento do pedido: " + item.productName,
-            addons: [],
-          })),
-        ]);
-
-        const { data: appended, error: appendError } = await supabase.rpc(
-          "append_public_order_items",
-          {
-            p_order_id: trackedOrder.id,
-            p_customer_phone: trackedOrder.phone,
-            p_items: appendItems,
-          },
-        );
-        if (appendError) throw appendError;
-
-        const order = Array.isArray(appended) ? appended[0] : appended;
-        if (!order?.order_id || !order?.order_number) {
-          throw new Error("Não foi possível adicionar os itens ao pedido.");
-        }
-
-        const mergedItems = [...(trackedOrder.items ?? []), ...items];
-        const updatedOrder = {
-          id: String(order.order_id),
-          number: Number(order.order_number),
-          phone: trackedOrder.phone,
-          items: mergedItems,
-          subtotal: Number(order.subtotal ?? 0),
-          total: Number(order.total ?? 0),
-          fulfillment: trackedOrder.fulfillment,
-          status: order.status as OrderStatus,
-          isAddition: true,
-        };
-
-        setSuccessOrderId(updatedOrder.id);
-        setSuccessNumber(updatedOrder.number);
-        setSuccessStatus(updatedOrder.status);
-        setConfirmedItems(mergedItems);
-        setConfirmedSubtotal(updatedOrder.subtotal);
-        setConfirmedTotal(updatedOrder.total);
-        setConfirmedFulfillment(updatedOrder.fulfillment ?? "DELIVERY");
-        onSuccess(updatedOrder);
-      } catch (appendSubmitError) {
-        const message =
-          appendSubmitError instanceof Error
-            ? appendSubmitError.message
-            : typeof appendSubmitError === "object" && appendSubmitError !== null && "message" in appendSubmitError
-              ? String((appendSubmitError as { message?: unknown }).message ?? "Não foi possível adicionar os itens.")
-              : "Não foi possível adicionar os itens.";
-        setError(message);
-      } finally {
-        setSubmitting(false);
-      }
-      return;
-    }
-
-    if (!storeOpen) {
-      setError(`A loja está fechada. ${storeStatusLabel}.`);
-      return;
-    }
-
-    if (!name.trim() || !phone.trim()) {
-      setError("Informe seu nome e telefone.");
-      return;
-    }
-    if (fulfillment === "DELIVERY") {
-      if (!street.trim() || !number.trim() || !neighborhood.trim()) {
-        setError("Para entrega, informe rua, número e bairro.");
-        return;
-      }
-      if (deliveryZones.length === 0) {
-        setError("A loja ainda não cadastrou áreas de entrega. Entre em contato com a loja para confirmar se há atendimento na sua região.");
-        return;
-      }
-      if (!selectedZone || !matchedNeighborhood) {
-        setError("Selecione um bairro cadastrado na lista para continuar.");
-        return;
-      }
-      if (subtotal < deliveryMinimum) {
-        setError(`Para entrega, o pedido mínimo é ${formatCurrency(deliveryMinimum)}. Faltam ${formatCurrency(deliveryMinimum - subtotal)}.`);
-        return;
-      }
-    }
-
-    setSubmitting(true);
-    try {
-      const payload = {
-        organization_id: organization.id,
-        subtotal,
-        customer_name: name.trim(),
-        customer_phone: phone.trim(),
-        fulfillment,
-        payment_method: paymentMethod,
-        address_street: fulfillment === "DELIVERY" ? street.trim() : null,
-        address_number: fulfillment === "DELIVERY" ? number.trim() : null,
-        address_neighborhood: fulfillment === "DELIVERY" ? (matchedNeighborhood ?? neighborhood.trim()) : null,
-        address_complement: fulfillment === "DELIVERY" ? complement.trim() || null : null,
-        address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
-        notes: notes.trim() || null,
-        idempotency_key: crypto.randomUUID(),
-        items: items.flatMap((item) => [
-          {
-            product_id: item.productId,
-            product_name: item.productName,
-            second_product_id: item.secondProductId,
-            second_product_name: item.secondProductName,
-            is_half: item.isHalf,
-            size_id: item.sizeId,
-            size_name: item.sizeName,
-            crust_id: item.crustId,
-            crust_name: item.crustName,
-            crust_price: item.crustPrice,
-            quantity: item.quantity,
-            unit_price: item.unitPrice,
-            notes: item.notes,
-            addons: (item.addons ?? []).map((addon) => ({ id: addon.id })),
-          },
-          ...(item.complements ?? []).map((complement) => ({
-            product_id: complement.productId,
-            second_product_id: null,
-            is_half: false,
-            size_id: null,
-            crust_id: null,
-            quantity: 1,
-            unit_price: complement.price,
-            notes: "Complemento do pedido: " + item.productName,
-            addons: [],
-          })),
-        ]),
-      };
-
-      const { data: created, error: createError } = await supabase.rpc(
-        "create_public_order",
-        { p_order: payload },
-      );
-      if (createError) throw createError;
-
-      const order = Array.isArray(created) ? created[0] : created;
-      if (!order?.order_number || !order?.order_id) throw new Error("Não foi possível criar o pedido.");
-      setSuccessOrderId(String(order.order_id));
-      setSuccessNumber(Number(order.order_number));
-      setSuccessStatus("RECEIVED");
-      setConfirmedItems(items);
-      setConfirmedSubtotal(subtotal);
-      setConfirmedTotal(total);
-      setConfirmedFulfillment(fulfillment);
-      onSuccess({ id: String(order.order_id), number: Number(order.order_number), phone: phone.trim(), items, subtotal, total, fulfillment });
-    } catch (submitError) {
-      const message =
-        submitError instanceof Error
-          ? submitError.message
-          : typeof submitError === "object" && submitError !== null && "message" in submitError
-            ? String((submitError as { message?: unknown }).message ?? "Não foi possível enviar o pedido.")
-            : "Não foi possível enviar o pedido.";
-      setError(message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!successOrderId) return;
-
-    let cancelled = false;
-
-    const applyStatus = (value: unknown) => {
-      const currentStatus = value as OrderStatus;
-      if (!currentStatus || cancelled) return;
-
-      setSuccessStatus(currentStatus);
-      setTrackingError(null);
-      setLastTrackingUpdate(new Date());
-
-      if (currentStatus === "DELIVERED" || currentStatus === "CANCELLED") {
-        onOrderFinished(successOrderId);
-      }
-    };
-
-    const loadStatus = async () => {
-      const { data: tracking, error: trackingQueryError } = await supabase.rpc(
-        "get_public_order_status",
-        { p_order_id: successOrderId, p_customer_phone: phone.trim() },
-      );
-
-      if (cancelled) return;
-      if (trackingQueryError) {
-        setTrackingError("Não foi possível atualizar o status agora.");
-        return;
-      }
-
-      const current = Array.isArray(tracking) ? tracking[0] : tracking;
-      if (current?.status) applyStatus(current.status);
-    };
-
-    void loadStatus();
-
-    const channel = supabase
-      .channel(`public-order-tracking:${successOrderId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "orders",
-          filter: `id=eq.${successOrderId}`,
-        },
-        (payload) => {
-          const nextStatus = (payload.new as { status?: OrderStatus })?.status;
-          if (nextStatus) applyStatus(nextStatus);
-        },
-      )
-      .subscribe((status) => {
-        if (cancelled) return;
-        setTrackingLive(status === "SUBSCRIBED");
-      });
-
-    const interval = window.setInterval(loadStatus, 5000);
-
-    return () => {
-      cancelled = true;
-      setTrackingLive(false);
-      window.clearInterval(interval);
-      void supabase.removeChannel(channel);
-    };
-  }, [successOrderId, phone, onOrderFinished]);
-
-  if (successNumber != null && successOrderId != null && !addingToOrder) {
-    const trackingSteps: [OrderStatus, string, string][] = [
-      ["RECEIVED", "Pedido recebido", "Seu pedido chegou até a loja."],
-      ["CONFIRMED", "Pedido confirmado", "A cozinha já confirmou o pedido."],
-      ["PREPARING", "Em preparo", "Estamos preparando tudo com cuidado."],
-      ["READY", confirmedFulfillment === "DELIVERY" ? "Pedido pronto" : "Pronto para retirada", confirmedFulfillment === "DELIVERY" ? "Seu pedido está pronto para sair." : "Seu pedido já pode ser retirado."],
-      ...(confirmedFulfillment === "DELIVERY"
-        ? ([["OUT_FOR_DELIVERY", "Saiu para entrega", "Seu pedido está a caminho."]] as [OrderStatus, string, string][])
-        : []),
-      ["DELIVERED", confirmedFulfillment === "DELIVERY" ? "Entregue" : "Retirado", "Pedido finalizado com sucesso."],
-    ];
-    const currentIndex = trackingSteps.findIndex(([step]) => step === successStatus);
-    const isCancelled = successStatus === "CANCELLED";
-    const canAddMore = ["RECEIVED", "CONFIRMED", "PREPARING", "READY"].includes(successStatus);
-    const progress = currentIndex >= 0 ? ((currentIndex + 1) / trackingSteps.length) * 100 : 0;
-
-    return (
-      <div className="ppp-checkout-panel fixed inset-0 z-[200] min-h-[100dvh] overflow-x-hidden overflow-y-auto overscroll-contain bg-[#f4f1eb] text-foreground">
-        <div className="min-h-screen">
-          <header className="bg-foreground text-background">
-            <div className="mx-auto max-w-5xl px-4 pb-5 pt-4 sm:px-8 sm:pb-9 sm:pt-7">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg">
-                    <Pizza className="size-5" />
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[.24em] text-background/45">Acompanhamento</p>
-                    <p className="mt-0.5 font-display text-lg tracking-tight">{organization.name}</p>
-                  </div>
-                </div>
-                <button onClick={onClose} className="rounded-full border border-background/15 px-4 py-2 text-[10px] font-bold uppercase tracking-[.16em] text-background/70 transition hover:bg-background/10 hover:text-background">
-                  Cardápio
-                </button>
-              </div>
-
-              <div className="mt-5 grid gap-4 lg:mt-8 lg:grid-cols-[1fr_auto] lg:items-end">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-primary px-3 py-1 text-[9px] font-bold uppercase tracking-[.16em] text-primary-foreground">
-                      Pedido #{successNumber}
-                    </span>
-                    <span className="rounded-full border border-background/15 px-3 py-1 text-[9px] font-bold uppercase tracking-[.16em] text-background/55">
-                      {trackingLive ? "Ao vivo" : "Atualização automática"}
-                    </span>
-                  </div>
-                  <h1 className="mt-4 max-w-2xl font-display text-[clamp(2.15rem,9vw,5.5rem)] leading-[.9] tracking-[-.05em]">
-                    {isCancelled ? "Pedido cancelado." : successStatus === "DELIVERED" ? "Pedido concluído." : "Seu pedido está a caminho."}
-                  </h1>
-                  <p className="mt-3 max-w-xl text-xs leading-5 text-background/55 sm:mt-4 sm:text-base sm:leading-6">
-                    {isCancelled ? "Confira a mensagem abaixo para mais detalhes." : successStatus === "DELIVERED" ? "Obrigado por pedir com a gente. Esperamos que aproveite." : "Fique tranquilo: esta tela se atualiza automaticamente conforme a loja avança o pedido."}
-                  </p>
-                </div>
-                <div className="hidden text-right lg:block">
-                  <p className="text-[9px] font-bold uppercase tracking-[.2em] text-background/35">Status atual</p>
-                  <p className="mt-1 font-display text-2xl text-primary">
-                    {isCancelled ? "Cancelado" : trackingSteps[currentIndex]?.[1] ?? "Em atualização"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </header>
-
-          <main className="mx-auto grid max-w-5xl gap-3 px-3 py-3 pb-8 sm:gap-5 sm:px-8 sm:py-7 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_320px]">
-            <section className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-[0_10px_28px_rgba(0,0,0,.06)] sm:rounded-[1.75rem]">
-              <div className="border-b border-black/7 px-4 py-3.5 sm:px-7 sm:py-5">
-                <div className="flex items-end justify-between gap-4">
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Progresso do pedido</p>
-                    <h2 className="mt-0.5 font-display text-xl tracking-tight sm:mt-1 sm:text-2xl">Estamos por aqui</h2>
-                  </div>
-                  {!isCancelled && <span className="text-xs font-semibold text-muted-foreground">{Math.round(progress)}% concluído</span>}
-                </div>
-                {!isCancelled && (
-                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted sm:mt-5">
-                    <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${progress}%` }} />
-                  </div>
-                )}
-                {canAddMore && (
-                  <div className="mt-4 rounded-2xl border border-primary/15 bg-primary/5 p-3.5 sm:mt-5 sm:p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Plus className="size-4" /></div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold">Esqueceu alguma coisa?</p>
-                        <p className="mt-1 text-xs leading-5 text-muted-foreground">Você ainda pode adicionar itens ao pedido enquanto ele não sair para entrega.</p>
-                        <Button type="button" onClick={() => { setAdditionError(null); setAdditionQuantities({}); setAdditionModalOpen(true); }} className="mt-3 h-10 rounded-xl px-4 text-xs font-black">Adicionar ao pedido</Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="px-3.5 py-3.5 sm:px-7 sm:py-7">
-                {isCancelled ? (
-                  <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
-                    <div className="flex gap-4">
-                      <div className="grid size-11 shrink-0 place-items-center rounded-full bg-red-100 text-red-600"><X className="size-5" /></div>
-                      <div>
-                        <p className="font-bold">Pedido cancelado</p>
-                        <p className="mt-1 text-sm leading-6 text-muted-foreground">{trackingError ?? "A loja cancelou este pedido."}</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <div className="absolute bottom-7 left-[17px] top-7 w-px bg-border sm:bottom-8 sm:left-[20px] sm:top-8" />
-                    <div className="space-y-1">
-                      {trackingSteps.map(([value, label, description], index) => {
-                        const isDone = currentIndex >= 0 && index <= currentIndex;
-                        const isCurrent = value === successStatus;
-                        return (
-                          <div key={value} className="relative flex gap-3 rounded-xl p-2.5 transition sm:gap-4 sm:rounded-2xl sm:p-4">
-                            <div className={`relative z-10 grid size-9 shrink-0 place-items-center rounded-full border-2 transition-all sm:size-10 ${isDone ? "border-primary bg-primary text-primary-foreground shadow-[0_0_0_5px_hsl(var(--primary)/.08)]" : "border-border bg-white text-muted-foreground"}`}>
-                              {isDone ? <Check className="size-4" /> : <span className="text-[10px] font-bold">{index + 1}</span>}
-                            </div>
-                            <div className="min-w-0 flex-1 pb-2">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <p className={`text-[13px] font-bold sm:text-base ${isCurrent ? "text-primary" : isDone ? "text-foreground" : "text-muted-foreground"}`}>{label}</p>
-                                {isCurrent && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[.12em] text-primary">Agora</span>}
-                              </div>
-                              <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-3 rounded-xl bg-[#f8f6f2] p-3 sm:mt-5 sm:rounded-2xl sm:p-5">
-                  <div className="flex gap-3">
-                    <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Clock3 className="size-4" /></div>
-                    <div>
-                      <p className="text-xs font-bold">{trackingError ?? (isCancelled ? "O acompanhamento foi encerrado." : trackingLive ? "Conexão ao vivo ativa. As mudanças aparecem automaticamente." : "Atualização automática ativa. O sistema verifica o pedido a cada poucos segundos.")}</p>
-                      {!isCancelled && (
-                        <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
-                          {lastTrackingUpdate ? `Última atualização: ${lastTrackingUpdate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}` : "Aguardando a primeira atualização."}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <div className="lg:hidden">
-              <section className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-[0_10px_28px_rgba(0,0,0,.06)]">
-                <div className="flex items-center justify-between gap-3 border-b border-black/7 px-4 py-3.5">
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Resumo do pedido</p>
-                    <h2 className="mt-0.5 font-display text-xl tracking-tight">O que você pediu</h2>
-                  </div>
-                  <ShoppingBag className="size-5 text-muted-foreground" />
-                </div>
-                <div className="space-y-2.5 p-3.5">
-                  {confirmedItems.length > 0 ? confirmedItems.map((item) => (
-                    <div key={item.lineId} className="rounded-xl border border-black/8 bg-[#faf9f7] p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
-                          <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
-                          {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}
-                          {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-muted-foreground">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
-                        </div>
-                        <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
-                      </div>
-                    </div>
-                  )) : (
-                    <p className="text-xs leading-5 text-muted-foreground">O pedido foi confirmado. Número do pedido: #{successNumber}.</p>
-                  )}
-                  <div className="border-t border-black/8 pt-3 text-xs">
-                    <div className="flex justify-between gap-3 text-muted-foreground"><span>Subtotal</span><span>{formatCurrency(confirmedSubtotal)}</span></div>
-                    {confirmedFulfillment === "DELIVERY" && <div className="mt-1.5 flex justify-between gap-3 text-muted-foreground"><span>Entrega</span><span>{formatCurrency(Math.max(0, confirmedTotal - confirmedSubtotal))}</span></div>}
-                    <div className="mt-2 flex justify-between gap-3 text-base font-black"><span>Total</span><span>{formatCurrency(confirmedTotal)}</span></div>
-                  </div>
-                </div>
-              </section>
-            </div>
-
-            <aside className="hidden space-y-5 lg:block">
-              <section className="rounded-[1.75rem] bg-foreground p-5 text-background shadow-[0_18px_45px_rgba(0,0,0,.12)] sm:p-6">
-                <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Pedido</p>
-                <p className="mt-1 font-display text-3xl tracking-tight">#{successNumber}</p>
-                <div className="mt-5 border-t border-background/10 pt-4">
-                  <div className="flex items-center justify-between gap-3 text-xs">
-                    <span className="text-background/45">Recebimento</span>
-                    <span className="font-bold">{fulfillment === "DELIVERY" ? "Delivery" : "Retirada"}</span>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between gap-3 text-xs">
-                    <span className="text-background/45">Situação</span>
-                    <span className="font-bold text-primary">{isCancelled ? "Cancelado" : trackingSteps[currentIndex]?.[1] ?? "Atualizando"}</span>
-                  </div>
-                </div>
-              </section>
-
-              <section className="rounded-[1.75rem] border border-black/8 bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,.05)] sm:p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <div><p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Resumo do pedido</p><h3 className="mt-1 font-display text-2xl tracking-tight">O que você pediu</h3></div>
-                  <ShoppingBag className="size-5 text-muted-foreground" />
-                </div>
-                {confirmedItems.length > 0 ? (
-                  <div className="mt-4 space-y-2.5">
-                    {confirmedItems.map((item) => (
-                      <div key={item.lineId} className="rounded-xl border border-black/8 bg-[#faf9f7] p-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
-                            <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
-                            {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}
-                            {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-muted-foreground">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
-                          </div>
-                          <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="border-t border-black/8 pt-3 text-xs">
-                      <div className="flex justify-between gap-3 text-muted-foreground"><span>Subtotal</span><span>{formatCurrency(confirmedSubtotal)}</span></div>
-                      {confirmedFulfillment === "DELIVERY" && <div className="mt-1.5 flex justify-between gap-3 text-muted-foreground"><span>Entrega</span><span>{formatCurrency(Math.max(0, confirmedTotal - confirmedSubtotal))}</span></div>}
-                      <div className="mt-2 flex justify-between gap-3 text-base font-black"><span>Total do pedido</span><span>{formatCurrency(confirmedTotal)}</span></div>
-                    </div>
-                  </div>
-                ) : <p className="mt-3 text-xs leading-5 text-muted-foreground">O pedido foi confirmado. O detalhamento não está disponível nesta sessão, mas o número do pedido é #{successNumber}.</p>}
-              </section>
-
-              <section className="rounded-[1.75rem] border border-black/8 bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,.05)] sm:p-6">
-                <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Precisa sair?</p>
-                <h3 className="mt-1 font-display text-2xl tracking-tight">Voltar ao cardápio</h3>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">Você pode continuar navegando. O pedido segue sendo acompanhado automaticamente.</p>
-                <Button className="mt-5 h-11 w-full rounded-xl text-xs font-black" onClick={onClose}>Voltar ao cardápio</Button>
-              </section>
-            </aside>
-          
-
-            <section className="mt-3 rounded-2xl border border-black/8 bg-white p-4 shadow-[0_10px_28px_rgba(0,0,0,.06)] lg:hidden">
-              <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Precisa sair?</p>
-              <h2 className="mt-0.5 font-display text-xl tracking-tight">Voltar ao cardápio</h2>
-              <p className="mt-1.5 text-xs leading-5 text-muted-foreground">Você pode continuar navegando. O pedido segue sendo acompanhado automaticamente.</p>
-              <Button className="mt-3 h-11 w-full rounded-xl text-xs font-black" onClick={onClose}>Voltar ao cardápio</Button>
-            </section></main>
-        </div>
-      </div>
-    );
-  }
-      {additionModalOpen && trackedOrder && (
-        <div className="fixed inset-0 z-[320] flex items-center justify-center bg-black/65 p-3 backdrop-blur-sm sm:p-6" role="dialog" aria-modal="true" aria-label="Adicionar itens ao pedido">
-          <button type="button" className="absolute inset-0 cursor-default" onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); }} aria-label="Fechar" />
-          <section className="relative z-10 flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-background shadow-[0_25px_80px_rgba(0,0,0,.35)]">
-            <header className="flex items-start justify-between gap-4 border-b px-5 py-4 sm:px-6">
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-[.2em] text-primary">Pedido #{trackedOrder.number}</p>
-                <h2 className="mt-1 font-display text-2xl tracking-tight sm:text-3xl">Esqueceu alguma coisa?</h2>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">Adicione bebidas, acompanhamentos e sobremesas sem alterar os pratos principais.</p>
-              </div>
-              <button type="button" onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); }} className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label="Fechar">
-                <X className="size-4" />
-              </button>
-            </header>
-
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-              {additionProducts.length === 0 ? (
-                <div className="rounded-2xl border border-dashed p-6 text-center">
-                  <p className="font-semibold">Nenhum item disponível para acréscimo.</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Cadastre bebidas, acompanhamentos ou sobremesas no cardápio para disponibilizá-los aqui.</p>
-                </div>
-              ) : (
-                <div className="grid gap-2">
-                  {additionProducts.map((product) => {
-                    const quantity = additionQuantities[product.id] ?? 0;
-                    return (
-                      <div key={product.id} className="flex items-center gap-3 rounded-2xl border bg-card p-3">
-                        <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
-                          {product.image_url ? <img src={product.image_url} alt="" className="size-full object-cover" /> : <div className="grid size-full place-items-center font-display text-lg text-primary/50">{product.name.charAt(0)}</div>}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold">{product.name}</p>
-                          <p className="mt-0.5 text-xs text-muted-foreground">{formatCurrency(Number(product.base_price) || 0)}</p>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-2">
-                          <button type="button" onClick={() => setAdditionQuantities((current) => ({ ...current, [product.id]: Math.max(0, quantity - 1) }))} disabled={quantity === 0} className="grid size-8 place-items-center rounded-full border disabled:opacity-30"><Minus className="size-3.5" /></button>
-                          <span className="w-5 text-center text-sm font-black">{quantity}</span>
-                          <button type="button" onClick={() => setAdditionQuantities((current) => ({ ...current, [product.id]: quantity + 1 }))} className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground"><Plus className="size-3.5" /></button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            <footer className="border-t bg-card p-4 sm:p-5">
-              <div className="mb-3 flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[.16em] text-muted-foreground">Acréscimo</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{additionCount} {additionCount === 1 ? "item" : "itens"} selecionados</p>
-                </div>
-                <span className="font-display text-2xl">{formatCurrency(additionTotal)}</span>
-              </div>
-              {additionError && <p className="mb-3 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">{additionError}</p>}
-              <Button type="button" disabled={additionCount === 0 || additionSubmitting} onClick={confirmAdditions} className="h-12 w-full rounded-xl text-sm font-black">
-                {additionSubmitting ? "Adicionando ao pedido..." : "Adicionar ao pedido"}
-              </Button>
-              <p className="mt-2 text-center text-[10px] leading-4 text-muted-foreground">Os itens entram diretamente no pedido #{trackedOrder.number}. O pedido principal não será alterado.</p>
-            </footer>
-          </section>
-        </div>
-      )}
 
   return (
     <div className="ppp-checkout-panel fixed inset-0 z-[60] min-h-[100dvh] overflow-x-hidden overflow-y-auto overscroll-contain bg-[#f7f4ef] text-foreground">
