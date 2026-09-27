@@ -843,6 +843,7 @@ export function Storefront({ slug }: { slug?: string }) {
       )}
     </div>
   );
+}
 
 
 function ProductConfigurator({
