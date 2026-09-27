@@ -575,69 +575,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
       </main>
 
-      {additionModalOpen && selectedTrackedOrder && (
-        <div className="fixed inset-0 z-[320] flex items-center justify-center bg-black/65 p-3 backdrop-blur-sm sm:p-6" role="dialog" aria-modal="true" aria-label="Adicionar itens ao pedido">
-          <button type="button" className="absolute inset-0 cursor-default" onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); }} aria-label="Fechar" />
-          <section className="relative z-10 flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-background shadow-[0_25px_80px_rgba(0,0,0,.35)]">
-            <header className="flex items-start justify-between gap-4 border-b px-5 py-4 sm:px-6">
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-[.2em] text-primary">Pedido #{selectedTrackedOrder.number}</p>
-                <h2 className="mt-1 font-display text-2xl tracking-tight sm:text-3xl">Esqueceu alguma coisa?</h2>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">Adicione bebidas, acompanhamentos e sobremesas sem alterar os pratos principais.</p>
-              </div>
-              <button type="button" onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); }} className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label="Fechar">
-                <X className="size-4" />
-              </button>
-            </header>
 
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-              {additionProducts.length === 0 ? (
-                <div className="rounded-2xl border border-dashed p-6 text-center">
-                  <p className="font-semibold">Nenhum item disponível para acréscimo.</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Cadastre bebidas, acompanhamentos ou sobremesas no cardápio para disponibilizá-los aqui.</p>
-                </div>
-              ) : (
-                <div className="grid gap-2">
-                  {additionProducts.map((product) => {
-                    const quantity = additionQuantities[product.id] ?? 0;
-                    return (
-                      <div key={product.id} className="flex items-center gap-3 rounded-2xl border bg-card p-3">
-                        <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
-                          {product.image_url ? <img src={product.image_url} alt="" className="size-full object-cover" /> : <div className="grid size-full place-items-center font-display text-lg text-primary/50">{product.name.charAt(0)}</div>}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold">{product.name}</p>
-                          <p className="mt-0.5 text-xs text-muted-foreground">{formatCurrency(Number(product.base_price) || 0)}</p>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-2">
-                          <button type="button" onClick={() => setAdditionQuantities((current) => ({ ...current, [product.id]: Math.max(0, quantity - 1) }))} disabled={quantity === 0} className="grid size-8 place-items-center rounded-full border disabled:opacity-30"><Minus className="size-3.5" /></button>
-                          <span className="w-5 text-center text-sm font-black">{quantity}</span>
-                          <button type="button" onClick={() => setAdditionQuantities((current) => ({ ...current, [product.id]: quantity + 1 }))} className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground"><Plus className="size-3.5" /></button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            <footer className="border-t bg-card p-4 sm:p-5">
-              <div className="mb-3 flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[.16em] text-muted-foreground">Acréscimo</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{additionCount} {additionCount === 1 ? "item" : "itens"} selecionados</p>
-                </div>
-                <span className="font-display text-2xl">{formatCurrency(additionTotal)}</span>
-              </div>
-              {additionError && <p className="mb-3 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">{additionError}</p>}
-              <Button type="button" disabled={additionCount === 0 || additionSubmitting} onClick={confirmAdditions} className="h-12 w-full rounded-xl text-sm font-black">
-                {additionSubmitting ? "Adicionando ao pedido..." : "Adicionar ao pedido"}
-              </Button>
-              <p className="mt-2 text-center text-[10px] leading-4 text-muted-foreground">Os itens entram diretamente no pedido #{selectedTrackedOrder.number}. O pedido principal não será alterado.</p>
-            </footer>
-          </section>
-        </div>
-      )}
 
       {selectedProduct && (
         <ProductConfigurator
@@ -2170,6 +2108,70 @@ function CheckoutPanel({
       </div>
     );
   }
+      {additionModalOpen && trackedOrder && (
+        <div className="fixed inset-0 z-[320] flex items-center justify-center bg-black/65 p-3 backdrop-blur-sm sm:p-6" role="dialog" aria-modal="true" aria-label="Adicionar itens ao pedido">
+          <button type="button" className="absolute inset-0 cursor-default" onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); }} aria-label="Fechar" />
+          <section className="relative z-10 flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-background shadow-[0_25px_80px_rgba(0,0,0,.35)]">
+            <header className="flex items-start justify-between gap-4 border-b px-5 py-4 sm:px-6">
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[.2em] text-primary">Pedido #{trackedOrder.number}</p>
+                <h2 className="mt-1 font-display text-2xl tracking-tight sm:text-3xl">Esqueceu alguma coisa?</h2>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">Adicione bebidas, acompanhamentos e sobremesas sem alterar os pratos principais.</p>
+              </div>
+              <button type="button" onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); }} className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label="Fechar">
+                <X className="size-4" />
+              </button>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              {additionProducts.length === 0 ? (
+                <div className="rounded-2xl border border-dashed p-6 text-center">
+                  <p className="font-semibold">Nenhum item disponível para acréscimo.</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Cadastre bebidas, acompanhamentos ou sobremesas no cardápio para disponibilizá-los aqui.</p>
+                </div>
+              ) : (
+                <div className="grid gap-2">
+                  {additionProducts.map((product) => {
+                    const quantity = additionQuantities[product.id] ?? 0;
+                    return (
+                      <div key={product.id} className="flex items-center gap-3 rounded-2xl border bg-card p-3">
+                        <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
+                          {product.image_url ? <img src={product.image_url} alt="" className="size-full object-cover" /> : <div className="grid size-full place-items-center font-display text-lg text-primary/50">{product.name.charAt(0)}</div>}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-bold">{product.name}</p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">{formatCurrency(Number(product.base_price) || 0)}</p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <button type="button" onClick={() => setAdditionQuantities((current) => ({ ...current, [product.id]: Math.max(0, quantity - 1) }))} disabled={quantity === 0} className="grid size-8 place-items-center rounded-full border disabled:opacity-30"><Minus className="size-3.5" /></button>
+                          <span className="w-5 text-center text-sm font-black">{quantity}</span>
+                          <button type="button" onClick={() => setAdditionQuantities((current) => ({ ...current, [product.id]: quantity + 1 }))} className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground"><Plus className="size-3.5" /></button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <footer className="border-t bg-card p-4 sm:p-5">
+              <div className="mb-3 flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[.16em] text-muted-foreground">Acréscimo</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{additionCount} {additionCount === 1 ? "item" : "itens"} selecionados</p>
+                </div>
+                <span className="font-display text-2xl">{formatCurrency(additionTotal)}</span>
+              </div>
+              {additionError && <p className="mb-3 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">{additionError}</p>}
+              <Button type="button" disabled={additionCount === 0 || additionSubmitting} onClick={confirmAdditions} className="h-12 w-full rounded-xl text-sm font-black">
+                {additionSubmitting ? "Adicionando ao pedido..." : "Adicionar ao pedido"}
+              </Button>
+              <p className="mt-2 text-center text-[10px] leading-4 text-muted-foreground">Os itens entram diretamente no pedido #{trackedOrder.number}. O pedido principal não será alterado.</p>
+            </footer>
+          </section>
+        </div>
+      )}
+
   return (
     <div className="ppp-checkout-panel fixed inset-0 z-[60] min-h-[100dvh] overflow-x-hidden overflow-y-auto overscroll-contain bg-[#f7f4ef] text-foreground">
       <div className="mx-auto min-h-[100dvh] w-full max-w-6xl px-[clamp(.75rem,2.5vw,1.5rem)] pb-28 pt-[clamp(.75rem,2.5vw,1.5rem)] sm:px-6 sm:pb-12 sm:pt-6">
