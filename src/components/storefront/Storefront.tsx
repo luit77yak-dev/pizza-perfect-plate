@@ -2054,6 +2054,7 @@ function CheckoutPanel({
                       {selectedZone && (
                         <div className="mt-2 rounded-lg bg-primary/10 px-3 py-2 text-[10px] leading-4 text-background/65">
                           Pedido mínimo para entrega: <strong className="text-background">{formatCurrency(deliveryMinimum)}</strong>
+                          <span className="mt-0.5 block text-[9px] text-background/45">Taxa de entrega {formatCurrency(deliveryFee)} + R$ 1,00</span>
                         </div>
                       )}
                     </>
