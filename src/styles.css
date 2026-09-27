@@ -2762,3 +2762,32 @@
     }
   }
 }
+
+@layer components {
+  /* Admin selected navigation: high contrast, brand-consistent. */
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button[aria-current="page"],
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button[data-state="active"],
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button[aria-selected="true"] {
+    background: #0a292d !important;
+    color: #f4efe5 !important;
+    border-color: #0a292d !important;
+    box-shadow: 0 6px 18px rgba(10,41,45,.12) !important;
+  }
+
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button[aria-current="page"] *,
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button[data-state="active"] *,
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button[aria-selected="true"] * {
+    color: #f4efe5 !important;
+  }
+
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button:hover {
+    color: #0a292d !important;
+  }
+
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button[aria-current="page"]:hover,
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button[data-state="active"]:hover,
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button[aria-selected="true"]:hover {
+    color: #f4efe5 !important;
+    background: #0a292d !important;
+  }
+}
