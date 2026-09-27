@@ -38,7 +38,8 @@ DECLARE
   v_unit_price numeric(10,2);
   v_quantity integer;
   v_crust_id uuid;
-  v_crust record;
+  v_crust_price numeric(10,2) := 0;
+  v_crust_name text;
   v_addon_total numeric(10,2);
   v_product_id uuid;
   v_second_product_id uuid;
@@ -120,7 +121,8 @@ BEGIN
     v_is_half := COALESCE((v_item->>'is_half')::boolean, false);
     v_size := NULL;
     v_second_size_price := NULL;
-    v_crust := NULL;
+    v_crust_price := 0;
+    v_crust_name := NULL;
     v_quantity := GREATEST(1, LEAST(99, COALESCE((v_item->>'quantity')::integer, 1)));
 
     IF v_product_id IS NULL THEN
@@ -277,8 +279,8 @@ BEGIN
       v_org, v_order_id, v_product_id, v_product.name, 
       v_second_product_id, CASE WHEN v_is_half THEN v_second_product.name ELSE NULL END,
       v_is_half, v_size_id, CASE WHEN v_size_id IS NOT NULL THEN v_size.name ELSE NULL END,
-      v_crust_id, CASE WHEN v_crust_id IS NOT NULL THEN v_crust.name ELSE NULL END,
-      round(COALESCE(v_crust.price, 0), 2), v_unit_price, v_quantity,
+      v_crust_id, v_crust_name,
+      round(COALESCE(v_crust_price, 0), 2), v_unit_price, v_quantity,
       round(v_unit_price * v_quantity, 2),
       NULLIF(trim(v_item->>'notes'), '')
     ) RETURNING id INTO v_item_id;
