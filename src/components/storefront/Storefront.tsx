@@ -1403,8 +1403,12 @@ function CheckoutPanel({
         setError("Para entrega, informe rua, número e bairro.");
         return;
       }
-      if (deliveryZones.length > 0 && !selectedZone) {
-        setError("Não encontramos uma área de entrega para esse bairro.");
+      if (deliveryZones.length === 0) {
+        setError("A loja ainda não cadastrou áreas de entrega. Não é possível pedir por entrega no momento.");
+        return;
+      }
+      if (!selectedZone || !matchedNeighborhood) {
+        setError("Selecione um bairro cadastrado na lista para continuar.");
         return;
       }
     }
@@ -1839,12 +1843,19 @@ function CheckoutPanel({
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <label className="text-sm">
                     <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Bairro *</span>
-                    <input list="delivery-neighborhoods" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="Seu bairro" className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
-                    {availableNeighborhoods.length > 0 && (
-                      <datalist id="delivery-neighborhoods">
-                        {availableNeighborhoods.map((item) => <option key={item} value={item} />)}
-                      </datalist>
-                    )}
+                    <select
+                      value={matchedNeighborhood ?? ""}
+                      onChange={(e) => setNeighborhood(e.target.value)}
+                      disabled={availableNeighborhoods.length === 0}
+                      className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <option value="">
+                        {availableNeighborhoods.length > 0 ? "Selecione seu bairro" : "Nenhum bairro cadastrado"}
+                      </option>
+                      {availableNeighborhoods.map((item) => (
+                        <option key={item} value={item}>{item}</option>
+                      ))}
+                    </select>
                   </label>
                   <label className="text-sm">
                     <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Complemento</span>
