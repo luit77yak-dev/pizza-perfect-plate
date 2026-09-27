@@ -326,7 +326,7 @@ export function Storefront({ slug }: { slug?: string }) {
         } as CSSProperties
       }
     >
-      <div className="overflow-hidden bg-secondary text-secondary-foreground" aria-hidden="true"><div className="ppp-ticker-run flex min-w-max items-center gap-8 py-2 font-display text-[11px] uppercase tracking-[.16em]">{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={index} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={`repeat-${index}`} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}</div></div>
+      <div className="ppp-top-ticker overflow-hidden bg-secondary text-secondary-foreground" aria-hidden="true"><div className="ppp-ticker-run flex min-w-max items-center gap-8 py-2 font-display text-[11px] uppercase tracking-[.16em]">{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={index} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={`repeat-${index}`} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}</div></div>
 
       <header className="sticky top-0 z-40 border-b-2 border-secondary bg-background/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -365,23 +365,12 @@ export function Storefront({ slug }: { slug?: string }) {
               </div>
               <div className="ppp-reference-hero-media absolute inset-0 z-0 min-h-[560px] overflow-hidden bg-secondary p-0 sm:min-h-[680px] lg:min-h-[760px]">
                 <div className="relative h-full min-h-[560px] overflow-hidden bg-background/10 p-0 sm:min-h-[680px] lg:min-h-[760px]">
-                  {data.settings.hero_image_url || data.categories.some((category) => category.image_url) ? (
-                    <ImageAccordion
-                      items={[
-                        ...(data.settings.hero_image_url ? [{ image: data.settings.hero_image_url, title: "A nossa pizza", subtitle: "Feita na hora" }] : []),
-                        ...data.categories
-                          .filter((category) => Boolean(category.image_url))
-                          .slice(0, 4)
-                          .map((category) => ({ image: category.image_url!, title: category.name, subtitle: "Confira no cardápio" })),
-                        ...mainProducts
-                          .filter((product) => Boolean(product.image_url))
-                          .slice(0, 5)
-                          .map((product) => ({ image: product.image_url!, title: product.name, subtitle: "No nosso cardápio" })),
-                      ]}
-                      className="h-full min-h-[560px] sm:min-h-[680px] lg:min-h-[760px]"
-                    />
+                  {data.settings.hero_image_url ? (
+                    <img src={data.settings.hero_image_url} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
+                  ) : mainProducts.find((product) => Boolean(product.image_url)) ? (
+                    <img src={mainProducts.find((product) => Boolean(product.image_url))?.image_url ?? ""} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
                   ) : (
-                    <div className="grid h-full min-h-[390px] place-items-center text-secondary-foreground/50"><Pizza className="size-28" strokeWidth={1} /></div>
+                    <div className="grid h-full min-h-[560px] place-items-center text-secondary-foreground/50"><Pizza className="size-28" strokeWidth={1} /></div>
                   )}
                 </div>
                 <div className="pointer-events-none absolute bottom-2 left-2 z-10 flex size-24 rotate-[-8deg] items-center justify-center rounded-full border-2 border-secondary bg-primary p-3 text-center font-display text-[9px] uppercase leading-3 text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.7)] sm:bottom-4 sm:left-4 sm:size-28 sm:text-[10px]">{data.organization.name}<br />feito na hora<br />pizza artesanal</div>
