@@ -17,6 +17,7 @@ import { ImageAccordion } from "@/components/ui/image-accordion";
 import { MenuFilters } from "@/components/storefront/MenuFilters";
 import { ProductTicker } from "@/components/storefront/ProductTicker";
 import { MenuImageAccordion } from "@/components/storefront/MenuImageAccordion";
+import { StorefrontTicker } from "@/components/storefront/StorefrontTicker";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -508,7 +509,7 @@ export function Storefront({ slug }: { slug?: string }) {
         } as CSSProperties
       }
     >
-      <div className="ppp-top-ticker overflow-hidden bg-secondary text-secondary-foreground" aria-hidden="true"><div className="ppp-ticker-run flex min-w-max items-center gap-8 py-2 font-display text-[11px] uppercase tracking-[.16em] text-white">{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={index} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={`repeat-${index}`} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}</div></div>
+      <StorefrontTicker organizationName={data.organization.name} statusLabel={status.label} />
 
       <header className="ppp-reference-header absolute inset-x-0 top-0 z-[100] isolate border-b border-white/15 bg-black/55 text-white backdrop-blur-xl">
         <div className="mx-auto flex h-[5.5rem] max-w-[1400px] items-center justify-between gap-6 px-5 sm:h-[6rem] sm:px-8 lg:px-12">
