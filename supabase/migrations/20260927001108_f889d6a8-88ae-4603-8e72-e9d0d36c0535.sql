@@ -1,0 +1,1 @@
+update public.products set image_url='https://oyrmugsaedowvbfywklz.supabase.co/storage/v1/object/public/product-images/a1000000-0000-4000-8000-000000000001/ai/'||id||'.jpg' where organization_id='a1000000-0000-4000-8000-000000000001' and (image_url is null or image_url='');
