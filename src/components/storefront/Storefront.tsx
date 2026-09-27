@@ -2003,16 +2003,11 @@ function CheckoutPanel({
   organization,
   settings,
   deliveryZones,
-  products,
-  categories,
   items,
   subtotal,
   onClose,
   onSuccess,
   trackedOrder,
-  addingToOrder,
-  onAddToOrder,
-  onOpenAdditions,
   storeOpen,
   storeStatusLabel,
   onOrderFinished,
@@ -2020,25 +2015,20 @@ function CheckoutPanel({
   organization: Organization;
   settings: OrganizationSettings;
   deliveryZones: DeliveryZone[];
-  products: Product[];
-  categories: Category[];
   items: CartItem[];
   subtotal: number;
   onClose: () => void;
-  onSuccess: (order: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType; status?: OrderStatus; isAddition?: boolean }) => void;
-  trackedOrder?: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType; status?: OrderStatus } | null;
-  addingToOrder: boolean;
-  onAddToOrder: () => void;
-  onOpenAdditions: () => void;
+  onSuccess: (order: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType }) => void;
+  trackedOrder?: { id: string; number: number; phone: string } | null;
   storeOpen: boolean;
   storeStatusLabel: string;
-  onOrderFinished: (orderId: string) => void;
+  onOrderFinished: () => void;
 }) {
   const [fulfillment, setFulfillment] = useState<FulfillmentType>(
     settings.delivery_enabled ? "DELIVERY" : "PICKUP",
   );
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
-    (settings.payment_methods ?? [])[0] ?? "PIX",
+    settings.payment_methods[0] ?? "PIX",
   );
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -2055,16 +2045,374 @@ function CheckoutPanel({
   const [successStatus, setSuccessStatus] = useState<OrderStatus>("RECEIVED");
   const [trackingLive, setTrackingLive] = useState(false);
   const [lastTrackingUpdate, setLastTrackingUpdate] = useState<Date | null>(null);
-  const [trackingError, setTrackingError] = useState<string | null>(null);
-  const [confirmedItems, setConfirmedItems] = useState<CartItem[]>([]);
-  const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);
-  const [confirmedTotal, setConfirmedTotal] = useState(0);
-  const [confirmedFulfillment, setConfirmedFulfillment] = useState<FulfillmentType>(settings.delivery_enabled ? "DELIVERY" : "PICKUP");
+  const [trackingError, setTrackingError] = useState<string | null>(null);\n  const [confirmedItems, setConfirmedItems] = useState<CartItem[]>([]);\n  const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);\n  const [confirmedTotal, setConfirmedTotal] = useState(0);\n  const [confirmedFulfillment, setConfirmedFulfillment] = useState<FulfillmentType>(settings.delivery_enabled ? "DELIVERY" : "PICKUP");
 
+  useEffect(() => {
+    if (!trackedOrder) return;
+    setSuccessOrderId(trackedOrder.id);
+    setSuccessNumber(trackedOrder.number);
+    setSuccessStatus("RECEIVED");
+    setPhone(trackedOrder.phone);
+  }, [trackedOrder]);
 
+  const selectedZone =
+    fulfillment === "DELIVERY"
+      ? deliveryZones.find((zone) =>
+          zone.neighborhoods.some(
+            (item) => normalizeNeighborhood(item) === normalizeNeighborhood(neighborhood),
+          ),
+        ) ?? null
+      : null;
+
+  const matchedNeighborhood =
+    selectedZone?.neighborhoods.find(
+      (item) => normalizeNeighborhood(item) === normalizeNeighborhood(neighborhood),
+    ) ?? null;
+
+  const availableNeighborhoods = Array.from(
+    new Set(
+      deliveryZones.flatMap((zone) => zone.neighborhoods.map((item) => item.trim()).filter(Boolean)),
+    ),
+  );
+  const deliveryFee = selectedZone?.delivery_fee ?? 0;
+  const total = subtotal + deliveryFee;
+
+  const availablePayments = settings.payment_methods.length
+    ? settings.payment_methods
+    : (["PIX"] as PaymentMethod[]);
+
+  const submitOrder = async () => {
+    setError(null);
+
+    if (!storeOpen) {
+      setError(`A loja está fechada. ${storeStatusLabel}.`);
+      return;
+    }
+
+    if (!name.trim() || !phone.trim()) {
+      setError("Informe seu nome e telefone.");
+      return;
+    }
+    if (fulfillment === "DELIVERY") {
+      if (!street.trim() || !number.trim() || !neighborhood.trim()) {
+        setError("Para entrega, informe rua, número e bairro.");
+        return;
+      }
+      if (deliveryZones.length === 0) {
+        setError("A loja ainda não cadastrou áreas de entrega. Entre em contato com a loja para confirmar se há atendimento na sua região.");
+        return;
+      }
+      if (!selectedZone || !matchedNeighborhood) {
+        setError("Selecione um bairro cadastrado na lista para continuar.");
+        return;
+      }
+    }
+    const minOrderAmount = Number(settings.min_order_amount ?? 0);
+    if (
+      fulfillment === "DELIVERY" &&
+      minOrderAmount > 0 &&
+      subtotal < minOrderAmount
+    ) {
+      setError(
+        `Para entrega, o pedido mínimo é ${formatCurrency(minOrderAmount)}. Faltam ${formatCurrency(minOrderAmount - subtotal)}.`,
+      );
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const payload = {
+        organization_id: organization.id,
+        subtotal,
+        customer_name: name.trim(),
+        customer_phone: phone.trim(),
+        fulfillment,
+        payment_method: paymentMethod,
+        address_street: fulfillment === "DELIVERY" ? street.trim() : null,
+        address_number: fulfillment === "DELIVERY" ? number.trim() : null,
+        address_neighborhood: fulfillment === "DELIVERY" ? (matchedNeighborhood ?? neighborhood.trim()) : null,
+        address_complement: fulfillment === "DELIVERY" ? complement.trim() || null : null,
+        address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
+        notes: notes.trim() || null,
+        idempotency_key: crypto.randomUUID(),
+        items: items.flatMap((item) => [
+          {
+            product_id: item.productId,
+            second_product_id: item.secondProductId,
+            is_half: item.isHalf,
+            size_id: item.sizeId,
+            crust_id: item.crustId,
+            quantity: item.quantity,
+            notes: item.notes,
+            addons: item.addons.map((addon) => ({ id: addon.id })),
+          },
+          ...(item.complements ?? []).map((complement) => ({
+            product_id: complement.productId,
+            second_product_id: null,
+            is_half: false,
+            size_id: null,
+            crust_id: null,
+            quantity: 1,
+            notes: "Complemento do pedido: " + item.productName,
+            addons: [],
+          })),
+        ]),
+      };
+
+      const { data: created, error: createError } = await supabase.rpc(
+        "create_public_order",
+        { p_order: payload },
+      );
+      if (createError) throw createError;
+
+      const order = Array.isArray(created) ? created[0] : created;
+      if (!order?.order_number || !order?.order_id) throw new Error("Não foi possível criar o pedido.");
+      setSuccessOrderId(String(order.order_id));
+      setSuccessNumber(Number(order.order_number));
+      setSuccessStatus("RECEIVED");
+      onSuccess({ id: String(order.order_id), number: Number(order.order_number), phone: phone.trim() });
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error
+          ? submitError.message
+          : typeof submitError === "object" && submitError !== null && "message" in submitError
+            ? String((submitError as { message?: unknown }).message ?? "Não foi possível enviar o pedido.")
+            : "Não foi possível enviar o pedido.";
+      setError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!successOrderId) return;
+
+    let cancelled = false;
+
+    const applyStatus = (value: unknown) => {
+      const currentStatus = value as OrderStatus;
+      if (!currentStatus || cancelled) return;
+
+      setSuccessStatus(currentStatus);
+      setTrackingError(null);
+      setLastTrackingUpdate(new Date());
+
+      if (currentStatus === "DELIVERED" || currentStatus === "CANCELLED") {
+        onOrderFinished();
+      }
+    };
+
+    const loadStatus = async () => {
+      const { data: tracking, error: trackingQueryError } = await supabase.rpc(
+        "get_public_order_status",
+        { p_order_id: successOrderId, p_customer_phone: phone.trim() },
+      );
+
+      if (cancelled) return;
+      if (trackingQueryError) {
+        setTrackingError("Não foi possível atualizar o status agora.");
+        return;
+      }
+
+      const current = Array.isArray(tracking) ? tracking[0] : tracking;
+      if (current?.status) applyStatus(current.status);
+    };
+
+    void loadStatus();
+
+    const channel = supabase
+      .channel(`public-order-tracking:${successOrderId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "orders",
+          filter: `id=eq.${successOrderId}`,
+        },
+        (payload) => {
+          const nextStatus = (payload.new as { status?: OrderStatus })?.status;
+          if (nextStatus) applyStatus(nextStatus);
+        },
+      )
+      .subscribe((status) => {
+        if (cancelled) return;
+        setTrackingLive(status === "SUBSCRIBED");
+      });
+
+    const interval = window.setInterval(loadStatus, 5000);
+
+    return () => {
+      cancelled = true;
+      setTrackingLive(false);
+      window.clearInterval(interval);
+      void supabase.removeChannel(channel);
+    };
+  }, [successOrderId, phone, onOrderFinished]);
+
+  if (successNumber != null && successOrderId != null) {
+    const trackingSteps: [OrderStatus, string, string][] = [
+      ["RECEIVED", "Pedido recebido", "Seu pedido chegou até a loja."],
+      ["CONFIRMED", "Pedido confirmado", "A cozinha já confirmou o pedido."],
+      ["PREPARING", "Em preparo", "Estamos preparando tudo com cuidado."],
+      ["READY", fulfillment === "DELIVERY" ? "Pedido pronto" : "Pronto para retirada", fulfillment === "DELIVERY" ? "Seu pedido está pronto para sair." : "Seu pedido já pode ser retirado."],
+      ...(fulfillment === "DELIVERY"
+        ? ([["OUT_FOR_DELIVERY", "Saiu para entrega", "Seu pedido está a caminho."]] as [OrderStatus, string, string][])
+        : []),
+      ["DELIVERED", fulfillment === "DELIVERY" ? "Entregue" : "Retirado", "Pedido finalizado com sucesso."],
+    ];
+    const currentIndex = trackingSteps.findIndex(([step]) => step === successStatus);
+    const isCancelled = successStatus === "CANCELLED";
+    const progress = currentIndex >= 0 ? ((currentIndex + 1) / trackingSteps.length) * 100 : 0;
+
+    return (
+      <div className="ppp-checkout-panel fixed inset-0 z-[200] overflow-y-auto bg-[#f4f1eb] text-background">
+        <div className="min-h-screen">
+          <header className="bg-foreground text-background">
+            <div className="mx-auto max-w-5xl px-4 pb-5 pt-4 sm:px-8 sm:pb-9 sm:pt-7">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg">
+                    <Pizza className="size-5" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[.24em] text-background/45">Acompanhamento</p>
+                    <p className="mt-0.5 font-display text-lg tracking-tight">{organization.name}</p>
+                  </div>
+                </div>
+                <button onClick={onClose} className="rounded-full border border-background/15 px-4 py-2 text-[10px] font-bold uppercase tracking-[.16em] text-background/70 transition hover:bg-background/10 hover:text-background">
+                  Cardápio
+                </button>
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:mt-8 lg:grid-cols-[1fr_auto] lg:items-end">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-primary px-3 py-1 text-[9px] font-bold uppercase tracking-[.16em] text-primary-foreground">
+                      Pedido #{successNumber}
+                    </span>
+                    <span className="rounded-full border border-background/15 px-3 py-1 text-[9px] font-bold uppercase tracking-[.16em] text-background/55">
+                      {trackingLive ? "Ao vivo" : "Atualização automática"}
+                    </span>
+                  </div>
+                  <h1 className="mt-4 max-w-2xl font-display text-[clamp(2.15rem,9vw,5.5rem)] leading-[.9] tracking-[-.05em]">
+                    {isCancelled ? "Pedido cancelado." : successStatus === "DELIVERED" ? "Pedido concluído." : "Seu pedido está a caminho."}
+                  </h1>
+                  <p className="mt-3 max-w-xl text-xs leading-5 text-background/55 sm:mt-4 sm:text-base sm:leading-6">
+                    {isCancelled ? "Confira a mensagem abaixo para mais detalhes." : successStatus === "DELIVERED" ? "Obrigado por pedir com a gente. Esperamos que aproveite." : "Fique tranquilo: esta tela se atualiza automaticamente conforme a loja avança o pedido."}
+                  </p>
+                </div>
+                <div className="hidden text-right lg:block">
+                  <p className="text-[9px] font-bold uppercase tracking-[.2em] text-background/35">Status atual</p>
+                  <p className="mt-1 font-display text-2xl text-primary">
+                    {isCancelled ? "Cancelado" : trackingSteps[currentIndex]?.[1] ?? "Em atualização"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <main className="mx-auto grid max-w-5xl gap-3 px-3 py-3 pb-8 sm:gap-5 sm:px-8 sm:py-7 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <section className="overflow-hidden rounded-2xl border border-background/10 bg-[#111820] shadow-[0_10px_28px_rgba(0,0,0,.06)] sm:rounded-[1.75rem]">
+              <div className="border-b border-black/7 px-4 py-3.5 sm:px-7 sm:py-5">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Progresso do pedido</p>
+                    <h2 className="mt-0.5 font-display text-xl tracking-tight sm:mt-1 sm:text-2xl">Estamos por aqui</h2>
+                  </div>
+                  {!isCancelled && <span className="text-xs font-semibold text-background/50">{Math.round(progress)}% concluído</span>}
+                </div>
+                {!isCancelled && (
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-background/5 sm:mt-5">
+                    <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${progress}%` }} />
+                  </div>
+                )}
+              </div>
+
+              <div className="px-3.5 py-3.5 sm:px-7 sm:py-7">
+                {isCancelled ? (
+                  <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
+                    <div className="flex gap-4">
+                      <div className="grid size-11 shrink-0 place-items-center rounded-full bg-red-100 text-red-600"><X className="size-5" /></div>
+                      <div>
+                        <p className="font-bold">Pedido cancelado</p>
+                        <p className="mt-1 text-sm leading-6 text-background/50">{trackingError ?? "A loja cancelou este pedido."}</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <div className="absolute bottom-7 left-[17px] top-7 w-px bg-border sm:bottom-8 sm:left-[20px] sm:top-8" />
+                    <div className="space-y-1">
+                      {trackingSteps.map(([value, label, description], index) => {
+                        const isDone = currentIndex >= 0 && index <= currentIndex;
+                        const isCurrent = value === successStatus;
+                        return (
+                          <div key={value} className="relative flex gap-3 rounded-xl p-2.5 transition sm:gap-4 sm:rounded-2xl sm:p-4">
+                            <div className={`relative z-10 grid size-9 shrink-0 place-items-center rounded-full border-2 transition-all sm:size-10 ${isDone ? "border-primary bg-primary text-primary-foreground shadow-[0_0_0_5px_hsl(var(--primary)/.08)]" : "border-border bg-[#111820] text-background/50"}`}>
+                              {isDone ? <Check className="size-4" /> : <span className="text-[10px] font-bold">{index + 1}</span>}
+                            </div>
+                            <div className="min-w-0 flex-1 pb-2">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className={`text-[13px] font-bold sm:text-base ${isCurrent ? "text-primary" : isDone ? "text-background" : "text-background/50"}`}>{label}</p>
+                                {isCurrent && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[.12em] text-primary">Agora</span>}
+                              </div>
+                              <p className="mt-1 text-xs leading-5 text-background/50">{description}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-3 rounded-xl bg-[#f8f6f2] p-3 sm:mt-5 sm:rounded-2xl sm:p-5">
+                  <div className="flex gap-3">
+                    <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Clock3 className="size-4" /></div>
+                    <div>
+                      <p className="text-xs font-bold">{trackingError ?? (isCancelled ? "O acompanhamento foi encerrado." : trackingLive ? "Conexão ao vivo ativa. As mudanças aparecem automaticamente." : "Atualização automática ativa. O sistema verifica o pedido a cada poucos segundos.")}</p>
+                      {!isCancelled && (
+                        <p className="mt-1 text-[11px] leading-5 text-background/50">
+                          {lastTrackingUpdate ? `Última atualização: ${lastTrackingUpdate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}` : "Aguardando a primeira atualização."}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <aside className="space-y-5">
+              <section className="rounded-[1.75rem] bg-foreground p-5 text-background shadow-[0_18px_45px_rgba(0,0,0,.12)] sm:p-6">
+                <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Pedido</p>
+                <p className="mt-1 font-display text-3xl tracking-tight">#{successNumber}</p>
+                <div className="mt-5 border-t border-background/10 pt-4">
+                  <div className="flex items-center justify-between gap-3 text-xs">
+                    <span className="text-background/45">Recebimento</span>
+                    <span className="font-bold">{fulfillment === "DELIVERY" ? "Delivery" : "Retirada"}</span>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-3 text-xs">
+                    <span className="text-background/45">Situação</span>
+                    <span className="font-bold text-primary">{isCancelled ? "Cancelado" : trackingSteps[currentIndex]?.[1] ?? "Atualizando"}</span>
+                  </div>
+                </div>
+              </section>
+
+              <section className="rounded-[1.75rem] border border-background/10 bg-[#111820] p-5 shadow-[0_10px_30px_rgba(0,0,0,.05)] sm:p-6">\n                <div className="flex items-center justify-between gap-3">\n                  <div><p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Resumo do pedido</p><h3 className="mt-1 font-display text-2xl tracking-tight">O que você pediu</h3></div>\n                  <ShoppingBag className="size-5 text-background/50" />\n                </div>\n                {confirmedItems.length > 0 ? (\n                  <div className="mt-4 space-y-2.5">\n                    {confirmedItems.map((item) => (\n                      <div key={item.lineId} className="rounded-xl border border-background/10 bg-[#0d1117] p-3">\n                        <div className="flex items-start justify-between gap-3">\n                          <div className="min-w-0">\n                            <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>\n                            <p className="mt-1 text-[10px] text-background/50">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>\n                            {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}\n                            {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-background/50">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}\n                          </div>\n                          <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>\n                        </div>\n                      </div>\n                    ))}\n                    <div className="border-t border-background/10 pt-3 text-xs">\n                      <div className="flex justify-between gap-3 text-background/50"><span>Subtotal</span><span>{formatCurrency(confirmedSubtotal)}</span></div>\n                      {confirmedFulfillment === "DELIVERY" && <div className="mt-1.5 flex justify-between gap-3 text-background/50"><span>Entrega</span><span>{formatCurrency(Math.max(0, confirmedTotal - confirmedSubtotal))}</span></div>}\n                      <div className="mt-2 flex justify-between gap-3 text-base font-black"><span>Total do pedido</span><span>{formatCurrency(confirmedTotal)}</span></div>\n                    </div>\n                  </div>\n                ) : <p className="mt-3 text-xs leading-5 text-background/50">O pedido foi confirmado. O detalhamento não está disponível nesta sessão, mas o número do pedido é #{successNumber}.</p>}\n              </section>\n
+                <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Precisa sair?</p>
+                <h3 className="mt-1 font-display text-2xl tracking-tight">Voltar ao cardápio</h3>
+                <p className="mt-2 text-xs leading-5 text-background/50">Você pode continuar navegando. O pedido segue sendo acompanhado automaticamente.</p>
+                <Button className="mt-5 h-11 w-full rounded-xl text-xs font-black" onClick={onClose}>Voltar ao cardápio</Button>
+              </section>
+            </aside>
+          </main>
+        </div>
+      </div>
+    );
+  }
   return (
-    <div className="ppp-checkout-panel fixed inset-0 z-[300] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5">
-      <div className="relative flex h-[94dvh] max-h-[760px] w-full min-w-0 flex-col overflow-hidden rounded-t-[2rem] border border-black/10 bg-[#0d1117] text-background shadow-2xl sm:h-[92dvh] sm:max-w-6xl sm:rounded-[2rem]">
+    <div className="ppp-checkout-panel fixed inset-0 z-[60] overflow-y-auto bg-[#f7f4ef] text-background">
+      <div className="mx-auto min-h-screen w-full max-w-6xl px-3 pb-28 pt-3 sm:px-6 sm:pb-12 sm:pt-6">
         <header className="shrink-0 overflow-hidden border-b border-background/10 bg-[#10151d] text-background">
           <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
             <div className="flex min-w-0 items-center gap-3">
@@ -2085,10 +2433,11 @@ function CheckoutPanel({
             </button>
           </div>
           <div className="grid grid-cols-3 border-t border-background/10 bg-background/[.04]">
-            {(addingToOrder
-              ? [["01", "Itens"], ["02", "Revisão"], ["03", "Confirmação"]]
-              : [["01", "Receber"], ["02", "Dados"], ["03", "Pagamento"]]
-            ).map(([number, label], index) => (
+            {[
+              ["01", "Receber"],
+              ["02", "Dados"],
+              ["03", "Pagamento"],
+            ].map(([number, label], index) => (
               <div key={number} className={`flex items-center justify-center gap-2 px-2 py-2.5 ${index === 0 ? "text-background" : "text-background/45"}`}>
                 <span className={`grid size-5 place-items-center rounded-full text-[8px] font-black ${index === 0 ? "bg-primary text-primary-foreground" : "border border-background/20"}`}>{number}</span>
                 <span className="hidden text-[9px] font-semibold uppercase tracking-[.14em] sm:inline">{label}</span>
@@ -2099,36 +2448,6 @@ function CheckoutPanel({
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5"><div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <main className="space-y-3">
-            {addingToOrder ? (
-              <section className="rounded-[1.5rem] border border-primary/15 bg-[#111820] p-5 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-6">
-                <div className="flex items-start gap-3">
-                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Plus className="size-5" /></div>
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Adicionar ao pedido #{trackedOrder?.number}</p>
-                    <h2 className="mt-1 text-xl font-display tracking-tight">Mais alguma coisa?</h2>
-                    <p className="mt-2 text-xs leading-5 text-background/50">Os itens abaixo serão acrescentados ao pedido existente. O endereço, forma de recebimento e telefone continuam os mesmos.</p>
-                  </div>
-                </div>
-                <div className="mt-5 rounded-2xl bg-[#0d1117] p-4">
-                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-background/50">Novos itens</p>
-                  <div className="mt-3 space-y-2">
-                    {items.map((item) => (
-                      <div key={item.lineId} className="flex items-start justify-between gap-3 rounded-xl border border-background/10 bg-[#111820] p-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
-                          <p className="mt-1 text-[10px] text-background/50">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
-                          {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}
-                          {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-background/50">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
-                        </div>
-                        <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="mt-4 rounded-xl border border-background/10 bg-background/[.035] p-3 text-xs leading-5 text-background/50"><strong className="text-background">Acréscimo:</strong> {formatCurrency(subtotal)} · o total do pedido será atualizado após a confirmação.</div>
-              </section>
-            ) : (
-              <>
             <section className="rounded-[1.5rem] border border-background/10 bg-[#111820] p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
               <div className="flex items-start gap-3">
                 <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -2293,8 +2612,6 @@ function CheckoutPanel({
               </div>
               <Textarea id="checkout-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-3 min-h-20 resize-none rounded-xl border-background/10 bg-[#0d1117]" placeholder="Ex.: tocar a campainha, tirar cebola..." maxLength={500} />
             </section>
-              </>
-            )}
           </main>
 
           <aside className="lg:sticky lg:top-5">
@@ -2311,7 +2628,7 @@ function CheckoutPanel({
                 </div>
               </div>
 
-              <div className="max-h-[min(42vh,28rem)] space-y-3 overflow-y-auto px-4 py-4 sm:px-5">
+              <div className="max-h-[42vh] space-y-3 overflow-y-auto px-4 py-4 sm:px-5">
                 {items.map((item) => (
                   <div key={item.lineId} className="rounded-xl border border-background/10 bg-background/[.04] p-3">
                     <div className="flex items-start justify-between gap-3">
@@ -2328,23 +2645,15 @@ function CheckoutPanel({
 
               <div className="border-t border-background/10 px-4 py-4 sm:px-5">
                 <div className="space-y-2 text-xs">
-                  <div className="flex justify-between gap-3 text-background/60"><span>{addingToOrder ? "Acréscimo" : "Subtotal"}</span><span>{formatCurrency(subtotal)}</span></div>
-                  {!addingToOrder && fulfillment === "DELIVERY" && (
-                    <>
-                      <div className="flex justify-between gap-3 text-background/60"><span>Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "A calcular"}</span></div>
-                      {selectedZone && (
-                        <div className="mt-2 rounded-lg bg-primary/10 px-3 py-2 text-[10px] leading-4 text-background/65">
-                          Pedido mínimo dos produtos: <strong className="text-background">{formatCurrency(deliveryMinimum)}</strong>
-                          <span className="mt-0.5 block text-[9px] text-background/45">+ taxa de entrega {formatCurrency(deliveryFee)}</span>
-                        </div>
-                      )}
-                    </>
+                  <div className="flex justify-between gap-3 text-background/60"><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
+                  {fulfillment === "DELIVERY" && (
+                    <div className="flex justify-between gap-3 text-background/60"><span>Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "A calcular"}</span></div>
                   )}
                   <div className="my-3 border-t border-background/10" />
                   <div className="flex items-end justify-between gap-3">
                     <div>
-                      <p className="text-[9px] font-bold uppercase tracking-[.16em] text-background/45">{addingToOrder ? "Valor adicional" : "Total do pedido"}</p>
-                      <p className="mt-0.5 font-display text-3xl tracking-tight">{formatCurrency(displayTotal)}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-[.16em] text-background/45">Total do pedido</p>
+                      <p className="mt-0.5 font-display text-3xl tracking-tight">{formatCurrency(total)}</p>
                     </div>
                     <span className="rounded-full bg-primary px-2.5 py-1 text-[9px] font-bold text-primary-foreground">{items.reduce((sum, item) => sum + item.quantity, 0)} itens</span>
                   </div>
@@ -2357,11 +2666,11 @@ function CheckoutPanel({
                 )}
 
                 <Button
-                  disabled={submitting || items.length === 0 || (!storeOpen && !addingToOrder)}
+                  disabled={submitting || items.length === 0 || !storeOpen}
                   onClick={submitOrder}
                   className="mt-4 h-13 w-full rounded-xl bg-primary text-sm font-black text-primary-foreground shadow-[0_10px_24px_hsl(var(--primary)/.28)] transition hover:brightness-105"
                 >
-                  {!storeOpen && !addingToOrder ? "Loja fechada" : submitting ? (addingToOrder ? "Adicionando..." : "Enviando pedido...") : addingToOrder ? `Adicionar ao pedido · ${formatCurrency(displayTotal)}` : `Confirmar pedido · ${formatCurrency(displayTotal)}`}
+                  {!storeOpen ? "Loja fechada" : submitting ? "Enviando pedido..." : `Confirmar pedido · ${formatCurrency(total)}`}
                 </Button>
                 <div className="mt-3 flex items-center justify-center gap-2 text-[9px] text-background/45">
                   <Clock3 className="size-3" />
@@ -2372,18 +2681,18 @@ function CheckoutPanel({
           </aside>
         </div>
 
-        <div className="fixed inset-x-0 bottom-0 z-[70] border-t border-background/10 bg-[#111820]/95 px-3 py-2.5 backdrop-blur-xl lg:hidden">
+        <div className="shrink-0 border-t border-background/10 bg-[#0a0e14]/95 px-3 py-2.5 pb-[max(.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
           <div className="mx-auto flex max-w-2xl items-center gap-2">
             <div className="min-w-0 flex-1">
               <p className="truncate text-[9px] font-bold uppercase tracking-[.12em] text-background/50">Total</p>
               <p className="text-lg font-black leading-none">{formatCurrency(total)}</p>
             </div>
             <Button
-              disabled={submitting || items.length === 0 || (!storeOpen && !addingToOrder)}
+              disabled={submitting || items.length === 0 || !storeOpen}
               onClick={submitOrder}
               className="h-11 shrink-0 rounded-full px-5 text-xs font-black shadow-[0_8px_20px_hsl(var(--primary)/.2)]"
             >
-              {!storeOpen && !addingToOrder ? "Loja fechada" : submitting ? (addingToOrder ? "Adicionando..." : "Enviando...") : addingToOrder ? "Adicionar ao pedido" : "Confirmar pedido"}
+              {!storeOpen ? "Loja fechada" : submitting ? "Enviando..." : "Confirmar pedido"}
             </Button>
           </div>
         </div>
