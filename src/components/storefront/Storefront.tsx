@@ -582,16 +582,27 @@ export function Storefront({ slug }: { slug?: string }) {
       )}
 
       {trackedOrder && !checkoutOpen && !cartOpen && itemCount === 0 && (
-        <div className="fixed inset-x-0 bottom-4 z-[120] mx-auto w-[calc(100%-2rem)] max-w-md">
+        <div className="fixed inset-x-0 bottom-3 z-[120] mx-auto w-[calc(100%-1.5rem)] max-w-md px-0 sm:bottom-4 sm:w-[calc(100%-2rem)]">
           <button
             onClick={() => setCheckoutOpen(true)}
-            className="flex w-full items-center justify-between rounded-2xl border bg-card px-5 py-4 text-left shadow-lifted"
+            className="group flex w-full items-center gap-3 rounded-2xl border border-black/10 bg-foreground px-3.5 py-3 text-left text-background shadow-[0_14px_35px_rgba(0,0,0,.22)] backdrop-blur-xl transition active:scale-[.99] sm:px-4 sm:py-3.5"
           >
-            <span>
-              <span className="block text-xs font-semibold uppercase tracking-[.12em] text-primary">Pedido em andamento</span>
-              <span className="mt-1 block text-sm font-semibold">Acompanhar pedido #{trackedOrder.number}</span>
+            <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
+              <Pizza className="size-4.5" />
+              <span className="absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-foreground bg-primary" />
             </span>
-            <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+            <span className="min-w-0 flex-1">
+              <span className="flex items-center gap-2">
+                <span className="text-[9px] font-black uppercase tracking-[.16em] text-primary">Pedido em andamento</span>
+                <span className="size-1 rounded-full bg-primary" />
+                <span className="text-[9px] font-bold text-background/45">#{trackedOrder.number}</span>
+              </span>
+              <span className="mt-0.5 block truncate text-xs font-bold sm:text-sm">Acompanhar pedido</span>
+              <span className="mt-0.5 block text-[9px] text-background/45">Toque para ver o status atualizado</span>
+            </span>
+            <span className="grid size-8 shrink-0 place-items-center rounded-full border border-background/10 bg-background/5 transition group-hover:bg-primary group-hover:text-primary-foreground">
+              <ChevronRight className="size-4" />
+            </span>
           </button>
         </div>
       )}
@@ -911,7 +922,7 @@ function ProductConfigurator({
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold">Escolha o segundo sabor</p>
-                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      <p className="mt-0.5 hidden text-xs leading-5 text-muted-foreground sm:block">
                         Primeiro sabor: <strong>{product.name}</strong>. Agora escolha a outra metade.
                       </p>
                       <p className="mt-1 text-[11px] font-medium text-primary">
@@ -1559,7 +1570,7 @@ function CheckoutPanel({
       <div className="ppp-checkout-panel fixed inset-0 z-[200] overflow-y-auto bg-[#f4f1eb] text-foreground">
         <div className="min-h-screen">
           <header className="bg-foreground text-background">
-            <div className="mx-auto max-w-5xl px-5 pb-7 pt-5 sm:px-8 sm:pb-9 sm:pt-7">
+            <div className="mx-auto max-w-5xl px-4 pb-5 pt-4 sm:px-8 sm:pb-9 sm:pt-7">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg">
@@ -1575,7 +1586,7 @@ function CheckoutPanel({
                 </button>
               </div>
 
-              <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+              <div className="mt-5 grid gap-4 lg:mt-8 lg:grid-cols-[1fr_auto] lg:items-end">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-primary px-3 py-1 text-[9px] font-bold uppercase tracking-[.16em] text-primary-foreground">
@@ -1585,10 +1596,10 @@ function CheckoutPanel({
                       {trackingLive ? "Ao vivo" : "Atualização automática"}
                     </span>
                   </div>
-                  <h1 className="mt-4 max-w-2xl font-display text-[clamp(2.6rem,7vw,5.5rem)] leading-[.86] tracking-[-.05em]">
+                  <h1 className="mt-4 max-w-2xl font-display text-[clamp(2.15rem,9vw,5.5rem)] leading-[.9] tracking-[-.05em]">
                     {isCancelled ? "Pedido cancelado." : successStatus === "DELIVERED" ? "Pedido concluído." : "Seu pedido está a caminho."}
                   </h1>
-                  <p className="mt-4 max-w-xl text-sm leading-6 text-background/55 sm:text-base">
+                  <p className="mt-3 max-w-xl text-xs leading-5 text-background/55 sm:mt-4 sm:text-base sm:leading-6">
                     {isCancelled ? "Confira a mensagem abaixo para mais detalhes." : successStatus === "DELIVERED" ? "Obrigado por pedir com a gente. Esperamos que aproveite." : "Fique tranquilo: esta tela se atualiza automaticamente conforme a loja avança o pedido."}
                   </p>
                 </div>
@@ -1602,24 +1613,24 @@ function CheckoutPanel({
             </div>
           </header>
 
-          <main className="mx-auto grid max-w-5xl gap-5 px-4 py-5 pb-12 sm:px-8 sm:py-7 lg:grid-cols-[minmax(0,1fr)_320px]">
-            <section className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-white shadow-[0_14px_40px_rgba(0,0,0,.06)]">
-              <div className="border-b border-black/7 px-5 py-5 sm:px-7">
+          <main className="mx-auto grid max-w-5xl gap-3 px-3 py-3 pb-8 sm:gap-5 sm:px-8 sm:py-7 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <section className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-[0_10px_28px_rgba(0,0,0,.06)] sm:rounded-[1.75rem]">
+              <div className="border-b border-black/7 px-4 py-3.5 sm:px-7 sm:py-5">
                 <div className="flex items-end justify-between gap-4">
                   <div>
                     <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Progresso do pedido</p>
-                    <h2 className="mt-1 font-display text-2xl tracking-tight">Estamos por aqui</h2>
+                    <h2 className="mt-0.5 font-display text-xl tracking-tight sm:mt-1 sm:text-2xl">Estamos por aqui</h2>
                   </div>
                   {!isCancelled && <span className="text-xs font-semibold text-muted-foreground">{Math.round(progress)}% concluído</span>}
                 </div>
                 {!isCancelled && (
-                  <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted sm:mt-5">
                     <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${progress}%` }} />
                   </div>
                 )}
               </div>
 
-              <div className="px-5 py-5 sm:px-7 sm:py-7">
+              <div className="px-3.5 py-3.5 sm:px-7 sm:py-7">
                 {isCancelled ? (
                   <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
                     <div className="flex gap-4">
@@ -1632,19 +1643,19 @@ function CheckoutPanel({
                   </div>
                 ) : (
                   <div className="relative">
-                    <div className="absolute bottom-8 left-[18px] top-8 w-px bg-border sm:left-[20px]" />
+                    <div className="absolute bottom-7 left-[17px] top-7 w-px bg-border sm:bottom-8 sm:left-[20px] sm:top-8" />
                     <div className="space-y-1">
                       {trackingSteps.map(([value, label, description], index) => {
                         const isDone = currentIndex >= 0 && index <= currentIndex;
                         const isCurrent = value === successStatus;
                         return (
-                          <div key={value} className="relative flex gap-4 rounded-2xl p-3 transition sm:p-4">
+                          <div key={value} className="relative flex gap-3 rounded-xl p-2.5 transition sm:gap-4 sm:rounded-2xl sm:p-4">
                             <div className={`relative z-10 grid size-9 shrink-0 place-items-center rounded-full border-2 transition-all sm:size-10 ${isDone ? "border-primary bg-primary text-primary-foreground shadow-[0_0_0_5px_hsl(var(--primary)/.08)]" : "border-border bg-white text-muted-foreground"}`}>
                               {isDone ? <Check className="size-4" /> : <span className="text-[10px] font-bold">{index + 1}</span>}
                             </div>
                             <div className="min-w-0 flex-1 pb-2">
                               <div className="flex flex-wrap items-center gap-2">
-                                <p className={`text-sm font-bold sm:text-base ${isCurrent ? "text-primary" : isDone ? "text-foreground" : "text-muted-foreground"}`}>{label}</p>
+                                <p className={`text-[13px] font-bold sm:text-base ${isCurrent ? "text-primary" : isDone ? "text-foreground" : "text-muted-foreground"}`}>{label}</p>
                                 {isCurrent && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[.12em] text-primary">Agora</span>}
                               </div>
                               <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>
@@ -1656,7 +1667,7 @@ function CheckoutPanel({
                   </div>
                 )}
 
-                <div className="mt-5 rounded-2xl bg-[#f8f6f2] p-4 sm:p-5">
+                <div className="mt-3 rounded-xl bg-[#f8f6f2] p-3 sm:mt-5 sm:rounded-2xl sm:p-5">
                   <div className="flex gap-3">
                     <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Clock3 className="size-4" /></div>
                     <div>
