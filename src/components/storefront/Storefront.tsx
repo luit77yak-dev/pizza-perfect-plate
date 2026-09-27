@@ -1212,6 +1212,7 @@ function CartPanel({
   storeOpen,
   storeStatusLabel,
   minOrderAmount,
+  minOrderExempt,
   pickupEnabled,
   deliveryEnabled,
   onCheckout,
