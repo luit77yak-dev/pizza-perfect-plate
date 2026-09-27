@@ -197,6 +197,8 @@ export function Storefront({ slug }: { slug?: string }) {
   const [selectedTrackedOrder, setSelectedTrackedOrder] = useState<PublicTrackedOrder | null>(null);
   const [additionModalOpen, setAdditionModalOpen] = useState(false);
   const [additionQuantities, setAdditionQuantities] = useState<Record<string, number>>({});
+  const [additionSubmitting, setAdditionSubmitting] = useState(false);
+  const [additionError, setAdditionError] = useState<string | null>(null);
   const [addingToOrder, setAddingToOrder] = useState(false);
   const [now, setNow] = useState(() => new Date());
 
@@ -346,20 +348,105 @@ export function Storefront({ slug }: { slug?: string }) {
 
   const additionCount = Object.values(additionQuantities).reduce((sum, quantity) => sum + quantity, 0);
 
-  const confirmAdditions = () => {
-    if (additionCount === 0) return;
-    additionProducts.forEach((product) => {
-      const quantity = additionQuantities[product.id] ?? 0;
-      for (let index = 0; index < quantity; index += 1) {
-        addSimpleProduct(product, false);
+  const confirmAdditions = async () => {
+    if (!selectedTrackedOrder || additionCount === 0 || additionSubmitting) return;
+
+    setAdditionSubmitting(true);
+    setAdditionError(null);
+
+    try {
+      const selectedItems = additionProducts
+        .map((product) => ({
+          product,
+          quantity: additionQuantities[product.id] ?? 0,
+        }))
+        .filter(({ quantity }) => quantity > 0);
+
+      const appendItems = selectedItems.map(({ product, quantity }) => ({
+        product_id: product.id,
+        second_product_id: null,
+        is_half: false,
+        size_id: null,
+        crust_id: null,
+        quantity,
+        notes: null,
+        addons: [],
+      }));
+
+      const { data: appended, error: appendError } = await supabase.rpc(
+        "append_public_order_items",
+        {
+          p_order_id: selectedTrackedOrder.id,
+          p_customer_phone: selectedTrackedOrder.phone,
+          p_items: appendItems,
+        },
+      );
+
+      if (appendError) throw appendError;
+
+      const order = Array.isArray(appended) ? appended[0] : appended;
+      if (!order?.order_id || !order?.order_number) {
+        throw new Error("Não foi possível adicionar os itens ao pedido.");
       }
-    });
-    setAdditionQuantities({});
-    setAdditionModalOpen(false);
-    setAddingToOrder(true);
-    setTrackingOpen(true);
-    setCheckoutOpen(true);
-    setCartOpen(false);
+
+      const addedCartItems: CartItem[] = selectedItems.map(({ product, quantity }) => ({
+        lineId: crypto.randomUUID(),
+        productId: product.id,
+        productName: product.name,
+        imageUrl: product.image_url,
+        secondProductId: null,
+        secondProductName: null,
+        isHalf: false,
+        sizeId: null,
+        sizeName: null,
+        crustId: null,
+        crustName: null,
+        crustPrice: 0,
+        addons: [],
+        complements: [],
+        quantity,
+        notes: null,
+        unitPrice: Number(product.base_price) || 0,
+      }));
+
+      const updatedOrder: PublicTrackedOrder = {
+        ...selectedTrackedOrder,
+        id: String(order.order_id),
+        number: Number(order.order_number),
+        items: [...(selectedTrackedOrder.items ?? []), ...addedCartItems],
+        subtotal: Number(order.subtotal ?? selectedTrackedOrder.subtotal ?? 0),
+        total: Number(order.total ?? selectedTrackedOrder.total ?? 0),
+        status: (order.status as OrderStatus) ?? selectedTrackedOrder.status,
+        isAddition: true,
+      };
+
+      setSelectedTrackedOrder(updatedOrder);
+      setTrackedOrders((previous) => {
+        const next = [...previous.filter((item) => item.id !== updatedOrder.id), updatedOrder];
+        try {
+          localStorage.setItem("ppp:last-orders:" + data.organization.id, JSON.stringify(next));
+        } catch {
+          // Ignore storage failures.
+        }
+        return next;
+      });
+
+      setAdditionQuantities({});
+      setAdditionModalOpen(false);
+      setTrackingOpen(true);
+      setCheckoutOpen(true);
+      setCartOpen(false);
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error
+          ? submitError.message
+          : typeof submitError === "object" && submitError !== null && "message" in submitError
+            ? String((submitError as { message?: unknown }).message ?? "Não foi possível adicionar os itens.")
+            : "Não foi possível adicionar os itens.";
+      setAdditionError(message);
+    } finally {
+      setAdditionSubmitting(false);
+    }
   };
 
   if (isLoading) return <StorefrontSkeleton />;
@@ -422,10 +509,10 @@ export function Storefront({ slug }: { slug?: string }) {
           </nav>
 
           <Button size="sm" style={{ backgroundColor: "#f97316", borderColor: "#f97316", color: "#ffffff" }} className="relative z-[110] gap-2 rounded-none px-3.5 font-body text-[10px] font-medium uppercase tracking-[.16em] text-white shadow-[3px_3px_0_rgba(0,0,0,.45)] transition-transform hover:-translate-y-0.5 sm:px-4" onClick={() => setCartOpen(true)}>
-            {trackedOrders.length > 0 ? <Clock3 className="size-3.5" /> : <ShoppingBag className="size-3.5" />}
-            <span>{trackedOrders.length > 0 ? "Pedidos" : "Pedir"}</span>
-            {trackedOrders.length > 0 && <Badge className="rounded-full bg-secondary px-1.5 text-secondary-foreground">{trackedOrders.length}</Badge>}
-            {itemCount > 0 && <Badge className="rounded-full bg-white/20 px-1.5 text-white">{itemCount}</Badge>}
+            <ShoppingBag className="size-3.5" />
+            <span>{itemCount > 0 ? "Sacola" : "Pedir"}</span>
+            {itemCount > 0 && <Badge className="rounded-full bg-white px-1.5 text-foreground">{itemCount}</Badge>}
+            {trackedOrders.length > 0 && <span className="flex items-center gap-1 rounded-full bg-secondary px-1.5 py-0.5 text-[9px] font-black text-secondary-foreground"><Clock3 className="size-2.5" />{trackedOrders.length}</span>}
           </Button>
         </div>
       </header>
@@ -663,10 +750,11 @@ export function Storefront({ slug }: { slug?: string }) {
                 </div>
                 <span className="font-display text-2xl">{formatCurrency(additionTotal)}</span>
               </div>
-              <Button type="button" disabled={additionCount === 0} onClick={confirmAdditions} className="h-12 w-full rounded-xl text-sm font-black">
-                Continuar com o acréscimo
+              {additionError && <p className="mb-3 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">{additionError}</p>}
+              <Button type="button" disabled={additionCount === 0 || additionSubmitting} onClick={confirmAdditions} className="h-12 w-full rounded-xl text-sm font-black">
+                {additionSubmitting ? "Adicionando ao pedido..." : "Adicionar ao pedido"}
               </Button>
-              <p className="mt-2 text-center text-[10px] leading-4 text-muted-foreground">O pedido original permanece igual. Os novos itens serão acrescentados na próxima confirmação.</p>
+              <p className="mt-2 text-center text-[10px] leading-4 text-muted-foreground">Os itens entram diretamente no pedido #{selectedTrackedOrder.number}. O pedido principal não será alterado.</p>
             </footer>
           </section>
         </div>
@@ -1949,7 +2037,7 @@ function CheckoutPanel({
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold">Esqueceu alguma coisa?</p>
                         <p className="mt-1 text-xs leading-5 text-muted-foreground">Você ainda pode adicionar itens ao pedido enquanto ele não sair para entrega.</p>
-                        <Button type="button" onClick={() => setAdditionModalOpen(true)} className="mt-3 h-10 rounded-xl px-4 text-xs font-black">Adicionar ao pedido</Button>
+                        <Button type="button" onClick={() => { setAdditionError(null); setAdditionQuantities({}); setAdditionModalOpen(true); }} className="mt-3 h-10 rounded-xl px-4 text-xs font-black">Adicionar ao pedido</Button>
                       </div>
                     </div>
                   </div>
