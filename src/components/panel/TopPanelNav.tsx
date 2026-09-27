@@ -38,9 +38,9 @@ export function TopPanelNav({
               key={item.view}
               type="button"
               onClick={() => onChange(item.view)}
-              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+              className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
                 active
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-[#0a292d] text-[#f4efe5] shadow-[0_6px_18px_rgba(10,41,45,0.12)]"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
               aria-current={active ? "page" : undefined}
