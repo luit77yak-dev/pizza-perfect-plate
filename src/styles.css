@@ -2389,3 +2389,112 @@
     }
   }
 }
+
+@layer components {
+  /* Premium editorial header: transparent over the hero, not a separate block. */
+  .ppp-reference-header {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    border: 0 !important;
+    background: linear-gradient(180deg, rgba(3,18,21,.55), transparent) !important;
+    backdrop-filter: none !important;
+  }
+
+  .ppp-reference-header > div {
+    max-width: 1400px !important;
+  }
+
+  .ppp-reference-header a[href="#inicio"] {
+    color: var(--ppp-ivory) !important;
+  }
+
+  .ppp-reference-header nav a {
+    color: rgba(244,238,226,.72) !important;
+    transition: color .25s ease, opacity .25s ease;
+  }
+
+  .ppp-reference-header nav a:hover {
+    color: var(--ppp-ivory) !important;
+    opacity: 1 !important;
+  }
+
+  .ppp-reference-header > div > button {
+    min-height: 2.65rem;
+    border-color: rgba(244,238,226,.3) !important;
+    background: rgba(3,18,21,.18) !important;
+    box-shadow: none !important;
+    color: var(--ppp-ivory) !important;
+    backdrop-filter: blur(10px);
+  }
+
+  .ppp-reference-hero-copy {
+    justify-content: flex-end !important;
+    padding-top: 8rem !important;
+    padding-bottom: clamp(2rem, 7vh, 5rem) !important;
+  }
+
+  .ppp-reference-hero-copy h1 {
+    max-width: 900px !important;
+    font-weight: 500 !important;
+    text-wrap: balance;
+  }
+
+  .ppp-reference-hero-copy > p:nth-of-type(2) {
+    max-width: 580px !important;
+    margin-top: 1.5rem !important;
+  }
+
+  .ppp-reference-hero-copy a[href="#cardapio"] {
+    width: auto !important;
+    min-width: 230px;
+    justify-content: center;
+  }
+
+  @media (max-width: 639px) {
+    .ppp-reference-header > div {
+      height: 4.75rem !important;
+      padding-inline: 1.15rem !important;
+    }
+
+    .ppp-reference-header a[href="#inicio"] span:last-child {
+      font-size: 1.05rem !important;
+    }
+
+    .ppp-reference-header > div > button {
+      min-height: 2.4rem !important;
+      padding-inline: .85rem !important;
+      font-size: .58rem !important;
+    }
+
+    .ppp-reference-hero-copy {
+      padding: 6.25rem 1.25rem 2.15rem !important;
+    }
+
+    .ppp-reference-hero-copy > p:first-child {
+      margin-bottom: 1rem !important;
+      font-size: .55rem !important;
+      letter-spacing: .34em !important;
+    }
+
+    .ppp-reference-hero-copy h1 {
+      max-width: 95% !important;
+      font-size: clamp(3.1rem, 15vw, 5.2rem) !important;
+      line-height: .86 !important;
+    }
+
+    .ppp-reference-hero-copy > p:nth-of-type(2) {
+      margin-top: 1rem !important;
+      font-size: .9rem !important;
+      line-height: 1.5 !important;
+    }
+
+    .ppp-reference-hero-copy a[href="#cardapio"] {
+      min-width: 0 !important;
+      width: 100% !important;
+      min-height: 3.65rem !important;
+      margin-top: 1.15rem !important;
+    }
+  }
+}
