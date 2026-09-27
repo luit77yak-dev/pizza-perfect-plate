@@ -904,13 +904,13 @@ function TrackedOrderPanel({
       : 0;
 
   return (
-    <div className="fixed inset-0 z-[180] bg-foreground/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`Acompanhar pedido #${order.number}`}>
+    <div className="fixed inset-0 z-[180] bg-foreground/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`Acompanhar pedido #${orderNumber}`}>
       <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar acompanhamento" />
       <section className="absolute inset-x-0 bottom-0 mx-auto max-h-[92dvh] w-full max-w-2xl overflow-hidden rounded-t-[2rem] bg-background shadow-2xl sm:inset-y-6 sm:bottom-auto sm:rounded-[2rem]">
         <header className="flex items-center justify-between gap-3 border-b bg-foreground px-5 py-4 text-background sm:px-6">
           <div>
             <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Acompanhamento</p>
-            <h2 className="mt-1 font-display text-2xl">Pedido #{order.number}</h2>
+            <h2 className="mt-1 font-display text-2xl">Pedido #{orderNumber}</h2>
           </div>
           <button type="button" onClick={onClose} className="grid size-9 place-items-center rounded-full bg-background/10 hover:bg-background/20" aria-label="Fechar">
             <X className="size-4" />
@@ -929,11 +929,11 @@ function TrackedOrderPanel({
           <div className="mt-4 rounded-2xl border bg-card p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-[9px] font-black uppercase tracking-[.16em] text-muted-foreground">Itens do pedido</p>
-              <span className="text-xs font-bold text-muted-foreground">{items.reduce((sum, item) => sum + item.quantity, 0)} itens</span>
+              <span className="text-xs font-bold text-muted-foreground">{items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)} itens</span>
             </div>
             <div className="mt-3 space-y-2">
-              {items.length > 0 ? items.map((item) => (
-                <div key={item.lineId || item.productId || `${item.productName || "item"}-${Math.random()}`} className="flex items-start justify-between gap-3 rounded-xl bg-muted/50 p-3">
+              {items.length > 0 ? items.map((item, index) => (
+                <div key={item.lineId || item.productId || `${item.productName || "item"}-${index}`} className="flex items-start justify-between gap-3 rounded-xl bg-muted/50 p-3">
                   <div className="min-w-0">
                     <p className="text-sm font-bold">{Number(item.quantity) || 0}× {item.productName || "Item" }{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
                     <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
@@ -948,7 +948,7 @@ function TrackedOrderPanel({
 
           <div className="mt-4 flex items-end justify-between border-t pt-4">
             <span className="text-sm text-muted-foreground">Total do pedido</span>
-            <span className="font-display text-2xl">{formatCurrency(Number(order.total ?? order.subtotal ?? 0))}</span>
+            <span className="font-display text-2xl">{formatCurrency(orderTotal)}</span>
           </div>
 
           {canAddMore && (
