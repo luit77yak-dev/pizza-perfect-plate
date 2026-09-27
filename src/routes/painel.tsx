@@ -862,7 +862,7 @@ function StaffPanel() {
 
   return (
     <PanelShell>
-      <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur-xl">
+      <header className="ppp-admin-header sticky top-0 z-30 border-b bg-background/95 backdrop-blur-xl">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Painel</p>
@@ -1838,7 +1838,7 @@ function AddonEditorRow({
   );
 }
 function PanelShell({ children }: { children: ReactNode }) {
-  return <div className="min-h-screen bg-background text-foreground">{children}</div>;
+  return <div className="ppp-admin-panel min-h-screen bg-background text-foreground">{children}</div>;
 }
 
 function ProductImageManager({
