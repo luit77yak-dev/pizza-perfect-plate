@@ -871,7 +871,7 @@ function StaffPanel() {
   return (
     <PanelShell>
       <header className="ppp-admin-header sticky top-0 z-30 border-b bg-background/95 backdrop-blur-xl">
-        <div className="mx-auto flex min-h-14 max-w-7xl items-center justify-between gap-2 px-3 sm:min-h-16 sm:gap-3 sm:px-6">
+        <div className="mx-auto flex min-h-14 w-full max-w-7xl items-center justify-between gap-2 px-[clamp(.75rem,2.5vw,1.5rem)] sm:min-h-16 sm:gap-3">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Painel</p>
             <h1 className="truncate text-base font-semibold sm:text-xl">{organizationName}</h1>
@@ -891,7 +891,7 @@ function StaffPanel() {
 
       <TopPanelNav activeView={activeView} onChange={setActiveView} role={role} />
 
-      <main className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-8">
+      <main className="mx-auto w-full max-w-7xl px-[clamp(.75rem,2.5vw,1.5rem)] py-[clamp(1rem,3vw,2rem)]">
         {successMessage && (
           <div className="ppp-admin-feedback ppp-admin-feedback-success mx-0 sm:mx-0" role="status">
             <Check className="size-4 shrink-0" />
@@ -1884,7 +1884,7 @@ function AddonEditorRow({
   );
 }
 function PanelShell({ children }: { children: ReactNode }) {
-  return <div className="ppp-admin-panel min-h-screen bg-background text-foreground">{children}</div>;
+  return <div className="ppp-admin-panel min-h-[100dvh] w-full overflow-x-hidden bg-background text-foreground">{children}</div>;
 }
 
 function ProductImageManager({
