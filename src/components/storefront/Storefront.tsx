@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ImageAccordion } from "@/components/ui/image-accordion";
 import { MenuFilters } from "@/components/storefront/MenuFilters";
+import { StorefrontHero } from "@/components/storefront/StorefrontHero";
 import { ProductTicker } from "@/components/storefront/ProductTicker";
 import { MenuImageAccordion } from "@/components/storefront/MenuImageAccordion";
 import { StorefrontTicker } from "@/components/storefront/StorefrontTicker";
@@ -540,30 +540,11 @@ export function Storefront({ slug }: { slug?: string }) {
       </header>
 
       <main id="inicio" className="ppp-reference-storefront">
-        <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
-          <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
-            <div className="ppp-reference-hero-grid grid min-h-[min(760px,calc(100dvh-5.5rem))] lg:min-h-[760px] lg:grid-cols-1">
-              <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-[clamp(1.25rem,5vw,3.5rem)]">
-                <p className="mb-5 w-fit bg-transparent px-0 font-body text-[10px] uppercase tracking-[.42em] text-white/75">Feita na hora · Est. 2026</p>
-                <h1 className="w-full max-w-4xl text-[clamp(2rem,8vw,8rem)] leading-[.86] tracking-[-.045em]">{data.settings.hero_title && !/MASSA DE FERMENTA/i.test(data.settings.hero_title) ? data.settings.hero_title : "Pizza que fica na memória."}</h1>
-                <p className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">{data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
-                <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-sm bg-primary px-6 py-4 font-display text-sm uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.85)] transition-transform hover:-translate-y-1">{data.settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
-              </div>
-              <div className="ppp-reference-hero-media pointer-events-none absolute inset-0 z-0 min-h-[min(680px,calc(100dvh-5.5rem))] overflow-hidden bg-secondary p-0 lg:min-h-[760px]">
-                <div className="relative h-full min-h-[560px] overflow-hidden bg-background/10 p-0 sm:min-h-[680px] lg:min-h-[760px]">
-                  {data.settings.hero_image_url ? (
-                    <img src={data.settings.hero_image_url} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
-                  ) : mainProducts.find((product) => Boolean(product.image_url)) ? (
-                    <img src={mainProducts.find((product) => Boolean(product.image_url))?.image_url ?? ""} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
-                  ) : (
-                    <div className="grid h-full min-h-[560px] place-items-center text-secondary-foreground/50"><Pizza className="size-28" strokeWidth={1} /></div>
-                  )}
-                </div>
-                <div className="pointer-events-none absolute bottom-2 left-2 z-10 flex size-24 rotate-[-8deg] items-center justify-center rounded-full border-2 border-secondary bg-primary p-3 text-center font-display text-[9px] uppercase leading-3 text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.7)] sm:bottom-4 sm:left-4 sm:size-28 sm:text-[10px]">{data.organization.name}<br />feito na hora<br />pizza artesanal</div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <StorefrontHero
+          organizationName={data.organization.name}
+          settings={data.settings}
+          products={mainProducts}
+        />
 
         <ProductTicker products={mainProducts} />
 
