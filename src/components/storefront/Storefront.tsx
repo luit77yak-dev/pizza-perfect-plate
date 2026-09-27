@@ -790,12 +790,59 @@ export function Storefront({ slug }: { slug?: string }) {
           }}
         />
       )}
-
-
-}
+      {additionModalOpen && selectedTrackedOrder && (
+        <div className="fixed inset-0 z-[320] flex items-center justify-center bg-black/65 p-3 backdrop-blur-sm sm:p-6" role="dialog" aria-modal="true" aria-label="Adicionar itens ao pedido">
+          <button type="button" className="absolute inset-0 cursor-default" onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); setAdditionError(null); }} aria-label="Fechar" />
+          <section className="relative z-10 flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-black/10 bg-background shadow-2xl">
+            <header className="flex items-center justify-between gap-3 border-b bg-foreground px-5 py-4 text-background">
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Pedido #{selectedTrackedOrder.number}</p>
+                <h2 className="mt-1 text-xl font-display">Esqueceu alguma coisa?</h2>
+                <p className="mt-1 text-xs text-background/65">Adicione bebidas, acompanhamentos ou sobremesas sem refazer o pedido.</p>
+              </div>
+              <button type="button" onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); setAdditionError(null); }} className="grid size-9 shrink-0 place-items-center rounded-full bg-background/10 hover:bg-background/20" aria-label="Fechar"><X className="size-4" /></button>
+            </header>
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+              {additionProducts.length === 0 ? (
+                <div className="rounded-2xl border border-dashed p-6 text-center">
+                  <p className="font-semibold">Nenhum item disponível para acréscimo.</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">Cadastre bebidas, acompanhamentos ou sobremesas como produtos simples para disponibilizá-los aqui.</p>
+                </div>
+              ) : (
+                <div className="grid gap-2">
+                  {additionProducts.map((product) => {
+                    const quantity = additionQuantities[product.id] ?? 0;
+                    return (
+                      <div key={product.id} className="flex items-center gap-3 rounded-2xl border bg-card p-3">
+                        <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
+                          {product.image_url ? <img src={product.image_url} alt="" className="size-full object-cover" /> : <div className="grid size-full place-items-center font-display text-lg text-primary/50">{product.name.charAt(0)}</div>}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-bold">{product.name}</p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">{formatCurrency(Number(product.base_price) || 0)}</p>
+                        </div>
+                        <div className="flex shrink-0 items-center rounded-full border bg-background">
+                          <button type="button" disabled={quantity === 0} onClick={() => setAdditionQuantities((previous) => ({ ...previous, [product.id]: Math.max(0, (previous[product.id] ?? 0) - 1) }))} className="grid size-9 place-items-center text-muted-foreground hover:text-foreground" aria-label={`Diminuir ${product.name}`}><Minus className="size-3.5" /></button>
+                          <span className="w-7 text-center text-sm font-bold">{quantity}</span>
+                          <button type="button" onClick={() => setAdditionQuantities((previous) => ({ ...previous, [product.id]: Math.min(99, (previous[product.id] ?? 0) + 1) }))} className="grid size-9 place-items-center text-primary hover:text-foreground" aria-label={`Aumentar ${product.name}`}><Plus className="size-3.5" /></button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <footer className="border-t bg-card p-4 sm:p-5">
+              <div className="mb-3 flex items-center justify-between text-sm"><span className="text-muted-foreground">Acréscimos</span><span className="font-black">{formatCurrency(additionTotal)}</span></div>
+              {additionError && <p className="mb-3 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">{additionError}</p>}
+              <Button type="button" disabled={additionCount === 0 || additionSubmitting} onClick={confirmAdditions} className="h-12 w-full rounded-xl text-sm font-black">{additionSubmitting ? "Adicionando ao pedido..." : "Adicionar ao pedido"}</Button>
+              <p className="mt-2 text-center text-[10px] leading-4 text-muted-foreground">Os itens entram diretamente no pedido #{selectedTrackedOrder.number}. O pedido principal não será alterado.</p>
+            </footer>
+          </section>
+        </div>
+      )}
     </div>
   );
-}
 
 
 function ProductConfigurator({
