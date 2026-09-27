@@ -466,11 +466,8 @@ export function Storefront({ slug }: { slug?: string }) {
   if (isLoading) return <StorefrontSkeleton />;
   if (isError || !data) {
     return (
-      <main cla<StorefrontLoadError error={error} onRetry={refetch} /> => refetch()}>
-            Tentar novamente
-          </Button>
-        </section>
-
+      <main className="grid min-h-[100dvh] place-items-center bg-muted/30 p-6">
+        <StorefrontLoadError error={error} onRetry={refetch} />
       </main>
     );
   }
