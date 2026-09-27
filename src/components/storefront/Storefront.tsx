@@ -582,7 +582,7 @@ export function Storefront({ slug }: { slug?: string }) {
       )}
 
       {trackedOrder && !checkoutOpen && !cartOpen && itemCount === 0 && (
-        <div className="fixed inset-x-0 bottom-4 z-30 mx-auto w-[calc(100%-2rem)] max-w-md">
+        <div className="fixed inset-x-0 bottom-4 z-[120] mx-auto w-[calc(100%-2rem)] max-w-md">
           <button
             onClick={() => setCheckoutOpen(true)}
             className="flex w-full items-center justify-between rounded-2xl border bg-card px-5 py-4 text-left shadow-lifted"
@@ -743,7 +743,7 @@ function ProductConfigurator({
         : "Finalize";
 
   return (
-    <div className="ppp-order-builder fixed inset-0 z-50 flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
+    <div className="ppp-order-builder fixed inset-0 z-[140] flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
       <div className="flex h-[95dvh] max-h-[95dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[92vh] sm:max-h-[92vh] sm:rounded-[2rem]">
         <div className="relative shrink-0 overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
           <div className="absolute -right-10 -top-16 size-40 rounded-full bg-primary/25 blur-3xl" />
@@ -1199,7 +1199,7 @@ function CartPanel({
   onCheckout: () => void;
 }) {
   return (
-    <div className="ppp-cart-panel fixed inset-0 z-50 bg-foreground/35 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Carrinho">
+    <div className="ppp-cart-panel fixed inset-0 z-[150] bg-foreground/35 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Carrinho">
       <button className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar carrinho" />
       <aside className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-background shadow-lifted">
         <div className="flex items-center justify-between border-b px-5 py-4">
@@ -1510,7 +1510,7 @@ function CheckoutPanel({
 
   if (successNumber != null && successOrderId != null) {
     return (
-      <div className="ppp-checkout-panel fixed inset-0 z-[60] overflow-y-auto bg-background">
+      <div className="ppp-checkout-panel fixed inset-0 z-[200] overflow-y-auto bg-background">
         <section className="mx-auto min-h-screen w-full max-w-2xl px-4 pb-10 pt-8 sm:px-6 sm:pt-12">
           <div className="rounded-[2rem] border bg-card p-6 shadow-lifted sm:p-8">
             <div className="flex items-start gap-4">
