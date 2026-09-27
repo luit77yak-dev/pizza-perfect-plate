@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ImageAccordion } from "@/components/ui/image-accordion";
 import { MenuFilters } from "@/components/storefront/MenuFilters";
+import { ProductTicker } from "@/components/storefront/ProductTicker";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -562,12 +563,7 @@ export function Storefront({ slug }: { slug?: string }) {
           </div>
         </section>
 
-        <div className="ppp-product-ticker mb-12 overflow-hidden border-y-2 border-secondary bg-secondary text-secondary-foreground" aria-hidden="true">
-          <div className="ppp-ticker-run flex min-w-max items-center gap-8 py-4 font-display text-sm uppercase tracking-[.08em] text-white">
-            {mainProducts.slice(0, 8).map((product) => <span key={product.id} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
-            {mainProducts.slice(0, 8).map((product) => <span key={`ticker-${product.id}`} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
-          </div>
-        </div>
+        <ProductTicker products={mainProducts} />
 
         <section id="cardapio" className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6">
           <div className="ppp-reference-menu-heading mb-8 flex flex-col items-center justify-center gap-3 text-center">
