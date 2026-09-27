@@ -895,7 +895,7 @@ function TrackedOrderPanel({
   onAddToOrder: () => void;
 }) {
   const canAddMore = ["RECEIVED", "CONFIRMED", "PREPARING", "READY"].includes(order.status ?? "RECEIVED");
-  const items = Array.isArray(order.items) ? order.items : [];
+  const items = Array.isArray(order.items) ? order.items.filter((item): item is CartItem => Boolean(item && typeof item === "object")) : [];
   const orderNumber = Number.isFinite(Number(order.number)) ? Number(order.number) : 0;
   const orderTotal = Number.isFinite(Number(order.total))
     ? Number(order.total)
