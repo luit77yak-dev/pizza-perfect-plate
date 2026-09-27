@@ -755,11 +755,11 @@ function ProductConfigurator({
 
   return (
     <div className="ppp-order-builder fixed inset-0 z-[140] flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
-      <div className="flex h-[95dvh] max-h-[95dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[92vh] sm:max-h-[92vh] sm:rounded-[2rem]">
+      <div className="flex h-[min(95dvh,860px)] max-h-[95dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[92vh] sm:max-h-[92vh] sm:rounded-[2rem]">
         <div className="relative shrink-0 overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
           <div className="absolute -right-10 -top-16 size-40 rounded-full bg-primary/25 blur-3xl" />
           <div className="relative flex items-center gap-4">
-            <div className="size-20 shrink-0 overflow-hidden rounded-2xl border border-background/15 bg-background/10 shadow-lg">
+            <div className="size-16 shrink-0 overflow-hidden rounded-2xl sm:size-20 border border-background/15 bg-background/10 shadow-lg">
               {product.image_url ? (
                 <img src={product.image_url} alt="" className="size-full object-cover" />
               ) : (
@@ -2008,7 +2008,7 @@ function CheckoutPanel({
                 </div>
               </div>
 
-              <div className="max-h-[42vh] space-y-3 overflow-y-auto px-4 py-4 sm:px-5">
+              <div className="max-h-[min(42vh,28rem)] space-y-3 overflow-y-auto px-4 py-4 sm:px-5">
                 {items.map((item) => (
                   <div key={item.lineId} className="rounded-xl border border-background/10 bg-background/[.04] p-3">
                     <div className="flex items-start justify-between gap-3">
@@ -2084,11 +2084,11 @@ function CheckoutPanel({
 
 function StorefrontSkeleton() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-[100dvh] w-full overflow-x-hidden bg-background">
       <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6">
         <Skeleton className="h-16 w-full rounded-2xl" />
         <div className="mt-5 grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
-          <Skeleton className="h-[390px] rounded-[2rem]" />
+          <Skeleton className="h-[min(390px,55vw)] min-h-64 rounded-[2rem]" />
           <div className="grid gap-3"><Skeleton className="h-28 rounded-3xl" /><Skeleton className="h-28 rounded-3xl" /></div>
         </div>
         <Skeleton className="mt-10 h-10 w-56 rounded-xl" />
