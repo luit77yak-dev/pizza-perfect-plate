@@ -798,7 +798,7 @@ function ProductConfigurator({
               </div>
 
               <div>
-                <div className="mb-3 flex items-end justify-between gap-3">
+                <div className="mb-2 flex items-end justify-between gap-2">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">01 · Escolha o tamanho</p>
                     <p className="mt-1 text-lg font-semibold tracking-tight">Qual vai ser o tamanho?</p>
@@ -974,15 +974,15 @@ function ProductConfigurator({
           )}
 
           {step === 2 && (
-            <section className="space-y-4">
-              <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-secondary p-4 text-secondary-foreground shadow-[0_14px_35px_hsl(var(--primary)/.10)] sm:p-6">
+            <section className="space-y-3">
+              <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-secondary p-3 text-secondary-foreground shadow-[0_14px_35px_hsl(var(--primary)/.10)] sm:p-6">
                 <div className="absolute -right-12 -top-12 size-32 rounded-full bg-primary/20 blur-3xl" />
                 <div className="relative">
                   <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">03 · Personalização</p>
                   <div className="mt-2 flex items-end justify-between gap-4">
                     <div>
-                      <h3 className="font-display text-xl tracking-[-.03em] sm:text-2xl">Do seu jeito.</h3>
-                      <p className="mt-1 max-w-md text-[11px] leading-4 text-secondary-foreground/65">Escolha os detalhes que deixam sua pizza ainda mais especial.</p>
+                      <h3 className="font-display text-lg tracking-[-.03em] sm:text-xl">Do seu jeito.</h3>
+                      <p className="mt-0.5 max-w-md text-[10px] leading-4 text-secondary-foreground/65">Escolha os detalhes que deixam sua pizza ainda mais especial.</p>
                     </div>
                     {(crustId || addonIds.length > 0 || notes.trim()) && (
                       <div className="hidden shrink-0 rounded-full bg-primary px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider text-primary-foreground sm:block">
@@ -994,11 +994,11 @@ function ProductConfigurator({
               </div>
 
               {data.crusts.length > 0 && (
-                <div className="rounded-2xl border bg-card p-3 shadow-sm sm:p-4">
+                <div className="rounded-xl border bg-card p-2.5 shadow-sm sm:p-3">
                   <div className="mb-3 flex items-end justify-between gap-3">
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">01 · Borda</p>
-                      <p className="mt-1 text-base font-semibold tracking-tight">Qual borda você prefere?</p>
+                      <p className="mt-0.5 text-sm font-semibold tracking-tight">Qual borda você prefere?</p>
                     </div>
                     {crustId && <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-primary">Escolhida</span>}
                   </div>
@@ -1010,16 +1010,16 @@ function ProductConfigurator({
                           key={item.id}
                           onClick={() => setCrustId(selected ? null : item.id)}
                           aria-pressed={selected}
-                          className={"group flex min-h-[52px] items-center justify-between rounded-xl border p-2.5 text-left transition-all duration-200 " + (selected ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-1 ring-primary/20" : "bg-background hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md")}
+                          className={"group flex min-h-[44px] items-center justify-between rounded-lg border p-2 text-left transition-all duration-200 " + (selected ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-1 ring-primary/20" : "bg-background hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md")}
                         >
                           <span className="flex min-w-0 items-center gap-3">
-                            <span className={"grid size-8 shrink-0 place-items-center rounded-lg border text-xs " + (selected ? "border-primary-foreground/20 bg-primary-foreground/10" : "border-border bg-muted")}>✦</span>
+                            <span className={"grid size-7 shrink-0 place-items-center rounded-lg border text-[11px] " + (selected ? "border-primary-foreground/20 bg-primary-foreground/10" : "border-border bg-muted")}>✦</span>
                             <span className="min-w-0">
-                              <span className="block truncate text-[13px] font-semibold">{item.name}</span>
-                              <span className={"mt-0.5 block text-[9px] " + (selected ? "text-primary-foreground/70" : "text-muted-foreground")}>{Number(item.price) > 0 ? "Adicional" : "Inclusa"}</span>
+                              <span className="block truncate text-xs font-semibold">{item.name}</span>
+                              <span className={"mt-0 block text-[8px] " + (selected ? "text-primary-foreground/70" : "text-muted-foreground")}>{Number(item.price) > 0 ? "Adicional" : "Inclusa"}</span>
                             </span>
                           </span>
-                          <span className="ml-2 shrink-0 text-right text-[11px] font-bold">{Number(item.price) > 0 ? "+" + formatCurrency(Number(item.price)) : "Grátis"}</span>
+                          <span className="ml-2 shrink-0 text-right text-[10px] font-bold">{Number(item.price) > 0 ? "+" + formatCurrency(Number(item.price)) : "Grátis"}</span>
                         </button>
                       );
                     })}
@@ -1032,7 +1032,7 @@ function ProductConfigurator({
                   <div className="mb-4 flex items-end justify-between gap-3">
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">02 · Adicionais</p>
-                      <p className="mt-1 text-base font-semibold tracking-tight">Quer deixar ainda melhor?</p>
+                      <p className="mt-0.5 text-sm font-semibold tracking-tight">Quer deixar ainda melhor?</p>
                     </div>
                     {addonIds.length > 0 && <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-primary">{addonIds.length} {addonIds.length === 1 ? "selecionado" : "selecionados"}</span>}
                   </div>
@@ -1047,7 +1047,7 @@ function ProductConfigurator({
                           className={"group flex min-h-[52px] items-center justify-between rounded-xl border p-2.5 text-left transition-all duration-200 " + (checked ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-1 ring-primary/20" : "bg-background hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md")}
                         >
                           <span className="flex min-w-0 items-center gap-3">
-                            <span className={"grid size-8 shrink-0 place-items-center rounded-lg border " + (checked ? "border-primary-foreground/20 bg-primary-foreground/10" : "border-border bg-muted")}>
+                            <span className={"grid size-7 shrink-0 place-items-center rounded-lg border " + (checked ? "border-primary-foreground/20 bg-primary-foreground/10" : "border-border bg-muted")}>
                               {checked ? <Check className="size-4" /> : <Plus className="size-4 text-muted-foreground" />}
                             </span>
                             <span className="min-w-0">
@@ -1055,7 +1055,7 @@ function ProductConfigurator({
                               <span className={"mt-0.5 block text-[10px] " + (checked ? "text-primary-foreground/70" : "text-muted-foreground")}>Adicionar ao pedido</span>
                             </span>
                           </span>
-                          <span className="ml-2 shrink-0 text-[11px] font-bold">+{formatCurrency(Number(item.price))}</span>
+                          <span className="ml-2 shrink-0 text-[10px] font-bold">+{formatCurrency(Number(item.price))}</span>
                         </button>
                       );
                     })}
@@ -1068,7 +1068,7 @@ function ProductConfigurator({
                   <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">03 · Observações</p>
                   <label htmlFor="product-notes" className="mt-1 block text-lg font-semibold tracking-tight">Algum detalhe especial?</label>
                 </div>
-                <Textarea id="product-notes" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Ex.: sem cebola, pouco molho..." maxLength={300} className="min-h-20 resize-none rounded-xl bg-background" />
+                <Textarea id="product-notes" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Ex.: sem cebola, pouco molho..." maxLength={300} className="min-h-16 resize-none rounded-lg bg-background" />
                 <p className="mt-2 text-right text-[10px] text-muted-foreground">{notes.length}/300</p>
               </div>
             </section>
