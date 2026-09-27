@@ -1401,6 +1401,8 @@ function CheckoutPanel({
     ),
   );
   const deliveryFee = selectedZone?.delivery_fee ?? 0;
+  // Delivery: pedido mínimo = taxa da região + R$ 1. Retirada: sem mínimo.
+  const deliveryMinimum = fulfillment === "DELIVERY" && selectedZone ? deliveryFee + 1 : 0;
   const total = subtotal + deliveryFee;
 
   const availablePayments = (settings.payment_methods ?? []).length
@@ -1430,6 +1432,10 @@ function CheckoutPanel({
       }
       if (!selectedZone || !matchedNeighborhood) {
         setError("Selecione um bairro cadastrado na lista para continuar.");
+        return;
+      }
+      if (subtotal < deliveryMinimum) {
+        setError(`Para entrega, o pedido mínimo é ${formatCurrency(deliveryMinimum)}. Faltam ${formatCurrency(deliveryMinimum - subtotal)}.`);
         return;
       }
     }
@@ -2043,7 +2049,14 @@ function CheckoutPanel({
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between gap-3 text-background/60"><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
                   {fulfillment === "DELIVERY" && (
-                    <div className="flex justify-between gap-3 text-background/60"><span>Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "A calcular"}</span></div>
+                    <>
+                      <div className="flex justify-between gap-3 text-background/60"><span>Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "A calcular"}</span></div>
+                      {selectedZone && (
+                        <div className="mt-2 rounded-lg bg-primary/10 px-3 py-2 text-[10px] leading-4 text-background/65">
+                          Pedido mínimo para entrega: <strong className="text-background">{formatCurrency(deliveryMinimum)}</strong>
+                        </div>
+                      )}
+                    </>
                   )}
                   <div className="my-3 border-t border-background/10" />
                   <div className="flex items-end justify-between gap-3">
