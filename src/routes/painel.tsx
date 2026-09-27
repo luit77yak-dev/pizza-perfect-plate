@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { BarChart3, Check, ChevronDown, ChevronUp, Clock3, ImagePlus, LogOut, MapPin, Package, Pencil, Plus, RefreshCw, Save, Settings2, ShoppingBag, Tag, Trash2, Upload, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -161,7 +161,7 @@ function StaffPanel() {
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);\n  const [orderAlert, setOrderAlert] = useState<{ orderId: string; orderNumber: number; productName: string } | null>(null);\n  const knownOrderIdsRef = useRef<Set<string>>(new Set());\n  const audioContextRef = useRef<AudioContext | null>(null);
   const [activeView, setActiveView] = useState<PanelView>("overview");
   const [operationsSection, setOperationsSection] = useState<"hours" | "delivery">("hours");
   const [catalogSection, setCatalogSection] = useState<"products" | "categories" | "sizes" | "addons" | "crusts" | "photos">("products");
@@ -628,6 +628,83 @@ function StaffPanel() {
     });
     return () => data.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!organizationId) return;
+
+    // Guarda apenas os pedidos que já existiam quando o canal foi criado.
+    // Assim, os primeiros order_items de um pedido novo não são confundidos
+    // com uma adição feita depois pelo cliente.
+    knownOrderIdsRef.current = new Set(orders.map((order) => order.id));
+
+    const playAdditionSound = () => {
+      try {
+        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (!AudioContextClass) return;
+        const context = audioContextRef.current ?? new AudioContextClass();
+        audioContextRef.current = context;
+        void context.resume();
+
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(880, context.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(660, context.currentTime + 0.16);
+        gain.gain.setValueAtTime(0.0001, context.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.075, context.currentTime + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.28);
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start();
+        oscillator.stop(context.currentTime + 0.3);
+      } catch {
+        // Alguns navegadores bloqueiam áudio até uma interação do usuário.
+      }
+    };
+
+    const channel = supabase
+      .channel(`admin-order-additions:${organizationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "order_items",
+          filter: `organization_id=eq.${organizationId}`,
+        },
+        async (payload) => {
+          const orderId = String((payload.new as { order_id?: string }).order_id ?? "");
+          if (!orderId || !knownOrderIdsRef.current.has(orderId)) return;
+
+          const item = payload.new as { product_name?: string };
+          const order = orders.find((current) => current.id === orderId);
+          if (!order) return;
+
+          playAdditionSound();
+          setOrderAlert({
+            orderId,
+            orderNumber: order.order_number,
+            productName: item.product_name ?? "Novo item",
+          });
+          await loadOrders();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+      if (audioContextRef.current) {
+        void audioContextRef.current.close().catch(() => undefined);
+        audioContextRef.current = null;
+      }
+    };
+  }, [organizationId, orders]);
+
+  useEffect(() => {
+    if (!orderAlert) return;
+    const timeout = window.setTimeout(() => setOrderAlert(null), 8000);
+    return () => window.clearTimeout(timeout);
+  }, [orderAlert]);
 
   const signIn = async () => {
     setAuthLoading(true);    setError(null);
