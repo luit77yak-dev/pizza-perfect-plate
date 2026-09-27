@@ -1037,7 +1037,7 @@ export function Storefront({ slug }: { slug?: string }) {
             </footer>
           </section>
         </div>
-      )}}
+      )}
     </div>
   );
 }
