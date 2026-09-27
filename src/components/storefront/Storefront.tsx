@@ -783,21 +783,37 @@ function ProductConfigurator({
               </div>
 
               <div>
-                <p className="mb-2 text-sm font-semibold">Tamanho</p>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {data.sizes.map((size) => {
+                <div className="mb-3 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">01 · Escolha o tamanho</p>
+                    <p className="mt-1 text-lg font-semibold tracking-tight">Qual vai ser o tamanho?</p>
+                  </div>
+                  <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Toque para escolher</span>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {data.sizes.map((size, index) => {
                     const price = getPrice(product, size.id, data.prices);
+                    const selected = sizeId === size.id;
                     return (
                       <button
                         key={size.id}
                         onClick={() => setSizeId(size.id)}
-                        className={"flex items-center justify-between rounded-2xl border px-4 py-3 text-left " + (sizeId === size.id ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")}
+                        className={"group relative overflow-hidden rounded-3xl border p-4 text-left transition-all duration-200 " + (selected ? "border-primary bg-primary text-primary-foreground shadow-[0_12px_30px_hsl(var(--primary)/.18)] ring-2 ring-primary/20" : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg")}
                       >
-                        <span>
-                          <span className="block text-sm font-semibold">{size.name}</span>
-                          {size.slices ? <span className="text-xs text-muted-foreground">{size.slices} fatias</span> : null}
-                        </span>
-                        <span className="text-sm font-semibold">{formatCurrency(price)}</span>
+                        <div className="flex items-center gap-4">
+                          <div className={"grid size-14 shrink-0 place-items-center rounded-2xl border text-2xl transition-transform group-hover:scale-105 " + (selected ? "border-primary-foreground/20 bg-primary-foreground/10" : "border-border bg-muted")}>
+                            <span aria-hidden="true">{index === 0 ? "🍕" : index === 1 ? "🍕" : "🍕"}</span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <span className="block text-base font-bold">{size.name}</span>
+                            {size.slices ? <span className={"mt-1 block text-xs " + (selected ? "text-primary-foreground/70" : "text-muted-foreground")}>{size.slices} fatias</span> : null}
+                          </div>
+                          <div className="text-right">
+                            <span className="block text-base font-bold">{formatCurrency(price)}</span>
+                            {selected && <span className="text-[9px] font-bold uppercase tracking-widest opacity-70">Selecionado</span>}
+                          </div>
+                        </div>
+                        <div className={"absolute -right-8 -top-8 size-24 rounded-full blur-2xl " + (selected ? "bg-primary-foreground/15" : "bg-primary/5")} />
                       </button>
                     );
                   })}
@@ -806,26 +822,37 @@ function ProductConfigurator({
 
               {product.allow_half && (
                 <div>
-                  <p className="mb-2 text-sm font-semibold">Formato da pizza</p>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="mb-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">02 · Formato</p>
+                    <p className="mt-1 text-lg font-semibold tracking-tight">Como você quer sua pizza?</p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <button
                       type="button"
                       onClick={() => {
                         setHalfMode(false);
                         setSecondProductId(null);
                       }}
-                      className={"rounded-2xl border p-4 text-left transition-colors " + (!halfMode ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")}
+                      className={"group relative overflow-hidden rounded-3xl border p-4 text-left transition-all " + (!halfMode ? "border-primary bg-primary text-primary-foreground shadow-[0_12px_30px_hsl(var(--primary)/.18)] ring-2 ring-primary/20" : "bg-card hover:border-primary/50 hover:shadow-md")}
                     >
-                      <p className="font-semibold">1 sabor</p>
-                      <p className="mt-1 text-xs text-muted-foreground">Pizza inteira com {product.name}</p>
+                      <div className="mb-4 flex items-center justify-between">
+                        <div className={"grid size-12 place-items-center rounded-2xl text-2xl " + (!halfMode ? "bg-primary-foreground/10" : "bg-muted")}>🍕</div>
+                        {!halfMode && <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest">Escolhido</span>}
+                      </div>
+                      <p className="font-bold">1 sabor</p>
+                      <p className={"mt-1 text-xs " + (!halfMode ? "text-primary-foreground/70" : "text-muted-foreground")}>Pizza inteira com {product.name}</p>
                     </button>
                     <button
                       type="button"
                       onClick={() => setHalfMode(true)}
-                      className={"rounded-2xl border p-4 text-left transition-colors " + (halfMode ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")}
+                      className={"group relative overflow-hidden rounded-3xl border p-4 text-left transition-all " + (halfMode ? "border-primary bg-primary text-primary-foreground shadow-[0_12px_30px_hsl(var(--primary)/.18)] ring-2 ring-primary/20" : "bg-card hover:border-primary/50 hover:shadow-md")}
                     >
-                      <p className="font-semibold">Meio a meio</p>
-                      <p className="mt-1 text-xs text-muted-foreground">Escolha outro sabor para a segunda metade</p>
+                      <div className="mb-4 flex items-center justify-between">
+                        <div className={"grid size-12 place-items-center rounded-2xl text-2xl " + (halfMode ? "bg-primary-foreground/10" : "bg-muted")}>◐</div>
+                        {halfMode && <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest">Escolhido</span>}
+                      </div>
+                      <p className="font-bold">Meio a meio</p>
+                      <p className={"mt-1 text-xs " + (halfMode ? "text-primary-foreground/70" : "text-muted-foreground")}>Misture dois sabores na mesma pizza</p>
                     </button>
                   </div>
                 </div>
