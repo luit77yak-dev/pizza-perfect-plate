@@ -1331,6 +1331,7 @@ function CheckoutPanel({
   deliveryZones,
   items,
   subtotal,
+  minOrderExempt,
   onClose,
   onSuccess,
   trackedOrder,
