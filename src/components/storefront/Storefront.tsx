@@ -98,17 +98,17 @@ async function loadStore(slug?: string): Promise<StoreData> {
     specialHoursResult,
     deliveryZonesResult,
   ] = await Promise.all([
-    supabase.rpc("get_public_storefront_settings", { p_org: data.organization.id }),
-    supabase.from("categories").select("*").eq("organization_id", data.organization.id).eq("active", true).is("deleted_at", null).order("sort_order"),
-    supabase.from("product_sizes").select("*").eq("organization_id", data.organization.id).eq("active", true).order("sort_order"),
-    supabase.from("products").select("*").eq("organization_id", data.organization.id).eq("active", true).eq("available", true).is("deleted_at", null).order("sort_order"),
-    supabase.from("product_prices").select("*").eq("organization_id", data.organization.id),
-    supabase.from("product_crusts").select("*").eq("organization_id", data.organization.id).eq("active", true).order("sort_order"),
-    supabase.from("product_addons").select("*").eq("organization_id", data.organization.id).eq("active", true).order("sort_order"),
-    supabase.from("product_addon_links").select("product_id, addon_id, sort_order").eq("organization_id", data.organization.id).order("sort_order"),
-    supabase.from("store_hours").select("*").eq("organization_id", data.organization.id).order("weekday"),
-    supabase.from("special_hours").select("*").eq("organization_id", data.organization.id).order("date"),
-    supabase.from("delivery_zones").select("*").eq("organization_id", data.organization.id).eq("active", true).order("name"),
+    supabase.rpc("get_public_storefront_settings", { p_org:  }),
+    supabase.from("categories").select("*").eq("organization_id", organization.id).eq("active", true).is("deleted_at", null).order("sort_order"),
+    supabase.from("product_sizes").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
+    supabase.from("products").select("*").eq("organization_id", organization.id).eq("active", true).eq("available", true).is("deleted_at", null).order("sort_order"),
+    supabase.from("product_prices").select("*").eq("organization_id", organization.id),
+    supabase.from("product_crusts").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
+    supabase.from("product_addons").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
+    supabase.from("product_addon_links").select("product_id, addon_id, sort_order").eq("organization_id", organization.id).order("sort_order"),
+    supabase.from("store_hours").select("*").eq("organization_id", organization.id).order("weekday"),
+    supabase.from("special_hours").select("*").eq("organization_id", organization.id).order("date"),
+    supabase.from("delivery_zones").select("*").eq("organization_id", organization.id).eq("active", true).order("name"),
   ]);
 
   const error =
