@@ -328,7 +328,7 @@ export function Storefront({ slug }: { slug?: string }) {
     >
       <div className="ppp-top-ticker overflow-hidden bg-secondary text-secondary-foreground" aria-hidden="true"><div className="ppp-ticker-run flex min-w-max items-center gap-8 py-2 font-display text-[11px] uppercase tracking-[.16em]">{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={index} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={`repeat-${index}`} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}</div></div>
 
-      <header className="sticky top-0 z-40 border-b-2 border-secondary bg-background/95 backdrop-blur-xl">
+      <header className="ppp-reference-header sticky top-0 z-40 border-b-2 border-secondary bg-background/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <a href="#inicio" className="flex min-w-0 items-center gap-3">
             {data.settings.logo_url ? (
