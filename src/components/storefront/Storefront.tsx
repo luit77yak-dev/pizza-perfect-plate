@@ -728,33 +728,48 @@ function ProductConfigurator({
         : "Finalize";
 
   return (
-    <div className="ppp-order-builder fixed inset-0 z-50 flex items-end justify-center bg-foreground/45 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
-      <div className="flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-background shadow-lifted sm:max-h-[92vh] sm:rounded-[2rem]">
-        <div className="flex items-center justify-between border-b px-5 py-4">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Montar pedido · Etapa {step} de {totalSteps}</p>
-            <h2 className="truncate text-2xl">{stepTitle}</h2>
-            <p className="mt-1 text-xs text-muted-foreground">{product.name}</p>
+    <div className="ppp-order-builder fixed inset-0 z-50 flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
+      <div className="flex max-h-[95dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:max-h-[92vh] sm:rounded-[2rem]">
+        <div className="relative overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
+          <div className="absolute -right-10 -top-16 size-40 rounded-full bg-primary/25 blur-3xl" />
+          <div className="relative flex items-center gap-4">
+            <div className="size-20 shrink-0 overflow-hidden rounded-2xl border border-background/15 bg-background/10 shadow-lg">
+              {product.image_url ? (
+                <img src={product.image_url} alt="" className="size-full object-cover" />
+              ) : (
+                <div className="grid size-full place-items-center font-display text-2xl text-background/40"><Pizza className="size-8" /></div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[.2em] text-background/60">Montar pedido · {step}/{totalSteps}</p>
+                <button onClick={onClose} aria-label="Fechar" className="rounded-full border border-background/15 p-2 text-background/80 transition hover:bg-background/10 hover:text-background">
+                  <X className="size-5" />
+                </button>
+              </div>
+              <h2 className="mt-1 truncate font-display text-2xl tracking-[-.03em]">{product.name}</h2>
+              <p className="mt-1 text-xs text-background/60">{stepTitle} · personalize do seu jeito</p>
+            </div>
           </div>
-          <button onClick={onClose} aria-label="Fechar" className="rounded-full p-2 hover:bg-muted">
-            <X className="size-5" />
-          </button>
         </div>
 
-        <div className="border-b px-5 py-3.5">
-          <div className="flex items-center gap-2">
-            {["Escolha", "Personalize", "Finalize"].map((label, index) => (
-              <div key={label} className="flex min-w-0 flex-1 items-center gap-2">
-                <div className={"h-1 flex-1 rounded-full transition-colors " + (index + 1 <= step ? "bg-primary" : "bg-muted")} />
-              </div>
-            ))}
-          </div>
-          <div className="mt-2 grid grid-cols-3 text-[9px] font-medium uppercase tracking-[.22em]">
-            {["Escolha", "Personalize", "Finalize"].map((label, index) => (
-              <span key={label} className={(index + 1 === step ? "text-primary" : "text-muted-foreground") + (index === 1 ? " text-center" : index === 2 ? " text-right" : "")}>
-                {label}
-              </span>
-            ))}
+        <div className="border-b bg-card px-5 py-4 sm:px-6">
+          <div className="flex items-center justify-between gap-2">
+            {["Escolha", "Personalize", "Finalize"].map((label, index) => {
+              const active = index + 1 === step;
+              const complete = index + 1 < step;
+              return (
+                <div key={label} className="flex min-w-0 flex-1 items-center gap-2">
+                  <div className={"grid size-8 shrink-0 place-items-center rounded-full border text-[10px] font-bold transition-all " + (active ? "border-primary bg-primary text-primary-foreground shadow-[0_0_0_4px_hsl(var(--primary)/.12)]" : complete ? "border-primary bg-primary/15 text-primary" : "border-border bg-background text-muted-foreground")}>
+                    {complete ? <Check className="size-3.5" /> : index + 1}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className={"truncate text-[10px] font-semibold uppercase tracking-[.14em] " + (active || complete ? "text-foreground" : "text-muted-foreground")}>{label}</p>
+                    <div className={"mt-1 h-1 rounded-full " + (complete || active ? "bg-primary" : "bg-muted")} />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -975,9 +990,9 @@ function ProductConfigurator({
           )}
         </div>
 
-        <div className="border-t bg-card px-5 py-4">
-          <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
-            <span>{step < totalSteps ? "Próxima etapa" : "Total deste conjunto"}</span>
+        <div className="border-t bg-card/95 px-5 py-4 shadow-[0_-12px_30px_rgba(0,0,0,.06)] backdrop-blur sm:px-6">
+          <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground"><span className="rounded-full bg-primary/10 px-3 py-1 font-semibold text-primary">{quantity} {quantity === 1 ? "pizza" : "pizzas"}</span>
+            <span>{step < totalSteps ? "Seu pedido está ficando pronto" : "Total deste conjunto"}</span>
             <span className="font-semibold text-foreground">{formatCurrency(unitPrice * quantity)}</span>
           </div>
           <div className="flex items-center gap-3">
