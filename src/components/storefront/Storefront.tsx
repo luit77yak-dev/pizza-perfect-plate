@@ -1324,7 +1324,7 @@ function CheckoutPanel({
   subtotal: number;
   onClose: () => void;
   onSuccess: (order: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType }) => void;
-  trackedOrder?: { id: string; number: number; phone: string } | null;
+  trackedOrder?: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType } | null;
   storeOpen: boolean;
   storeStatusLabel: string;
   onOrderFinished: () => void;
@@ -1350,7 +1350,11 @@ function CheckoutPanel({
   const [successStatus, setSuccessStatus] = useState<OrderStatus>("RECEIVED");
   const [trackingLive, setTrackingLive] = useState(false);
   const [lastTrackingUpdate, setLastTrackingUpdate] = useState<Date | null>(null);
-  const [trackingError, setTrackingError] = useState<string | null>(null);\n  const [confirmedItems, setConfirmedItems] = useState<CartItem[]>([]);\n  const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);\n  const [confirmedTotal, setConfirmedTotal] = useState(0);\n  const [confirmedFulfillment, setConfirmedFulfillment] = useState<FulfillmentType>(settings.delivery_enabled ? "DELIVERY" : "PICKUP");
+  const [trackingError, setTrackingError] = useState<string | null>(null);
+  const [confirmedItems, setConfirmedItems] = useState<CartItem[]>([]);
+  const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);
+  const [confirmedTotal, setConfirmedTotal] = useState(0);
+  const [confirmedFulfillment, setConfirmedFulfillment] = useState<FulfillmentType>(settings.delivery_enabled ? "DELIVERY" : "PICKUP");
 
   useEffect(() => {
     if (!trackedOrder) return;
@@ -1358,6 +1362,10 @@ function CheckoutPanel({
     setSuccessNumber(trackedOrder.number);
     setSuccessStatus("RECEIVED");
     setPhone(trackedOrder.phone);
+    setConfirmedItems(trackedOrder.items ?? []);
+    setConfirmedSubtotal(trackedOrder.subtotal ?? 0);
+    setConfirmedTotal(trackedOrder.total ?? 0);
+    setConfirmedFulfillment(trackedOrder.fulfillment ?? (settings.delivery_enabled ? "DELIVERY" : "PICKUP"));
   }, [trackedOrder]);
 
   const selectedZone =
@@ -1475,7 +1483,11 @@ function CheckoutPanel({
       setSuccessOrderId(String(order.order_id));
       setSuccessNumber(Number(order.order_number));
       setSuccessStatus("RECEIVED");
-      onSuccess({ id: String(order.order_id), number: Number(order.order_number), phone: phone.trim() });
+      setConfirmedItems(items);
+      setConfirmedSubtotal(subtotal);
+      setConfirmedTotal(total);
+      setConfirmedFulfillment(fulfillment);
+      onSuccess({ id: String(order.order_id), number: Number(order.order_number), phone: phone.trim(), items, subtotal, total, fulfillment });
     } catch (submitError) {
       const message =
         submitError instanceof Error
@@ -1560,11 +1572,11 @@ function CheckoutPanel({
       ["RECEIVED", "Pedido recebido", "Seu pedido chegou até a loja."],
       ["CONFIRMED", "Pedido confirmado", "A cozinha já confirmou o pedido."],
       ["PREPARING", "Em preparo", "Estamos preparando tudo com cuidado."],
-      ["READY", fulfillment === "DELIVERY" ? "Pedido pronto" : "Pronto para retirada", fulfillment === "DELIVERY" ? "Seu pedido está pronto para sair." : "Seu pedido já pode ser retirado."],
-      ...(fulfillment === "DELIVERY"
+      ["READY", confirmedFulfillment === "DELIVERY" ? "Pedido pronto" : "Pronto para retirada", confirmedFulfillment === "DELIVERY" ? "Seu pedido está pronto para sair." : "Seu pedido já pode ser retirado."],
+      ...(confirmedFulfillment === "DELIVERY"
         ? ([["OUT_FOR_DELIVERY", "Saiu para entrega", "Seu pedido está a caminho."]] as [OrderStatus, string, string][])
         : []),
-      ["DELIVERED", fulfillment === "DELIVERY" ? "Entregue" : "Retirado", "Pedido finalizado com sucesso."],
+      ["DELIVERED", confirmedFulfillment === "DELIVERY" ? "Entregue" : "Retirado", "Pedido finalizado com sucesso."],
     ];
     const currentIndex = trackingSteps.findIndex(([step]) => step === successStatus);
     const isCancelled = successStatus === "CANCELLED";
@@ -1687,7 +1699,41 @@ function CheckoutPanel({
               </div>
             </section>
 
-            <aside className="space-y-5">
+            <div className="lg:hidden">
+              <section className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-[0_10px_28px_rgba(0,0,0,.06)]">
+                <div className="flex items-center justify-between gap-3 border-b border-black/7 px-4 py-3.5">
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Resumo do pedido</p>
+                    <h2 className="mt-0.5 font-display text-xl tracking-tight">O que você pediu</h2>
+                  </div>
+                  <ShoppingBag className="size-5 text-muted-foreground" />
+                </div>
+                <div className="space-y-2.5 p-3.5">
+                  {confirmedItems.length > 0 ? confirmedItems.map((item) => (
+                    <div key={item.lineId} className="rounded-xl border border-black/8 bg-[#faf9f7] p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
+                          <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
+                          {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}
+                          {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-muted-foreground">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
+                        </div>
+                        <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                      </div>
+                    </div>
+                  )) : (
+                    <p className="text-xs leading-5 text-muted-foreground">O pedido foi confirmado. Número do pedido: #{successNumber}.</p>
+                  )}
+                  <div className="border-t border-black/8 pt-3 text-xs">
+                    <div className="flex justify-between gap-3 text-muted-foreground"><span>Subtotal</span><span>{formatCurrency(confirmedSubtotal)}</span></div>
+                    {confirmedFulfillment === "DELIVERY" && <div className="mt-1.5 flex justify-between gap-3 text-muted-foreground"><span>Entrega</span><span>{formatCurrency(Math.max(0, confirmedTotal - confirmedSubtotal))}</span></div>}
+                    <div className="mt-2 flex justify-between gap-3 text-base font-black"><span>Total</span><span>{formatCurrency(confirmedTotal)}</span></div>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <aside className="hidden space-y-5 lg:block">
               <section className="rounded-[1.75rem] bg-foreground p-5 text-background shadow-[0_18px_45px_rgba(0,0,0,.12)] sm:p-6">
                 <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Pedido</p>
                 <p className="mt-1 font-display text-3xl tracking-tight">#{successNumber}</p>
@@ -1703,7 +1749,35 @@ function CheckoutPanel({
                 </div>
               </section>
 
-              <section className="rounded-[1.75rem] border border-black/8 bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,.05)] sm:p-6">\n                <div className="flex items-center justify-between gap-3">\n                  <div><p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Resumo do pedido</p><h3 className="mt-1 font-display text-2xl tracking-tight">O que você pediu</h3></div>\n                  <ShoppingBag className="size-5 text-muted-foreground" />\n                </div>\n                {confirmedItems.length > 0 ? (\n                  <div className="mt-4 space-y-2.5">\n                    {confirmedItems.map((item) => (\n                      <div key={item.lineId} className="rounded-xl border border-black/8 bg-[#faf9f7] p-3">\n                        <div className="flex items-start justify-between gap-3">\n                          <div className="min-w-0">\n                            <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>\n                            <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>\n                            {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}\n                            {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-muted-foreground">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}\n                          </div>\n                          <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>\n                        </div>\n                      </div>\n                    ))}\n                    <div className="border-t border-black/8 pt-3 text-xs">\n                      <div className="flex justify-between gap-3 text-muted-foreground"><span>Subtotal</span><span>{formatCurrency(confirmedSubtotal)}</span></div>\n                      {confirmedFulfillment === "DELIVERY" && <div className="mt-1.5 flex justify-between gap-3 text-muted-foreground"><span>Entrega</span><span>{formatCurrency(Math.max(0, confirmedTotal - confirmedSubtotal))}</span></div>}\n                      <div className="mt-2 flex justify-between gap-3 text-base font-black"><span>Total do pedido</span><span>{formatCurrency(confirmedTotal)}</span></div>\n                    </div>\n                  </div>\n                ) : <p className="mt-3 text-xs leading-5 text-muted-foreground">O pedido foi confirmado. O detalhamento não está disponível nesta sessão, mas o número do pedido é #{successNumber}.</p>}\n              </section>\n
+              <section className="rounded-[1.75rem] border border-black/8 bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,.05)] sm:p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <div><p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Resumo do pedido</p><h3 className="mt-1 font-display text-2xl tracking-tight">O que você pediu</h3></div>
+                  <ShoppingBag className="size-5 text-muted-foreground" />
+                </div>
+                {confirmedItems.length > 0 ? (
+                  <div className="mt-4 space-y-2.5">
+                    {confirmedItems.map((item) => (
+                      <div key={item.lineId} className="rounded-xl border border-black/8 bg-[#faf9f7] p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
+                            <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
+                            {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}
+                            {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-muted-foreground">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
+                          </div>
+                          <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="border-t border-black/8 pt-3 text-xs">
+                      <div className="flex justify-between gap-3 text-muted-foreground"><span>Subtotal</span><span>{formatCurrency(confirmedSubtotal)}</span></div>
+                      {confirmedFulfillment === "DELIVERY" && <div className="mt-1.5 flex justify-between gap-3 text-muted-foreground"><span>Entrega</span><span>{formatCurrency(Math.max(0, confirmedTotal - confirmedSubtotal))}</span></div>}
+                      <div className="mt-2 flex justify-between gap-3 text-base font-black"><span>Total do pedido</span><span>{formatCurrency(confirmedTotal)}</span></div>
+                    </div>
+                  </div>
+                ) : <p className="mt-3 text-xs leading-5 text-muted-foreground">O pedido foi confirmado. O detalhamento não está disponível nesta sessão, mas o número do pedido é #{successNumber}.</p>}
+              </section>
+
                 <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Precisa sair?</p>
                 <h3 className="mt-1 font-display text-2xl tracking-tight">Voltar ao cardápio</h3>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">Você pode continuar navegando. O pedido segue sendo acompanhado automaticamente.</p>
