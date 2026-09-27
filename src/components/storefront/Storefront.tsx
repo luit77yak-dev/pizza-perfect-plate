@@ -1394,7 +1394,7 @@ function CheckoutPanel({
   const selectedZone =
     fulfillment === "DELIVERY"
       ? deliveryZones.find((zone) =>
-          zone.neighborhoods.some(
+          (zone.neighborhoods ?? []).some(
             (item) => normalizeNeighborhood(item) === normalizeNeighborhood(neighborhood),
           ),
         ) ?? null
@@ -1407,14 +1407,14 @@ function CheckoutPanel({
 
   const availableNeighborhoods = Array.from(
     new Set(
-      deliveryZones.flatMap((zone) => zone.neighborhoods.map((item) => item.trim()).filter(Boolean)),
+      deliveryZones.flatMap((zone) => (zone.neighborhoods ?? []).map((item) => item.trim()).filter(Boolean)),
     ),
   );
   const deliveryFee = selectedZone?.delivery_fee ?? 0;
   const total = subtotal + deliveryFee;
 
-  const availablePayments = settings.payment_methods.length
-    ? settings.payment_methods
+  const availablePayments = (settings.payment_methods ?? []).length
+    ? settings.payment_methods ?? []
     : (["PIX"] as PaymentMethod[]);
 
   const submitOrder = async () => {
