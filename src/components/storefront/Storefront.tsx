@@ -1356,7 +1356,7 @@ function CheckoutPanel({
     settings.delivery_enabled ? "DELIVERY" : "PICKUP",
   );
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
-    settings.payment_methods[0] ?? "PIX",
+    (settings.payment_methods ?? [])[0] ?? "PIX",
   );
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -1481,7 +1481,7 @@ function CheckoutPanel({
             crust_id: item.crustId,
             quantity: item.quantity,
             notes: item.notes,
-            addons: item.addons.map((addon) => ({ id: addon.id })),
+            addons: (item.addons ?? []).map((addon) => ({ id: addon.id })),
           },
           ...(item.complements ?? []).map((complement) => ({
             product_id: complement.productId,
