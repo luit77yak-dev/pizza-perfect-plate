@@ -221,7 +221,17 @@ export function Storefront({ slug }: { slug?: string }) {
         const legacyRaw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
         const parsed = arrayRaw ? JSON.parse(arrayRaw) : legacyRaw ? JSON.parse(legacyRaw) : [];
         const storedOrders: PublicTrackedOrder[] = Array.isArray(parsed) ? parsed : parsed?.id ? [parsed] : [];
-        const validOrders = storedOrders.filter((order) => order?.id && order?.phone);
+        const validOrders = storedOrders
+          .filter((order) => order?.id && order?.phone)
+          .map((order) => ({
+            ...order,
+            id: String(order.id),
+            number: Number(order.number) || 0,
+            phone: String(order.phone),
+            items: Array.isArray(order.items) ? order.items : undefined,
+            subtotal: Number.isFinite(Number(order.subtotal)) ? Number(order.subtotal) : undefined,
+            total: Number.isFinite(Number(order.total)) ? Number(order.total) : undefined,
+          }));
 
         if (validOrders.length === 0) {
           if (!cancelled) setTrackedOrders([]);
@@ -852,7 +862,7 @@ export function Storefront({ slug }: { slug?: string }) {
               <div className="mb-3 flex items-center justify-between text-sm"><span className="text-muted-foreground">Acréscimos</span><span className="font-black">{formatCurrency(additionTotal)}</span></div>
               {additionError && <p className="mb-3 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">{additionError}</p>}
               <Button type="button" disabled={additionCount === 0 || additionSubmitting} onClick={confirmAdditions} className="h-12 w-full rounded-xl text-sm font-black">{additionSubmitting ? "Adicionando ao pedido..." : "Adicionar ao pedido"}</Button>
-              <p className="mt-2 text-center text-[10px] leading-4 text-muted-foreground">Os itens entram diretamente no pedido #{selectedTrackedOrder.number}. O pedido principal não será alterado.</p>
+              <p className="mt-2 text-center text-[10px] leading-4 text-muted-foreground">Os itens serão acrescentados diretamente ao pedido #{selectedTrackedOrder.number} e o total será atualizado.</p>
             </footer>
           </section>
         </div>
@@ -885,7 +895,13 @@ function TrackedOrderPanel({
   onAddToOrder: () => void;
 }) {
   const canAddMore = ["RECEIVED", "CONFIRMED", "PREPARING", "READY"].includes(order.status ?? "RECEIVED");
-  const items = order.items ?? [];
+  const items = Array.isArray(order.items) ? order.items : [];
+  const orderNumber = Number.isFinite(Number(order.number)) ? Number(order.number) : 0;
+  const orderTotal = Number.isFinite(Number(order.total))
+    ? Number(order.total)
+    : Number.isFinite(Number(order.subtotal))
+      ? Number(order.subtotal)
+      : 0;
 
   return (
     <div className="fixed inset-0 z-[180] bg-foreground/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`Acompanhar pedido #${order.number}`}>
@@ -917,12 +933,12 @@ function TrackedOrderPanel({
             </div>
             <div className="mt-3 space-y-2">
               {items.length > 0 ? items.map((item) => (
-                <div key={item.lineId} className="flex items-start justify-between gap-3 rounded-xl bg-muted/50 p-3">
+                <div key={item.lineId || item.productId || `${item.productName || "item"}-${Math.random()}`} className="flex items-start justify-between gap-3 rounded-xl bg-muted/50 p-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
+                    <p className="text-sm font-bold">{Number(item.quantity) || 0}× {item.productName || "Item" }{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
                     <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
                   </div>
-                  <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                  <span className="shrink-0 text-sm font-bold">{formatCurrency((Number(item.unitPrice) || 0) * (Number(item.quantity) || 0))}</span>
                 </div>
               )) : (
                 <p className="text-sm text-muted-foreground">Os itens deste pedido não estão disponíveis nesta sessão.</p>
