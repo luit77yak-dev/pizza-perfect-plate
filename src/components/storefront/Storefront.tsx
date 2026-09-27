@@ -1115,14 +1115,14 @@ function TrackedOrderPanel({
 
   return (
     <div
-      className="fixed inset-0 z-[180] flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-4"
+      className="fixed inset-0 z-[180] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5"
       role="dialog"
       aria-modal="true"
       aria-label={`Acompanhar pedido #${orderNumber}`}
     >
       <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar acompanhamento" />
-      <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-background shadow-[0_-20px_70px_rgba(0,0,0,.22)] sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem] sm:shadow-2xl">
-        <header className="relative shrink-0 overflow-hidden bg-foreground px-5 pb-5 pt-4 text-background sm:px-7 sm:pb-6">
+      <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#0d1117] text-background shadow-2xl sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem]">
+        <header className="relative shrink-0 overflow-hidden bg-[#10151d] px-5 pb-5 pt-4 text-background sm:px-7 sm:pb-6">
           <div className="absolute -right-16 -top-20 size-44 rounded-full bg-primary/20 blur-2xl" />
           <div className="absolute -bottom-20 left-1/3 size-36 rounded-full bg-primary/10 blur-2xl" />
           <div className="relative flex items-start justify-between gap-4">
@@ -1153,13 +1153,13 @@ function TrackedOrderPanel({
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <div className="space-y-4 p-4 pb-6 sm:space-y-5 sm:p-6 sm:pb-7">
-            <section className="overflow-hidden rounded-3xl border border-primary/15 bg-card shadow-sm">
+            <section className="overflow-hidden rounded-3xl border border-primary/15 bg-background/[.035] shadow-sm">
               <div className="p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Agora</p>
                     <h3 className="mt-1 text-xl font-black tracking-tight">{getTrackedOrderStatusLabel(currentStatus)}</h3>
-                    <p className="mt-1.5 max-w-lg text-xs leading-5 text-muted-foreground">{statusMessage}</p>
+                    <p className="mt-1.5 max-w-lg text-xs leading-5 text-background/50">{statusMessage}</p>
                   </div>
                   <div className="hidden size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary sm:grid">
                     {currentStatus === "PREPARING" ? <Pizza className="size-5" /> : currentStatus === "OUT_FOR_DELIVERY" ? <ChevronRight className="size-5" /> : <Clock3 className="size-5" />}
@@ -1168,7 +1168,7 @@ function TrackedOrderPanel({
 
                 {!isCancelled && (
                   <div className="mt-5">
-                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-background/5">
                       <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${progressPercent}%` }} />
                     </div>
                     <div className={steps.length === 5 ? "mt-4 grid grid-cols-5 gap-1" : "mt-4 grid grid-cols-4 gap-1"}>
@@ -1177,10 +1177,10 @@ function TrackedOrderPanel({
                         const active = index === activeIndex && !isFinished;
                         return (
                           <div key={step.status} className="min-w-0 text-center">
-                            <div className={"mx-auto grid size-7 place-items-center rounded-full border text-[9px] font-black transition sm:size-8 " + (complete || active ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-border bg-background text-muted-foreground")}>
+                            <div className={"mx-auto grid size-7 place-items-center rounded-full border text-[9px] font-black transition sm:size-8 " + (complete || active ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-background/10 bg-[#0d1117] text-muted-foreground")}>
                               {complete ? <Check className="size-3.5" /> : index + 1}
                             </div>
-                            <p className={"mt-1.5 truncate text-[8px] font-bold uppercase tracking-[.06em] sm:text-[9px] " + (active || complete ? "text-foreground" : "text-muted-foreground")}>{step.label}</p>
+                            <p className={"mt-1.5 truncate text-[8px] font-bold uppercase tracking-[.06em] sm:text-[9px] " + (active || complete ? "text-background" : "text-muted-foreground")}>{step.label}</p>
                           </div>
                         );
                       })}
@@ -1213,8 +1213,8 @@ function TrackedOrderPanel({
               </button>
             )}
 
-            <section className="rounded-3xl border bg-card shadow-sm">
-              <div className="flex items-center justify-between gap-3 border-b px-4 py-3.5 sm:px-5 sm:py-4">
+            <section className="overflow-hidden rounded-3xl border border-background/10 bg-background/[.035] shadow-sm">
+              <div className="flex items-center justify-between gap-3 border-b border-background/10 px-4 py-3.5 sm:px-5 sm:py-4">
                 <div>
                   <p className="text-[9px] font-black uppercase tracking-[.18em] text-muted-foreground">Resumo</p>
                   <h3 className="mt-0.5 text-base font-black">Itens do pedido</h3>
@@ -1252,7 +1252,7 @@ function TrackedOrderPanel({
                 )}
               </div>
 
-              <div className="border-t bg-muted/30 px-4 py-4 sm:px-5">
+              <div className="border-t border-background/10 bg-[#0a0e14] px-4 py-4 sm:px-5">
                 <div className="flex items-end justify-between gap-4">
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-[.16em] text-muted-foreground">Total do pedido</p>
@@ -1265,7 +1265,7 @@ function TrackedOrderPanel({
           </div>
         </div>
 
-        <footer className="shrink-0 border-t bg-background/95 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl sm:hidden">
+        <footer className="shrink-0 border-t border-background/10 bg-[#0a0e14]/95 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl sm:hidden">
           <div className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
               <p className="text-[8px] font-black uppercase tracking-[.14em] text-muted-foreground">Total</p>
