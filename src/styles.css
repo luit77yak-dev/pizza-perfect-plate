@@ -2836,3 +2836,41 @@
     color: #f4efe5 !important;
   }
 }
+
+
+@layer components {
+  .ppp-admin-compact-section {
+    margin-top: .75rem;
+    overflow: hidden;
+    border: 1px solid rgba(10,41,45,.12);
+    border-radius: 1.25rem;
+    background: rgba(255,255,255,.72);
+    box-shadow: 0 8px 24px rgba(10,41,45,.045);
+  }
+
+  .ppp-admin-compact-section > summary {
+    min-height: 58px;
+    background: rgba(244,239,229,.42);
+    transition: background .2s ease;
+  }
+
+  .ppp-admin-compact-section > summary:hover {
+    background: rgba(10,41,45,.045);
+  }
+
+  .ppp-admin-compact-section[open] > summary {
+    background: rgba(10,41,45,.035);
+  }
+
+  .ppp-admin-compact-section > div {
+    background: rgba(255,255,255,.5);
+  }
+
+  .ppp-admin-compact-section > div > section {
+    margin-top: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+}
