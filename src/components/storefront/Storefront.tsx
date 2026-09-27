@@ -248,7 +248,17 @@ export function Storefront({ slug }: { slug?: string }) {
               if (error) return order;
               const current = Array.isArray(tracking) ? tracking[0] : tracking;
               const status = current?.status as OrderStatus | undefined;
-              return status === "DELIVERED" || status === "CANCELLED" ? null : { ...order, status };
+              const orderNumber = Number(current?.order_number);
+              const fulfillment = current?.fulfillment as FulfillmentType | undefined;
+              return status === "DELIVERED" || status === "CANCELLED"
+                ? null
+                : {
+                    ...order,
+                    // The database is the source of truth. Never keep a stale localStorage order number.
+                    number: Number.isFinite(orderNumber) && orderNumber > 0 ? orderNumber : order.number,
+                    status,
+                    fulfillment: fulfillment ?? order.fulfillment,
+                  };
             } catch {
               return order;
             }
@@ -260,6 +270,10 @@ export function Storefront({ slug }: { slug?: string }) {
 
         setTrackedOrders(activeOrders);
         persistTrackedOrders(activeOrders);
+        setSelectedTrackedOrder((previous) => {
+          if (!previous) return previous;
+          return activeOrders.find((order) => order.id === previous.id) ?? previous;
+        });
         if (legacyRaw) {
           try {
             localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
@@ -273,8 +287,13 @@ export function Storefront({ slug }: { slug?: string }) {
     };
 
     void loadTrackedOrders();
+    const refreshInterval = window.setInterval(() => {
+      void loadTrackedOrders();
+    }, 15_000);
+
     return () => {
       cancelled = true;
+      window.clearInterval(refreshInterval);
     };
   }, [data?.organization?.id]);
 
@@ -384,6 +403,11 @@ export function Storefront({ slug }: { slug?: string }) {
       if (appendError) throw appendError;
       const order = Array.isArray(appended) ? appended[0] : appended;
       if (!order?.order_id || !order?.order_number) throw new Error("O servidor não retornou o pedido atualizado.");
+
+      // Online payments for additions must remain a separate transaction from the original order.
+      // The current project only records payment methods; it has no online payment gateway yet.
+      // When a gateway is connected, this flow must open a dedicated additional-payment step
+      // using additionTotal, without reopening or replacing the original order payment.
 
       const addedCartItems: CartItem[] = selectedItems.map(({ product, quantity }) => ({
         lineId: crypto.randomUUID(),
@@ -819,9 +843,9 @@ export function Storefront({ slug }: { slug?: string }) {
       {additionModalOpen && selectedTrackedOrder && (
         <div className="fixed inset-0 z-[320] flex items-center justify-center bg-black/65 p-3 backdrop-blur-sm sm:p-6" role="dialog" aria-modal="true" aria-label="Adicionar itens ao pedido">
           <button type="button" className="absolute inset-0 cursor-default" onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); setAdditionError(null); }} aria-label="Fechar" />
-          <section className="relative z-10 flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-black/10 bg-background shadow-2xl">
-            <header className="flex items-center justify-between gap-3 border-b bg-foreground px-5 py-4 text-background">
-              <div>
+          <section className="relative z-10 flex max-h-[90dvh] w-[calc(100vw-1.5rem)] max-w-lg min-w-0 flex-col overflow-hidden rounded-3xl border border-black/10 bg-background shadow-2xl sm:w-full">
+            <header className="flex min-w-0 items-center justify-between gap-3 border-b bg-foreground px-4 py-4 text-background sm:px-5">
+              <div className="min-w-0 flex-1">
                 <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Pedido #{selectedTrackedOrder.number}</p>
                 <h2 className="mt-1 text-xl font-display">Esqueceu alguma coisa?</h2>
                 <p className="mt-1 text-xs text-background/65">Adicione bebidas, acompanhamentos ou sobremesas sem refazer o pedido.</p>
@@ -861,7 +885,7 @@ export function Storefront({ slug }: { slug?: string }) {
             <footer className="border-t bg-card p-4 sm:p-5">
               <div className="mb-3 flex items-center justify-between text-sm"><span className="text-muted-foreground">Acréscimos</span><span className="font-black">{formatCurrency(additionTotal)}</span></div>
               {additionError && <p className="mb-3 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">{additionError}</p>}
-              <Button type="button" disabled={additionCount === 0 || additionSubmitting} onClick={confirmAdditions} className="h-12 w-full rounded-xl text-sm font-black">{additionSubmitting ? "Adicionando ao pedido..." : "Adicionar ao pedido"}</Button>
+              <Button type="button" disabled={additionCount === 0 || additionSubmitting} onClick={confirmAdditions} className="h-12 w-full rounded-xl text-sm font-black">{additionSubmitting ? "Adicionando..." : "Adicionar ao pedido"}</Button>
               <p className="mt-2 text-center text-[10px] leading-4 text-muted-foreground">Os itens serão acrescentados diretamente ao pedido #{selectedTrackedOrder.number} e o total será atualizado.</p>
             </footer>
           </section>
