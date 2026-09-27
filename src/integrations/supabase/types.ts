@@ -1278,6 +1278,21 @@ export type Database = {
           order_number: number
         }[]
       }
+      append_public_order_items: {
+        Args: {
+          p_items: Json
+          p_customer_phone: string
+          p_order_id: string
+        }
+        Returns: {
+          order_id: string
+          order_number: number
+          subtotal: number
+          delivery_fee: number
+          total: number
+          status: Database["public"]["Enums"]["order_status"]
+        }[]
+      }
       get_public_order_status: {
         Args: { p_customer_phone: string; p_order_id: string }
         Returns: {
