@@ -373,6 +373,10 @@ export function Storefront({ slug }: { slug?: string }) {
                           .filter((category) => Boolean(category.image_url))
                           .slice(0, 4)
                           .map((category) => ({ image: category.image_url!, title: category.name, subtitle: "Confira no cardápio" })),
+                        ...mainProducts
+                          .filter((product) => Boolean(product.image_url))
+                          .slice(0, 5)
+                          .map((product) => ({ image: product.image_url!, title: product.name, subtitle: "No nosso cardápio" })),
                       ]}
                       className="h-[390px] sm:h-[440px] lg:h-[500px]"
                     />
