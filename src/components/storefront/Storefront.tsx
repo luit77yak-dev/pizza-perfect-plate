@@ -1404,7 +1404,7 @@ function CheckoutPanel({
         return;
       }
       if (deliveryZones.length === 0) {
-        setError("A loja ainda não cadastrou áreas de entrega. Não é possível pedir por entrega no momento.");
+        setError("A loja ainda não cadastrou áreas de entrega. Entre em contato com a loja para confirmar se há atendimento na sua região.");
         return;
       }
       if (!selectedZone || !matchedNeighborhood) {
@@ -1850,7 +1850,7 @@ function CheckoutPanel({
                       className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <option value="">
-                        {availableNeighborhoods.length > 0 ? "Selecione seu bairro" : "Nenhum bairro cadastrado"}
+                        {availableNeighborhoods.length > 0 ? "Selecione seu bairro" : "Áreas de entrega indisponíveis"}
                       </option>
                       {availableNeighborhoods.map((item) => (
                         <option key={item} value={item}>{item}</option>
@@ -1870,7 +1870,7 @@ function CheckoutPanel({
                   <div className={`mt-3 rounded-xl px-3.5 py-2.5 text-[11px] ${selectedZone ? "bg-primary/8 text-foreground" : "bg-muted text-muted-foreground"}`}>
                     {selectedZone
                       ? <span><strong>Entrega:</strong> {formatCurrency(deliveryFee)} · aproximadamente {selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min</span>
-                      : availableNeighborhoods.length > 0 ? "Informe um bairro atendido para calcular a taxa." : "A loja ainda não cadastrou áreas de entrega."}
+                      : availableNeighborhoods.length > 0 ? "Informe um bairro atendido para calcular a taxa." : "As áreas de entrega ainda não foram cadastradas. Entre em contato com a loja para confirmar o atendimento."}
                   </div>
                 )}
               </section>
