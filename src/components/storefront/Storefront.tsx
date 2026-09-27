@@ -240,21 +240,6 @@ export function Storefront({ slug }: { slug?: string }) {
     return () => window.clearInterval(interval);
   }, []);
 
-  const complementProducts = useMemo(() => {
-    if (!data) return [];
-    return data.products.filter((product) => {
-      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
-      const normalizedCategory = categoryName
-        .normalize("NFD")
-        .replace(/[\\u0300-\\u036f]/g, "")
-        .toLocaleLowerCase("pt-BR");
-      return (
-        product.kind === "SIMPLE" ||
-        /(bebida|bebidas|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(normalizedCategory)
-      );
-    });
-  }, [data]);
-
   const mainProducts = useMemo(() => {
     if (!data) return [];
     // O cardápio público deve mostrar todos os produtos. Produtos simples,
