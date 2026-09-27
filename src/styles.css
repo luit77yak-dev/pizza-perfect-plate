@@ -1294,3 +1294,469 @@
     }
   }
 }
+
+
+/* ============================================================
+ * REFERENCE-INSPIRED EDITORIAL THEME
+ * Visual direction inspired by the supplied reference:
+ * deep petrol, ember/coral, champagne-gold, editorial typography,
+ * generous spacing and photography-led composition.
+ * Business logic, ordering flow and white-label architecture stay intact.
+ * ============================================================ */
+
+@layer base {
+  :root {
+    --radius: 1.15rem;
+    --background: oklch(0.965 0.012 88);
+    --foreground: oklch(0.19 0.025 48);
+    --surface: oklch(0.935 0.018 88);
+    --surface-foreground: oklch(0.19 0.025 48);
+    --card: oklch(0.985 0.006 88);
+    --card-foreground: oklch(0.20 0.025 48);
+    --popover: oklch(0.985 0.006 88);
+    --popover-foreground: oklch(0.20 0.025 48);
+
+    /* Ember / champagne / deep petrol palette. */
+    --primary: oklch(0.64 0.145 38);
+    --primary-foreground: oklch(0.985 0.008 88);
+    --secondary: oklch(0.235 0.045 165);
+    --secondary-foreground: oklch(0.965 0.012 88);
+    --muted: oklch(0.925 0.014 88);
+    --muted-foreground: oklch(0.47 0.025 52);
+    --accent: oklch(0.82 0.105 82);
+    --accent-foreground: oklch(0.22 0.03 48);
+    --border: oklch(0.84 0.018 78);
+    --input: oklch(0.84 0.018 78);
+    --ring: oklch(0.64 0.145 38);
+    --sidebar: oklch(0.235 0.045 165);
+    --sidebar-foreground: oklch(0.965 0.012 88);
+    --sidebar-primary: oklch(0.64 0.145 38);
+    --sidebar-primary-foreground: oklch(0.985 0.008 88);
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 8% 0%, color-mix(in oklab, var(--color-accent) 11%, transparent), transparent 28rem),
+      var(--color-background);
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 600;
+    letter-spacing: -0.035em;
+  }
+}
+
+@layer components {
+  /* Global rhythm */
+  main#inicio {
+    overflow: clip;
+  }
+
+  /* Header: quiet and luxurious */
+  header {
+    border-bottom: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent) !important;
+    background: color-mix(in oklab, var(--color-background) 88%, transparent) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 10px 35px -30px oklch(0.16 0.03 160 / .5);
+  }
+
+  header > div {
+    height: 4.75rem;
+  }
+
+  header a[href="#inicio"] img,
+  header a[href="#inicio"] > div {
+    border: 1px solid color-mix(in oklab, var(--color-primary) 55%, var(--color-border)) !important;
+    border-radius: 999px !important;
+  }
+
+  header a[href="#inicio"] p {
+    text-transform: none !important;
+    font-size: 1.05rem;
+    letter-spacing: -.025em;
+  }
+
+  header nav {
+    font-weight: 500;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+
+  header button {
+    border: 1px solid color-mix(in oklab, var(--color-primary) 55%, var(--color-border)) !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+    text-transform: none !important;
+    font-family: var(--font-body) !important;
+  }
+
+  /* Hero */
+  main#inicio > section:first-child {
+    padding-top: clamp(1.25rem, 4vw, 3.25rem);
+    padding-bottom: clamp(2rem, 5vw, 4rem);
+  }
+
+  main#inicio > section:first-child > div {
+    border: 1px solid color-mix(in oklab, var(--color-secondary) 30%, var(--color-border)) !important;
+    border-radius: 1.5rem !important;
+    background:
+      linear-gradient(120deg,
+        color-mix(in oklab, var(--color-secondary) 94%, black),
+        color-mix(in oklab, var(--color-secondary) 82%, var(--color-primary) 18%)) !important;
+    box-shadow: 0 30px 90px -55px oklch(0.12 0.04 165 / .8) !important;
+  }
+
+  main#inicio > section:first-child > div > div:first-child {
+    color: var(--color-secondary-foreground);
+  }
+
+  main#inicio > section:first-child > div > div:first-child > p:first-child {
+    background: transparent !important;
+    color: var(--color-accent) !important;
+    padding: 0 !important;
+    letter-spacing: .18em;
+  }
+
+  main#inicio > section:first-child h1 {
+    max-width: 10ch;
+    font-size: clamp(3.1rem, 7.4vw, 7rem);
+    line-height: .88;
+    letter-spacing: -.055em;
+    color: var(--color-secondary-foreground);
+  }
+
+  main#inicio > section:first-child > div > div:first-child > p:not(:first-child) {
+    color: color-mix(in oklab, var(--color-secondary-foreground) 74%, transparent);
+  }
+
+  main#inicio > section:first-child a[href="#cardapio"] {
+    border: 1px solid color-mix(in oklab, var(--color-accent) 75%, transparent) !important;
+    border-radius: 999px !important;
+    background: var(--color-primary) !important;
+    color: var(--color-primary-foreground) !important;
+    box-shadow: 0 14px 32px -18px oklch(0.12 0.03 40 / .7) !important;
+    text-transform: none !important;
+    font-family: var(--font-body) !important;
+  }
+
+  main#inicio > section:first-child > div > div:last-child {
+    background: color-mix(in oklab, var(--color-secondary) 92%, black) !important;
+    padding: .75rem !important;
+  }
+
+  main#inicio > section:first-child > div > div:last-child > div:first-child {
+    border: 1px solid color-mix(in oklab, var(--color-accent) 35%, transparent) !important;
+    border-radius: 1.15rem !important;
+    box-shadow: none !important;
+  }
+
+  main#inicio > section:first-child > div > div:last-child img {
+    filter: saturate(.9) contrast(1.04);
+  }
+
+  main#inicio > section:first-child > div > div:last-child > div:last-child {
+    border: 1px solid color-mix(in oklab, var(--color-accent) 75%, transparent) !important;
+    background: var(--color-accent) !important;
+    color: var(--color-secondary) !important;
+    box-shadow: 0 12px 35px -18px oklch(0.05 0.03 165 / .8) !important;
+    border-radius: 999px !important;
+  }
+
+  /* Product ticker becomes a subtle brand signature */
+  .ppp-product-ticker {
+    border-width: 1px !important;
+    border-color: color-mix(in oklab, var(--color-accent) 40%, transparent) !important;
+    background: var(--color-secondary) !important;
+    color: var(--color-secondary-foreground) !important;
+  }
+
+  .ppp-product-ticker .ppp-ticker-run {
+    font-family: var(--font-body) !important;
+    font-size: .7rem !important;
+    letter-spacing: .16em !important;
+    color: color-mix(in oklab, var(--color-secondary-foreground) 80%, transparent);
+  }
+
+  .ppp-product-ticker .ppp-ticker-run span > span {
+    color: var(--color-accent);
+  }
+
+  /* Menu */
+  #cardapio h2 {
+    text-transform: none !important;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    line-height: .9;
+  }
+
+  #cardapio > div:first-child {
+    margin-bottom: 2rem;
+  }
+
+  #cardapio > div:first-child > div:first-child > p {
+    color: var(--color-primary);
+    letter-spacing: .18em;
+  }
+
+  #cardapio .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  #cardapio .scrollbar-none button {
+    border: 1px solid var(--color-border) !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-family: var(--font-body) !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+  }
+
+  #cardapio .scrollbar-none button:hover {
+    border-color: var(--color-primary) !important;
+  }
+
+  #cardapio .scrollbar-none button.bg-primary {
+    background: var(--color-secondary) !important;
+    border-color: var(--color-secondary) !important;
+    color: var(--color-secondary-foreground) !important;
+  }
+
+  #cardapio label input {
+    border: 1px solid var(--color-border) !important;
+    border-radius: 999px !important;
+    background: color-mix(in oklab, var(--color-card) 92%, transparent) !important;
+  }
+
+  /* Editorial product gallery */
+  #cardapio .grid.gap-4 > .group {
+    border: 1px solid color-mix(in oklab, var(--color-border) 90%, transparent) !important;
+    border-radius: 1.15rem !important;
+    background: var(--color-card) !important;
+    box-shadow: 0 18px 50px -38px oklch(0.12 0.03 160 / .65) !important;
+    overflow: hidden !important;
+    transform: none !important;
+  }
+
+  #cardapio .grid.gap-4 > .group:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 26px 58px -38px oklch(0.12 0.03 160 / .72) !important;
+  }
+
+  #cardapio .grid.gap-4 > .group > div:first-child {
+    border-bottom: 0 !important;
+    aspect-ratio: 1.12 !important;
+  }
+
+  #cardapio .grid.gap-4 > .group > div:first-child > div:last-of-type {
+    background: linear-gradient(to top, rgba(9,22,19,.78), transparent) !important;
+  }
+
+  #cardapio .grid.gap-4 > .group > div:first-child p {
+    text-transform: none !important;
+    letter-spacing: -.025em !important;
+    font-size: 1.25rem !important;
+  }
+
+  #cardapio .grid.gap-4 > .group > div:first-child > span {
+    border: 1px solid color-mix(in oklab, var(--color-accent) 65%, transparent) !important;
+    border-radius: 999px !important;
+    background: var(--color-accent) !important;
+    color: var(--color-secondary) !important;
+    box-shadow: none !important;
+    font-family: var(--font-body) !important;
+    text-transform: none !important;
+  }
+
+  #cardapio .grid.gap-4 > .group > div:last-child {
+    padding: 1.15rem !important;
+  }
+
+  #cardapio .grid.gap-4 > .group > div:last-child > div:first-child > div:first-child > p:first-child {
+    color: var(--color-primary);
+    font-family: var(--font-body);
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: .08em;
+  }
+
+  #cardapio .grid.gap-4 > .group > div:last-child > div:first-child > div:last-child span {
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: color-mix(in oklab, var(--color-accent) 42%, var(--color-background)) !important;
+    color: var(--color-secondary) !important;
+    box-shadow: none !important;
+    transform: none !important;
+    font-family: var(--font-body) !important;
+  }
+
+  #cardapio .grid.gap-4 > .group > div:last-child > div:last-child {
+    border-color: var(--color-border) !important;
+    font-family: var(--font-body) !important;
+    font-weight: 500;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+
+  #cardapio .grid.gap-4 > .group > div:last-child > div:last-child span:last-child {
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  /* About section: manifesto-like dark panel */
+  #sobre > div {
+    border: 1px solid color-mix(in oklab, var(--color-accent) 25%, transparent) !important;
+    border-radius: 1.5rem !important;
+    background: var(--color-secondary) !important;
+    box-shadow: 0 30px 80px -55px oklch(0.08 0.03 165 / .8) !important;
+  }
+
+  #sobre > div > div:first-child > p:first-child {
+    color: var(--color-accent) !important;
+  }
+
+  #sobre > div > div:first-child h2 {
+    text-transform: none !important;
+    color: var(--color-secondary-foreground);
+  }
+
+  #sobre > div > div:first-child a {
+    border-radius: 999px !important;
+    background: var(--color-primary) !important;
+    box-shadow: none !important;
+    text-transform: none !important;
+    font-family: var(--font-body) !important;
+  }
+
+  #sobre > div > div:last-child {
+    background: color-mix(in oklab, var(--color-secondary) 86%, var(--color-primary) 14%) !important;
+    padding: 1.25rem !important;
+  }
+
+  #sobre > div > div:last-child > div {
+    border: 1px solid color-mix(in oklab, var(--color-accent) 30%, transparent) !important;
+    border-radius: 1rem !important;
+    box-shadow: none !important;
+  }
+
+  /* Contact */
+  #contato > div {
+    border: 1px solid color-mix(in oklab, var(--color-secondary) 25%, var(--color-border)) !important;
+    border-radius: 1.5rem !important;
+    background: linear-gradient(135deg, var(--color-primary), color-mix(in oklab, var(--color-primary) 70%, var(--color-accent))) !important;
+    box-shadow: 0 30px 80px -55px oklch(0.15 0.04 45 / .55) !important;
+  }
+
+  #contato h2 {
+    text-transform: none !important;
+    letter-spacing: -.06em !important;
+  }
+
+  #contato > div > div > * {
+    border: 1px solid color-mix(in oklab, var(--color-secondary) 18%, transparent) !important;
+    border-radius: 1rem !important;
+    box-shadow: none !important;
+  }
+
+  /* Dialog / configurator */
+  [role="dialog"] > div {
+    border: 1px solid var(--color-border) !important;
+    border-radius: 1.35rem !important;
+    box-shadow: 0 35px 100px -45px oklch(0.08 0.03 165 / .7) !important;
+  }
+
+  [role="dialog"] .border-primary {
+    border-color: var(--color-primary) !important;
+  }
+
+  [role="dialog"] button {
+    border-radius: .9rem;
+  }
+
+  [role="dialog"] .bg-primary {
+    background-color: var(--color-primary) !important;
+  }
+
+  /* Cart and checkout */
+  [aria-label="Carrinho"] aside {
+    border-left: 1px solid var(--color-border) !important;
+    box-shadow: -30px 0 80px -55px oklch(0.08 0.03 165 / .6) !important;
+  }
+
+  [aria-label="Carrinho"] aside > div:first-child {
+    background: var(--color-secondary);
+    color: var(--color-secondary-foreground);
+  }
+
+  [aria-label="Carrinho"] aside > div:first-child .text-primary {
+    color: var(--color-accent) !important;
+  }
+
+  [aria-label="Carrinho"] aside .rounded-2xl {
+    border-radius: 1rem !important;
+  }
+
+  /* Mobile */
+  @media (max-width: 639px) {
+    header > div {
+      height: 4rem;
+    }
+
+    main#inicio > section:first-child {
+      padding: .8rem .75rem 2rem;
+    }
+
+    main#inicio > section:first-child > div {
+      border-radius: 1rem !important;
+    }
+
+    main#inicio > section:first-child > div > div:first-child {
+      padding: 1.65rem 1.15rem 1.5rem;
+    }
+
+    main#inicio > section:first-child h1 {
+      max-width: 10ch;
+      font-size: clamp(2.75rem, 13vw, 4.4rem);
+    }
+
+    main#inicio > section:first-child > div > div:last-child {
+      min-height: 15rem !important;
+      padding: .55rem !important;
+    }
+
+    main#inicio > section:first-child > div > div:last-child img {
+      inset: .55rem !important;
+      width: calc(100% - 1.1rem) !important;
+      height: calc(100% - 1.1rem) !important;
+    }
+
+    main#inicio > section:first-child > div > div:last-child > div:last-child {
+      bottom: .55rem !important;
+      left: auto !important;
+      right: .65rem !important;
+      width: 4.8rem !important;
+      height: 4.8rem !important;
+      transform: rotate(-6deg) !important;
+      font-size: .48rem !important;
+    }
+
+    #cardapio {
+      padding-inline: .75rem;
+    }
+
+    #cardapio h2 {
+      font-size: clamp(2.45rem, 11vw, 3.5rem);
+    }
+
+    #cardapio .grid.gap-4 > .group {
+      border-radius: .9rem !important;
+      box-shadow: 0 14px 35px -28px oklch(0.12 0.03 160 / .6) !important;
+    }
+
+    #sobre > div,
+    #contato > div {
+      border-radius: 1rem !important;
+    }
+  }
+}
