@@ -67,6 +67,7 @@ type PublicTrackedOrder = {
   subtotal?: number;
   total?: number;
   fulfillment?: FulfillmentType;
+  status?: OrderStatus;
 };
 
 async function loadStore(slug?: string): Promise<StoreData> {
@@ -194,6 +195,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [trackedOrders, setTrackedOrders] = useState<PublicTrackedOrder[]>([]);
   const [selectedTrackedOrder, setSelectedTrackedOrder] = useState<PublicTrackedOrder | null>(null);
+  const [addingToOrder, setAddingToOrder] = useState(false);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -232,7 +234,7 @@ export function Storefront({ slug }: { slug?: string }) {
               if (error) return order;
               const current = Array.isArray(tracking) ? tracking[0] : tracking;
               const status = current?.status as OrderStatus | undefined;
-              return status === "DELIVERED" || status === "CANCELLED" ? null : order;
+              return status === "DELIVERED" || status === "CANCELLED" ? null : { ...order, status };
             } catch {
               return order;
             }
@@ -588,6 +590,7 @@ export function Storefront({ slug }: { slug?: string }) {
           trackedOrders={trackedOrders}
           onTrackOrder={(order) => {
             setSelectedTrackedOrder(order);
+            setAddingToOrder(false);
             setTrackingOpen(true);
             setCartOpen(false);
             setCheckoutOpen(true);
@@ -602,8 +605,13 @@ export function Storefront({ slug }: { slug?: string }) {
           deliveryEnabled={Boolean(data.settings.delivery_enabled)}
           onCheckout={() => {
             setCartOpen(false);
-            setTrackingOpen(false);
-            setSelectedTrackedOrder(null);
+            if (addingToOrder && selectedTrackedOrder) {
+              setTrackingOpen(true);
+            } else {
+              setTrackingOpen(false);
+              setSelectedTrackedOrder(null);
+              setAddingToOrder(false);
+            }
             setCheckoutOpen(true);
           }}
         />
@@ -620,10 +628,16 @@ export function Storefront({ slug }: { slug?: string }) {
           storeOpen={status.open}
           storeStatusLabel={status.label}
           trackedOrder={trackingOpen ? selectedTrackedOrder : null}
-          onSuccess={(order) => {
+          addingToOrder={addingToOrder}
+          onAddToOrder={() => {
+            if (!selectedTrackedOrder) return;
+            setAddingToOrder(true);
             setTrackingOpen(false);
+            setCheckoutOpen(false);
+            setCartOpen(false);
+          }}
+          onSuccess={(order) => {
             cart.clear();
-            setSelectedTrackedOrder(null);
             setTrackedOrders((previous) => {
               const next = [...previous.filter((item) => item.id !== order.id), order];
               try {
@@ -633,6 +647,16 @@ export function Storefront({ slug }: { slug?: string }) {
               }
               return next;
             });
+
+            if (order.isAddition) {
+              setSelectedTrackedOrder(order);
+              setAddingToOrder(false);
+              setTrackingOpen(true);
+            } else {
+              setTrackingOpen(false);
+              setSelectedTrackedOrder(null);
+              setAddingToOrder(false);
+            }
           }}
           onOrderFinished={(orderId) => {
             setTrackedOrders((previous) => {
@@ -646,6 +670,7 @@ export function Storefront({ slug }: { slug?: string }) {
             });
             setSelectedTrackedOrder(null);
             setTrackingOpen(false);
+            setAddingToOrder(false);
           }}
         />
       )}
@@ -1388,8 +1413,10 @@ function CheckoutPanel({
   items: CartItem[];
   subtotal: number;
   onClose: () => void;
-  onSuccess: (order: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType }) => void;
-  trackedOrder?: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType } | null;
+  onSuccess: (order: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType; status?: OrderStatus; isAddition?: boolean }) => void;
+  trackedOrder?: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType; status?: OrderStatus } | null;
+  addingToOrder: boolean;
+  onAddToOrder: () => void;
   storeOpen: boolean;
   storeStatusLabel: string;
   onOrderFinished: (orderId: string) => void;
@@ -1425,7 +1452,7 @@ function CheckoutPanel({
     if (!trackedOrder) return;
     setSuccessOrderId(trackedOrder.id);
     setSuccessNumber(trackedOrder.number);
-    setSuccessStatus("RECEIVED");
+    setSuccessStatus(trackedOrder.status ?? "RECEIVED");
     setPhone(trackedOrder.phone);
     setConfirmedItems(trackedOrder.items ?? []);
     setConfirmedSubtotal(trackedOrder.subtotal ?? 0);
@@ -1456,6 +1483,7 @@ function CheckoutPanel({
   // Delivery: pedido mínimo = taxa da região + R$ 1. Retirada: sem mínimo.
   const deliveryMinimum = fulfillment === "DELIVERY" && selectedZone ? 1 : 0;
   const total = subtotal + deliveryFee;
+  const displayTotal = addingToOrder ? subtotal : total;
 
   const availablePayments = (settings.payment_methods ?? []).length
     ? settings.payment_methods ?? []
@@ -1463,6 +1491,87 @@ function CheckoutPanel({
 
   const submitOrder = async () => {
     setError(null);
+
+    if (addingToOrder && trackedOrder) {
+      if (items.length === 0) {
+        setError("Adicione pelo menos um item antes de continuar.");
+        return;
+      }
+
+      setSubmitting(true);
+      try {
+        const appendItems = items.flatMap((item) => [
+          {
+            product_id: item.productId,
+            second_product_id: item.secondProductId,
+            is_half: item.isHalf,
+            size_id: item.sizeId,
+            crust_id: item.crustId,
+            quantity: item.quantity,
+            notes: item.notes,
+            addons: (item.addons ?? []).map((addon) => ({ id: addon.id })),
+          },
+          ...(item.complements ?? []).map((complement) => ({
+            product_id: complement.productId,
+            second_product_id: null,
+            is_half: false,
+            size_id: null,
+            crust_id: null,
+            quantity: 1,
+            notes: "Complemento do pedido: " + item.productName,
+            addons: [],
+          })),
+        ]);
+
+        const { data: appended, error: appendError } = await supabase.rpc(
+          "append_public_order_items",
+          {
+            p_order_id: trackedOrder.id,
+            p_customer_phone: trackedOrder.phone,
+            p_items: appendItems,
+          },
+        );
+        if (appendError) throw appendError;
+
+        const order = Array.isArray(appended) ? appended[0] : appended;
+        if (!order?.order_id || !order?.order_number) {
+          throw new Error("Não foi possível adicionar os itens ao pedido.");
+        }
+
+        const mergedItems = [...(trackedOrder.items ?? []), ...items];
+        const updatedOrder = {
+          id: String(order.order_id),
+          number: Number(order.order_number),
+          phone: trackedOrder.phone,
+          items: mergedItems,
+          subtotal: Number(order.subtotal ?? 0),
+          total: Number(order.total ?? 0),
+          fulfillment: trackedOrder.fulfillment,
+          status: order.status as OrderStatus,
+          isAddition: true,
+        };
+
+        setSuccessOrderId(updatedOrder.id);
+        setSuccessNumber(updatedOrder.number);
+        setSuccessStatus(updatedOrder.status);
+        setConfirmedItems(mergedItems);
+        setConfirmedSubtotal(updatedOrder.subtotal);
+        setConfirmedTotal(updatedOrder.total);
+        setConfirmedFulfillment(updatedOrder.fulfillment ?? "DELIVERY");
+        onSuccess(updatedOrder);
+      } catch (appendSubmitError) {
+        const message =
+          appendSubmitError instanceof Error
+            ? appendSubmitError.message
+            : typeof appendSubmitError === "object" && appendSubmitError !== null && "message" in appendSubmitError
+              ? String((appendSubmitError as { message?: unknown }).message ?? "Não foi possível adicionar os itens.")
+              : "Não foi possível adicionar os itens.";
+        setError(message);
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
 
     if (!storeOpen) {
       setError(`A loja está fechada. ${storeStatusLabel}.`);
@@ -1634,7 +1743,7 @@ function CheckoutPanel({
     };
   }, [successOrderId, phone, onOrderFinished]);
 
-  if (successNumber != null && successOrderId != null) {
+  if (successNumber != null && successOrderId != null && !addingToOrder) {
     const trackingSteps: [OrderStatus, string, string][] = [
       ["RECEIVED", "Pedido recebido", "Seu pedido chegou até a loja."],
       ["CONFIRMED", "Pedido confirmado", "A cozinha já confirmou o pedido."],
@@ -1647,6 +1756,7 @@ function CheckoutPanel({
     ];
     const currentIndex = trackingSteps.findIndex(([step]) => step === successStatus);
     const isCancelled = successStatus === "CANCELLED";
+    const canAddMore = ["RECEIVED", "CONFIRMED", "PREPARING", "READY"].includes(successStatus);
     const progress = currentIndex >= 0 ? ((currentIndex + 1) / trackingSteps.length) * 100 : 0;
 
     return (
@@ -1709,6 +1819,18 @@ function CheckoutPanel({
                 {!isCancelled && (
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted sm:mt-5">
                     <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${progress}%` }} />
+                  </div>
+                )}
+                {canAddMore && (
+                  <div className="mt-4 rounded-2xl border border-primary/15 bg-primary/5 p-3.5 sm:mt-5 sm:p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Plus className="size-4" /></div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold">Esqueceu alguma coisa?</p>
+                        <p className="mt-1 text-xs leading-5 text-muted-foreground">Você ainda pode adicionar itens ao pedido enquanto ele não sair para entrega.</p>
+                        <Button type="button" onClick={onAddToOrder} className="mt-3 h-10 rounded-xl px-4 text-xs font-black">Adicionar ao pedido</Button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1887,11 +2009,10 @@ function CheckoutPanel({
             </button>
           </div>
           <div className="grid grid-cols-3 border-t border-background/10 bg-background/[.04]">
-            {[
-              ["01", "Receber"],
-              ["02", "Dados"],
-              ["03", "Pagamento"],
-            ].map(([number, label], index) => (
+            {(addingToOrder
+              ? [["01", "Itens"], ["02", "Revisão"], ["03", "Confirmação"]]
+              : [["01", "Receber"], ["02", "Dados"], ["03", "Pagamento"]]
+            ).map(([number, label], index) => (
               <div key={number} className={`flex items-center justify-center gap-2 px-2 py-2.5 ${index === 0 ? "text-background" : "text-background/45"}`}>
                 <span className={`grid size-5 place-items-center rounded-full text-[8px] font-black ${index === 0 ? "bg-primary text-primary-foreground" : "border border-background/20"}`}>{number}</span>
                 <span className="hidden text-[9px] font-semibold uppercase tracking-[.14em] sm:inline">{label}</span>
@@ -1902,6 +2023,36 @@ function CheckoutPanel({
 
         <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <main className="space-y-3">
+            {addingToOrder ? (
+              <section className="rounded-[1.5rem] border border-primary/15 bg-white p-5 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-6">
+                <div className="flex items-start gap-3">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Plus className="size-5" /></div>
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Adicionar ao pedido #{trackedOrder?.number}</p>
+                    <h2 className="mt-1 text-xl font-display tracking-tight">Mais alguma coisa?</h2>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground">Os itens abaixo serão acrescentados ao pedido existente. O endereço, forma de recebimento e telefone continuam os mesmos.</p>
+                  </div>
+                </div>
+                <div className="mt-5 rounded-2xl bg-[#faf9f7] p-4">
+                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-muted-foreground">Novos itens</p>
+                  <div className="mt-3 space-y-2">
+                    {items.map((item) => (
+                      <div key={item.lineId} className="flex items-start justify-between gap-3 rounded-xl border border-black/8 bg-white p-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
+                          <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
+                          {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}
+                          {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-muted-foreground">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
+                        </div>
+                        <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-4 rounded-xl border border-black/8 bg-muted/40 p-3 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Acréscimo:</strong> {formatCurrency(subtotal)} · o total do pedido será atualizado após a confirmação.</div>
+              </section>
+            ) : (
+              <>
             <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
               <div className="flex items-start gap-3">
                 <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -2066,6 +2217,8 @@ function CheckoutPanel({
               </div>
               <Textarea id="checkout-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-3 min-h-20 resize-none rounded-xl border-black/10 bg-[#faf9f7]" placeholder="Ex.: tocar a campainha, tirar cebola..." maxLength={500} />
             </section>
+              </>
+            )}
           </main>
 
           <aside className="lg:sticky lg:top-5">
@@ -2099,8 +2252,8 @@ function CheckoutPanel({
 
               <div className="border-t border-background/10 px-4 py-4 sm:px-5">
                 <div className="space-y-2 text-xs">
-                  <div className="flex justify-between gap-3 text-background/60"><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
-                  {fulfillment === "DELIVERY" && (
+                  <div className="flex justify-between gap-3 text-background/60"><span>{addingToOrder ? "Acréscimo" : "Subtotal"}</span><span>{formatCurrency(subtotal)}</span></div>
+                  {!addingToOrder && fulfillment === "DELIVERY" && (
                     <>
                       <div className="flex justify-between gap-3 text-background/60"><span>Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "A calcular"}</span></div>
                       {selectedZone && (
@@ -2114,8 +2267,8 @@ function CheckoutPanel({
                   <div className="my-3 border-t border-background/10" />
                   <div className="flex items-end justify-between gap-3">
                     <div>
-                      <p className="text-[9px] font-bold uppercase tracking-[.16em] text-background/45">Total do pedido</p>
-                      <p className="mt-0.5 font-display text-3xl tracking-tight">{formatCurrency(total)}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-[.16em] text-background/45">{addingToOrder ? "Valor adicional" : "Total do pedido"}</p>
+                      <p className="mt-0.5 font-display text-3xl tracking-tight">{formatCurrency(displayTotal)}</p>
                     </div>
                     <span className="rounded-full bg-primary px-2.5 py-1 text-[9px] font-bold text-primary-foreground">{items.reduce((sum, item) => sum + item.quantity, 0)} itens</span>
                   </div>
@@ -2128,11 +2281,11 @@ function CheckoutPanel({
                 )}
 
                 <Button
-                  disabled={submitting || items.length === 0 || !storeOpen}
+                  disabled={submitting || items.length === 0 || (!storeOpen && !addingToOrder)}
                   onClick={submitOrder}
                   className="mt-4 h-13 w-full rounded-xl bg-primary text-sm font-black text-primary-foreground shadow-[0_10px_24px_hsl(var(--primary)/.28)] transition hover:brightness-105"
                 >
-                  {!storeOpen ? "Loja fechada" : submitting ? "Enviando pedido..." : `Confirmar pedido · ${formatCurrency(total)}`}
+                  {!storeOpen && !addingToOrder ? "Loja fechada" : submitting ? (addingToOrder ? "Adicionando..." : "Enviando pedido...") : addingToOrder ? `Adicionar ao pedido · ${formatCurrency(displayTotal)}` : `Confirmar pedido · ${formatCurrency(displayTotal)}`}
                 </Button>
                 <div className="mt-3 flex items-center justify-center gap-2 text-[9px] text-background/45">
                   <Clock3 className="size-3" />
@@ -2150,11 +2303,11 @@ function CheckoutPanel({
               <p className="text-lg font-black leading-none">{formatCurrency(total)}</p>
             </div>
             <Button
-              disabled={submitting || items.length === 0 || !storeOpen}
+              disabled={submitting || items.length === 0 || (!storeOpen && !addingToOrder)}
               onClick={submitOrder}
               className="h-11 shrink-0 rounded-full px-5 text-xs font-black shadow-[0_8px_20px_hsl(var(--primary)/.2)]"
             >
-              {!storeOpen ? "Loja fechada" : submitting ? "Enviando..." : "Confirmar pedido"}
+              {!storeOpen && !addingToOrder ? "Loja fechada" : submitting ? (addingToOrder ? "Adicionando..." : "Enviando...") : addingToOrder ? "Adicionar ao pedido" : "Confirmar pedido"}
             </Button>
           </div>
         </div>
