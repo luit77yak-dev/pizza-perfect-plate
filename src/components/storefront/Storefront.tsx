@@ -1337,6 +1337,8 @@ function CheckoutPanel({
   const [successOrderId, setSuccessOrderId] = useState<string | null>(null);
   const [successNumber, setSuccessNumber] = useState<number | null>(null);
   const [successStatus, setSuccessStatus] = useState<OrderStatus>("RECEIVED");
+  const [trackingLive, setTrackingLive] = useState(false);
+  const [lastTrackingUpdate, setLastTrackingUpdate] = useState<Date | null>(null);
   const [trackingError, setTrackingError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1476,6 +1478,20 @@ function CheckoutPanel({
     if (!successOrderId) return;
 
     let cancelled = false;
+
+    const applyStatus = (value: unknown) => {
+      const currentStatus = value as OrderStatus;
+      if (!currentStatus || cancelled) return;
+
+      setSuccessStatus(currentStatus);
+      setTrackingError(null);
+      setLastTrackingUpdate(new Date());
+
+      if (currentStatus === "DELIVERED" || currentStatus === "CANCELLED") {
+        onOrderFinished();
+      }
+    };
+
     const loadStatus = async () => {
       const { data: tracking, error: trackingQueryError } = await supabase.rpc(
         "get_public_order_status",
@@ -1489,22 +1505,38 @@ function CheckoutPanel({
       }
 
       const current = Array.isArray(tracking) ? tracking[0] : tracking;
-      if (current?.status) {
-        const currentStatus = current.status as OrderStatus;
-        setSuccessStatus(currentStatus);
-        setTrackingError(null);
-
-        if (currentStatus === "DELIVERED" || currentStatus === "CANCELLED") {
-          onOrderFinished();
-        }
-      }
+      if (current?.status) applyStatus(current.status);
     };
 
     void loadStatus();
+
+    const channel = supabase
+      .channel(`public-order-tracking:${successOrderId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "orders",
+          filter: `id=eq.${successOrderId}`,
+        },
+        (payload) => {
+          const nextStatus = (payload.new as { status?: OrderStatus })?.status;
+          if (nextStatus) applyStatus(nextStatus);
+        },
+      )
+      .subscribe((status) => {
+        if (cancelled) return;
+        setTrackingLive(status === "SUBSCRIBED");
+      });
+
     const interval = window.setInterval(loadStatus, 5000);
+
     return () => {
       cancelled = true;
+      setTrackingLive(false);
       window.clearInterval(interval);
+      void supabase.removeChannel(channel);
     };
   }, [successOrderId, phone, onOrderFinished]);
 
@@ -1550,7 +1582,7 @@ function CheckoutPanel({
                       Pedido #{successNumber}
                     </span>
                     <span className="rounded-full border border-background/15 px-3 py-1 text-[9px] font-bold uppercase tracking-[.16em] text-background/55">
-                      Atualização automática
+                      {trackingLive ? "Ao vivo" : "Atualização automática"}
                     </span>
                   </div>
                   <h1 className="mt-4 max-w-2xl font-display text-[clamp(2.6rem,7vw,5.5rem)] leading-[.86] tracking-[-.05em]">
@@ -1582,7 +1614,7 @@ function CheckoutPanel({
                 </div>
                 {!isCancelled && (
                   <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: \`\${progress}%\` }} />
+                    <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${progress}%` }} />
                   </div>
                 )}
               </div>
@@ -1628,8 +1660,12 @@ function CheckoutPanel({
                   <div className="flex gap-3">
                     <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Clock3 className="size-4" /></div>
                     <div>
-                      <p className="text-xs font-bold">{trackingError ?? (isCancelled ? "O acompanhamento foi encerrado." : "O status é atualizado automaticamente a cada poucos segundos.")}</p>
-                      {!isCancelled && <p className="mt-1 text-[11px] leading-5 text-muted-foreground">Você pode deixar esta tela aberta enquanto aguarda.</p>}
+                      <p className="text-xs font-bold">{trackingError ?? (isCancelled ? "O acompanhamento foi encerrado." : trackingLive ? "Conexão ao vivo ativa. As mudanças aparecem automaticamente." : "Atualização automática ativa. O sistema verifica o pedido a cada poucos segundos.")}</p>
+                      {!isCancelled && (
+                        <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
+                          {lastTrackingUpdate ? `Última atualização: ${lastTrackingUpdate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}` : "Aguardando a primeira atualização."}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
