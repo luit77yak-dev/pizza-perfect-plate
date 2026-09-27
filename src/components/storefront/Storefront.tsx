@@ -722,13 +722,13 @@ function ProductConfigurator({
 
   const stepTitle =
     step === 1
-      ? "Monte sua pizza"
+      ? "Escolha"
       : step === 2
-        ? "Personalize sua pizza"
-        : "Complete seu pedido";
+        ? "Personalize"
+        : "Finalize";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/45 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
+    <div className="ppp-order-builder fixed inset-0 z-50 flex items-end justify-center bg-foreground/45 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
       <div className="flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-background shadow-lifted sm:max-h-[92vh] sm:rounded-[2rem]">
         <div className="flex items-center justify-between border-b px-5 py-4">
           <div className="min-w-0">
@@ -741,10 +741,21 @@ function ProductConfigurator({
           </button>
         </div>
 
-        <div className="flex gap-1.5 border-b px-5 py-3">
-          {Array.from({ length: totalSteps }).map((_, index) => (
-            <div key={index} className={"h-1.5 flex-1 rounded-full " + (index + 1 <= step ? "bg-primary" : "bg-muted")} />
-          ))}
+        <div className="border-b px-5 py-3.5">
+          <div className="flex items-center gap-2">
+            {["Escolha", "Personalize", "Finalize"].map((label, index) => (
+              <div key={label} className="flex min-w-0 flex-1 items-center gap-2">
+                <div className={"h-1 flex-1 rounded-full transition-colors " + (index + 1 <= step ? "bg-primary" : "bg-muted")} />
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 grid grid-cols-3 text-[9px] font-medium uppercase tracking-[.22em]">
+            {["Escolha", "Personalize", "Finalize"].map((label, index) => (
+              <span key={label} className={(index + 1 === step ? "text-primary" : "text-muted-foreground") + (index === 1 ? " text-center" : index === 2 ? " text-right" : "")}>
+                {label}
+              </span>
+            ))}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-5">
@@ -757,7 +768,7 @@ function ProductConfigurator({
               </div>
 
               <div>
-                <p className="mb-2 text-sm font-semibold">1. Escolha o tamanho</p>
+                <p className="mb-2 text-sm font-semibold">Tamanho</p>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {data.sizes.map((size) => {
                     const price = getPrice(product, size.id, data.prices);
@@ -780,7 +791,7 @@ function ProductConfigurator({
 
               {product.allow_half && (
                 <div>
-                  <p className="mb-2 text-sm font-semibold">2. Como você quer sua pizza?</p>
+                  <p className="mb-2 text-sm font-semibold">Formato da pizza</p>
                   <div className="grid gap-2 sm:grid-cols-2">
                     <button
                       type="button"
@@ -914,7 +925,7 @@ function ProductConfigurator({
           {step === 3 && (
             <section>
               <div className="mb-5 rounded-2xl border bg-card p-4">
-                <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Complete seu pedido</p>
+                <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Últimos detalhes</p>
                 <p className="mt-1 text-sm text-muted-foreground">Escolha bebidas e acompanhamentos para adicionar junto com esta pizza.</p>
               </div>
 
@@ -1025,7 +1036,7 @@ function CartPanel({
   onCheckout: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 bg-foreground/35 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Carrinho">
+    <div className="ppp-cart-panel fixed inset-0 z-50 bg-foreground/35 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Carrinho">
       <button className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar carrinho" />
       <aside className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-background shadow-lifted">
         <div className="flex items-center justify-between border-b px-5 py-4">
@@ -1336,7 +1347,7 @@ function CheckoutPanel({
 
   if (successNumber != null && successOrderId != null) {
     return (
-      <div className="fixed inset-0 z-[60] overflow-y-auto bg-background">
+      <div className="ppp-checkout-panel fixed inset-0 z-[60] overflow-y-auto bg-background">
         <section className="mx-auto min-h-screen w-full max-w-2xl px-4 pb-10 pt-8 sm:px-6 sm:pt-12">
           <div className="rounded-[2rem] border bg-card p-6 shadow-lifted sm:p-8">
             <div className="flex items-start gap-4">
