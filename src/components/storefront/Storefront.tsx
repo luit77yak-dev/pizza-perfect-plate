@@ -1577,81 +1577,134 @@ function CheckoutPanel({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background">
-      <div className="mx-auto min-h-screen max-w-3xl px-4 pb-10 pt-5 sm:px-6 sm:pt-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">Finalizar pedido</p>
-            <h1 className="mt-1 text-3xl sm:text-4xl">Quase lá</h1>
+    <div className="ppp-checkout-panel fixed inset-0 z-[60] overflow-y-auto bg-[#f7f4ef] text-foreground">
+      <div className="mx-auto min-h-screen w-full max-w-6xl px-3 pb-28 pt-3 sm:px-6 sm:pb-12 sm:pt-6">
+        <header className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-foreground text-background shadow-[0_18px_45px_rgba(0,0,0,.12)] sm:rounded-[2rem]">
+          <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm sm:size-11">
+                <Pizza className="size-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-[9px] font-bold uppercase tracking-[.22em] text-primary">Finalização</p>
+                <h1 className="truncate font-display text-xl tracking-tight sm:text-2xl">Seu pedido</h1>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="grid size-9 shrink-0 place-items-center rounded-full border border-background/15 bg-background/5 text-background/80 transition hover:bg-background/10 hover:text-background"
+              aria-label="Fechar checkout"
+            >
+              <X className="size-4" />
+            </button>
           </div>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-muted" aria-label="Fechar checkout">
-            <X className="size-5" />
-          </button>
-        </div>
+          <div className="grid grid-cols-3 border-t border-background/10 bg-background/[.04]">
+            {[
+              ["01", "Receber"],
+              ["02", "Dados"],
+              ["03", "Pagamento"],
+            ].map(([number, label], index) => (
+              <div key={number} className={`flex items-center justify-center gap-2 px-2 py-2.5 ${index === 0 ? "text-background" : "text-background/45"}`}>
+                <span className={`grid size-5 place-items-center rounded-full text-[8px] font-black ${index === 0 ? "bg-primary text-primary-foreground" : "border border-background/20"}`}>{number}</span>
+                <span className="hidden text-[9px] font-semibold uppercase tracking-[.14em] sm:inline">{label}</span>
+              </div>
+            ))}
+          </div>
+        </header>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
-          <div className="space-y-4">
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <p className="text-sm font-semibold">Como você quer receber?</p>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+          <main className="space-y-3">
+            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
+              <div className="flex items-start gap-3">
+                <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <Store className="size-4.5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">01 · Entrega</p>
+                  <h2 className="mt-0.5 text-base font-bold tracking-tight sm:text-lg">Como você quer receber?</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">Escolha a forma mais conveniente para você.</p>
+                </div>
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {settings.delivery_enabled && (
                   <button
                     onClick={() => setFulfillment("DELIVERY")}
-                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "DELIVERY" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                    className={`group rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] sm:p-4 ${fulfillment === "DELIVERY" ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.18)] ring-1 ring-primary" : "border-black/8 bg-[#faf9f7] hover:border-primary/40"}`}
                   >
-                    <p className="font-semibold">Entrega</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Receba no seu endereço</p>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-bold">Entrega</span>
+                      <span className={`grid size-6 place-items-center rounded-full ${fulfillment === "DELIVERY" ? "bg-white/15" : "bg-primary/10 text-primary"}`}>
+                        {fulfillment === "DELIVERY" ? <Check className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+                      </span>
+                    </div>
+                    <p className={`mt-1 text-[11px] ${fulfillment === "DELIVERY" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>Receba no endereço informado</p>
                   </button>
                 )}
                 {settings.pickup_enabled && (
                   <button
                     onClick={() => setFulfillment("PICKUP")}
-                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "PICKUP" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                    className={`group rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] sm:p-4 ${fulfillment === "PICKUP" ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.18)] ring-1 ring-primary" : "border-black/8 bg-[#faf9f7] hover:border-primary/40"}`}
                   >
-                    <p className="font-semibold">Retirada</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Retire na loja</p>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-bold">Retirada</span>
+                      <span className={`grid size-6 place-items-center rounded-full ${fulfillment === "PICKUP" ? "bg-white/15" : "bg-primary/10 text-primary"}`}>
+                        {fulfillment === "PICKUP" ? <Check className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+                      </span>
+                    </div>
+                    <p className={`mt-1 text-[11px] ${fulfillment === "PICKUP" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>Retire diretamente na loja</p>
                   </button>
                 )}
               </div>
             </section>
 
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <p className="text-sm font-semibold">Seus dados</p>
+            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
+              <div className="flex items-start gap-3">
+                <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-secondary-foreground">
+                  <span className="text-xs font-black">02</span>
+                </div>
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Seus dados</p>
+                  <h2 className="mt-0.5 text-base font-bold tracking-tight sm:text-lg">Onde podemos encontrar você?</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">Usaremos estes dados apenas para identificar o pedido.</p>
+                </div>
+              </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <label className="text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Nome *</span>
-                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Nome *</span>
+                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
                 </label>
                 <label className="text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Telefone *</span>
-                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(00) 00000-0000" inputMode="tel" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Telefone *</span>
+                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(00) 00000-0000" inputMode="tel" className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
                 </label>
               </div>
             </section>
 
             {fulfillment === "DELIVERY" && (
-              <section className="rounded-3xl border bg-card p-5 shadow-soft">
-                <p className="text-sm font-semibold">Endereço de entrega</p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_120px]">
+              <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
+                <div className="flex items-start gap-3">
+                  <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-secondary-foreground">
+                    <span className="text-xs font-black">03</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Endereço</p>
+                    <h2 className="mt-0.5 text-base font-bold tracking-tight sm:text-lg">Onde vamos entregar?</h2>
+                  </div>
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_110px]">
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Rua *</span>
-                    <input value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Rua, avenida..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Rua *</span>
+                    <input value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Rua, avenida..." className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
                   </label>
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Número *</span>
-                    <input value={number} onChange={(e) => setNumber(e.target.value)} placeholder="123" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Número *</span>
+                    <input value={number} onChange={(e) => setNumber(e.target.value)} placeholder="123" className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
                   </label>
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Bairro *</span>
-                    <input
-                      list="delivery-neighborhoods"
-                      value={neighborhood}
-                      onChange={(e) => setNeighborhood(e.target.value)}
-                      placeholder="Seu bairro"
-                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
-                    />
+                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Bairro *</span>
+                    <input list="delivery-neighborhoods" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="Seu bairro" className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
                     {availableNeighborhoods.length > 0 && (
                       <datalist id="delivery-neighborhoods">
                         {availableNeighborhoods.map((item) => <option key={item} value={item} />)}
@@ -1659,37 +1712,48 @@ function CheckoutPanel({
                     )}
                   </label>
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Complemento</span>
-                    <input value={complement} onChange={(e) => setComplement(e.target.value)} placeholder="Apto, casa..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Complemento</span>
+                    <input value={complement} onChange={(e) => setComplement(e.target.value)} placeholder="Apto, casa..." className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
                   </label>
                 </div>
                 <label className="mt-3 block text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Ponto de referência</span>
-                  <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Próximo a..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Referência</span>
+                  <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Próximo a..." className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
                 </label>
                 {deliveryZones.length > 0 && (
-                  <p className="mt-3 text-xs text-muted-foreground">
+                  <div className={`mt-3 rounded-xl px-3.5 py-2.5 text-[11px] ${selectedZone ? "bg-primary/8 text-foreground" : "bg-muted text-muted-foreground"}`}>
                     {selectedZone
-                      ? `Taxa de entrega: ${formatCurrency(deliveryFee)} · ${selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min`
-                      : availableNeighborhoods.length > 0 ? "Selecione ou digite um dos bairros atendidos para calcular a taxa." : "A loja ainda não cadastrou áreas de entrega."}
-                  </p>
+                      ? <span><strong>Entrega:</strong> {formatCurrency(deliveryFee)} · aproximadamente {selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min</span>
+                      : availableNeighborhoods.length > 0 ? "Informe um bairro atendido para calcular a taxa." : "A loja ainda não cadastrou áreas de entrega."}
+                  </div>
                 )}
               </section>
             )}
 
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <p className="text-sm font-semibold">Pagamento</p>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
+              <div className="flex items-start gap-3">
+                <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-secondary-foreground">
+                  <span className="text-xs font-black">04</span>
+                </div>
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Pagamento</p>
+                  <h2 className="mt-0.5 text-base font-bold tracking-tight sm:text-lg">Como você vai pagar?</h2>
+                </div>
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {availablePayments.map((method) => (
                   <button
                     key={method}
                     onClick={() => setPaymentMethod(method)}
-                    className={`rounded-2xl border p-4 text-left ${paymentMethod === method ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                    className={`rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] ${paymentMethod === method ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary" : "border-black/8 bg-[#faf9f7] hover:border-primary/40"}`}
                   >
-                    <p className="font-semibold">
-                      {method === "PIX" ? "PIX" : method === "CASH" ? "Dinheiro" : method === "CARD_ON_DELIVERY" ? "Cartão na entrega" : "Cartão no local"}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-bold">{method === "PIX" ? "PIX" : method === "CASH" ? "Dinheiro" : method === "CARD_ON_DELIVERY" ? "Cartão na entrega" : "Cartão no local"}</span>
+                      <span className={`grid size-6 place-items-center rounded-full ${paymentMethod === method ? "bg-white/15" : "bg-primary/10 text-primary"}`}>
+                        {paymentMethod === method ? <Check className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+                      </span>
+                    </div>
+                    <p className={`mt-1 text-[10px] ${paymentMethod === method ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                       {method === "PIX" ? "Pagamento via PIX" : "Pagamento combinado com a loja"}
                     </p>
                   </button>
@@ -1697,46 +1761,104 @@ function CheckoutPanel({
               </div>
             </section>
 
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <label htmlFor="checkout-notes" className="text-sm font-semibold">Observações do pedido</label>
-              <Textarea id="checkout-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-3" placeholder="Ex.: tocar a campainha, tirar cebola..." maxLength={500} />
-            </section>
-          </div>
-
-          <aside className="h-fit rounded-3xl border bg-card p-5 shadow-soft lg:sticky lg:top-6">
-            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Resumo</p>
-            <div className="mt-4 space-y-3">
-              {items.map((item) => (
-                <div key={item.lineId} className="flex items-start justify-between gap-3 text-sm">
-                  <div>
-                    <p className="font-medium">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
-                    <p className="text-xs text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
-                    {(item.complements ?? []).length > 0 && <p className="mt-1 text-xs text-primary">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
-                  </div>
-                  <span className="font-semibold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Opcional</p>
+                  <label htmlFor="checkout-notes" className="mt-0.5 block text-base font-bold tracking-tight">Observações do pedido</label>
                 </div>
-              ))}
+                <span className="text-[9px] text-muted-foreground">{notes.length}/500</span>
+              </div>
+              <Textarea id="checkout-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-3 min-h-20 resize-none rounded-xl border-black/10 bg-[#faf9f7]" placeholder="Ex.: tocar a campainha, tirar cebola..." maxLength={500} />
+            </section>
+          </main>
+
+          <aside className="lg:sticky lg:top-5">
+            <div className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-foreground text-background shadow-[0_18px_45px_rgba(0,0,0,.14)] sm:rounded-[2rem]">
+              <div className="border-b border-background/10 px-4 py-4 sm:px-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Seu pedido</p>
+                    <h2 className="mt-0.5 font-display text-xl tracking-tight">Resumo</h2>
+                  </div>
+                  <div className="grid size-9 place-items-center rounded-xl bg-background/8">
+                    <ShoppingBag className="size-4" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="max-h-[42vh] space-y-3 overflow-y-auto px-4 py-4 sm:px-5">
+                {items.map((item) => (
+                  <div key={item.lineId} className="rounded-xl border border-background/10 bg-background/[.04] p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
+                        <p className="mt-1 text-[10px] text-background/55">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
+                        {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
+                      </div>
+                      <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-background/10 px-4 py-4 sm:px-5">
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between gap-3 text-background/60"><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
+                  {fulfillment === "DELIVERY" && (
+                    <div className="flex justify-between gap-3 text-background/60"><span>Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "A calcular"}</span></div>
+                  )}
+                  <div className="my-3 border-t border-background/10" />
+                  <div className="flex items-end justify-between gap-3">
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[.16em] text-background/45">Total do pedido</p>
+                      <p className="mt-0.5 font-display text-3xl tracking-tight">{formatCurrency(total)}</p>
+                    </div>
+                    <span className="rounded-full bg-primary px-2.5 py-1 text-[9px] font-bold text-primary-foreground">{items.reduce((sum, item) => sum + item.quantity, 0)} itens</span>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="mt-4 rounded-xl border border-red-300/20 bg-red-400/10 p-3 text-xs leading-5 text-red-100">
+                    {error}
+                  </div>
+                )}
+
+                <Button
+                  disabled={submitting || items.length === 0 || !storeOpen}
+                  onClick={submitOrder}
+                  className="mt-4 h-13 w-full rounded-xl bg-primary text-sm font-black text-primary-foreground shadow-[0_10px_24px_hsl(var(--primary)/.28)] transition hover:brightness-105"
+                >
+                  {!storeOpen ? "Loja fechada" : submitting ? "Enviando pedido..." : `Confirmar pedido · ${formatCurrency(total)}`}
+                </Button>
+                <div className="mt-3 flex items-center justify-center gap-2 text-[9px] text-background/45">
+                  <Clock3 className="size-3" />
+                  <span>{storeOpen ? storeStatusLabel : "A loja está fechada no momento."}</span>
+                </div>
+              </div>
             </div>
-            <div className="my-4 border-t" />
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
-              {fulfillment === "DELIVERY" && (
-                <div className="flex justify-between"><span className="text-muted-foreground">Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "—"}</span></div>
-              )}
-              <div className="flex justify-between pt-2 text-lg font-bold"><span>Total</span><span>{formatCurrency(total)}</span></div>
-            </div>
-            {error && <p className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
-            <Button disabled={submitting || items.length === 0 || !storeOpen} onClick={submitOrder} className="mt-5 h-12 w-full rounded-full">
-              {!storeOpen ? "Loja fechada" : submitting ? "Enviando pedido..." : `Enviar pedido · ${formatCurrency(total)}`}
-            </Button>
-            <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
-              Ao enviar, o pedido será encaminhado diretamente para a loja.
-            </p>
           </aside>
+        </div>
+
+        <div className="fixed inset-x-0 bottom-0 z-[70] border-t border-black/10 bg-white/95 px-3 py-2.5 backdrop-blur-xl lg:hidden">
+          <div className="mx-auto flex max-w-2xl items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[9px] font-bold uppercase tracking-[.12em] text-muted-foreground">Total</p>
+              <p className="text-lg font-black leading-none">{formatCurrency(total)}</p>
+            </div>
+            <Button
+              disabled={submitting || items.length === 0 || !storeOpen}
+              onClick={submitOrder}
+              className="h-11 shrink-0 rounded-full px-5 text-xs font-black shadow-[0_8px_20px_hsl(var(--primary)/.2)]"
+            >
+              {!storeOpen ? "Loja fechada" : submitting ? "Enviando..." : "Confirmar pedido"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
   );
+
 }
 
 function StorefrontSkeleton() {
