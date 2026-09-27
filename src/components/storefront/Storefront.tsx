@@ -833,42 +833,71 @@ function ProductConfigurator({
                         setHalfMode(false);
                         setSecondProductId(null);
                       }}
-                      className={"group relative overflow-hidden rounded-3xl border p-4 text-left transition-all " + (!halfMode ? "border-primary bg-primary text-primary-foreground shadow-[0_12px_30px_hsl(var(--primary)/.18)] ring-2 ring-primary/20" : "bg-card hover:border-primary/50 hover:shadow-md")}
+                      className={"group relative overflow-hidden rounded-2xl border p-4 text-left transition-all " + (!halfMode ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20" : "bg-card hover:border-primary/50 hover:shadow-md")}
+                      aria-pressed={!halfMode}
                     >
-                      <div className="mb-4 flex items-center justify-between">
-                        <div className={"relative grid size-12 place-items-center overflow-hidden rounded-2xl border text-xl " + (!halfMode ? "border-primary-foreground/15 bg-primary-foreground/10" : "border-border bg-muted")}>
+                      <div className="mb-3 flex items-center justify-between">
+                        <div className={"relative grid size-11 place-items-center overflow-hidden rounded-xl border text-lg " + (!halfMode ? "border-primary-foreground/15 bg-primary-foreground/10" : "border-border bg-muted")}>
                           <div className="absolute inset-y-0 left-0 w-1/2 bg-background/15" />
                           <div className="absolute inset-y-0 right-0 w-1/2 bg-primary/30" />
-                          <Pizza className="relative z-10 size-6" />
+                          <Pizza className="relative z-10 size-5" />
                         </div>
-                        {!halfMode && <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest">Escolhido</span>}
+                        {!halfMode && <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[8px] font-bold uppercase tracking-widest">✓ Selecionado</span>}
                       </div>
-                      <p className="font-bold">1 sabor</p>
-                      <p className={"mt-1 text-xs " + (!halfMode ? "text-primary-foreground/70" : "text-muted-foreground")}>Pizza inteira com {product.name}</p>
+                      <p className="font-bold">Pizza inteira</p>
+                      <p className={"mt-1 text-xs " + (!halfMode ? "text-primary-foreground/70" : "text-muted-foreground")}>1 sabor · {product.name}</p>
                     </button>
+
                     <button
                       type="button"
                       onClick={() => setHalfMode(true)}
-                      className={"group relative overflow-hidden rounded-3xl border p-4 text-left transition-all " + (halfMode ? "border-primary bg-primary text-primary-foreground shadow-[0_12px_30px_hsl(var(--primary)/.18)] ring-2 ring-primary/20" : "bg-card hover:border-primary/50 hover:shadow-md")}
+                      className={"group relative overflow-hidden rounded-2xl border p-4 text-left transition-all " + (halfMode ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20" : "bg-card hover:border-primary/50 hover:shadow-md")}
+                      aria-pressed={halfMode}
                     >
-                      <div className="mb-4 flex items-center justify-between">
-                        <div className={"grid size-12 place-items-center rounded-2xl text-2xl " + (halfMode ? "bg-primary-foreground/10" : "bg-muted")}>◐</div>
-                        {halfMode && <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest">Escolhido</span>}
+                      <div className="mb-3 flex items-center justify-between">
+                        <div className={"relative grid size-11 place-items-center overflow-hidden rounded-xl border " + (halfMode ? "border-primary-foreground/15 bg-primary-foreground/10" : "border-border bg-muted")}>
+                          <div className={"absolute inset-y-0 left-0 w-1/2 " + (halfMode ? "bg-primary-foreground/15" : "bg-muted-foreground/10")} />
+                          <div className={"absolute inset-y-0 right-0 w-1/2 " + (halfMode ? "bg-primary-foreground/35" : "bg-primary/10")} />
+                          <span className="relative z-10 text-lg">◐</span>
+                        </div>
+                        {halfMode && <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[8px] font-bold uppercase tracking-widest">✓ Selecionado</span>}
                       </div>
                       <p className="font-bold">Meio a meio</p>
-                      <p className={"mt-1 text-xs " + (halfMode ? "text-primary-foreground/70" : "text-muted-foreground")}>Misture dois sabores na mesma pizza</p>
+                      <p className={"mt-1 text-xs " + (halfMode ? "text-primary-foreground/75" : "text-muted-foreground")}>2 sabores · metade de cada</p>
                     </button>
                   </div>
+
+                  {halfMode && (
+                    <div className="mt-3 flex items-start gap-3 rounded-2xl border border-primary/25 bg-primary/5 px-3.5 py-3">
+                      <div className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                        <span className="text-sm font-bold">2</span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-foreground">Você escolheu meio a meio</p>
+                        <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+                          Agora escolha o <strong>segundo sabor</strong>. O primeiro já é <strong>{product.name}</strong>.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
               {product.allow_half && halfMode && (
-                <div className="rounded-2xl border bg-card p-4">
-                  <div className="mb-3">
-                    <p className="text-sm font-semibold">Escolha o segundo sabor</p>
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                      {selectedSize?.name ? selectedSize.name + " · " + formatCurrency(basePrice) : "Escolha um tamanho primeiro"}
-                    </p>
+                <div className="rounded-2xl border border-primary/20 bg-card p-4 shadow-sm">
+                  <div className="mb-4 flex items-start gap-3">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                      <span className="text-base">◐</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold">Escolha o segundo sabor</p>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                        Primeiro sabor: <strong>{product.name}</strong>. Agora escolha a outra metade.
+                      </p>
+                      <p className="mt-1 text-[11px] font-medium text-primary">
+                        {selectedSize?.name ? selectedSize.name + " · " + formatCurrency(basePrice) : "Escolha um tamanho primeiro"}
+                      </p>
+                    </div>
                   </div>
                   <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
                     {data.products
@@ -903,10 +932,19 @@ function ProductConfigurator({
                       })}
                   </div>
                   {secondProduct && (
-                    <div className="mt-3 rounded-xl bg-primary/10 p-3 text-sm">
-                      <div className="flex items-center justify-between gap-3">
-                        <span><strong>{product.name}</strong> + <strong>{secondProduct.name}</strong></span>
-                        <span className="font-bold">{formatCurrency(halfBasePrice)}</span>
+                    <div className="mt-3 rounded-2xl border border-primary/20 bg-primary/5 p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-full border border-primary/20 bg-background">
+                          <div className="absolute inset-y-0 left-0 w-1/2 bg-primary/20" />
+                          <div className="absolute inset-y-0 right-0 w-1/2 bg-primary/45" />
+                          <span className="relative z-10 text-xs">🍕</span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Pizza montada</p>
+                          <p className="truncate text-sm font-semibold">{product.name} + {secondProduct.name}</p>
+                          <p className="text-xs text-muted-foreground">½ {product.name} · ½ {secondProduct.name}</p>
+                        </div>
+                        <span className="shrink-0 text-sm font-bold">{formatCurrency(halfBasePrice)}</span>
                       </div>
                     </div>
                   )}
