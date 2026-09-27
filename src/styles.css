@@ -2498,3 +2498,267 @@
     }
   }
 }
+
+@layer components {
+  /* ============================================
+     ORDER FLOW — editorial / premium treatment
+     ============================================ */
+  .ppp-order-builder > div {
+    border: 1px solid rgba(19,52,55,.18) !important;
+    border-radius: 1.6rem !important;
+    background: #f4efe5 !important;
+  }
+
+  .ppp-order-builder [role="dialog"] {
+    background: #f4efe5 !important;
+  }
+
+  .ppp-order-builder h2,
+  .ppp-cart-panel h2,
+  .ppp-checkout-panel h1,
+  .ppp-checkout-panel h2 {
+    font-family: var(--font-display, Georgia, serif) !important;
+    font-weight: 500 !important;
+    letter-spacing: -.035em !important;
+  }
+
+  .ppp-order-builder .border-b,
+  .ppp-cart-panel .border-b {
+    border-color: rgba(19,52,55,.14) !important;
+  }
+
+  .ppp-order-builder button:not([aria-label="Fechar"]),
+  .ppp-cart-panel button,
+  .ppp-checkout-panel button {
+    transition: transform .25s ease, border-color .25s ease, background-color .25s ease;
+  }
+
+  .ppp-order-builder section > div > button:hover {
+    transform: translateY(-1px);
+  }
+
+  .ppp-order-builder .bg-card,
+  .ppp-order-builder .bg-muted,
+  .ppp-cart-panel .bg-card,
+  .ppp-checkout-panel .bg-card {
+    background: rgba(255,252,245,.7) !important;
+  }
+
+  .ppp-order-builder .border,
+  .ppp-cart-panel .border,
+  .ppp-checkout-panel .border {
+    border-color: rgba(19,52,55,.16) !important;
+  }
+
+  .ppp-order-builder .rounded-2xl,
+  .ppp-cart-panel .rounded-2xl,
+  .ppp-checkout-panel .rounded-3xl {
+    border-radius: 1rem !important;
+  }
+
+  .ppp-order-builder .bg-primary,
+  .ppp-cart-panel .bg-primary,
+  .ppp-checkout-panel .bg-primary {
+    background: var(--primary) !important;
+  }
+
+  .ppp-order-builder .text-primary,
+  .ppp-cart-panel .text-primary,
+  .ppp-checkout-panel .text-primary {
+    color: var(--primary) !important;
+  }
+
+  .ppp-order-builder > div > div:last-child {
+    background: #0a292d !important;
+    color: #f4efe5;
+    border-color: rgba(244,239,229,.12) !important;
+  }
+
+  .ppp-order-builder > div > div:last-child .text-muted-foreground {
+    color: rgba(244,239,229,.65) !important;
+  }
+
+  .ppp-order-builder > div > div:last-child .text-foreground {
+    color: #f4efe5 !important;
+  }
+
+  .ppp-order-builder > div > div:last-child button {
+    border-color: rgba(244,239,229,.22) !important;
+  }
+
+  .ppp-order-builder > div > div:last-child button:last-child {
+    border-color: var(--primary) !important;
+    background: var(--primary) !important;
+    color: #10191a !important;
+  }
+
+  .ppp-cart-panel > aside {
+    background: #f4efe5 !important;
+  }
+
+  .ppp-cart-panel > aside > div:last-child {
+    background: #0a292d !important;
+    color: #f4efe5;
+  }
+
+  .ppp-cart-panel > aside > div:last-child .text-muted-foreground {
+    color: rgba(244,239,229,.66) !important;
+  }
+
+  .ppp-cart-panel > aside > div:last-child .text-foreground {
+    color: #f4efe5 !important;
+  }
+
+  .ppp-cart-panel > aside > div:last-child button {
+    border-color: rgba(244,239,229,.2);
+  }
+
+  .ppp-cart-panel > aside > div:last-child button.bg-primary {
+    background: var(--primary) !important;
+    color: #10191a !important;
+    border-color: var(--primary) !important;
+  }
+
+  /* ============================================
+     ADMIN PANEL — same brand, more editorial
+     ============================================ */
+  .ppp-admin-panel {
+    --admin-petrol: #0a292d;
+    --admin-ivory: #f4efe5;
+    --admin-orange: #ff5a2a;
+    background:
+      radial-gradient(circle at 85% 0%, rgba(255,90,42,.08), transparent 25rem),
+      #f4efe5 !important;
+  }
+
+  .ppp-admin-header {
+    border-color: rgba(19,52,55,.13) !important;
+    background: rgba(244,239,229,.92) !important;
+  }
+
+  .ppp-admin-header p {
+    color: var(--admin-orange) !important;
+    letter-spacing: .3em !important;
+  }
+
+  .ppp-admin-header h1 {
+    font-family: var(--font-display, Georgia, serif) !important;
+    font-size: 1.55rem !important;
+    font-weight: 500 !important;
+    letter-spacing: -.025em !important;
+  }
+
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] {
+    position: sticky;
+    top: 64px;
+    z-index: 25;
+    border-color: rgba(19,52,55,.12) !important;
+    background: rgba(244,239,229,.9) !important;
+    backdrop-filter: blur(16px);
+  }
+
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] > div {
+    gap: .35rem !important;
+  }
+
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button {
+    border-radius: 999px !important;
+    padding: .65rem .9rem !important;
+    font-size: .68rem !important;
+    font-weight: 600 !important;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button[aria-current="page"] {
+    background: var(--admin-petrol) !important;
+    color: var(--admin-ivory) !important;
+  }
+
+  .ppp-admin-panel nav[aria-label="Navegação do painel"] button:not([aria-current="page"]):hover {
+    background: rgba(10,41,45,.07) !important;
+  }
+
+  .ppp-admin-panel main {
+    max-width: 1400px !important;
+  }
+
+  .ppp-admin-panel main section.rounded-\[1\.35rem\],
+  .ppp-admin-panel main section.rounded-\[1\.25rem\],
+  .ppp-admin-panel main article.rounded-\[1\.5rem\],
+  .ppp-admin-panel main section.rounded-\[1\.5rem\],
+  .ppp-admin-panel main section.rounded-3xl {
+    border-color: rgba(19,52,55,.13) !important;
+    background: rgba(255,252,245,.72) !important;
+    box-shadow: 0 18px 50px rgba(10,41,45,.06) !important;
+  }
+
+  .ppp-admin-panel main h2,
+  .ppp-admin-panel main h3 {
+    font-family: var(--font-display, Georgia, serif) !important;
+    font-weight: 500 !important;
+    letter-spacing: -.025em !important;
+  }
+
+  .ppp-admin-panel main [class*="bg-primary"] {
+    background: var(--admin-orange) !important;
+  }
+
+  .ppp-admin-panel main [class*="text-primary"] {
+    color: var(--admin-orange) !important;
+  }
+
+  .ppp-admin-panel main button.rounded-full {
+    min-height: 2.45rem;
+  }
+
+  .ppp-admin-panel main input,
+  .ppp-admin-panel main textarea,
+  .ppp-admin-panel main select {
+    border-color: rgba(19,52,55,.16) !important;
+    background: rgba(255,252,245,.8) !important;
+  }
+
+  .ppp-admin-panel main input:focus,
+  .ppp-admin-panel main textarea:focus,
+  .ppp-admin-panel main select:focus {
+    border-color: var(--admin-orange) !important;
+    box-shadow: 0 0 0 2px rgba(255,90,42,.12) !important;
+  }
+
+  .ppp-admin-panel main .bg-muted {
+    background: rgba(10,41,45,.055) !important;
+  }
+
+  @media (max-width: 639px) {
+    .ppp-order-builder > div {
+      max-height: 96dvh !important;
+      border-radius: 1.45rem 1.45rem 0 0 !important;
+    }
+
+    .ppp-order-builder > div > div:first-child {
+      padding: .95rem 1rem !important;
+    }
+
+    .ppp-order-builder > div > div:nth-child(2) {
+      padding: .7rem 1rem !important;
+    }
+
+    .ppp-order-builder > div > div:nth-child(3) {
+      padding: 1rem !important;
+    }
+
+    .ppp-admin-panel main {
+      padding-inline: .9rem !important;
+    }
+
+    .ppp-admin-panel nav[aria-label="Navegação do painel"] {
+      top: 60px;
+    }
+
+    .ppp-admin-header > div {
+      min-height: 3.75rem !important;
+      padding-inline: .9rem !important;
+    }
+  }
+}
