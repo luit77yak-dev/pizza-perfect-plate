@@ -790,7 +790,7 @@ function ProductConfigurator({
                   </div>
                   <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Toque para escolher</span>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-2.5 sm:grid-cols-2">
                   {data.sizes.map((size, index) => {
                     const price = getPrice(product, size.id, data.prices);
                     const selected = sizeId === size.id;
@@ -798,22 +798,22 @@ function ProductConfigurator({
                       <button
                         key={size.id}
                         onClick={() => setSizeId(size.id)}
-                        className={"group relative overflow-hidden rounded-3xl border p-4 text-left transition-all duration-200 " + (selected ? "border-primary bg-primary text-primary-foreground shadow-[0_12px_30px_hsl(var(--primary)/.18)] ring-2 ring-primary/20" : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg")}
+                        className={"group relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-200 " + (selected ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary/20" : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md")}
                       >
-                        <div className="flex items-center gap-4">
-                          <div className={"grid size-14 shrink-0 place-items-center rounded-2xl border text-2xl transition-transform group-hover:scale-105 " + (selected ? "border-primary-foreground/20 bg-primary-foreground/10" : "border-border bg-muted")}>
+                        <div className="flex items-center gap-3">
+                          <div className={"grid size-11 shrink-0 place-items-center rounded-xl border text-xl transition-transform group-hover:scale-105 " + (selected ? "border-primary-foreground/20 bg-primary-foreground/10" : "border-border bg-muted")}>
                             <span aria-hidden="true">{index === 0 ? "🍕" : index === 1 ? "🍕" : "🍕"}</span>
                           </div>
                           <div className="min-w-0 flex-1">
-                            <span className="block text-base font-bold">{size.name}</span>
-                            {size.slices ? <span className={"mt-1 block text-xs " + (selected ? "text-primary-foreground/70" : "text-muted-foreground")}>{size.slices} fatias</span> : null}
+                            <span className="block text-sm font-bold">{size.name}</span>
+                            {size.slices ? <span className={"mt-0.5 block text-[11px] " + (selected ? "text-primary-foreground/70" : "text-muted-foreground")}>{size.slices} fatias</span> : null}
                           </div>
                           <div className="text-right">
-                            <span className="block text-base font-bold">{formatCurrency(price)}</span>
-                            {selected && <span className="text-[9px] font-bold uppercase tracking-widest opacity-70">Selecionado</span>}
+                            <span className="block text-sm font-bold">{formatCurrency(price)}</span>
+                            {selected && <span className="text-[8px] font-bold uppercase tracking-widest opacity-70">Selecionado</span>}
                           </div>
                         </div>
-                        <div className={"absolute -right-8 -top-8 size-24 rounded-full blur-2xl " + (selected ? "bg-primary-foreground/15" : "bg-primary/5")} />
+                        <div className={"absolute -right-8 -top-8 size-20 rounded-full blur-2xl " + (selected ? "bg-primary-foreground/15" : "bg-primary/5")} />
                       </button>
                     );
                   })}
