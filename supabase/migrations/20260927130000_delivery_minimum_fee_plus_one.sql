@@ -32,6 +32,7 @@ DECLARE
   v_addon_row record;
   v_product record;
   v_second_product record;
+  v_second_product_name text;
   v_size record;
   v_second_size_price numeric(10,2);
   v_base_price numeric(10,2);
@@ -121,6 +122,7 @@ BEGIN
     v_is_half := COALESCE((v_item->>'is_half')::boolean, false);
     v_size := NULL;
     v_second_size_price := NULL;
+    v_second_product_name := NULL;
     v_crust_price := 0;
     v_crust_name := NULL;
     v_quantity := GREATEST(1, LEAST(99, COALESCE((v_item->>'quantity')::integer, 1)));
@@ -147,7 +149,8 @@ BEGIN
         RAISE EXCEPTION 'Meia pizza inválida';
       END IF;
 
-      SELECT p.*
+      SELECT p.*,
+             p.name AS __second_product_name
         INTO v_second_product
       FROM products p
       WHERE p.id = v_second_product_id
@@ -163,6 +166,8 @@ BEGIN
       IF v_second_product_id = v_product_id THEN
         RAISE EXCEPTION 'As duas metades devem ser válidas';
       END IF;
+
+      v_second_product_name := v_second_product.name;
     ELSE
       IF v_second_product_id IS NOT NULL THEN
         RAISE EXCEPTION 'Segundo produto não permitido neste item';
@@ -277,7 +282,7 @@ BEGIN
       crust_price, unit_price, quantity, total_price, notes
     ) VALUES (
       v_org, v_order_id, v_product_id, v_product.name, 
-      v_second_product_id, CASE WHEN v_is_half THEN v_second_product.name ELSE NULL END,
+      v_second_product_id, v_second_product_name,
       v_is_half, v_size_id, CASE WHEN v_size_id IS NOT NULL THEN v_size.name ELSE NULL END,
       v_crust_id, v_crust_name,
       round(COALESCE(v_crust_price, 0), 2), v_unit_price, v_quantity,
