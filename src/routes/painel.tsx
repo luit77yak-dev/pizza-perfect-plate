@@ -950,8 +950,7 @@ function StaffPanel() {
               Itens excluídos não voltam. Produtos já usados em pedidos mantêm o histórico do pedido.
             </div>
 
-<CompactSection title="Categorias" description="Organização das seções do cardápio">
-                          {catalogSection === "categories" && (
+{catalogSection === "categories" && (
               <CategoryManager
                 categories={categories}
                 onCreate={async () => {
@@ -969,10 +968,7 @@ function StaffPanel() {
               />
             )}
 
-
-              </CompactSection>
-
-            <CompactSection title="Tamanhos" description="Tamanhos e quantidade de fatias">
+            
                           {catalogSection === "sizes" && (
               <SizeManager
                 sizes={sizes}
@@ -991,11 +987,7 @@ function StaffPanel() {
               />
             )}
 
-
-              </CompactSection>
-
-            <CompactSection title="Produtos" description="Produtos, preços e disponibilidade">
-                          {catalogSection === "products" && (
+            {catalogSection === "products" && (
               <ProductCatalogManager
                 products={products}
                 categories={categories}
@@ -1013,11 +1005,7 @@ function StaffPanel() {
               />
             )}
 
-
-              </CompactSection>
-
-            <CompactSection title="Adicionais" description="Extras disponíveis no pedido">
-                          {catalogSection === "addons" && (
+            {catalogSection === "addons" && (
               <AddonManager
                 addons={addons}
                 savingAddonId={savingAddonId}
@@ -1028,11 +1016,7 @@ function StaffPanel() {
               />
             )}
 
-
-              </CompactSection>
-
-            <CompactSection title="Bordas" description="Opções de borda e valores">
-                          {catalogSection === "crusts" && (
+            {catalogSection === "crusts" && (
               <CrustManager
                 crusts={crusts}
                 savingCrustId={savingCrustId}
@@ -1043,11 +1027,7 @@ function StaffPanel() {
               />
             )}
 
-
-              </CompactSection>
-
-            <CompactSection title="Fotos dos produtos" description="Imagens da vitrine">
-                          {catalogSection === "photos" && (
+            {catalogSection === "photos" && (
               <ProductImageManager
                 products={products}
                 uploadingProductId={imageUploading}
@@ -1055,8 +1035,6 @@ function StaffPanel() {
                 onRemove={removeProductImage}
               />
             )}
-
-              </CompactSection>
 
                       </>
         )}
@@ -1085,8 +1063,7 @@ function StaffPanel() {
               ))}
             </div>
 
-<CompactSection title="Horários" description="Funcionamento e datas especiais">
-                          {operationsSection === "hours" && (
+{operationsSection === "hours" && (
               <OperationsManager
                 mode="hours"
                 hours={storeHours}
@@ -1106,11 +1083,7 @@ function StaffPanel() {
               />
             )}
 
-
-              </CompactSection>
-
-            <CompactSection title="Entrega" description="Áreas, taxas e tempos">
-                          {operationsSection === "delivery" && (
+            {operationsSection === "delivery" && (
               <OperationsManager
                 mode="delivery"
                 hours={[]}
@@ -1129,8 +1102,6 @@ function StaffPanel() {
                 onDeleteZone={deleteDeliveryZone}
               />
             )}
-
-              </CompactSection>
 
                       </>
         )}
