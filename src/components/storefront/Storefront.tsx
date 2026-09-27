@@ -729,8 +729,8 @@ function ProductConfigurator({
 
   return (
     <div className="ppp-order-builder fixed inset-0 z-50 flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
-      <div className="flex max-h-[95dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:max-h-[92vh] sm:rounded-[2rem]">
-        <div className="relative overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
+      <div className="flex h-[95dvh] max-h-[95dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[92vh] sm:max-h-[92vh] sm:rounded-[2rem]">
+        <div className="relative shrink-0 overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
           <div className="absolute -right-10 -top-16 size-40 rounded-full bg-primary/25 blur-3xl" />
           <div className="relative flex items-center gap-4">
             <div className="size-20 shrink-0 overflow-hidden rounded-2xl border border-background/15 bg-background/10 shadow-lg">
@@ -753,7 +753,7 @@ function ProductConfigurator({
           </div>
         </div>
 
-        <div className="border-b bg-card px-5 py-4 sm:px-6">
+        <div className="shrink-0 border-b bg-card px-5 py-4 sm:px-6">
           <div className="flex items-center justify-between gap-2">
             {["Escolha", "Personalize", "Finalize"].map((label, index) => {
               const active = index + 1 === step;
@@ -773,7 +773,7 @@ function ProductConfigurator({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
           {step === 1 && (
             <section className="space-y-6">
               <div className="rounded-2xl border bg-card p-4">
@@ -1021,7 +1021,7 @@ function ProductConfigurator({
           )}
         </div>
 
-        <div className="relative z-20 shrink-0 border-t bg-card px-3 pb-[calc(.6rem+env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-10px_28px_rgba(0,0,0,.16)] sm:px-5 sm:py-3">
+        <div className="relative z-20 shrink-0 border-t-2 border-primary/10 bg-card px-3 pb-[calc(.65rem+env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-12px_30px_rgba(0,0,0,.16)] sm:px-5 sm:py-3">
           <div className="mb-2 flex items-center justify-between gap-2">
             <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold text-primary-foreground shadow-sm">{quantity} {quantity === 1 ? "pizza" : "pizzas"}</span>
             <div className="flex min-w-0 items-baseline gap-2">
