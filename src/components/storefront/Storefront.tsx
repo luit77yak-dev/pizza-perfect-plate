@@ -1582,7 +1582,7 @@ function CheckoutPanel({
       setLastTrackingUpdate(new Date());
 
       if (currentStatus === "DELIVERED" || currentStatus === "CANCELLED") {
-        onOrderFinished();
+        onOrderFinished(successOrderId);
       }
     };
 
