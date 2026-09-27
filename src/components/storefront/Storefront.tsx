@@ -2055,7 +2055,11 @@ function CheckoutPanel({
   const [successStatus, setSuccessStatus] = useState<OrderStatus>("RECEIVED");
   const [trackingLive, setTrackingLive] = useState(false);
   const [lastTrackingUpdate, setLastTrackingUpdate] = useState<Date | null>(null);
-  const [trackingError, setTrackingError] = useState<string | null>(null);\n  const [confirmedItems, setConfirmedItems] = useState<CartItem[]>([]);\n  const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);\n  const [confirmedTotal, setConfirmedTotal] = useState(0);\n  const [confirmedFulfillment, setConfirmedFulfillment] = useState<FulfillmentType>(settings.delivery_enabled ? "DELIVERY" : "PICKUP");
+  const [trackingError, setTrackingError] = useState<string | null>(null);
+  const [confirmedItems, setConfirmedItems] = useState<CartItem[]>([]);
+  const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);
+  const [confirmedTotal, setConfirmedTotal] = useState(0);
+  const [confirmedFulfillment, setConfirmedFulfillment] = useState<FulfillmentType>(settings.delivery_enabled ? "DELIVERY" : "PICKUP");
 
   useEffect(() => {
     if (!trackedOrder) return;
@@ -2408,7 +2412,35 @@ function CheckoutPanel({
                 </div>
               </section>
 
-              <section className="rounded-[1.75rem] border border-background/10 bg-[#111820] p-5 shadow-[0_10px_30px_rgba(0,0,0,.05)] sm:p-6">\n                <div className="flex items-center justify-between gap-3">\n                  <div><p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Resumo do pedido</p><h3 className="mt-1 font-display text-2xl tracking-tight">O que você pediu</h3></div>\n                  <ShoppingBag className="size-5 text-background/50" />\n                </div>\n                {confirmedItems.length > 0 ? (\n                  <div className="mt-4 space-y-2.5">\n                    {confirmedItems.map((item) => (\n                      <div key={item.lineId} className="rounded-xl border border-background/10 bg-[#0d1117] p-3">\n                        <div className="flex items-start justify-between gap-3">\n                          <div className="min-w-0">\n                            <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>\n                            <p className="mt-1 text-[10px] text-background/50">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>\n                            {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}\n                            {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-background/50">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}\n                          </div>\n                          <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>\n                        </div>\n                      </div>\n                    ))}\n                    <div className="border-t border-background/10 pt-3 text-xs">\n                      <div className="flex justify-between gap-3 text-background/50"><span>Subtotal</span><span>{formatCurrency(confirmedSubtotal)}</span></div>\n                      {confirmedFulfillment === "DELIVERY" && <div className="mt-1.5 flex justify-between gap-3 text-background/50"><span>Entrega</span><span>{formatCurrency(Math.max(0, confirmedTotal - confirmedSubtotal))}</span></div>}\n                      <div className="mt-2 flex justify-between gap-3 text-base font-black"><span>Total do pedido</span><span>{formatCurrency(confirmedTotal)}</span></div>\n                    </div>\n                  </div>\n                ) : <p className="mt-3 text-xs leading-5 text-background/50">O pedido foi confirmado. O detalhamento não está disponível nesta sessão, mas o número do pedido é #{successNumber}.</p>}\n              </section>\n
+              <section className="rounded-[1.75rem] border border-background/10 bg-[#111820] p-5 shadow-[0_10px_30px_rgba(0,0,0,.05)] sm:p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <div><p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Resumo do pedido</p><h3 className="mt-1 font-display text-2xl tracking-tight">O que você pediu</h3></div>
+                  <ShoppingBag className="size-5 text-background/50" />
+                </div>
+                {confirmedItems.length > 0 ? (
+                  <div className="mt-4 space-y-2.5">
+                    {confirmedItems.map((item) => (
+                      <div key={item.lineId} className="rounded-xl border border-background/10 bg-[#0d1117] p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
+                            <p className="mt-1 text-[10px] text-background/50">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
+                            {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}
+                            {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-background/50">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
+                          </div>
+                          <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="border-t border-background/10 pt-3 text-xs">
+                      <div className="flex justify-between gap-3 text-background/50"><span>Subtotal</span><span>{formatCurrency(confirmedSubtotal)}</span></div>
+                      {confirmedFulfillment === "DELIVERY" && <div className="mt-1.5 flex justify-between gap-3 text-background/50"><span>Entrega</span><span>{formatCurrency(Math.max(0, confirmedTotal - confirmedSubtotal))}</span></div>}
+                      <div className="mt-2 flex justify-between gap-3 text-base font-black"><span>Total do pedido</span><span>{formatCurrency(confirmedTotal)}</span></div>
+                    </div>
+                  </div>
+                ) : <p className="mt-3 text-xs leading-5 text-background/50">O pedido foi confirmado. O detalhamento não está disponível nesta sessão, mas o número do pedido é #{successNumber}.</p>}
+              </section>
+
                 <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Precisa sair?</p>
                 <h3 className="mt-1 font-display text-2xl tracking-tight">Voltar ao cardápio</h3>
                 <p className="mt-2 text-xs leading-5 text-background/50">Você pode continuar navegando. O pedido segue sendo acompanhado automaticamente.</p>
