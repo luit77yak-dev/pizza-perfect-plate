@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Check,
@@ -634,7 +634,7 @@ function ProductConfigurator({
   const [addonIds, setAddonIds] = useState<string[]>([]);
   const [comboProductIds, setComboProductIds] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(1);\n  const personalizationScrollRef = useRef<HTMLDivElement | null>(null);
 
   const secondProduct = data.products.find((item) => item.id === secondProductId) ?? null;
   const comboProducts = data.products.filter((item) => {
@@ -680,7 +680,7 @@ function ProductConfigurator({
 
   const totalSteps = 3;
   const nextStep = () => setStep((current) => Math.min(totalSteps, current + 1));
-  const previousStep = () => setStep((current) => Math.max(1, current - 1));
+  const previousStep = () => setStep((current) => Math.max(1, current - 1));\n\n  useEffect(() => {\n    if (!halfMode) return;\n    requestAnimationFrame(() => {\n      personalizationScrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });\n    });\n  }, [halfMode]);
 
   const toggleAddon = (id: string) => {
     setAddonIds((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]));
@@ -850,7 +850,7 @@ function ProductConfigurator({
 
                     <button
                       type="button"
-                      onClick={() => setHalfMode(true)}
+                      onClick={() => {\n                        setHalfMode(true);\n                        requestAnimationFrame(() => {\n                          personalizationScrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });\n                        });\n                      }}
                       className={"group relative overflow-hidden rounded-2xl border p-4 text-left transition-all " + (halfMode ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20" : "bg-card hover:border-primary/50 hover:shadow-md")}
                       aria-pressed={halfMode}
                     >
@@ -884,7 +884,7 @@ function ProductConfigurator({
               )}
 
               {product.allow_half && halfMode && (
-                <div className="rounded-2xl border border-primary/20 bg-card p-4 shadow-sm">
+                <div ref={personalizationScrollRef} className="scroll-mt-4 rounded-2xl border border-primary/20 bg-card p-4 shadow-sm">
                   <div className="mb-4 flex items-start gap-3">
                     <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                       <span className="text-base">◐</span>
