@@ -195,6 +195,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [trackedOrders, setTrackedOrders] = useState<PublicTrackedOrder[]>([]);
   const [selectedTrackedOrder, setSelectedTrackedOrder] = useState<PublicTrackedOrder | null>(null);
+  const [additionModalOpen, setAdditionModalOpen] = useState(false);
   const [addingToOrder, setAddingToOrder] = useState(false);
   const [now, setNow] = useState(() => new Date());
 
