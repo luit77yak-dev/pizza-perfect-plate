@@ -159,7 +159,11 @@ BEGIN
         AND p.available
         AND p.deleted_at IS NULL;
 
-      IF NOT FOUND OR NOT v_second_product.allow_half THEN
+      IF NOT FOUND THEN
+        RAISE EXCEPTION 'Segundo produto inválido';
+      END IF;
+
+      IF NOT v_second_product.allow_half THEN
         RAISE EXCEPTION 'Segundo produto inválido';
       END IF;
 
