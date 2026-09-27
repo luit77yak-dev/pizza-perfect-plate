@@ -345,7 +345,7 @@ export function Storefront({ slug }: { slug?: string }) {
             <a href="#contato" className="transition-colors hover:text-white">Contato</a>
           </nav>
 
-          <Button size="sm" className="gap-2 rounded-none border border-primary bg-primary px-4 font-body text-[10px] font-medium uppercase tracking-[.22em] text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.45)] transition-transform hover:-translate-y-0.5 hover:bg-primary/90" onClick={() => setCartOpen(true)}>
+          <Button size="sm" className="gap-2 rounded-none border border-orange-500 bg-orange-500 px-4 font-body text-[10px] font-medium uppercase tracking-[.22em] text-white shadow-[3px_3px_0_rgba(0,0,0,.45)] transition-transform hover:-translate-y-0.5 hover:bg-orange-600" onClick={() => setCartOpen(true)}>
             <span>Pedir</span>
             {itemCount > 0 && <Badge className="rounded-full bg-primary px-1.5 text-primary-foreground">{itemCount}</Badge>}
           </Button>
