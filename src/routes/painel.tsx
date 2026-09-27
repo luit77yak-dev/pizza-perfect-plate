@@ -706,6 +706,31 @@ function StaffPanel() {
     return () => window.clearTimeout(timeout);
   }, [orderAlert]);
 
+  const testOrderAdditionSound = () => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const context = audioContextRef.current ?? new AudioContextClass();
+      audioContextRef.current = context;
+      void context.resume();
+
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(880, context.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(660, context.currentTime + 0.16);
+      gain.gain.setValueAtTime(0.0001, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.075, context.currentTime + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.28);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start();
+      oscillator.stop(context.currentTime + 0.3);
+    } catch {
+      setError("O navegador bloqueou o som. Interaja com a página e tente novamente.");
+    }
+  };
+
   const signIn = async () => {
     setAuthLoading(true);    setError(null);
     const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
@@ -973,6 +998,15 @@ function StaffPanel() {
             <h1 className="truncate text-base font-semibold sm:text-xl">{organizationName}</h1>
           </div>
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={testOrderAdditionSound}
+              className="hidden rounded-full sm:inline-flex"
+              title="Testar alerta sonoro"
+            >
+              🔔 Testar som
+            </Button>
             <Button variant="outline" size="sm" onClick={() => void loadOrders()} disabled={loading} className="rounded-full">
               <RefreshCw className={`mr-1.5 size-4 ${loading ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Atualizar</span>
