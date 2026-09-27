@@ -2791,3 +2791,48 @@
     background: #0a292d !important;
   }
 }
+
+
+@layer components {
+  /* Admin controls: active/selected states use petrol for reliable contrast.
+     Orange remains an accent instead of a text-background combination. */
+  .ppp-admin-panel main .bg-primary,
+  .ppp-admin-panel main [class*="bg-primary/"] {
+    color: #f4efe5 !important;
+  }
+
+  .ppp-admin-panel main button.bg-primary,
+  .ppp-admin-panel main button[class*="bg-primary"],
+  .ppp-admin-panel main [role="button"].bg-primary,
+  .ppp-admin-panel main [role="button"][class*="bg-primary"] {
+    background: #0a292d !important;
+    color: #f4efe5 !important;
+    border-color: #0a292d !important;
+  }
+
+  .ppp-admin-panel main button.bg-primary *,
+  .ppp-admin-panel main button[class*="bg-primary"] *,
+  .ppp-admin-panel main [role="button"].bg-primary *,
+  .ppp-admin-panel main [role="button"][class*="bg-primary"] * {
+    color: #f4efe5 !important;
+  }
+
+  /* Selected segmented controls / option cards. */
+  .ppp-admin-panel main button[class*="bg-primary/5"],
+  .ppp-admin-panel main button[class*="bg-primary/10"] {
+    background: rgba(10,41,45,.08) !important;
+    color: #0a292d !important;
+    border-color: #0a292d !important;
+  }
+
+  .ppp-admin-panel main button[class*="bg-primary/5"] *,
+  .ppp-admin-panel main button[class*="bg-primary/10"] * {
+    color: #0a292d !important;
+  }
+
+  /* Checkmarks/radio indicators inside selected options. */
+  .ppp-admin-panel main [class*="bg-primary"][class*="text-primary-foreground"] {
+    background: #0a292d !important;
+    color: #f4efe5 !important;
+  }
+}
