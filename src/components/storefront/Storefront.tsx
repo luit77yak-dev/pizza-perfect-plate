@@ -990,21 +990,22 @@ function ProductConfigurator({
           )}
         </div>
 
-        <div className="border-t bg-card/95 px-5 py-4 shadow-[0_-12px_30px_rgba(0,0,0,.06)] backdrop-blur sm:px-6">
-          <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground"><span className="rounded-full bg-primary/10 px-3 py-1 font-semibold text-primary">{quantity} {quantity === 1 ? "pizza" : "pizzas"}</span>
-            <span>{step < totalSteps ? "Seu pedido está ficando pronto" : "Total deste conjunto"}</span>
-            <span className="font-semibold text-foreground">{formatCurrency(unitPrice * quantity)}</span>
+        <div className="shrink-0 border-t bg-card/95 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_30px_rgba(0,0,0,.08)] backdrop-blur sm:px-6 sm:py-4">
+          <div className="mb-3 grid grid-cols-[auto_1fr_auto] items-center gap-3 text-xs text-muted-foreground">
+            <span className="whitespace-nowrap rounded-full bg-primary/10 px-3 py-1 font-semibold text-primary">{quantity} {quantity === 1 ? "pizza" : "pizzas"}</span>
+            <span className="min-w-0 truncate text-center">{step < totalSteps ? "Seu pedido está ficando pronto" : "Total deste conjunto"}</span>
+            <span className="whitespace-nowrap font-semibold text-foreground">{formatCurrency(unitPrice * quantity)}</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-stretch gap-2 sm:gap-3">
             {step > 1 ? (
-              <Button type="button" variant="outline" className="h-12 rounded-full" onClick={previousStep}>Voltar</Button>
+              <Button type="button" variant="outline" className="h-12 min-w-[92px] shrink-0 rounded-full px-5" onClick={previousStep}>Voltar</Button>
             ) : (
-              <Button type="button" variant="outline" className="h-12 rounded-full" onClick={onClose}>Cancelar</Button>
+              <Button type="button" variant="outline" className="h-12 min-w-[92px] shrink-0 rounded-full px-5" onClick={onClose}>Cancelar</Button>
             )}
             {step < totalSteps ? (
               <Button
                 type="button"
-                className="h-12 flex-1 rounded-full"
+                className="h-12 min-w-0 flex-1 rounded-full px-4 text-sm sm:px-6"
                 onClick={nextStep}
                 disabled={step === 1 && product.allow_half && halfMode && !secondProductId}
               >
