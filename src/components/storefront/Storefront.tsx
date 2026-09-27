@@ -181,7 +181,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [trackedOrder, setTrackedOrder] = useState<{ id: string; number: number; phone: string } | null>(null);
+  const [trackedOrder, setTrackedOrder] = useState<{ id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType } | null>(null);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -197,7 +197,7 @@ export function Storefront({ slug }: { slug?: string }) {
           return;
         }
 
-        const stored = JSON.parse(raw) as { id: string; number: number; phone: string };
+        const stored = JSON.parse(raw) as { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType };
         if (!stored?.id || !stored?.phone) {
           localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
           if (!cancelled) setTrackedOrder(null);
@@ -1323,7 +1323,7 @@ function CheckoutPanel({
   items: CartItem[];
   subtotal: number;
   onClose: () => void;
-  onSuccess: (order: { id: string; number: number; phone: string }) => void;
+  onSuccess: (order: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType }) => void;
   trackedOrder?: { id: string; number: number; phone: string } | null;
   storeOpen: boolean;
   storeStatusLabel: string;
@@ -1350,7 +1350,7 @@ function CheckoutPanel({
   const [successStatus, setSuccessStatus] = useState<OrderStatus>("RECEIVED");
   const [trackingLive, setTrackingLive] = useState(false);
   const [lastTrackingUpdate, setLastTrackingUpdate] = useState<Date | null>(null);
-  const [trackingError, setTrackingError] = useState<string | null>(null);
+  const [trackingError, setTrackingError] = useState<string | null>(null);\n  const [confirmedItems, setConfirmedItems] = useState<CartItem[]>([]);\n  const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);\n  const [confirmedTotal, setConfirmedTotal] = useState(0);\n  const [confirmedFulfillment, setConfirmedFulfillment] = useState<FulfillmentType>(settings.delivery_enabled ? "DELIVERY" : "PICKUP");
 
   useEffect(() => {
     if (!trackedOrder) return;
@@ -1703,7 +1703,7 @@ function CheckoutPanel({
                 </div>
               </section>
 
-              <section className="rounded-[1.75rem] border border-black/8 bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,.05)] sm:p-6">
+              <section className="rounded-[1.75rem] border border-black/8 bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,.05)] sm:p-6">\n                <div className="flex items-center justify-between gap-3">\n                  <div><p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Resumo do pedido</p><h3 className="mt-1 font-display text-2xl tracking-tight">O que você pediu</h3></div>\n                  <ShoppingBag className="size-5 text-muted-foreground" />\n                </div>\n                {confirmedItems.length > 0 ? (\n                  <div className="mt-4 space-y-2.5">\n                    {confirmedItems.map((item) => (\n                      <div key={item.lineId} className="rounded-xl border border-black/8 bg-[#faf9f7] p-3">\n                        <div className="flex items-start justify-between gap-3">\n                          <div className="min-w-0">\n                            <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>\n                            <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>\n                            {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}\n                            {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-muted-foreground">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}\n                          </div>\n                          <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>\n                        </div>\n                      </div>\n                    ))}\n                    <div className="border-t border-black/8 pt-3 text-xs">\n                      <div className="flex justify-between gap-3 text-muted-foreground"><span>Subtotal</span><span>{formatCurrency(confirmedSubtotal)}</span></div>\n                      {confirmedFulfillment === "DELIVERY" && <div className="mt-1.5 flex justify-between gap-3 text-muted-foreground"><span>Entrega</span><span>{formatCurrency(Math.max(0, confirmedTotal - confirmedSubtotal))}</span></div>}\n                      <div className="mt-2 flex justify-between gap-3 text-base font-black"><span>Total do pedido</span><span>{formatCurrency(confirmedTotal)}</span></div>\n                    </div>\n                  </div>\n                ) : <p className="mt-3 text-xs leading-5 text-muted-foreground">O pedido foi confirmado. O detalhamento não está disponível nesta sessão, mas o número do pedido é #{successNumber}.</p>}\n              </section>\n
                 <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Precisa sair?</p>
                 <h3 className="mt-1 font-display text-2xl tracking-tight">Voltar ao cardápio</h3>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">Você pode continuar navegando. O pedido segue sendo acompanhado automaticamente.</p>
