@@ -963,7 +963,7 @@ function TrackedOrderPanel({
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-background/60">
                 <span className="rounded-full border border-background/10 bg-background/10 px-2.5 py-1">
-                  ${itemCount} {itemCount === 1 ? "item" : "itens"}
+                  {itemCount} {itemCount === 1 ? "item" : "itens"}
                 </span>
                 <span className="rounded-full border border-background/10 bg-background/10 px-2.5 py-1">
                   {order.fulfillment === "DELIVERY" ? "Entrega" : "Retirada"}
