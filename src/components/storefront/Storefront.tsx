@@ -328,7 +328,7 @@ export function Storefront({ slug }: { slug?: string }) {
     >
       <div className="ppp-top-ticker overflow-hidden bg-secondary text-secondary-foreground" aria-hidden="true"><div className="ppp-ticker-run flex min-w-max items-center gap-8 py-2 font-display text-[11px] uppercase tracking-[.16em] text-white">{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={index} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={`repeat-${index}`} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}</div></div>
 
-      <header className="ppp-reference-header absolute inset-x-0 top-0 z-40 border-b border-white/15 bg-black/55 text-white backdrop-blur-xl">
+      <header className="ppp-reference-header absolute inset-x-0 top-0 z-[100] isolate border-b border-white/15 bg-black/55 text-white backdrop-blur-xl">
         <div className="mx-auto flex h-[5.5rem] max-w-[1400px] items-center justify-between gap-6 px-5 sm:h-[6rem] sm:px-8 lg:px-12">
           <a href="#inicio" className="group flex min-w-0 items-center gap-3 text-white">
             {data.settings.logo_url ? (
@@ -345,7 +345,7 @@ export function Storefront({ slug }: { slug?: string }) {
             <a href="#contato" className="transition-colors hover:text-white">Contato</a>
           </nav>
 
-          <Button size="sm" style={{ backgroundColor: "#f97316", borderColor: "#f97316", color: "#ffffff" }} className="gap-2 rounded-none px-4 font-body text-[10px] font-medium uppercase tracking-[.22em] text-white shadow-[3px_3px_0_rgba(0,0,0,.45)] transition-transform hover:-translate-y-0.5" onClick={() => setCartOpen(true)}>
+          <Button size="sm" style={{ backgroundColor: "#f97316", borderColor: "#f97316", color: "#ffffff" }} className="relative z-[110] gap-2 rounded-none px-4 font-body text-[10px] font-medium uppercase tracking-[.22em] text-white shadow-[3px_3px_0_rgba(0,0,0,.45)] transition-transform hover:-translate-y-0.5" onClick={() => setCartOpen(true)}>
             <span>Pedir</span>
             {itemCount > 0 && <Badge className="rounded-full bg-primary px-1.5 text-primary-foreground">{itemCount}</Badge>}
           </Button>
@@ -354,7 +354,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
       <main id="inicio" className="ppp-reference-storefront">
         <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
-          <div className="ppp-reference-hero-frame relative overflow-hidden">
+          <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
             <div className="ppp-reference-hero-grid grid min-h-0 lg:min-h-[760px] lg:grid-cols-1">
               <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-7 sm:p-10 lg:p-14">
                 <p className="mb-5 w-fit bg-transparent px-0 font-body text-[10px] uppercase tracking-[.42em] text-white/75">Feita na hora · Est. 2026</p>
@@ -362,7 +362,7 @@ export function Storefront({ slug }: { slug?: string }) {
                 <p className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">{data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
                 <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-sm bg-primary px-6 py-4 font-display text-sm uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.85)] transition-transform hover:-translate-y-1">{data.settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
               </div>
-              <div className="ppp-reference-hero-media absolute inset-0 z-0 min-h-[560px] overflow-hidden bg-secondary p-0 sm:min-h-[680px] lg:min-h-[760px]">
+              <div className="ppp-reference-hero-media pointer-events-none absolute inset-0 z-0 min-h-[560px] overflow-hidden bg-secondary p-0 sm:min-h-[680px] lg:min-h-[760px]">
                 <div className="relative h-full min-h-[560px] overflow-hidden bg-background/10 p-0 sm:min-h-[680px] lg:min-h-[760px]">
                   {data.settings.hero_image_url ? (
                     <img src={data.settings.hero_image_url} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
