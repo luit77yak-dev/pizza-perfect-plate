@@ -465,7 +465,21 @@ export function Storefront({ slug }: { slug?: string }) {
                 return (
                   <button
                     key={product.id}
-                    onClick={() => product.kind === "SIMPLE" ? addSimpleProduct(product) : setSelectedProduct(product)}
+                    onClick={() => {
+                      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
+                      const normalizedCategory = categoryName
+                        .normalize("NFD")
+                        .replace(/[\\u0300-\\u036f]/g, "")
+                        .toLocaleLowerCase("pt-BR");
+                      const isSimpleProduct =
+                        product.kind === "SIMPLE" ||
+                        /(bebida|bebidas|refrigerante|refrigerantes|suco|sucos|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(normalizedCategory);
+                      if (isSimpleProduct) {
+                        addSimpleProduct(product);
+                      } else {
+                        setSelectedProduct(product);
+                      }
+                    }}
                     className={`group relative overflow-visible rounded-sm border-2 border-secondary bg-card text-left shadow-[7px_7px_0_rgba(0,0,0,.82)] transition-all duration-200 hover:-translate-y-1.5 hover:rotate-[-.45deg] hover:shadow-[11px_11px_0_rgba(0,0,0,.82)] active:translate-x-1 active:translate-y-1 active:shadow-[3px_3px_0_rgba(0,0,0,.82)] ${index % 5 === 2 ? "lg:rotate-[.35deg]" : ""}`}
                   >
                     <div className="relative aspect-[1.18] overflow-hidden border-b-2 border-secondary bg-muted">
