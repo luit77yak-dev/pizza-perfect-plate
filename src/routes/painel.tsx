@@ -910,10 +910,12 @@ function StaffPanel() {
               <span className="rounded-full bg-destructive/10 px-2.5 py-1 font-medium text-destructive">{todayHighlights.cancelled.length} cancelados</span>
             </div>
           </div>
-        </section>
+        </div></CompactSection></section>
 
         <div className={activeView === "overview" ? "" : "hidden"}>
-          <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} onDetails={setSelectedOrder} />
+          <CompactSection title="Pedidos recentes" description="Últimos pedidos recebidos">
+            <RecentOrdersSection orders={orders.slice(0, 6)} onStatus={updateStatus} onDetails={setSelectedOrder} />
+          </CompactSection>
         </div>
 
         {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "catalog" && (
@@ -948,7 +950,8 @@ function StaffPanel() {
               Itens excluídos não voltam. Produtos já usados em pedidos mantêm o histórico do pedido.
             </div>
 
-            {catalogSection === "categories" && (
+<CompactSection title="Categorias" description="Organização das seções do cardápio">
+                          {catalogSection === "categories" && (
               <CategoryManager
                 categories={categories}
                 onCreate={async () => {
@@ -966,7 +969,11 @@ function StaffPanel() {
               />
             )}
 
-            {catalogSection === "sizes" && (
+
+              </CompactSection>
+
+            <CompactSection title="Tamanhos" description="Tamanhos e quantidade de fatias">
+                          {catalogSection === "sizes" && (
               <SizeManager
                 sizes={sizes}
                 onCreate={async () => {
@@ -984,7 +991,11 @@ function StaffPanel() {
               />
             )}
 
-            {catalogSection === "products" && (
+
+              </CompactSection>
+
+            <CompactSection title="Produtos" description="Produtos, preços e disponibilidade">
+                          {catalogSection === "products" && (
               <ProductCatalogManager
                 products={products}
                 categories={categories}
@@ -1002,7 +1013,11 @@ function StaffPanel() {
               />
             )}
 
-            {catalogSection === "addons" && (
+
+              </CompactSection>
+
+            <CompactSection title="Adicionais" description="Extras disponíveis no pedido">
+                          {catalogSection === "addons" && (
               <AddonManager
                 addons={addons}
                 savingAddonId={savingAddonId}
@@ -1013,7 +1028,11 @@ function StaffPanel() {
               />
             )}
 
-            {catalogSection === "crusts" && (
+
+              </CompactSection>
+
+            <CompactSection title="Bordas" description="Opções de borda e valores">
+                          {catalogSection === "crusts" && (
               <CrustManager
                 crusts={crusts}
                 savingCrustId={savingCrustId}
@@ -1024,7 +1043,11 @@ function StaffPanel() {
               />
             )}
 
-            {catalogSection === "photos" && (
+
+              </CompactSection>
+
+            <CompactSection title="Fotos dos produtos" description="Imagens da vitrine">
+                          {catalogSection === "photos" && (
               <ProductImageManager
                 products={products}
                 uploadingProductId={imageUploading}
@@ -1032,7 +1055,10 @@ function StaffPanel() {
                 onRemove={removeProductImage}
               />
             )}
-          </>
+
+              </CompactSection>
+
+                      </>
         )}
 
         {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "operations" && (
@@ -1059,7 +1085,8 @@ function StaffPanel() {
               ))}
             </div>
 
-            {operationsSection === "hours" && (
+<CompactSection title="Horários" description="Funcionamento e datas especiais">
+                          {operationsSection === "hours" && (
               <OperationsManager
                 mode="hours"
                 hours={storeHours}
@@ -1079,7 +1106,11 @@ function StaffPanel() {
               />
             )}
 
-            {operationsSection === "delivery" && (
+
+              </CompactSection>
+
+            <CompactSection title="Entrega" description="Áreas, taxas e tempos">
+                          {operationsSection === "delivery" && (
               <OperationsManager
                 mode="delivery"
                 hours={[]}
@@ -1098,7 +1129,10 @@ function StaffPanel() {
                 onDeleteZone={deleteDeliveryZone}
               />
             )}
-          </>
+
+              </CompactSection>
+
+                      </>
         )}
 
         {["OWNER", "ADMIN"].includes(role ?? "") && activeView === "settings" && (
