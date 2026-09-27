@@ -2874,3 +2874,39 @@
     background: transparent !important;
   }
 }
+
+@layer components {
+  .ppp-admin-feedback {
+    position: sticky;
+    top: 76px;
+    z-index: 28;
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    margin-bottom: .85rem;
+    min-height: 48px;
+    padding: .75rem 1rem;
+    border-radius: 1rem;
+    font-size: .82rem;
+    font-weight: 600;
+    box-shadow: 0 12px 30px rgba(10,41,45,.08);
+    animation: ppp-feedback-in .22s ease-out;
+  }
+  .ppp-admin-feedback-success {
+    border: 1px solid rgba(10,41,45,.12);
+    background: #0a292d;
+    color: #f4efe5;
+  }
+  .ppp-admin-feedback-error {
+    border: 1px solid rgba(180,40,40,.14);
+    background: rgba(180,40,40,.08);
+    color: #8f2020;
+  }
+  @keyframes ppp-feedback-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (max-width: 639px) {
+    .ppp-admin-feedback { top: 68px; margin-inline: -.1rem; font-size: .76rem; }
+  }
+}
