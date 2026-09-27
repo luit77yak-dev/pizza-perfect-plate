@@ -317,7 +317,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
   return (
     <div
-      className="min-h-screen bg-background text-foreground"
+      className="min-h-[100dvh] w-full overflow-x-hidden bg-background text-foreground"
       style={
         {
           ...(primary ? { "--primary": primary } : {}),
@@ -355,14 +355,14 @@ export function Storefront({ slug }: { slug?: string }) {
       <main id="inicio" className="ppp-reference-storefront">
         <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
           <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
-            <div className="ppp-reference-hero-grid grid min-h-0 lg:min-h-[760px] lg:grid-cols-1">
-              <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-7 sm:p-10 lg:p-14">
+            <div className="ppp-reference-hero-grid grid min-h-[min(760px,calc(100dvh-5.5rem))] lg:min-h-[760px] lg:grid-cols-1">
+              <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-[clamp(1.25rem,5vw,3.5rem)]">
                 <p className="mb-5 w-fit bg-transparent px-0 font-body text-[10px] uppercase tracking-[.42em] text-white/75">Feita na hora · Est. 2026</p>
-                <h1 className="w-full max-w-4xl text-[2.35rem] leading-[.86] tracking-[-.045em] sm:text-6xl lg:text-[clamp(4rem,8.5vw,8rem)]">{data.settings.hero_title && !/MASSA DE FERMENTA/i.test(data.settings.hero_title) ? data.settings.hero_title : "Pizza que fica na memória."}</h1>
+                <h1 className="w-full max-w-4xl text-[clamp(2rem,8vw,8rem)] leading-[.86] tracking-[-.045em]">{data.settings.hero_title && !/MASSA DE FERMENTA/i.test(data.settings.hero_title) ? data.settings.hero_title : "Pizza que fica na memória."}</h1>
                 <p className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">{data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
                 <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-sm bg-primary px-6 py-4 font-display text-sm uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.85)] transition-transform hover:-translate-y-1">{data.settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
               </div>
-              <div className="ppp-reference-hero-media pointer-events-none absolute inset-0 z-0 min-h-[560px] overflow-hidden bg-secondary p-0 sm:min-h-[680px] lg:min-h-[760px]">
+              <div className="ppp-reference-hero-media pointer-events-none absolute inset-0 z-0 min-h-[min(680px,calc(100dvh-5.5rem))] overflow-hidden bg-secondary p-0 lg:min-h-[760px]">
                 <div className="relative h-full min-h-[560px] overflow-hidden bg-background/10 p-0 sm:min-h-[680px] lg:min-h-[760px]">
                   {data.settings.hero_image_url ? (
                     <img src={data.settings.hero_image_url} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
@@ -1583,7 +1583,7 @@ function CheckoutPanel({
     const progress = currentIndex >= 0 ? ((currentIndex + 1) / trackingSteps.length) * 100 : 0;
 
     return (
-      <div className="ppp-checkout-panel fixed inset-0 z-[200] overflow-y-auto bg-[#f4f1eb] text-foreground">
+      <div className="ppp-checkout-panel fixed inset-0 z-[200] min-h-[100dvh] overflow-x-hidden overflow-y-auto overscroll-contain bg-[#f4f1eb] text-foreground">
         <div className="min-h-screen">
           <header className="bg-foreground text-background">
             <div className="mx-auto max-w-5xl px-4 pb-5 pt-4 sm:px-8 sm:pb-9 sm:pt-7">
@@ -1791,8 +1791,8 @@ function CheckoutPanel({
     );
   }
   return (
-    <div className="ppp-checkout-panel fixed inset-0 z-[60] overflow-y-auto bg-[#f7f4ef] text-foreground">
-      <div className="mx-auto min-h-screen w-full max-w-6xl px-3 pb-28 pt-3 sm:px-6 sm:pb-12 sm:pt-6">
+    <div className="ppp-checkout-panel fixed inset-0 z-[60] min-h-[100dvh] overflow-x-hidden overflow-y-auto overscroll-contain bg-[#f7f4ef] text-foreground">
+      <div className="mx-auto min-h-[100dvh] w-full max-w-6xl px-[clamp(.75rem,2.5vw,1.5rem)] pb-28 pt-[clamp(.75rem,2.5vw,1.5rem)] sm:px-6 sm:pb-12 sm:pt-6">
         <header className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-foreground text-background shadow-[0_18px_45px_rgba(0,0,0,.12)] sm:rounded-[2rem]">
           <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
             <div className="flex min-w-0 items-center gap-3">
