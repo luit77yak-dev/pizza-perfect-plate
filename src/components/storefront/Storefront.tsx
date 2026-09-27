@@ -622,6 +622,8 @@ export function Storefront({ slug }: { slug?: string }) {
           organization={data.organization}
           settings={data.settings}
           deliveryZones={data.deliveryZones}
+          products={data.products}
+          categories={data.categories}
           items={cart.items}
           subtotal={subtotal}
           onClose={() => setCheckoutOpen(false)}
@@ -631,9 +633,9 @@ export function Storefront({ slug }: { slug?: string }) {
           addingToOrder={addingToOrder}
           onAddToOrder={() => {
             if (!selectedTrackedOrder) return;
-            setAddingToOrder(true);
-            setTrackingOpen(false);
-            setCheckoutOpen(false);
+            setAddingToOrder(false);
+            setTrackingOpen(true);
+            setCheckoutOpen(true);
             setCartOpen(false);
           }}
           onSuccess={(order) => {
@@ -1398,6 +1400,8 @@ function CheckoutPanel({
   organization,
   settings,
   deliveryZones,
+  products,
+  categories,
   items,
   subtotal,
   onClose,
@@ -1412,6 +1416,8 @@ function CheckoutPanel({
   organization: Organization;
   settings: OrganizationSettings;
   deliveryZones: DeliveryZone[];
+  products: Product[];
+  categories: Category[];
   items: CartItem[];
   subtotal: number;
   onClose: () => void;
@@ -1449,6 +1455,9 @@ function CheckoutPanel({
   const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);
   const [confirmedTotal, setConfirmedTotal] = useState(0);
   const [confirmedFulfillment, setConfirmedFulfillment] = useState<FulfillmentType>(settings.delivery_enabled ? "DELIVERY" : "PICKUP");
+  const [addItemsOpen, setAddItemsOpen] = useState(false);
+  const [selectedAdditions, setSelectedAdditions] = useState<Record<string, number>>({});
+  const [addingItemsNow, setAddingItemsNow] = useState(false);
 
   useEffect(() => {
     if (!trackedOrder) return;
@@ -1830,7 +1839,7 @@ function CheckoutPanel({
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold">Esqueceu alguma coisa?</p>
                         <p className="mt-1 text-xs leading-5 text-muted-foreground">Você ainda pode adicionar itens ao pedido enquanto ele não sair para entrega.</p>
-                        <Button type="button" onClick={onAddToOrder} className="mt-3 h-10 rounded-xl px-4 text-xs font-black">Adicionar ao pedido</Button>
+                        <Button type="button" onClick={() => { setAddItemsOpen(true); onAddToOrder(); }} className="mt-3 h-10 rounded-xl px-4 text-xs font-black">Adicionar ao pedido</Button>
                       </div>
                     </div>
                   </div>
