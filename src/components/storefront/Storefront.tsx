@@ -196,6 +196,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [trackedOrders, setTrackedOrders] = useState<PublicTrackedOrder[]>([]);
   const [selectedTrackedOrder, setSelectedTrackedOrder] = useState<PublicTrackedOrder | null>(null);
   const [additionModalOpen, setAdditionModalOpen] = useState(false);
+  const [additionQuantities, setAdditionQuantities] = useState<Record<string, number>>({});
   const [addingToOrder, setAddingToOrder] = useState(false);
   const [now, setNow] = useState(() => new Date());
 
@@ -301,7 +302,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const subtotal = calculateCartSubtotal(cart.items);
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const addSimpleProduct = (product: Product) => {
+  const addSimpleProduct = (product: Product, openCart = true) => {
     const item: CartItem = {
       lineId: crypto.randomUUID(),
       productId: product.id,
@@ -323,7 +324,42 @@ export function Storefront({ slug }: { slug?: string }) {
     };
 
     cart.addItem(item);
-    setCartOpen(true);
+    if (openCart) setCartOpen(true);
+  };
+
+  const additionProducts = useMemo(() => {
+    if (!data) return [];
+    return data.products.filter((product) => {
+      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
+      const normalized = categoryName
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLocaleLowerCase("pt-BR");
+      return /(bebida|refrigerante|suco|acompanhamento|acompanhamentos|adicional|adicionais|sobremesa|sobremesas|doce|doces)/i.test(normalized);
+    });
+  }, [data]);
+
+  const additionTotal = additionProducts.reduce(
+    (sum, product) => sum + (additionQuantities[product.id] ?? 0) * (Number(product.base_price) || 0),
+    0,
+  );
+
+  const additionCount = Object.values(additionQuantities).reduce((sum, quantity) => sum + quantity, 0);
+
+  const confirmAdditions = () => {
+    if (additionCount === 0) return;
+    additionProducts.forEach((product) => {
+      const quantity = additionQuantities[product.id] ?? 0;
+      for (let index = 0; index < quantity; index += 1) {
+        addSimpleProduct(product, false);
+      }
+    });
+    setAdditionQuantities({});
+    setAdditionModalOpen(false);
+    setAddingToOrder(true);
+    setTrackingOpen(true);
+    setCheckoutOpen(true);
+    setCartOpen(false);
   };
 
   if (isLoading) return <StorefrontSkeleton />;
@@ -570,6 +606,69 @@ export function Storefront({ slug }: { slug?: string }) {
         <section id="contato" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6"><div className="rounded-[.75rem] border-2 border-secondary bg-primary p-7 text-primary-foreground shadow-lifted sm:p-10 lg:p-14"><p className="text-xs font-semibold uppercase tracking-[.2em] opacity-75">Contato</p><h2 className="mt-2 text-[clamp(4.5rem,15vw,10rem)] uppercase leading-[.75]">Bora pedir?</h2><div className="mt-10 grid gap-3 sm:grid-cols-3"><a href="#cardapio" className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)] transition-transform hover:-translate-y-1"><span className="block text-xs uppercase tracking-widest opacity-60">Cardápio</span><span className="mt-1 block font-semibold">Escolher agora</span></a><div className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)]"><span className="block text-xs uppercase tracking-widest opacity-60">Atendimento</span><span className="mt-1 block font-semibold">{data.settings.delivery_enabled && data.settings.pickup_enabled ? "Delivery e retirada" : data.settings.delivery_enabled ? "Delivery" : "Retirada"}</span></div><div className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)]"><span className="block text-xs uppercase tracking-widest opacity-60">WhatsApp</span><span className="mt-1 block font-semibold">{data.settings.whatsapp_phone || "Consulte a loja"}</span></div></div></div></section>
 
       </main>
+
+      {additionModalOpen && selectedTrackedOrder && (
+        <div className="fixed inset-0 z-[320] flex items-center justify-center bg-black/65 p-3 backdrop-blur-sm sm:p-6" role="dialog" aria-modal="true" aria-label="Adicionar itens ao pedido">
+          <button type="button" className="absolute inset-0 cursor-default" onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); }} aria-label="Fechar" />
+          <section className="relative z-10 flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-background shadow-[0_25px_80px_rgba(0,0,0,.35)]">
+            <header className="flex items-start justify-between gap-4 border-b px-5 py-4 sm:px-6">
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[.2em] text-primary">Pedido #{selectedTrackedOrder.number}</p>
+                <h2 className="mt-1 font-display text-2xl tracking-tight sm:text-3xl">Esqueceu alguma coisa?</h2>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">Adicione bebidas, acompanhamentos e sobremesas sem alterar os pratos principais.</p>
+              </div>
+              <button type="button" onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); }} className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label="Fechar">
+                <X className="size-4" />
+              </button>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              {additionProducts.length === 0 ? (
+                <div className="rounded-2xl border border-dashed p-6 text-center">
+                  <p className="font-semibold">Nenhum item disponível para acréscimo.</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Cadastre bebidas, acompanhamentos ou sobremesas no cardápio para disponibilizá-los aqui.</p>
+                </div>
+              ) : (
+                <div className="grid gap-2">
+                  {additionProducts.map((product) => {
+                    const quantity = additionQuantities[product.id] ?? 0;
+                    return (
+                      <div key={product.id} className="flex items-center gap-3 rounded-2xl border bg-card p-3">
+                        <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
+                          {product.image_url ? <img src={product.image_url} alt="" className="size-full object-cover" /> : <div className="grid size-full place-items-center font-display text-lg text-primary/50">{product.name.charAt(0)}</div>}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-bold">{product.name}</p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">{formatCurrency(Number(product.base_price) || 0)}</p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <button type="button" onClick={() => setAdditionQuantities((current) => ({ ...current, [product.id]: Math.max(0, quantity - 1) }))} disabled={quantity === 0} className="grid size-8 place-items-center rounded-full border disabled:opacity-30"><Minus className="size-3.5" /></button>
+                          <span className="w-5 text-center text-sm font-black">{quantity}</span>
+                          <button type="button" onClick={() => setAdditionQuantities((current) => ({ ...current, [product.id]: quantity + 1 }))} className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground"><Plus className="size-3.5" /></button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <footer className="border-t bg-card p-4 sm:p-5">
+              <div className="mb-3 flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[.16em] text-muted-foreground">Acréscimo</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{additionCount} {additionCount === 1 ? "item" : "itens"} selecionados</p>
+                </div>
+                <span className="font-display text-2xl">{formatCurrency(additionTotal)}</span>
+              </div>
+              <Button type="button" disabled={additionCount === 0} onClick={confirmAdditions} className="h-12 w-full rounded-xl text-sm font-black">
+                Continuar com o acréscimo
+              </Button>
+              <p className="mt-2 text-center text-[10px] leading-4 text-muted-foreground">O pedido original permanece igual. Os novos itens serão acrescentados na próxima confirmação.</p>
+            </footer>
+          </section>
+        </div>
+      )}
 
       {selectedProduct && (
         <ProductConfigurator
@@ -1840,7 +1939,7 @@ function CheckoutPanel({
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold">Esqueceu alguma coisa?</p>
                         <p className="mt-1 text-xs leading-5 text-muted-foreground">Você ainda pode adicionar itens ao pedido enquanto ele não sair para entrega.</p>
-                        <Button type="button" onClick={() => { setAddItemsOpen(true); onAddToOrder(); }} className="mt-3 h-10 rounded-xl px-4 text-xs font-black">Adicionar ao pedido</Button>
+                        <Button type="button" onClick={() => setAdditionModalOpen(true)} className="mt-3 h-10 rounded-xl px-4 text-xs font-black">Adicionar ao pedido</Button>
                       </div>
                     </div>
                   </div>
