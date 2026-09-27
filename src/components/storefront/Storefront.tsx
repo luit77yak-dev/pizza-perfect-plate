@@ -1403,6 +1403,8 @@ function CheckoutPanel({
   onClose,
   onSuccess,
   trackedOrder,
+  addingToOrder,
+  onAddToOrder,
   storeOpen,
   storeStatusLabel,
   onOrderFinished,
