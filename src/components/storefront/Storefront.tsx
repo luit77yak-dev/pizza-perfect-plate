@@ -1785,7 +1785,14 @@ function CheckoutPanel({
                 <Button className="mt-5 h-11 w-full rounded-xl text-xs font-black" onClick={onClose}>Voltar ao cardápio</Button>
               </section>
             </aside>
-          </main>
+          
+
+            <section className="mt-3 rounded-2xl border border-black/8 bg-white p-4 shadow-[0_10px_28px_rgba(0,0,0,.06)] lg:hidden">
+              <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Precisa sair?</p>
+              <h2 className="mt-0.5 font-display text-xl tracking-tight">Voltar ao cardápio</h2>
+              <p className="mt-1.5 text-xs leading-5 text-muted-foreground">Você pode continuar navegando. O pedido segue sendo acompanhado automaticamente.</p>
+              <Button className="mt-3 h-11 w-full rounded-xl text-xs font-black" onClick={onClose}>Voltar ao cardápio</Button>
+            </section></main>
         </div>
       </div>
     );
