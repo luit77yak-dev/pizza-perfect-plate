@@ -312,9 +312,8 @@ export function Storefront({ slug }: { slug?: string }) {
   const primary = data.settings.primary_color?.includes("%")
     ? `hsl(${data.settings.primary_color})`
     : undefined;
-  const secondary = data.settings.secondary_color?.includes("%")
-    ? `hsl(${data.settings.secondary_color})`
-    : undefined;
+  const secondary = "hsl(145 28% 32%)";
+  const secondaryForeground = "hsl(42 35% 96%)";
 
   return (
     <div
@@ -322,7 +321,8 @@ export function Storefront({ slug }: { slug?: string }) {
       style={
         {
           ...(primary ? { "--primary": primary } : {}),
-          ...(secondary ? { "--secondary": secondary } : {}),
+          "--secondary": secondary,
+          "--secondary-foreground": secondaryForeground,
         } as CSSProperties
       }
     >
