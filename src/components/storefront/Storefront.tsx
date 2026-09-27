@@ -25,7 +25,6 @@ import { StorefrontAbout } from "@/components/storefront/StorefrontAbout";
 import { StorefrontContact } from "@/components/storefront/StorefrontContact";
 import { StorefrontHeader } from "@/components/storefront/StorefrontHeader";
 import { StorefrontTicker } from "@/components/storefront/StorefrontTicker";
-import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useLocalCart } from "@/carrinho/hooks/use-local-cart";
 import { calculateCartSubtotal, calculateProductUnitPrice } from "@/lib/domain/pricing";
