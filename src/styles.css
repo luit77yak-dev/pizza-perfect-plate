@@ -2284,3 +2284,50 @@
     }
   }
 }
+
+@layer components {
+  /* Shorter, more reference-like first fold. */
+  .ppp-reference-storefront .ppp-reference-hero-frame,
+  .ppp-reference-storefront .ppp-reference-hero-grid {
+    min-height: 78svh !important;
+    height: 78svh !important;
+  }
+
+  .ppp-reference-storefront .ppp-reference-hero-media {
+    min-height: 78svh !important;
+    height: 78svh !important;
+  }
+
+  .ppp-reference-storefront .ppp-reference-hero-copy {
+    min-height: 78svh !important;
+    padding-top: 6.5rem;
+    padding-bottom: 2.75rem;
+  }
+
+  .ppp-reference-storefront .ppp-reference-category-accordion > div {
+    height: 380px !important;
+  }
+
+  @media (max-width: 639px) {
+    .ppp-reference-storefront .ppp-reference-hero-frame,
+    .ppp-reference-storefront .ppp-reference-hero-grid,
+    .ppp-reference-storefront .ppp-reference-hero-media,
+    .ppp-reference-storefront .ppp-reference-hero-copy {
+      min-height: 72svh !important;
+      height: 72svh !important;
+    }
+
+    .ppp-reference-storefront .ppp-reference-hero-copy {
+      padding-top: 5.5rem;
+      padding-bottom: 1.75rem;
+    }
+
+    .ppp-reference-storefront .ppp-reference-hero-copy h1 {
+      font-size: clamp(2.8rem, 14vw, 4.8rem) !important;
+    }
+
+    .ppp-reference-storefront .ppp-reference-category-accordion > div {
+      height: 300px !important;
+    }
+  }
+}
