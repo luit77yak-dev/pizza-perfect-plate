@@ -517,6 +517,68 @@ export function Storefront({ slug }: { slug?: string }) {
             categories={data.categories}
             products={mainProducts}
           />
+
+          <MenuFilters
+            categories={data.categories}
+            mainProducts={mainProducts}
+            categoryProducts={categoryProducts}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+          />
+
+          {filteredProducts.length === 0 ? (
+            <div className="rounded-3xl border border-dashed bg-card p-12 text-center">
+              <p className="font-medium">Nenhum produto nesta categoria.</p>
+              <p className="mt-1 text-sm text-muted-foreground">Tente outra categoria.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProducts.map((product, index) => {
+                const firstSize = data.sizes[0];
+                const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
+                const categoryImage = data.categories.find((category) => category.id === product.category_id)?.image_url;
+                const productImage = product.image_url || categoryImage;
+                return (
+                  <button
+                    key={product.id}
+                    onClick={() => {
+                      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
+                      const normalizedCategory = categoryName
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .toLocaleLowerCase("pt-BR");
+                      const isSimpleProduct =
+                        product.kind === "SIMPLE" ||
+                        /(bebida|bebidas|refrigerante|refrigerantes|suco|sucos|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(normalizedCategory);
+                      if (isSimpleProduct) {
+                        addSimpleProduct(product);
+                      } else {
+                        setSelectedProduct(product);
+                      }
+                    }}
+                    className={`group relative overflow-visible rounded-sm border-2 border-secondary bg-card text-left shadow-[7px_7px_0_rgba(0,0,0,.82)] transition-all duration-200 hover:-translate-y-1.5 hover:rotate-[-.45deg] hover:shadow-[11px_11px_0_rgba(0,0,0,.82)] active:translate-x-1 active:translate-y-1 active:shadow-[3px_3px_0_rgba(0,0,0,.82)] ${index % 5 === 2 ? "lg:rotate-[.35deg]" : ""}`}
+                  >
+                    <div className="relative aspect-[1.18] overflow-hidden border-b-2 border-secondary bg-muted">
+                      {productImage ? (
+                        <img
+                          src={productImage}
+                          alt={product.name}
+                          loading="lazy"
+                          className="size-full object-cover transition duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="relative flex size-full items-center justify-center overflow-hidden bg-gradient-to-br from-primary/15 via-accent to-secondary/15">
+                          <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/10 blur-2xl" />
+                          <div className="absolute -bottom-12 -left-8 size-36 rounded-full bg-secondary/15 blur-2xl" />
+                          <div className="relative flex flex-col items-center gap-2 text-primary/55">
+                            <div className="flex size-20 items-center justify-center rounded-full border-2 border-secondary/15 bg-background/55 shadow-sm backdrop-blur-sm">
+                              <Pizza className="size-10" strokeWidth={1.5} />
+                            </div>
+                            <span className="text-[11px] font-semibold uppercase tracking-[.18em]">Imagem em breve</span>
+                          </div>
+                        </div>
                       )}
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent p-4 pt-12">
                         <p className="font-display text-xl uppercase leading-none text-white drop-shadow-sm sm:text-2xl">{product.name}</p>
@@ -551,6 +613,7 @@ export function Storefront({ slug }: { slug?: string }) {
               })}
             </div>
           )}
+
         </section>
         <StorefrontAbout settings={data.settings} categories={data.categories} />
 
