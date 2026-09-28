@@ -365,13 +365,13 @@ export function Storefront({ slug }: { slug?: string }) {
               </div>
             </header>
             <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
-              {comboProducts.length === 0 ? (
+              {complementProducts.length === 0 ? (
                 <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
                   Nenhum adicional disponível no momento.
                 </div>
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {comboProducts.map((item) => {
+                  {complementProducts.map((item) => {
                     const selected = selectedComplementIds.includes(item.id);
                     return (
                       <button
@@ -399,7 +399,7 @@ export function Storefront({ slug }: { slug?: string }) {
                 disabled={selectedComplementIds.length === 0}
                 onClick={() => {
                   selectedComplementIds.forEach((id) => {
-                    const item = comboProducts.find((product) => product.id === id);
+                    const item = complementProducts.find((product) => product.id === id);
                     if (!item) return;
                     cart.addItem({
                       lineId: crypto.randomUUID(),
