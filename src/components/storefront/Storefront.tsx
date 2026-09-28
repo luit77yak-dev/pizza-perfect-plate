@@ -13,20 +13,11 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { MenuFilters } from "@/components/storefront/MenuFilters";
-import { StorefrontHero } from "@/components/storefront/StorefrontHero";
-import { StorefrontLoadError } from "@/components/storefront/StorefrontLoadError";
-import { StorefrontSkeleton } from "@/components/storefront/StorefrontSkeleton";
-import { ProductTicker } from "@/components/storefront/ProductTicker";
-import { MenuImageAccordion } from "@/components/storefront/MenuImageAccordion";
-import { MenuSectionHeading } from "@/components/storefront/MenuSectionHeading";
-import { TrackedOrderPanel, type PublicTrackedOrder } from "@/components/storefront/TrackedOrderPanel";
-import { StorefrontAbout } from "@/components/storefront/StorefrontAbout";
-import { StorefrontContact } from "@/components/storefront/StorefrontContact";
-import { StorefrontHeader } from "@/components/storefront/StorefrontHeader";
-import { StorefrontTicker } from "@/components/storefront/StorefrontTicker";
+import { ImageAccordion } from "@/components/ui/image-accordion";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { useLocalCart } from "@/carrinho/hooks/use-local-cart";
+import { useLocalCart } from "@/hooks/use-local-cart";
 import { calculateCartSubtotal, calculateProductUnitPrice } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type {
@@ -190,14 +181,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [trackingOpen, setTrackingOpen] = useState(false);
-  const [selectedTrackedOrders, setTrackedOrders] = useState<PublicTrackedOrder[]>([]);
-  const [selectedTrackedOrder, setSelectedTrackedOrder] = useState<PublicTrackedOrder | null>(null);
-  const [addingToOrder, setAddingToOrder] = useState(false);
-  const [additionModalOpen, setAdditionModalOpen] = useState(false);
-  const [additionQuantities, setAdditionQuantities] = useState<Record<string, number>>({});
-  const [additionSubmitting, setAdditionSubmitting] = useState(false);
-  const [additionError, setAdditionError] = useState<string | null>(null);
+  const [trackedOrder, setTrackedOrder] = useState<{ id: string; number: number; phone: string } | null>(null);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -205,93 +189,49 @@ export function Storefront({ slug }: { slug?: string }) {
 
     let cancelled = false;
 
-    const persistTrackedOrders = (orders: PublicTrackedOrder[]) => {
+    const loadTrackedOrder = async () => {
       try {
-        localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(orders));
-      } catch {
-        // Ignore storage failures; the current session still keeps the orders.
-      }
-    };
-
-    const loadTrackedOrders = async () => {
-      try {
-        const arrayRaw = localStorage.getItem(`ppp:last-orders:${data.organization.id}`);
-        const legacyRaw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
-        const parsed = arrayRaw ? JSON.parse(arrayRaw) : legacyRaw ? JSON.parse(legacyRaw) : [];
-        const storedOrders: PublicTrackedOrder[] = Array.isArray(parsed) ? parsed : parsed?.id ? [parsed] : [];
-        const validOrders = storedOrders
-          .filter((order) => order?.id && order?.phone)
-          .map((order) => ({
-            ...order,
-            id: String(order.id),
-            number: Number(order.number) || 0,
-            phone: String(order.phone),
-            items: Array.isArray(order.items) ? order.items : undefined,
-            subtotal: Number.isFinite(Number(order.subtotal)) ? Number(order.subtotal) : undefined,
-            total: Number.isFinite(Number(order.total)) ? Number(order.total) : undefined,
-          }));
-
-        if (validOrders.length === 0) {
-          if (!cancelled) setTrackedOrders([]);
+        const raw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
+        if (!raw) {
+          if (!cancelled) setTrackedOrder(null);
           return;
         }
 
-        const results = await Promise.all(
-          validOrders.map(async (order) => {
-            try {
-              const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
-                p_order_id: order.id,
-                p_customer_phone: order.phone,
-              });
-              if (error) return order;
-              const current = Array.isArray(tracking) ? tracking[0] : tracking;
-              const status = current?.status as OrderStatus | undefined;
-              const orderNumber = Number(current?.order_number);
-              const fulfillment = current?.fulfillment as FulfillmentType | undefined;
-              return status === "DELIVERED" || status === "CANCELLED"
-                ? null
-                : {
-                    ...order,
-                    // The database is the source of truth. Never keep a stale localStorage order number.
-                    number: Number.isFinite(orderNumber) && orderNumber > 0 ? orderNumber : order.number,
-                    status,
-                    fulfillment: fulfillment ?? order.fulfillment,
-                  };
-            } catch {
-              return order;
-            }
-          }),
-        );
+        const stored = JSON.parse(raw) as { id: string; number: number; phone: string };
+        if (!stored?.id || !stored?.phone) {
+          localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
+          if (!cancelled) setTrackedOrder(null);
+          return;
+        }
 
-        const activeOrders = results.filter((order): order is PublicTrackedOrder => Boolean(order));
+        const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
+          p_order_id: stored.id,
+          p_customer_phone: stored.phone,
+        });
+
         if (cancelled) return;
 
-        setTrackedOrders(activeOrders);
-        persistTrackedOrders(activeOrders);
-        setSelectedTrackedOrder((previous) => {
-          if (!previous) return previous;
-          return activeOrders.find((order) => order.id === previous.id) ?? previous;
-        });
-        if (legacyRaw) {
-          try {
-            localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
-          } catch {
-            // Ignore storage failures.
-          }
+        const current = Array.isArray(tracking) ? tracking[0] : tracking;
+        const status = current?.status as OrderStatus | undefined;
+        const finished = status === "DELIVERED" || status === "CANCELLED";
+
+        if (!error && finished) {
+          localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
+          setTrackedOrder(null);
+          return;
         }
+
+        // If the status lookup fails, keep the stored order so the customer can
+        // still try to track it instead of silently losing the tracking reference.
+        setTrackedOrder(stored);
       } catch {
-        if (!cancelled) setTrackedOrders([]);
+        if (!cancelled) setTrackedOrder(null);
       }
     };
 
-    void loadTrackedOrders();
-    const refreshInterval = window.setInterval(() => {
-      void loadTrackedOrders();
-    }, 15_000);
-
+    void loadTrackedOrder();
     return () => {
       cancelled = true;
-      window.clearInterval(refreshInterval);
     };
   }, [data?.organization?.id]);
 
@@ -300,12 +240,27 @@ export function Storefront({ slug }: { slug?: string }) {
     return () => window.clearInterval(interval);
   }, []);
 
+  const complementProducts = useMemo(() => {
+    if (!data) return [];
+    return data.products.filter((product) => {
+      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
+      const normalizedCategory = categoryName
+        .normalize("NFD")
+        .replace(/[\\u0300-\\u036f]/g, "")
+        .toLocaleLowerCase("pt-BR");
+      return (
+        product.kind === "SIMPLE" ||
+        /(bebida|bebidas|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(normalizedCategory)
+      );
+    });
+  }, [data]);
+
   const mainProducts = useMemo(() => {
     if (!data) return [];
-    // O cardápio público deve mostrar todos os produtos. Produtos simples,
-    // como bebidas, podem ser adicionados diretamente sem passar pelo montador de pizza.
-    return data.products;
-  }, [data]);
+    const complementIds = new Set(complementProducts.map((product) => product.id));
+    const pizzas = data.products.filter((product) => product.kind === "PIZZA" && !complementIds.has(product.id));
+    return pizzas.length > 0 ? pizzas : data.products.filter((product) => !complementIds.has(product.id));
+  }, [data, complementProducts]);
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
@@ -331,143 +286,23 @@ export function Storefront({ slug }: { slug?: string }) {
   const subtotal = calculateCartSubtotal(cart.items);
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const addSimpleProduct = (product: Product, openCart = true) => {
-    const item: CartItem = {
-      lineId: crypto.randomUUID(),
-      productId: product.id,
-      productName: product.name,
-      imageUrl: product.image_url,
-      secondProductId: null,
-      secondProductName: null,
-      isHalf: false,
-      sizeId: null,
-      sizeName: null,
-      crustId: null,
-      crustName: null,
-      crustPrice: 0,
-      addons: [],
-      complements: [],
-      quantity: 1,
-      notes: null,
-      unitPrice: Number(product.base_price) || 0,
-    };
-
-    cart.addItem(item);
-    if (openCart) setCartOpen(true);
-  };
-
-
-  const additionProducts = useMemo(() => {
-    if (!data) return [];
-    const categoryIds = new Set(
-      data.categories
-        .filter((category) => /(bebida|refrigerante|suco|acompanhamento|acompanhamentos|adicional|adicionais|sobremesa|sobremesas|doce|doces)/i.test(
-          category.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        ))
-        .map((category) => category.id),
-    );
-    return data.products.filter((product) => product.kind === "SIMPLE" && categoryIds.has(product.category_id));
-  }, [data]);
-
-  const trackedItems = Array.isArray(selectedTrackedOrder?.items)
-    ? selectedTrackedOrder.items.filter((item): item is CartItem => Boolean(item && typeof item === "object"))
-    : [];
-
-  const additionTotal = additionProducts.reduce(
-    (sum, product) => sum + (additionQuantities[product.id] ?? 0) * (Number(product.base_price) || 0),
-    0,
-  );
-  const additionCount = Object.values(additionQuantities).reduce((sum, quantity) => sum + quantity, 0);
-
-  const confirmAdditions = async () => {
-    if (!selectedTrackedOrder || additionCount === 0 || additionSubmitting) return;
-    setAdditionSubmitting(true);
-    setAdditionError(null);
-    try {
-      const selectedItems = additionProducts
-        .map((product) => ({ product, quantity: additionQuantities[product.id] ?? 0 }))
-        .filter(({ quantity }) => quantity > 0);
-      const appendItems = selectedItems.map(({ product, quantity }) => ({
-        product_id: product.id,
-        second_product_id: null,
-        is_half: false,
-        size_id: null,
-        crust_id: null,
-        quantity,
-        notes: null,
-        addons: [],
-      }));
-      const { data: appended, error: appendError } = await supabase.rpc("append_public_order_items", {
-        p_order_id: selectedTrackedOrder.id,
-        p_customer_phone: selectedTrackedOrder.phone,
-        p_items: appendItems,
-      });
-      if (appendError) throw appendError;
-      const order = Array.isArray(appended) ? appended[0] : appended;
-      if (!order?.order_id || !order?.order_number) throw new Error("O servidor não retornou o pedido atualizado.");
-
-      // Online payments for additions must remain a separate transaction from the original order.
-      // The current project only records payment methods; it has no online payment gateway yet.
-      // When a gateway is connected, this flow must open a dedicated additional-payment step
-      // using additionTotal, without reopening or replacing the original order payment.
-
-      const addedCartItems: CartItem[] = selectedItems.map(({ product, quantity }) => ({
-        lineId: crypto.randomUUID(),
-        productId: product.id,
-        productName: product.name,
-        imageUrl: product.image_url,
-        secondProductId: null,
-        secondProductName: null,
-        isHalf: false,
-        sizeId: null,
-        sizeName: null,
-        crustId: null,
-        crustName: null,
-        crustPrice: 0,
-        addons: [],
-        complements: [],
-        quantity,
-        notes: null,
-        unitPrice: Number(product.base_price) || 0,
-      }));
-
-      const updatedOrder: PublicTrackedOrder = {
-        ...selectedTrackedOrder,
-        id: String(order.order_id),
-        number: Number(order.order_number),
-        items: [...(selectedTrackedOrder.items ?? []), ...addedCartItems],
-        subtotal: Number(order.subtotal ?? selectedTrackedOrder.subtotal ?? 0),
-        total: Number(order.total ?? selectedTrackedOrder.total ?? 0),
-        status: (order.status as OrderStatus) ?? selectedTrackedOrder.status,
-      };
-      setSelectedTrackedOrder(updatedOrder);
-      setTrackedOrders((previous) => {
-        const next = [...previous.filter((item) => item.id !== updatedOrder.id), updatedOrder];
-        try { localStorage.setItem("ppp:last-orders:" + data.organization.id, JSON.stringify(next)); } catch {}
-        return next;
-      });
-      setAdditionQuantities({});
-      setAdditionModalOpen(false);
-      setTrackingOpen(true);
-      setCheckoutOpen(false);
-      setCartOpen(false);
-    } catch (submitError) {
-      const message = submitError instanceof Error
-        ? submitError.message
-        : typeof submitError === "object" && submitError !== null && "message" in submitError
-          ? String((submitError as { message?: unknown }).message ?? "Não foi possível adicionar os itens.")
-          : "Não foi possível adicionar os itens.";
-      setAdditionError(message);
-    } finally {
-      setAdditionSubmitting(false);
-    }
-  };
-
   if (isLoading) return <StorefrontSkeleton />;
   if (isError || !data) {
     return (
-      <main className="grid min-h-[100dvh] place-items-center bg-muted/30 p-6">
-        <StorefrontLoadError error={error} onRetry={refetch} />
+      <main className="flex min-h-screen items-center justify-center bg-background px-6">
+        <section className="w-full max-w-md rounded-3xl border bg-card p-8 text-center shadow-soft">
+          <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-muted">
+            <Store className="size-6 text-muted-foreground" />
+          </div>
+          <h1 className="text-2xl">A loja ainda não está pronta</h1>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            {error instanceof Error ? error.message : "Não foi possível carregar o cardápio."}
+          </p>
+          <Button className="mt-6" onClick={() => refetch()}>
+            Tentar novamente
+          </Button>
+        </section>
+
       </main>
     );
   }
@@ -482,7 +317,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
   return (
     <div
-      className="min-h-[100dvh] w-full overflow-x-hidden bg-background text-foreground"
+      className="min-h-screen bg-background text-foreground"
       style={
         {
           ...(primary ? { "--primary": primary } : {}),
@@ -491,42 +326,118 @@ export function Storefront({ slug }: { slug?: string }) {
         } as CSSProperties
       }
     >
-      <StorefrontTicker organizationName={data.organization.name} statusLabel={status.label} />
+      <div className="ppp-top-ticker overflow-hidden bg-secondary text-secondary-foreground" aria-hidden="true"><div className="ppp-ticker-run flex min-w-max items-center gap-8 py-2 font-display text-[11px] uppercase tracking-[.16em] text-white">{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={index} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={`repeat-${index}`} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}</div></div>
 
-      <StorefrontHeader
-        organizationName={data.organization.name}
-        logoUrl={data.settings.logo_url}
-        itemCount={itemCount}
-        selectedTrackedOrdersCount={selectedTrackedOrders.length}
-        onOpenCart={() => setCartOpen(true)}
-      />
+      <header className="ppp-reference-header absolute inset-x-0 top-0 z-[100] isolate border-b border-white/15 bg-black/55 text-white backdrop-blur-xl">
+        <div className="mx-auto flex h-[5.5rem] max-w-[1400px] items-center justify-between gap-6 px-5 sm:h-[6rem] sm:px-8 lg:px-12">
+          <a href="#inicio" className="group flex min-w-0 items-center gap-3 text-white">
+            {data.settings.logo_url ? (
+              <img src={data.settings.logo_url} alt="" className="size-9 rounded-full border border-white/35 object-cover sm:size-10" />
+            ) : (
+              <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/40 bg-black/20 font-display text-lg sm:size-10">{data.organization.name.charAt(0)}</span>
+            )}
+            <span className="truncate font-display text-xl font-medium tracking-[-.03em] sm:text-2xl">{data.organization.name}</span>
+          </a>
+
+          <nav className="hidden items-center gap-10 text-[10px] font-medium uppercase tracking-[.38em] text-white/75 md:flex">
+            <a href="#cardapio" className="transition-colors hover:text-white">Cardápio</a>
+            <a href="#sobre" className="transition-colors hover:text-white">A casa</a>
+            <a href="#contato" className="transition-colors hover:text-white">Contato</a>
+          </nav>
+
+          <Button size="sm" style={{ backgroundColor: "#f97316", borderColor: "#f97316", color: "#ffffff" }} className="relative z-[110] gap-2 rounded-none px-4 font-body text-[10px] font-medium uppercase tracking-[.22em] text-white shadow-[3px_3px_0_rgba(0,0,0,.45)] transition-transform hover:-translate-y-0.5" onClick={() => setCartOpen(true)}>
+            <span>Pedir</span>
+            {itemCount > 0 && <Badge className="rounded-full bg-primary px-1.5 text-primary-foreground">{itemCount}</Badge>}
+          </Button>
+        </div>
+      </header>
 
       <main id="inicio" className="ppp-reference-storefront">
-        <StorefrontHero
-          organizationName={data.organization.name}
-          settings={data.settings}
-          products={mainProducts}
-        />
+        <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
+          <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
+            <div className="ppp-reference-hero-grid grid min-h-0 lg:min-h-[760px] lg:grid-cols-1">
+              <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-7 sm:p-10 lg:p-14">
+                <p className="mb-5 w-fit bg-transparent px-0 font-body text-[10px] uppercase tracking-[.42em] text-white/75">Feita na hora · Est. 2026</p>
+                <h1 className="w-full max-w-4xl text-[2.35rem] leading-[.86] tracking-[-.045em] sm:text-6xl lg:text-[clamp(4rem,8.5vw,8rem)]">{data.settings.hero_title && !/MASSA DE FERMENTA/i.test(data.settings.hero_title) ? data.settings.hero_title : "Pizza que fica na memória."}</h1>
+                <p className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">{data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
+                <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-sm bg-primary px-6 py-4 font-display text-sm uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.85)] transition-transform hover:-translate-y-1">{data.settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
+              </div>
+              <div className="ppp-reference-hero-media pointer-events-none absolute inset-0 z-0 min-h-[560px] overflow-hidden bg-secondary p-0 sm:min-h-[680px] lg:min-h-[760px]">
+                <div className="relative h-full min-h-[560px] overflow-hidden bg-background/10 p-0 sm:min-h-[680px] lg:min-h-[760px]">
+                  {data.settings.hero_image_url ? (
+                    <img src={data.settings.hero_image_url} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
+                  ) : mainProducts.find((product) => Boolean(product.image_url)) ? (
+                    <img src={mainProducts.find((product) => Boolean(product.image_url))?.image_url ?? ""} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
+                  ) : (
+                    <div className="grid h-full min-h-[560px] place-items-center text-secondary-foreground/50"><Pizza className="size-28" strokeWidth={1} /></div>
+                  )}
+                </div>
+                <div className="pointer-events-none absolute bottom-2 left-2 z-10 flex size-24 rotate-[-8deg] items-center justify-center rounded-full border-2 border-secondary bg-primary p-3 text-center font-display text-[9px] uppercase leading-3 text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.7)] sm:bottom-4 sm:left-4 sm:size-28 sm:text-[10px]">{data.organization.name}<br />feito na hora<br />pizza artesanal</div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-        <ProductTicker products={mainProducts} />
+        <div className="ppp-product-ticker mb-12 overflow-hidden border-y-2 border-secondary bg-secondary text-secondary-foreground" aria-hidden="true">
+          <div className="ppp-ticker-run flex min-w-max items-center gap-8 py-4 font-display text-sm uppercase tracking-[.08em] text-white">
+            {mainProducts.slice(0, 8).map((product) => <span key={product.id} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
+            {mainProducts.slice(0, 8).map((product) => <span key={`ticker-${product.id}`} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
+          </div>
+        </div>
 
         <section id="cardapio" className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6">
-          <MenuSectionHeading />
+          <div className="ppp-reference-menu-heading mb-8 flex flex-col items-center justify-center gap-3 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[.35em] text-primary">Cardápio</p>
+            <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">Escolha sua <em>pizza.</em></h2>
+            <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">Escolha uma categoria e encontre seu próximo sabor.</p>
+          </div>
 
-          <MenuImageAccordion
-            categories={data.categories}
-            products={mainProducts}
-          />
+          <div className="ppp-reference-category-accordion mb-8">
+            <ImageAccordion
+              items={[
+                ...data.categories
+                  .filter((category) => Boolean(category.image_url))
+                  .slice(0, 6)
+                  .map((category) => ({ image: category.image_url!, title: category.name, subtitle: "Confira os sabores" })),
+                ...mainProducts
+                  .filter((product) => Boolean(product.image_url))
+                  .slice(0, 6)
+                  .map((product) => ({ image: product.image_url!, title: product.name, subtitle: "Feito na hora" })),
+              ]}
+              className="h-[330px] sm:h-[410px] lg:h-[460px]"
+            />
+          </div>
 
-          <MenuFilters
-            categories={data.categories}
-            mainProducts={mainProducts}
-            categoryProducts={categoryProducts}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-          />
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+            <button
+              onClick={() => setSelectedCategory("all")}
+              className={`shrink-0 rounded-sm border-2 border-secondary px-4 py-2 text-sm font-semibold uppercase transition-colors ${selectedCategory === "all" ? "bg-primary text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]" : "bg-card hover:-translate-y-0.5"}`}
+            >
+              Todos
+            </button>
+            {data.categories.filter((category) => mainProducts.some((product) => product.category_id === category.id)).map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`shrink-0 rounded-sm border-2 border-secondary px-4 py-2 text-sm font-semibold uppercase transition-colors ${selectedCategory === category.id ? "bg-primary text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]" : "bg-card hover:-translate-y-0.5"}`}
+              >
+                {category.name}
+                <span className="ml-1.5 opacity-60">{categoryProducts.get(category.id) ?? 0}</span>
+              </button>
+            ))}
+            </div>
+            <label className="relative block shrink-0 sm:w-64">
+              <span className="sr-only">Buscar no cardápio</span>
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Buscar no cardápio"
+                className="h-11 w-full rounded-sm border-2 border-secondary bg-card px-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:shadow-[3px_3px_0_rgba(0,0,0,.7)]"
+              />
+            </label>
+          </div>
 
           {filteredProducts.length === 0 ? (
             <div className="rounded-3xl border border-dashed bg-card p-12 text-center">
@@ -543,21 +454,7 @@ export function Storefront({ slug }: { slug?: string }) {
                 return (
                   <button
                     key={product.id}
-                    onClick={() => {
-                      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
-                      const normalizedCategory = categoryName
-                        .normalize("NFD")
-                        .replace(/[\u0300-\u036f]/g, "")
-                        .toLocaleLowerCase("pt-BR");
-                      const isSimpleProduct =
-                        product.kind === "SIMPLE" ||
-                        /(bebida|bebidas|refrigerante|refrigerantes|suco|sucos|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(normalizedCategory);
-                      if (isSimpleProduct) {
-                        addSimpleProduct(product);
-                      } else {
-                        setSelectedProduct(product);
-                      }
-                    }}
+                    onClick={() => setSelectedProduct(product)}
                     className={`group relative overflow-visible rounded-sm border-2 border-secondary bg-card text-left shadow-[7px_7px_0_rgba(0,0,0,.82)] transition-all duration-200 hover:-translate-y-1.5 hover:rotate-[-.45deg] hover:shadow-[11px_11px_0_rgba(0,0,0,.82)] active:translate-x-1 active:translate-y-1 active:shadow-[3px_3px_0_rgba(0,0,0,.82)] ${index % 5 === 2 ? "lg:rotate-[.35deg]" : ""}`}
                   >
                     <div className="relative aspect-[1.18] overflow-hidden border-b-2 border-secondary bg-muted">
@@ -602,7 +499,7 @@ export function Storefront({ slug }: { slug?: string }) {
                         </span>
                       </div>
                       <div className="mt-4 flex items-center justify-between border-t-2 border-secondary pt-3 text-xs font-bold uppercase tracking-[.08em]">
-                        <span>{product.kind === "SIMPLE" ? "Adicionar ao pedido" : product.allow_half ? "Meio a meio" : "Personalizar"}</span>
+                        <span>{product.allow_half ? "Meio a meio" : "Personalizar"}</span>
                         <span className="inline-flex size-8 items-center justify-center border-2 border-secondary bg-background transition-transform group-hover:translate-x-1">
                           <ChevronRight className="size-4" />
                         </span>
@@ -613,15 +510,12 @@ export function Storefront({ slug }: { slug?: string }) {
               })}
             </div>
           )}
-
         </section>
-        <StorefrontAbout settings={data.settings} categories={data.categories} />
+        <section id="sobre" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6"><div className="overflow-hidden rounded-[.75rem] border-2 border-secondary bg-secondary text-secondary-foreground shadow-lifted"><div className="grid lg:grid-cols-[.9fr_1.1fr]"><div className="p-7 sm:p-10 lg:p-14"><p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">A casa</p><h2 className="mt-3 text-4xl uppercase leading-[.9] sm:text-6xl">Feita para quem ama pizza.</h2><p className="mt-5 max-w-xl text-sm leading-7 text-secondary-foreground/75 sm:text-base">{data.settings.description || "Massa, molho, queijo e ingredientes escolhidos para transformar um pedido comum em uma experiência que dá vontade de repetir."}</p><a href="#cardapio" className="mt-7 inline-flex rounded-sm bg-primary px-5 py-3 font-display uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.5)]">Ver o cardápio</a></div><div className="grid grid-cols-2 gap-3 bg-primary p-4 sm:p-6">{[data.settings.hero_image_url, ...data.categories.slice(0, 3).map((category) => category.image_url)].filter(Boolean).slice(0, 3).map((image, index) => <div key={`about-${index}`} className={`overflow-hidden rounded-sm border-2 border-secondary shadow-[5px_5px_0_rgba(0,0,0,.6)] ${index === 0 ? "col-span-2 aspect-[2/1] rotate-[-1.5deg]" : "aspect-square rotate-[1.5deg]"}`}><img src={image!} alt="" className="size-full object-cover transition duration-500 hover:scale-105" loading="lazy" /></div>)}</div></div></div></section>
 
-        <StorefrontContact settings={data.settings} />
+        <section id="contato" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6"><div className="rounded-[.75rem] border-2 border-secondary bg-primary p-7 text-primary-foreground shadow-lifted sm:p-10 lg:p-14"><p className="text-xs font-semibold uppercase tracking-[.2em] opacity-75">Contato</p><h2 className="mt-2 text-[clamp(4.5rem,15vw,10rem)] uppercase leading-[.75]">Bora pedir?</h2><div className="mt-10 grid gap-3 sm:grid-cols-3"><a href="#cardapio" className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)] transition-transform hover:-translate-y-1"><span className="block text-xs uppercase tracking-widest opacity-60">Cardápio</span><span className="mt-1 block font-semibold">Escolher agora</span></a><div className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)]"><span className="block text-xs uppercase tracking-widest opacity-60">Atendimento</span><span className="mt-1 block font-semibold">{data.settings.delivery_enabled && data.settings.pickup_enabled ? "Delivery e retirada" : data.settings.delivery_enabled ? "Delivery" : "Retirada"}</span></div><div className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)]"><span className="block text-xs uppercase tracking-widest opacity-60">WhatsApp</span><span className="mt-1 block font-semibold">{data.settings.whatsapp_phone || "Consulte a loja"}</span></div></div></div></section>
 
       </main>
-
-
 
       {selectedProduct && (
         <ProductConfigurator
@@ -640,47 +534,18 @@ export function Storefront({ slug }: { slug?: string }) {
         <CartPanel
           items={cart.items}
           subtotal={subtotal}
-          selectedTrackedOrders={selectedTrackedOrders}
-          onTrackOrder={(order) => {
-            setSelectedTrackedOrder(order);
-            setAddingToOrder(false);
-            setTrackingOpen(true);
-            setCartOpen(false);
-            setCheckoutOpen(false);
-          }}
           onClose={() => setCartOpen(false)}
           onUpdate={cart.updateQuantity}
           onRemove={cart.removeItem}
           onClear={cart.clear}
           storeOpen={status.open}
           storeStatusLabel={status.label}
+          minOrderAmount={Number(data.settings.min_order_amount ?? 0)}
           pickupEnabled={Boolean(data.settings.pickup_enabled)}
           deliveryEnabled={Boolean(data.settings.delivery_enabled)}
           onCheckout={() => {
             setCartOpen(false);
-            if (addingToOrder && selectedTrackedOrder) {
-              setTrackingOpen(true);
-            } else {
-              setTrackingOpen(false);
-              setSelectedTrackedOrder(null);
-              setAddingToOrder(false);
-            }
             setCheckoutOpen(true);
-          }}
-        />
-      )}
-
-      {trackingOpen && selectedTrackedOrder && !checkoutOpen && (
-        <TrackedOrderPanel
-          order={selectedTrackedOrder}
-          onClose={() => {
-            setTrackingOpen(false);
-            setSelectedTrackedOrder(null);
-          }}
-          onAddToOrder={() => {
-            setAdditionError(null);
-            setAdditionQuantities({});
-            setAdditionModalOpen(true);
           }}
         />
       )}
@@ -690,282 +555,65 @@ export function Storefront({ slug }: { slug?: string }) {
           organization={data.organization}
           settings={data.settings}
           deliveryZones={data.deliveryZones}
-          products={data.products}
-          categories={data.categories}
           items={cart.items}
           subtotal={subtotal}
           onClose={() => setCheckoutOpen(false)}
           storeOpen={status.open}
           storeStatusLabel={status.label}
-          trackedOrder={trackingOpen ? selectedTrackedOrder : null}
-          addingToOrder={addingToOrder}
-          onAddToOrder={() => {
-            if (!selectedTrackedOrder) return;
-            setAddingToOrder(false);
-            setTrackingOpen(true);
-            setCheckoutOpen(true);
-            setCartOpen(false);
-          }}
-          onOpenAdditions={() => {
-            if (!selectedTrackedOrder) return;
-            setAdditionError(null);
-            setAdditionQuantities({});
-            setAdditionModalOpen(true);
-          }}
+          trackedOrder={trackedOrder}
           onSuccess={(order) => {
             cart.clear();
-            setTrackedOrders((previous) => {
-              const next = [...previous.filter((item) => item.id !== order.id), order];
-              try {
-                localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(next));
-              } catch {
-                // Ignore storage failures; tracking still works for the current session.
-              }
-              return next;
-            });
-
-            if (order.isAddition) {
-              setSelectedTrackedOrder(order);
-              setAddingToOrder(false);
-              setTrackingOpen(true);
-              setCheckoutOpen(false);
-            } else {
-              setTrackingOpen(false);
-              setSelectedTrackedOrder(null);
-              setAddingToOrder(false);
+            setTrackedOrder(order);
+            try {
+              localStorage.setItem(`ppp:last-order:${data.organization.id}`, JSON.stringify(order));
+            } catch {
+              // Ignore storage failures; tracking still works for the current session.
             }
           }}
-          onOrderFinished={(orderId) => {
-            setTrackedOrders((previous) => {
-              const next = previous.filter((item) => item.id !== orderId);
-              try {
-                localStorage.setItem(`ppp:last-orders:${data.organization.id}`, JSON.stringify(next));
-              } catch {
-                // Ignore storage failures.
-              }
-              return next;
-            });
-            setSelectedTrackedOrder(null);
-            setTrackingOpen(false);
-            setAddingToOrder(false);
+          onOrderFinished={() => {
+            setTrackedOrder(null);
+            try {
+              localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
+            } catch {
+              // Ignore storage failures.
+            }
           }}
         />
       )}
-      {additionModalOpen && selectedTrackedOrder && (
-        <div className="fixed inset-0 z-[320] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label="Adicionar itens ao pedido">
+
+      {trackedOrder && !checkoutOpen && !cartOpen && itemCount === 0 && (
+        <div className="fixed inset-x-0 bottom-4 z-30 mx-auto w-[calc(100%-2rem)] max-w-md">
           <button
-            type="button"
-            className="absolute inset-0 cursor-default"
-            onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); setAdditionError(null); }}
-            aria-label="Fechar"
-          />
+            onClick={() => setCheckoutOpen(true)}
+            className="flex w-full items-center justify-between rounded-2xl border bg-card px-5 py-4 text-left shadow-lifted"
+          >
+            <span>
+              <span className="block text-xs font-semibold uppercase tracking-[.12em] text-primary">Pedido em andamento</span>
+              <span className="mt-1 block text-sm font-semibold">Acompanhar pedido #{trackedOrder.number}</span>
+            </span>
+            <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+          </button>
+        </div>
+      )}
 
-          <section className="relative z-10 flex h-[94dvh] max-h-[760px] w-full min-w-0 flex-col overflow-hidden rounded-t-[2rem] border border-black/10 bg-[#0d1117] text-background shadow-2xl sm:h-[88dvh] max-h-[760px] sm:max-w-5xl sm:rounded-[2rem]">
-            <header className="shrink-0 border-b border-background/10 bg-[#10151d] px-4 pb-4 pt-3 sm:px-6 sm:pt-5">
-              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-background/20 sm:hidden" />
-              <div className="flex min-w-0 items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/20">
-                      <Plus className="size-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Pedido #{selectedTrackedOrder.number}</p>
-                      <h2 className="truncate text-xl font-display tracking-tight sm:text-2xl">Esqueceu alguma coisa?</h2>
-                    </div>
-                  </div>
-                  <p className="mt-2 max-w-2xl text-xs leading-5 text-background/55 sm:ml-12">
-                    Adicione bebidas, acompanhamentos ou sobremesas ao pedido sem refazer tudo.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => { setAdditionModalOpen(false); setAdditionQuantities({}); setAdditionError(null); }}
-                  className="grid size-9 shrink-0 place-items-center rounded-full border border-background/10 bg-background/5 text-background/70 transition hover:bg-background/10 hover:text-background"
-                  aria-label="Fechar"
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-            </header>
-
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-              <div className="grid min-h-full lg:grid-cols-[minmax(0,1fr)_320px]">
-                <main className="min-w-0 p-4 sm:p-5 lg:p-6">
-                  <div className="mb-4 rounded-2xl border border-background/10 bg-background/[.035] p-3.5 sm:p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-background/5 text-background/75">
-                        <ShoppingBag className="size-5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold">Pedido #{selectedTrackedOrder.number}</p>
-                        <p className="mt-0.5 truncate text-[10px] text-background/45">
-                          {trackedItems.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)} itens no pedido atual
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[9px] uppercase tracking-[.12em] text-background/40">Total atual</p>
-                        <p className="text-sm font-black">{formatCurrency(Number(selectedTrackedOrder.total ?? selectedTrackedOrder.subtotal ?? 0))}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {additionProducts.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-background/15 p-8 text-center">
-                      <p className="font-semibold">Nenhum item disponível para acréscimo.</p>
-                      <p className="mt-1 text-xs leading-5 text-background/50">Cadastre bebidas, acompanhamentos ou sobremesas como produtos simples para disponibilizá-los aqui.</p>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                        {["Todos", "Bebidas", "Acompanhamentos", "Sobremesas"].map((label, index) => (
-                          <span
-                            key={label}
-                            className={`shrink-0 rounded-full border px-3.5 py-2 text-[10px] font-bold ${index === 0 ? "border-primary bg-primary text-primary-foreground" : "border-background/10 bg-background/[.035] text-background/55"}`}
-                          >
-                            {label}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className="grid gap-2.5 sm:grid-cols-2">
-                        {additionProducts.map((product) => {
-                          const quantity = additionQuantities[product.id] ?? 0;
-                          return (
-                            <div key={product.id} className="flex min-w-0 items-center gap-3 rounded-2xl border border-background/10 bg-background/[.035] p-2.5 transition hover:border-primary/30 hover:bg-background/[.055]">
-                              <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-background/10 ring-1 ring-background/10 sm:size-16">
-                                {product.image_url ? (
-                                  <img src={product.image_url} alt="" className="size-full object-cover" />
-                                ) : (
-                                  <div className="grid size-full place-items-center font-display text-lg text-primary/50">{product.name.charAt(0)}</div>
-                                )}
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-bold">{product.name}</p>
-                                <p className="mt-0.5 truncate text-[10px] text-background/45">Disponível para adicionar</p>
-                                <p className="mt-1 text-xs font-black text-primary">{formatCurrency(Number(product.base_price) || 0)}</p>
-                              </div>
-                              <div className={`flex shrink-0 items-center rounded-full border bg-background/5 ${quantity > 0 ? "border-primary/50" : "border-background/10"}`}>
-                                <button
-                                  type="button"
-                                  disabled={quantity === 0}
-                                  onClick={() => setAdditionQuantities((previous) => ({ ...previous, [product.id]: Math.max(0, (previous[product.id] ?? 0) - 1) }))}
-                                  className="grid size-8 place-items-center text-background/50 transition hover:text-background disabled:opacity-25 sm:size-9"
-                                  aria-label={`Diminuir ${product.name}`}
-                                >
-                                  <Minus className="size-3.5" />
-                                </button>
-                                <span className="w-6 text-center text-xs font-black">{quantity}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => setAdditionQuantities((previous) => ({ ...previous, [product.id]: Math.min(99, (previous[product.id] ?? 0) + 1) }))}
-                                  className="grid size-8 place-items-center text-primary transition hover:text-background sm:size-9"
-                                  aria-label={`Aumentar ${product.name}`}
-                                >
-                                  <Plus className="size-3.5" />
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </>
-                  )}
-                </main>
-
-                <aside className="hidden border-l border-background/10 bg-[#0a0e14] p-5 lg:flex lg:flex-col">
-                  <div className="mb-5">
-                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Resumo</p>
-                    <h3 className="mt-1 text-lg font-display">Seu pedido</h3>
-                  </div>
-
-                  <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
-                    {trackedItems.slice(0, 8).map((item, index) => (
-                      <div key={item.lineId || `${item.productId}-${index}`} className="flex min-w-0 gap-2.5 rounded-xl bg-background/[.035] p-2.5">
-                        <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-background/5 text-[9px] font-black text-background/55">
-                          {item.quantity}×
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-bold">{item.productName || "Item"}</p>
-                          <p className="mt-0.5 text-[10px] text-background/40">{formatCurrency((Number(item.unitPrice) || 0) * (Number(item.quantity) || 0))}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-4 border-t border-background/10 pt-4">
-                    <div className="flex items-center justify-between text-xs text-background/45">
-                      <span>Acréscimo</span>
-                      <span className="font-black text-background">{formatCurrency(additionTotal)}</span>
-                    </div>
-                    <div className="mt-2 flex items-end justify-between">
-                      <span className="text-xs text-background/45">Novo total</span>
-                      <span className="text-xl font-black text-primary">{formatCurrency(Number(selectedTrackedOrder.total ?? selectedTrackedOrder.subtotal ?? 0) + additionTotal)}</span>
-                    </div>
-                  </div>
-
-                  {additionError && (
-                    <p className="mt-3 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-semibold leading-5 text-red-200">{additionError}</p>
-                  )}
-
-                  <div className="mt-4 rounded-xl border border-primary/15 bg-primary/5 p-3">
-                    <p className="text-[10px] font-semibold leading-4 text-background/55">
-                      O pagamento de qualquer acréscimo será tratado separadamente do pagamento original quando o pagamento online estiver disponível.
-                    </p>
-                  </div>
-
-                  <Button
-                    type="button"
-                    disabled={additionCount === 0 || additionSubmitting}
-                    onClick={confirmAdditions}
-                    className="mt-4 h-12 w-full rounded-xl text-sm font-black shadow-[0_8px_24px_hsl(var(--primary)/.2)]"
-                  >
-                    {additionSubmitting ? "Adicionando..." : `Adicionar · ${formatCurrency(additionTotal)}`}
-                  </Button>
-                </aside>
-              </div>
-            </div>
-
-            <footer className="shrink-0 border-t border-background/10 bg-[#0a0e14] p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] sm:p-4 lg:hidden">
-              <div className="mx-auto flex max-w-2xl items-center gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-[9px] font-bold uppercase tracking-[.16em] text-background/40">Acréscimo</p>
-                  <p className="truncate text-lg font-black leading-tight text-background">{formatCurrency(additionTotal)}</p>
-                  <p className="truncate text-[9px] text-background/40">
-                    Novo total: {formatCurrency(Number(selectedTrackedOrder.total ?? selectedTrackedOrder.subtotal ?? 0) + additionTotal)}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  disabled={additionCount === 0 || additionSubmitting}
-                  onClick={confirmAdditions}
-                  className="h-12 shrink-0 rounded-full px-5 text-xs font-black shadow-[0_8px_24px_hsl(var(--primary)/.25)]"
-                >
-                  {additionSubmitting ? "Adicionando..." : "Adicionar"}
-                </Button>
-              </div>
-              {additionError && <p className="mx-auto mt-2 max-w-2xl rounded-xl bg-destructive/10 px-3 py-2 text-[10px] font-semibold text-red-200">{additionError}</p>}
-            </footer>
-          </section>
+      {itemCount > 0 && !cartOpen && !checkoutOpen && (
+        <div className="fixed inset-x-0 bottom-4 z-30 mx-auto w-[calc(100%-2rem)] max-w-md">
+          <button
+            onClick={() => setCartOpen(true)}
+            className="flex w-full items-center justify-between rounded-2xl bg-secondary px-5 py-4 text-secondary-foreground shadow-lifted"
+          >
+            <span className="flex items-center gap-2 text-sm font-semibold">
+              <ShoppingBag className="size-4" />
+              {itemCount} {itemCount === 1 ? "item" : "itens"}
+            </span>
+            <span className="font-bold">{formatCurrency(subtotal)}</span>
+          </button>
         </div>
       )}
     </div>
   );
 }
 
-
-function getTrackedOrderStatusLabel(status?: OrderStatus) {
-  switch (status) {
-    case "RECEIVED": return "Pedido recebido";
-    case "CONFIRMED": return "Pedido confirmado";
-    case "PREPARING": return "Em preparo";
-    case "READY": return "Pronto";
-    case "OUT_FOR_DELIVERY": return "Saiu para entrega";
-    case "DELIVERED": return "Entregue";
-    case "CANCELLED": return "Cancelado";
-    default: return "Em andamento";
-  }
-}
 
 function ProductConfigurator({
   product,
@@ -986,16 +634,14 @@ function ProductConfigurator({
   const [addonIds, setAddonIds] = useState<string[]>([]);
   const [comboProductIds, setComboProductIds] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const personalizationScrollRef = useRef<HTMLDivElement | null>(null);
-  const stepScrollRef = useRef<HTMLDivElement | null>(null);
+  const [quantity, setQuantity] = useState(1);\n  const personalizationScrollRef = useRef<HTMLDivElement | null>(null);
 
   const secondProduct = data.products.find((item) => item.id === secondProductId) ?? null;
   const comboProducts = data.products.filter((item) => {
     const categoryName = data.categories.find((category) => category.id === item.category_id)?.name ?? "";
     const normalizedCategory = categoryName
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[\\u0300-\\u036f]/g, "")
       .toLocaleLowerCase("pt-BR");
     return (
       item.kind === "SIMPLE" ||
@@ -1034,20 +680,7 @@ function ProductConfigurator({
 
   const totalSteps = 3;
   const nextStep = () => setStep((current) => Math.min(totalSteps, current + 1));
-  const previousStep = () => setStep((current) => Math.max(1, current - 1));
-
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      stepScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  }, [step]);
-
-  useEffect(() => {
-    if (!halfMode) return;
-    requestAnimationFrame(() => {
-      personalizationScrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  }, [halfMode]);
+  const previousStep = () => setStep((current) => Math.max(1, current - 1));\n\n  useEffect(() => {\n    if (!halfMode) return;\n    requestAnimationFrame(() => {\n      personalizationScrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });\n    });\n  }, [halfMode]);
 
   const toggleAddon = (id: string) => {
     setAddonIds((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]));
@@ -1095,12 +728,12 @@ function ProductConfigurator({
         : "Finalize";
 
   return (
-    <div className="ppp-order-builder fixed inset-0 z-[140] flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
-      <div className="flex h-[min(95dvh,860px)] max-h-[95dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[92vh] sm:max-h-[92vh] sm:rounded-[2rem]">
+    <div className="ppp-order-builder fixed inset-0 z-50 flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={"Montar " + product.name}>
+      <div className="flex h-[95dvh] max-h-[95dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[92vh] sm:max-h-[92vh] sm:rounded-[2rem]">
         <div className="relative shrink-0 overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
           <div className="absolute -right-10 -top-16 size-40 rounded-full bg-primary/25 blur-3xl" />
           <div className="relative flex items-center gap-4">
-            <div className="size-16 shrink-0 overflow-hidden rounded-2xl sm:size-20 border border-background/15 bg-background/10 shadow-lg">
+            <div className="size-20 shrink-0 overflow-hidden rounded-2xl border border-background/15 bg-background/10 shadow-lg">
               {product.image_url ? (
                 <img src={product.image_url} alt="" className="size-full object-cover" />
               ) : (
@@ -1140,7 +773,7 @@ function ProductConfigurator({
           </div>
         </div>
 
-        <div ref={stepScrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
           {step === 1 && (
             <section className="space-y-6">
               <div className="rounded-2xl border bg-card p-4">
@@ -1150,14 +783,14 @@ function ProductConfigurator({
               </div>
 
               <div>
-                <div className="mb-2 flex items-end justify-between gap-2">
+                <div className="mb-3 flex items-end justify-between gap-3">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">01 · Escolha o tamanho</p>
                     <p className="mt-1 text-lg font-semibold tracking-tight">Qual vai ser o tamanho?</p>
                   </div>
                   <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Toque para escolher</span>
                 </div>
-                <div className="grid gap-2 sm:grid-cols-2">
+                <div className="grid gap-2.5 sm:grid-cols-2">
                   {data.sizes.map((size, index) => {
                     const price = getPrice(product, size.id, data.prices);
                     const selected = sizeId === size.id;
@@ -1217,12 +850,7 @@ function ProductConfigurator({
 
                     <button
                       type="button"
-                      onClick={() => {
-                        setHalfMode(true);
-                        requestAnimationFrame(() => {
-                          personalizationScrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                        });
-                      }}
+                      onClick={() => {\n                        setHalfMode(true);\n                        requestAnimationFrame(() => {\n                          personalizationScrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });\n                        });\n                      }}
                       className={"group relative overflow-hidden rounded-2xl border p-4 text-left transition-all " + (halfMode ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20" : "bg-card hover:border-primary/50 hover:shadow-md")}
                       aria-pressed={halfMode}
                     >
@@ -1263,7 +891,7 @@ function ProductConfigurator({
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold">Escolha o segundo sabor</p>
-                      <p className="mt-0.5 hidden text-xs leading-5 text-muted-foreground sm:block">
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
                         Primeiro sabor: <strong>{product.name}</strong>. Agora escolha a outra metade.
                       </p>
                       <p className="mt-1 text-[11px] font-medium text-primary">
@@ -1326,88 +954,44 @@ function ProductConfigurator({
           )}
 
           {step === 2 && (
-            <section className="space-y-3">
-              <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-secondary p-3 text-secondary-foreground shadow-[0_14px_35px_hsl(var(--primary)/.10)] sm:p-6">
-                <div className="absolute -right-12 -top-12 size-32 rounded-full bg-primary/20 blur-3xl" />
-                <div className="relative">
-                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">03 · Personalização</p>
-                  <div className="mt-2 flex items-end justify-between gap-4">
-                    <div>
-                      <h3 className="font-display text-lg tracking-[-.03em] sm:text-xl">Do seu jeito.</h3>
-                      <p className="mt-0.5 max-w-md text-[10px] leading-4 text-secondary-foreground/65">Escolha os detalhes que deixam sua pizza ainda mais especial.</p>
-                    </div>
-                    {(crustId || addonIds.length > 0 || notes.trim()) && (
-                      <div className="hidden shrink-0 rounded-full bg-primary px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider text-primary-foreground sm:block">
-                        Personalizada
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
+            <section className="space-y-7">
               {data.crusts.length > 0 && (
-                <div className="rounded-xl border bg-card p-2.5 shadow-sm sm:p-3">
-                  <div className="mb-3 flex items-end justify-between gap-3">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">01 · Borda</p>
-                      <p className="mt-0.5 text-sm font-semibold tracking-tight">Qual borda você prefere?</p>
-                    </div>
-                    {crustId && <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-primary">Escolhida</span>}
-                  </div>
-                  <div className="grid gap-2.5 sm:grid-cols-2">
-                    {data.crusts.map((item) => {
-                      const selected = crustId === item.id;
-                      return (
-                        <button
-                          key={item.id}
-                          onClick={() => setCrustId(selected ? null : item.id)}
-                          aria-pressed={selected}
-                          className={"group flex min-h-[44px] items-center justify-between rounded-lg border p-2 text-left transition-all duration-200 " + (selected ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-1 ring-primary/20" : "bg-background hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md")}
-                        >
-                          <span className="flex min-w-0 items-center gap-3">
-                            <span className={"grid size-7 shrink-0 place-items-center rounded-lg border text-[11px] " + (selected ? "border-primary-foreground/20 bg-primary-foreground/10" : "border-border bg-muted")}>✦</span>
-                            <span className="min-w-0">
-                              <span className="block truncate text-xs font-semibold">{item.name}</span>
-                              <span className={"mt-0 block text-[8px] " + (selected ? "text-primary-foreground/70" : "text-muted-foreground")}>{Number(item.price) > 0 ? "Adicional" : "Inclusa"}</span>
-                            </span>
-                          </span>
-                          <span className="ml-2 shrink-0 text-right text-[10px] font-bold">{Number(item.price) > 0 ? "+" + formatCurrency(Number(item.price)) : "Grátis"}</span>
-                        </button>
-                      );
-                    })}
+                <div>
+                  <p className="mb-2 text-sm font-semibold">Borda</p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {data.crusts.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setCrustId(crustId === item.id ? null : item.id)}
+                        className={"flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm " + (crustId === item.id ? "border-primary bg-primary/5" : "bg-card")}
+                      >
+                        <span>{item.name}</span>
+                        <span className="font-semibold">{Number(item.price) > 0 ? "+" + formatCurrency(Number(item.price)) : "Grátis"}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}
 
               {availableAddons.length > 0 && (
-                <div className="rounded-[1.5rem] border bg-card p-4 shadow-sm sm:p-5">
-                  <div className="mb-4 flex items-end justify-between gap-3">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">02 · Adicionais</p>
-                      <p className="mt-0.5 text-sm font-semibold tracking-tight">Quer deixar ainda melhor?</p>
-                    </div>
-                    {addonIds.length > 0 && <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-primary">{addonIds.length} {addonIds.length === 1 ? "selecionado" : "selecionados"}</span>}
-                  </div>
-                  <div className="grid gap-2.5 sm:grid-cols-2">
+                <div>
+                  <p className="mb-2 text-sm font-semibold">Adicionais</p>
+                  <div className="grid gap-2 sm:grid-cols-2">
                     {availableAddons.map((item) => {
                       const checked = addonIds.includes(item.id);
                       return (
                         <button
                           key={item.id}
                           onClick={() => toggleAddon(item.id)}
-                          aria-pressed={checked}
-                          className={"group flex min-h-[52px] items-center justify-between rounded-xl border p-2.5 text-left transition-all duration-200 " + (checked ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-1 ring-primary/20" : "bg-background hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md")}
+                          className={"flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm " + (checked ? "border-primary bg-primary/5" : "bg-card")}
                         >
-                          <span className="flex min-w-0 items-center gap-3">
-                            <span className={"grid size-7 shrink-0 place-items-center rounded-lg border " + (checked ? "border-primary-foreground/20 bg-primary-foreground/10" : "border-border bg-muted")}>
-                              {checked ? <Check className="size-4" /> : <Plus className="size-4 text-muted-foreground" />}
+                          <span className="flex items-center gap-2">
+                            <span className={"flex size-5 items-center justify-center rounded-md border " + (checked ? "border-primary bg-primary text-primary-foreground" : "")}>
+                              {checked ? <Check className="size-3.5" /> : null}
                             </span>
-                            <span className="min-w-0">
-                              <span className="block truncate text-sm font-semibold">{item.name}</span>
-                              <span className={"mt-0.5 block text-[10px] " + (checked ? "text-primary-foreground/70" : "text-muted-foreground")}>Adicionar ao pedido</span>
-                            </span>
+                            {item.name}
                           </span>
-                          <span className="ml-2 shrink-0 text-[10px] font-bold">+{formatCurrency(Number(item.price))}</span>
+                          <span className="font-semibold">+{formatCurrency(Number(item.price))}</span>
                         </button>
                       );
                     })}
@@ -1415,13 +999,9 @@ function ProductConfigurator({
                 </div>
               )}
 
-              <div className="rounded-[1.5rem] border bg-card p-4 shadow-sm sm:p-5">
-                <div className="mb-3">
-                  <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">03 · Observações</p>
-                  <label htmlFor="product-notes" className="mt-1 block text-lg font-semibold tracking-tight">Algum detalhe especial?</label>
-                </div>
-                <Textarea id="product-notes" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Ex.: sem cebola, pouco molho..." maxLength={300} className="min-h-16 resize-none rounded-lg bg-background" />
-                <p className="mt-2 text-right text-[10px] text-muted-foreground">{notes.length}/300</p>
+              <div>
+                <label htmlFor="product-notes" className="mb-2 block text-sm font-semibold">Observações</label>
+                <Textarea id="product-notes" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Alguma observação para este item?" maxLength={300} />
               </div>
             </section>
           )}
@@ -1523,158 +1103,123 @@ function ProductConfigurator({
   );
 }
 
-function itemCountLabel(items: CartItem[]) {
-  const count = items.reduce((sum, item) => sum + item.quantity, 0);
-  return count + " " + (count === 1 ? "item" : "itens");
-}
-
 function CartPanel({
   items,
   subtotal,
-  selectedTrackedOrders,
-  onTrackOrder,
   onClose,
   onUpdate,
   onRemove,
   onClear,
   storeOpen,
   storeStatusLabel,
+  minOrderAmount,
   pickupEnabled,
   deliveryEnabled,
   onCheckout,
 }: {
   items: CartItem[];
   subtotal: number;
-  selectedTrackedOrders: PublicTrackedOrder[];
-  onTrackOrder: (order: PublicTrackedOrder) => void;
   onClose: () => void;
   onUpdate: (lineId: string, quantity: number) => void;
   onRemove: (lineId: string) => void;
   onClear: () => void;
   storeOpen: boolean;
   storeStatusLabel: string;
+  minOrderAmount: number;
   pickupEnabled: boolean;
   deliveryEnabled: boolean;
   onCheckout: () => void;
 }) {
   return (
-    <div className="ppp-cart-panel fixed inset-0 z-[150] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label="Carrinho">
+    <div className="ppp-cart-panel fixed inset-0 z-50 bg-foreground/35 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Carrinho">
       <button className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar carrinho" />
-      <aside className="relative z-10 flex h-[94dvh] max-h-[760px] w-full min-w-0 flex-col overflow-hidden rounded-t-[2rem] border border-black/10 bg-[#0d1117] text-background shadow-2xl sm:h-[88dvh] sm:max-w-2xl sm:rounded-[2rem]">
-        <header className="shrink-0 border-b border-background/10 bg-[#10151d] px-4 pb-4 pt-3 sm:px-6 sm:pt-5">
-          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-background/20 sm:hidden" />
-          <div className="flex min-w-0 items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/20">
-                  <ShoppingBag className="size-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Seu pedido</p>
-                  <h2 className="truncate text-xl font-display tracking-tight sm:text-2xl">Carrinho</h2>
-                </div>
-              </div>
-              <p className="mt-2 text-xs leading-5 text-background/55">Confira seus itens antes de continuar para a finalização.</p>
-            </div>
-            <button onClick={onClose} aria-label="Fechar" className="grid size-9 shrink-0 place-items-center rounded-full border border-background/10 bg-background/5 text-background/70 transition hover:bg-background/10 hover:text-background">
-              <X className="size-4" />
-            </button>
+      <aside className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-background shadow-lifted">
+        <div className="flex items-center justify-between border-b px-5 py-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Seu pedido</p>
+            <h2 className="text-2xl">Carrinho</h2>
           </div>
-        </header>
-
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-          <main className="p-4 sm:p-5">
-            {selectedTrackedOrders.length > 0 && (
-              <section className="mb-4 overflow-hidden rounded-2xl border border-primary/15 bg-background/[.035] shadow-sm">
-                <div className="flex items-center justify-between gap-3 border-b border-background/10 px-4 py-3.5">
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Pedidos em andamento</p>
-                    <h3 className="mt-1 text-base font-bold">Acompanhe seus pedidos</h3>
-                  </div>
-                  <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold text-primary">{selectedTrackedOrders.length}</span>
-                </div>
-                <div className="space-y-2 p-3">
-                  {selectedTrackedOrders.map((order) => (
-                    <button key={order.id} type="button" onClick={() => onTrackOrder(order)} className="group flex w-full items-center gap-3 rounded-xl border border-background/10 bg-background/[.035] p-3 text-left transition hover:border-primary/40 hover:bg-primary/5">
-                      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Clock3 className="size-4" /></span>
-                      <span className="min-w-0 flex-1">
-                        <span className="flex items-center gap-2">
-                          <span className="text-[9px] font-black uppercase tracking-[.14em] text-primary">Em andamento</span>
-                          <span className="text-[9px] font-bold text-background/45">#{order.number}</span>
-                        </span>
-                        <span className="mt-0.5 block truncate text-xs font-semibold text-background/85">Acompanhar pedido</span>
-                      </span>
-                      <ChevronRight className="size-4 shrink-0 text-background/40 transition group-hover:translate-x-0.5 group-hover:text-primary" />
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {items.length === 0 ? (
-              <div className="flex min-h-[45vh] flex-col items-center justify-center px-6 text-center">
-                <div className="grid size-16 place-items-center rounded-2xl border border-background/10 bg-background/[.035] text-primary"><ShoppingBag className="size-7" /></div>
-                <p className="mt-4 font-semibold">Seu carrinho está vazio</p>
-                <p className="mt-1 max-w-xs text-sm leading-5 text-background/45">Adicione qualquer item do cardápio para começar.</p>
-              </div>
-            ) : (
-              <section>
-                <div className="mb-3 flex items-end justify-between gap-3">
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Itens</p>
-                    <h3 className="mt-1 text-lg font-display">Seu pedido</h3>
-                  </div>
-                  <span className="rounded-full border border-background/10 bg-background/[.035] px-2.5 py-1 text-[9px] font-bold text-background/55">{itemCountLabel(items)}</span>
-                </div>
-                <div className="space-y-2.5">
-                  {items.map((item) => (
-                    <div key={item.lineId} className="flex min-w-0 gap-3 rounded-2xl border border-background/10 bg-background/[.035] p-2.5 sm:p-3">
-                      <div className="size-16 shrink-0 overflow-hidden rounded-xl bg-background/10 ring-1 ring-background/10">
-                        {item.imageUrl ? <img src={item.imageUrl} alt="" className="size-full object-cover" /> : <div className="grid size-full place-items-center font-display text-xl text-primary/50">{item.productName.charAt(0)}</div>}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-bold">{item.productName}{item.secondProductName ? " + " + item.secondProductName : ""}</p>
-                            <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-background/45">
-                              {[item.sizeName, item.crustName, (item.addons ?? []).length ? (item.addons ?? []).length + " adicional(is)" : null, (item.complements ?? []).length ? (item.complements ?? []).length + " complemento(s)" : null].filter(Boolean).join(" · ")}
-                            </p>
-                          </div>
-                          <button onClick={() => onRemove(item.lineId)} className="grid size-7 shrink-0 place-items-center rounded-full text-background/35 transition hover:bg-red-400/10 hover:text-red-300" aria-label={"Remover " + item.productName}><X className="size-3.5" /></button>
-                        </div>
-                        <div className="mt-3 flex items-center justify-between gap-3">
-                          <div className="flex items-center rounded-full border border-background/10 bg-background/5">
-                            <button onClick={() => onUpdate(item.lineId, item.quantity - 1)} className="grid size-8 place-items-center text-background/45 transition hover:text-background" aria-label="Diminuir"><Minus className="size-3.5" /></button>
-                            <span className="w-7 text-center text-xs font-black">{item.quantity}</span>
-                            <button onClick={() => onUpdate(item.lineId, item.quantity + 1)} className="grid size-8 place-items-center text-primary transition hover:text-background" aria-label="Aumentar"><Plus className="size-3.5" /></button>
-                          </div>
-                          <span className="text-sm font-black">{formatCurrency(item.unitPrice * item.quantity)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </main>
+          <button onClick={onClose} aria-label="Fechar" className="rounded-full p-2 hover:bg-muted"><X className="size-5" /></button>
         </div>
 
-        <footer className="shrink-0 border-t border-background/10 bg-[#0a0e14] p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] sm:p-4">
-          <div className="mx-auto max-w-2xl">
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-[.16em] text-background/40">Subtotal</p>
-                <p className="mt-0.5 font-display text-2xl tracking-tight">{formatCurrency(subtotal)}</p>
-              </div>
-              <span className="text-right text-[9px] leading-4 text-background/40">Entrega e descontos<br />calculados no checkout</span>
+        <div className="flex-1 overflow-y-auto p-5">
+          {items.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center text-center">
+              <div className="flex size-16 items-center justify-center rounded-full bg-muted"><ShoppingBag className="size-7 text-muted-foreground" /></div>
+              <p className="mt-4 font-semibold">Seu carrinho está vazio</p>
+              <p className="mt-1 text-sm text-muted-foreground">Adicione uma pizza para começar.</p>
             </div>
-            {!storeOpen && <p className="mt-2 rounded-xl bg-primary/10 px-3 py-2 text-center text-[10px] font-semibold text-primary">{storeStatusLabel}</p>}
-            <Button disabled={items.length === 0 || !storeOpen} className="mt-3 h-12 w-full rounded-xl text-sm font-black shadow-[0_8px_24px_hsl(var(--primary)/.22)]" onClick={onCheckout}>
-              {storeOpen ? "Continuar para checkout" : "Loja fechada"}
-            </Button>
-            {items.length > 0 && <button onClick={onClear} className="mt-2.5 w-full text-center text-[10px] font-bold uppercase tracking-[.12em] text-background/35 transition hover:text-red-300">Limpar carrinho</button>}
+          ) : (
+            <div className="space-y-3">
+              {items.map((item) => (
+                <div key={item.lineId} className="rounded-2xl border bg-card p-4">
+                  <div className="flex gap-3">
+                    <div className="size-16 shrink-0 overflow-hidden rounded-xl bg-muted">
+                      {item.imageUrl ? <img src={item.imageUrl} alt="" className="size-full object-cover" /> : <div className="flex size-full items-center justify-center font-display text-xl text-primary/40">{item.productName.charAt(0)}</div>}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex justify-between gap-2">
+                        <div>
+                          <p className="font-semibold">{item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {[item.sizeName, item.crustName, item.addons.length ? `${item.addons.length} adicional(is)` : null, (item.complements ?? []).length ? `${(item.complements ?? []).length} complemento(s)` : null].filter(Boolean).join(" · ")}
+                          </p>
+                        </div>
+                        <button onClick={() => onRemove(item.lineId)} className="text-muted-foreground hover:text-destructive" aria-label={`Remover ${item.productName}`}><X className="size-4" /></button>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="flex items-center rounded-full border">
+                          <button onClick={() => onUpdate(item.lineId, item.quantity - 1)} className="p-2" aria-label="Diminuir"><Minus className="size-3.5" /></button>
+                          <span className="w-7 text-center text-xs font-semibold">{item.quantity}</span>
+                          <button onClick={() => onUpdate(item.lineId, item.quantity + 1)} className="p-2" aria-label="Aumentar"><Plus className="size-3.5" /></button>
+                        </div>
+                        <span className="font-semibold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="border-t bg-card p-5">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Subtotal</span>
+            <span className="text-xl font-bold">{formatCurrency(subtotal)}</span>
           </div>
-        </footer>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">
+            A taxa de entrega e descontos serão calculados no checkout.
+          </p>
+          {deliveryEnabled && minOrderAmount > 0 && subtotal < minOrderAmount && (
+            <div className="mt-3 rounded-2xl bg-primary/5 p-3 text-sm">
+              <p className="font-semibold text-primary">
+                Pedido mínimo para entrega: {formatCurrency(minOrderAmount)}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Faltam {formatCurrency(minOrderAmount - subtotal)} para atingir o mínimo.
+                {pickupEnabled ? " Para retirada, não há pedido mínimo." : ""}
+              </p>
+            </div>
+          )}
+          <Button
+            disabled={
+              items.length === 0 ||
+              !storeOpen ||
+              (deliveryEnabled && !pickupEnabled && minOrderAmount > 0 && subtotal < minOrderAmount)
+            }
+            className="mt-4 h-12 w-full rounded-full"
+            onClick={onCheckout}
+          >
+            {storeOpen ? "Continuar para checkout" : "Loja fechada"}
+          </Button>
+          {!storeOpen && <p className="mt-2 text-center text-xs font-medium text-primary">{storeStatusLabel}</p>}
+          {items.length > 0 && (
+            <button onClick={onClear} className="mt-3 w-full text-center text-xs font-medium text-muted-foreground hover:text-destructive">
+              Limpar carrinho
+            </button>
+          )}
+        </div>
       </aside>
     </div>
   );
@@ -1684,16 +1229,11 @@ function CheckoutPanel({
   organization,
   settings,
   deliveryZones,
-  products,
-  categories,
   items,
   subtotal,
   onClose,
   onSuccess,
   trackedOrder,
-  addingToOrder,
-  onAddToOrder,
-  onOpenAdditions,
   storeOpen,
   storeStatusLabel,
   onOrderFinished,
@@ -1701,25 +1241,20 @@ function CheckoutPanel({
   organization: Organization;
   settings: OrganizationSettings;
   deliveryZones: DeliveryZone[];
-  products: Product[];
-  categories: Category[];
   items: CartItem[];
   subtotal: number;
   onClose: () => void;
-  onSuccess: (order: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType; status?: OrderStatus; isAddition?: boolean }) => void;
-  trackedOrder?: { id: string; number: number; phone: string; items?: CartItem[]; subtotal?: number; total?: number; fulfillment?: FulfillmentType; status?: OrderStatus } | null;
-  addingToOrder: boolean;
-  onAddToOrder: () => void;
-  onOpenAdditions: () => void;
+  onSuccess: (order: { id: string; number: number; phone: string }) => void;
+  trackedOrder?: { id: string; number: number; phone: string } | null;
   storeOpen: boolean;
   storeStatusLabel: string;
-  onOrderFinished: (orderId: string) => void;
+  onOrderFinished: () => void;
 }) {
   const [fulfillment, setFulfillment] = useState<FulfillmentType>(
     settings.delivery_enabled ? "DELIVERY" : "PICKUP",
   );
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
-    (settings.payment_methods ?? [])[0] ?? "PIX",
+    settings.payment_methods[0] ?? "PIX",
   );
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -1734,229 +1269,359 @@ function CheckoutPanel({
   const [successOrderId, setSuccessOrderId] = useState<string | null>(null);
   const [successNumber, setSuccessNumber] = useState<number | null>(null);
   const [successStatus, setSuccessStatus] = useState<OrderStatus>("RECEIVED");
-  const [trackingLive, setTrackingLive] = useState(false);
-  const [lastTrackingUpdate, setLastTrackingUpdate] = useState<Date | null>(null);
   const [trackingError, setTrackingError] = useState<string | null>(null);
-  const [confirmedItems, setConfirmedItems] = useState<CartItem[]>([]);
-  const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);
-  const [confirmedTotal, setConfirmedTotal] = useState(0);
-  const [confirmedFulfillment, setConfirmedFulfillment] = useState<FulfillmentType>(settings.delivery_enabled ? "DELIVERY" : "PICKUP");
 
+  useEffect(() => {
+    if (!trackedOrder) return;
+    setSuccessOrderId(trackedOrder.id);
+    setSuccessNumber(trackedOrder.number);
+    setSuccessStatus("RECEIVED");
+    setPhone(trackedOrder.phone);
+  }, [trackedOrder]);
 
-  return (
-    <div className="ppp-checkout-panel fixed inset-0 z-[60] min-h-[100dvh] overflow-x-hidden overflow-y-auto overscroll-contain bg-[#f7f4ef] text-foreground">
-      <div className="mx-auto min-h-[100dvh] w-full max-w-6xl px-[clamp(.75rem,2.5vw,1.5rem)] pb-28 pt-[clamp(.75rem,2.5vw,1.5rem)] sm:px-6 sm:pb-12 sm:pt-6">
-        <header className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-foreground text-background shadow-[0_18px_45px_rgba(0,0,0,.12)] sm:rounded-[2rem]">
-          <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm sm:size-11">
-                <Pizza className="size-5" />
+  const selectedZone =
+    fulfillment === "DELIVERY"
+      ? deliveryZones.find((zone) =>
+          zone.neighborhoods.some(
+            (item) => normalizeNeighborhood(item) === normalizeNeighborhood(neighborhood),
+          ),
+        ) ?? null
+      : null;
+
+  const matchedNeighborhood =
+    selectedZone?.neighborhoods.find(
+      (item) => normalizeNeighborhood(item) === normalizeNeighborhood(neighborhood),
+    ) ?? null;
+
+  const availableNeighborhoods = Array.from(
+    new Set(
+      deliveryZones.flatMap((zone) => zone.neighborhoods.map((item) => item.trim()).filter(Boolean)),
+    ),
+  );
+  const deliveryFee = selectedZone?.delivery_fee ?? 0;
+  const total = subtotal + deliveryFee;
+
+  const availablePayments = settings.payment_methods.length
+    ? settings.payment_methods
+    : (["PIX"] as PaymentMethod[]);
+
+  const submitOrder = async () => {
+    setError(null);
+
+    if (!storeOpen) {
+      setError(`A loja está fechada. ${storeStatusLabel}.`);
+      return;
+    }
+
+    if (!name.trim() || !phone.trim()) {
+      setError("Informe seu nome e telefone.");
+      return;
+    }
+    if (fulfillment === "DELIVERY") {
+      if (!street.trim() || !number.trim() || !neighborhood.trim()) {
+        setError("Para entrega, informe rua, número e bairro.");
+        return;
+      }
+      if (deliveryZones.length > 0 && !selectedZone) {
+        setError("Não encontramos uma área de entrega para esse bairro.");
+        return;
+      }
+    }
+    const minOrderAmount = Number(settings.min_order_amount ?? 0);
+    if (
+      fulfillment === "DELIVERY" &&
+      minOrderAmount > 0 &&
+      subtotal < minOrderAmount
+    ) {
+      setError(
+        `Para entrega, o pedido mínimo é ${formatCurrency(minOrderAmount)}. Faltam ${formatCurrency(minOrderAmount - subtotal)}.`,
+      );
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const payload = {
+        organization_id: organization.id,
+        subtotal,
+        customer_name: name.trim(),
+        customer_phone: phone.trim(),
+        fulfillment,
+        payment_method: paymentMethod,
+        address_street: fulfillment === "DELIVERY" ? street.trim() : null,
+        address_number: fulfillment === "DELIVERY" ? number.trim() : null,
+        address_neighborhood: fulfillment === "DELIVERY" ? (matchedNeighborhood ?? neighborhood.trim()) : null,
+        address_complement: fulfillment === "DELIVERY" ? complement.trim() || null : null,
+        address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
+        notes: notes.trim() || null,
+        idempotency_key: crypto.randomUUID(),
+        items: items.flatMap((item) => [
+          {
+            product_id: item.productId,
+            second_product_id: item.secondProductId,
+            is_half: item.isHalf,
+            size_id: item.sizeId,
+            crust_id: item.crustId,
+            quantity: item.quantity,
+            notes: item.notes,
+            addons: item.addons.map((addon) => ({ id: addon.id })),
+          },
+          ...(item.complements ?? []).map((complement) => ({
+            product_id: complement.productId,
+            second_product_id: null,
+            is_half: false,
+            size_id: null,
+            crust_id: null,
+            quantity: 1,
+            notes: "Complemento do pedido: " + item.productName,
+            addons: [],
+          })),
+        ]),
+      };
+
+      const { data: created, error: createError } = await supabase.rpc(
+        "create_public_order",
+        { p_order: payload },
+      );
+      if (createError) throw createError;
+
+      const order = Array.isArray(created) ? created[0] : created;
+      if (!order?.order_number || !order?.order_id) throw new Error("Não foi possível criar o pedido.");
+      setSuccessOrderId(String(order.order_id));
+      setSuccessNumber(Number(order.order_number));
+      setSuccessStatus("RECEIVED");
+      onSuccess({ id: String(order.order_id), number: Number(order.order_number), phone: phone.trim() });
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error
+          ? submitError.message
+          : typeof submitError === "object" && submitError !== null && "message" in submitError
+            ? String((submitError as { message?: unknown }).message ?? "Não foi possível enviar o pedido.")
+            : "Não foi possível enviar o pedido.";
+      setError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!successOrderId) return;
+
+    let cancelled = false;
+    const loadStatus = async () => {
+      const { data: tracking, error: trackingQueryError } = await supabase.rpc(
+        "get_public_order_status",
+        { p_order_id: successOrderId, p_customer_phone: phone.trim() },
+      );
+
+      if (cancelled) return;
+      if (trackingQueryError) {
+        setTrackingError("Não foi possível atualizar o status agora.");
+        return;
+      }
+
+      const current = Array.isArray(tracking) ? tracking[0] : tracking;
+      if (current?.status) {
+        const currentStatus = current.status as OrderStatus;
+        setSuccessStatus(currentStatus);
+        setTrackingError(null);
+
+        if (currentStatus === "DELIVERED" || currentStatus === "CANCELLED") {
+          onOrderFinished();
+        }
+      }
+    };
+
+    void loadStatus();
+    const interval = window.setInterval(loadStatus, 5000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [successOrderId, phone, onOrderFinished]);
+
+  if (successNumber != null && successOrderId != null) {
+    return (
+      <div className="ppp-checkout-panel fixed inset-0 z-[60] overflow-y-auto bg-background">
+        <section className="mx-auto min-h-screen w-full max-w-2xl px-4 pb-10 pt-8 sm:px-6 sm:pt-12">
+          <div className="rounded-[2rem] border bg-card p-6 shadow-lifted sm:p-8">
+            <div className="flex items-start gap-4">
+              <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Check className="size-7" />
               </div>
-              <div className="min-w-0">
-                <p className="truncate text-[9px] font-bold uppercase tracking-[.22em] text-primary">Finalização</p>
-                <h1 className="truncate font-display text-xl tracking-tight sm:text-2xl">Seu pedido</h1>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">Pedido recebido</p>
+                <h2 className="mt-1 text-3xl">Pedido #{successNumber}</h2>
+                <p className="mt-2 text-sm text-muted-foreground">{organization.name}</p>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="grid size-9 shrink-0 place-items-center rounded-full border border-background/15 bg-background/5 text-background/80 transition hover:bg-background/10 hover:text-background"
-              aria-label="Fechar checkout"
-            >
-              <X className="size-4" />
-            </button>
-          </div>
-          <div className="grid grid-cols-3 border-t border-background/10 bg-background/[.04]">
-            {(addingToOrder
-              ? [["01", "Itens"], ["02", "Revisão"], ["03", "Confirmação"]]
-              : [["01", "Receber"], ["02", "Dados"], ["03", "Pagamento"]]
-            ).map(([number, label], index) => (
-              <div key={number} className={`flex items-center justify-center gap-2 px-2 py-2.5 ${index === 0 ? "text-background" : "text-background/45"}`}>
-                <span className={`grid size-5 place-items-center rounded-full text-[8px] font-black ${index === 0 ? "bg-primary text-primary-foreground" : "border border-background/20"}`}>{number}</span>
-                <span className="hidden text-[9px] font-semibold uppercase tracking-[.14em] sm:inline">{label}</span>
-              </div>
-            ))}
-          </div>
-        </header>
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-          <main className="space-y-3">
-            {addingToOrder ? (
-              <section className="rounded-[1.5rem] border border-primary/15 bg-white p-5 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-6">
-                <div className="flex items-start gap-3">
-                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Plus className="size-5" /></div>
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Adicionar ao pedido #{trackedOrder?.number}</p>
-                    <h2 className="mt-1 text-xl font-display tracking-tight">Mais alguma coisa?</h2>
-                    <p className="mt-2 text-xs leading-5 text-muted-foreground">Os itens abaixo serão acrescentados ao pedido existente. O endereço, forma de recebimento e telefone continuam os mesmos.</p>
-                  </div>
-                </div>
-                <div className="mt-5 rounded-2xl bg-[#faf9f7] p-4">
-                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-muted-foreground">Novos itens</p>
-                  <div className="mt-3 space-y-2">
-                    {items.map((item) => (
-                      <div key={item.lineId} className="flex items-start justify-between gap-3 rounded-xl border border-black/8 bg-white p-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
-                          <p className="mt-1 text-[10px] text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
-                          {(item.addons ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.addons ?? []).map((addon) => addon.name).join(", ")}</p>}
-                          {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-muted-foreground">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
-                        </div>
-                        <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+            <div className="mt-8">
+              <p className="text-sm font-semibold">Acompanhe seu pedido</p>
+              <div className="mt-4 space-y-3">
+                {[
+                  ["RECEIVED", "Pedido recebido"],
+                  ["CONFIRMED", "Pedido confirmado"],
+                  ["PREPARING", "Em preparo"],
+                  ["READY", fulfillment === "DELIVERY" ? "Pedido pronto" : "Pronto para retirada"],
+                  ["OUT_FOR_DELIVERY", "Saiu para entrega"],
+                  ["DELIVERED", fulfillment === "DELIVERY" ? "Entregue" : "Retirado"],
+                ].map(([value, label], index, steps) => {
+                  const currentIndex = steps.findIndex(([step]) => step === successStatus);
+                  const isDone = currentIndex >= 0 && index <= currentIndex;
+                  const isCurrent = value === successStatus;
+                  if (fulfillment === "PICKUP" && value === "OUT_FOR_DELIVERY") return null;
+                  return (
+                    <div key={value} className="flex items-center gap-3">
+                      <div className={`flex size-9 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${isDone ? "border-primary bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}>
+                        {isDone ? <Check className="size-4" /> : index + 1}
                       </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="mt-4 rounded-xl border border-black/8 bg-muted/40 p-3 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Acréscimo:</strong> {formatCurrency(subtotal)} · o total do pedido será atualizado após a confirmação.</div>
-              </section>
-            ) : (
-              <>
-            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
-              <div className="flex items-start gap-3">
-                <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                  <Store className="size-4.5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">01 · Entrega</p>
-                  <h2 className="mt-0.5 text-base font-bold tracking-tight sm:text-lg">Como você quer receber?</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">Escolha a forma mais conveniente para você.</p>
-                </div>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-semibold ${isCurrent ? "text-primary" : ""}`}>{label}</p>
+                        {isCurrent && <p className="text-xs text-muted-foreground">Status atualizado automaticamente.</p>}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            </div>
+
+            <div className="mt-6 rounded-2xl bg-muted p-4 text-sm">
+              <p className="font-semibold">
+                {successStatus === "CANCELLED" ? "Pedido cancelado" :
+                  successStatus === "DELIVERED" ? "Pedido finalizado" :
+                  successStatus === "READY" && fulfillment === "PICKUP" ? "Pode retirar seu pedido" :
+                  successStatus === "OUT_FOR_DELIVERY" ? "Seu pedido está a caminho!" :
+                  "A loja está preparando seu pedido."}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                {trackingError ?? "Esta tela verifica automaticamente se a loja atualizou o pedido."}
+              </p>
+            </div>
+
+            <Button className="mt-6 h-12 w-full rounded-full" onClick={onClose}>
+              Voltar ao cardápio
+            </Button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background">
+      <div className="mx-auto min-h-screen max-w-3xl px-4 pb-10 pt-5 sm:px-6 sm:pt-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">Finalizar pedido</p>
+            <h1 className="mt-1 text-3xl sm:text-4xl">Quase lá</h1>
+          </div>
+          <button onClick={onClose} className="rounded-full p-2 hover:bg-muted" aria-label="Fechar checkout">
+            <X className="size-5" />
+          </button>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
+          <div className="space-y-4">
+            <section className="rounded-3xl border bg-card p-5 shadow-soft">
+              <p className="text-sm font-semibold">Como você quer receber?</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {settings.delivery_enabled && (
                   <button
                     onClick={() => setFulfillment("DELIVERY")}
-                    className={`group rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] sm:p-4 ${fulfillment === "DELIVERY" ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.18)] ring-1 ring-primary" : "border-black/8 bg-[#faf9f7] hover:border-primary/40"}`}
+                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "DELIVERY" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-bold">Entrega</span>
-                      <span className={`grid size-6 place-items-center rounded-full ${fulfillment === "DELIVERY" ? "bg-white/15" : "bg-primary/10 text-primary"}`}>
-                        {fulfillment === "DELIVERY" ? <Check className="size-3.5" /> : <ChevronRight className="size-3.5" />}
-                      </span>
-                    </div>
-                    <p className={`mt-1 text-[11px] ${fulfillment === "DELIVERY" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>Receba no endereço informado</p>
+                    <p className="font-semibold">Entrega</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Receba no seu endereço</p>
                   </button>
                 )}
                 {settings.pickup_enabled && (
                   <button
                     onClick={() => setFulfillment("PICKUP")}
-                    className={`group rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] sm:p-4 ${fulfillment === "PICKUP" ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.18)] ring-1 ring-primary" : "border-black/8 bg-[#faf9f7] hover:border-primary/40"}`}
+                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "PICKUP" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-bold">Retirada</span>
-                      <span className={`grid size-6 place-items-center rounded-full ${fulfillment === "PICKUP" ? "bg-white/15" : "bg-primary/10 text-primary"}`}>
-                        {fulfillment === "PICKUP" ? <Check className="size-3.5" /> : <ChevronRight className="size-3.5" />}
-                      </span>
-                    </div>
-                    <p className={`mt-1 text-[11px] ${fulfillment === "PICKUP" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>Retire diretamente na loja</p>
+                    <p className="font-semibold">Retirada</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Retire na loja</p>
                   </button>
                 )}
               </div>
             </section>
 
-            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
-              <div className="flex items-start gap-3">
-                <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-secondary-foreground">
-                  <span className="text-xs font-black">02</span>
-                </div>
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Seus dados</p>
-                  <h2 className="mt-0.5 text-base font-bold tracking-tight sm:text-lg">Onde podemos encontrar você?</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">Usaremos estes dados apenas para identificar o pedido.</p>
-                </div>
-              </div>
+            <section className="rounded-3xl border bg-card p-5 shadow-soft">
+              <p className="text-sm font-semibold">Seus dados</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <label className="text-sm">
-                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Nome *</span>
-                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Nome *</span>
+                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
                 </label>
                 <label className="text-sm">
-                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Telefone *</span>
-                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(00) 00000-0000" inputMode="tel" className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Telefone *</span>
+                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(00) 00000-0000" inputMode="tel" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
                 </label>
               </div>
             </section>
 
             {fulfillment === "DELIVERY" && (
-              <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
-                <div className="flex items-start gap-3">
-                  <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-secondary-foreground">
-                    <span className="text-xs font-black">03</span>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Endereço</p>
-                    <h2 className="mt-0.5 text-base font-bold tracking-tight sm:text-lg">Onde vamos entregar?</h2>
-                  </div>
-                </div>
-                <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_110px]">
+              <section className="rounded-3xl border bg-card p-5 shadow-soft">
+                <p className="text-sm font-semibold">Endereço de entrega</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_120px]">
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Rua *</span>
-                    <input value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Rua, avenida..." className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Rua *</span>
+                    <input value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Rua, avenida..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
                   </label>
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Número *</span>
-                    <input value={number} onChange={(e) => setNumber(e.target.value)} placeholder="123" className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Número *</span>
+                    <input value={number} onChange={(e) => setNumber(e.target.value)} placeholder="123" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
                   </label>
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Bairro *</span>
-                    <select
-                      value={matchedNeighborhood ?? ""}
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Bairro *</span>
+                    <input
+                      list="delivery-neighborhoods"
+                      value={neighborhood}
                       onChange={(e) => setNeighborhood(e.target.value)}
-                      disabled={availableNeighborhoods.length === 0}
-                      className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <option value="">
-                        {availableNeighborhoods.length > 0 ? "Selecione seu bairro" : "Áreas de entrega indisponíveis"}
-                      </option>
-                      {availableNeighborhoods.map((item) => (
-                        <option key={item} value={item}>{item}</option>
-                      ))}
-                    </select>
+                      placeholder="Seu bairro"
+                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    />
+                    {availableNeighborhoods.length > 0 && (
+                      <datalist id="delivery-neighborhoods">
+                        {availableNeighborhoods.map((item) => <option key={item} value={item} />)}
+                      </datalist>
+                    )}
                   </label>
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Complemento</span>
-                    <input value={complement} onChange={(e) => setComplement(e.target.value)} placeholder="Apto, casa..." className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Complemento</span>
+                    <input value={complement} onChange={(e) => setComplement(e.target.value)} placeholder="Apto, casa..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
                   </label>
                 </div>
                 <label className="mt-3 block text-sm">
-                  <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Referência</span>
-                  <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Próximo a..." className="h-11 w-full rounded-xl border border-black/10 bg-[#faf9f7] px-3.5 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" />
+                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Ponto de referência</span>
+                  <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Próximo a..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
                 </label>
                 {deliveryZones.length > 0 && (
-                  <div className={`mt-3 rounded-xl px-3.5 py-2.5 text-[11px] ${selectedZone ? "bg-primary/8 text-foreground" : "bg-muted text-muted-foreground"}`}>
+                  <p className="mt-3 text-xs text-muted-foreground">
                     {selectedZone
-                      ? <span><strong>Entrega:</strong> {formatCurrency(deliveryFee)} · aproximadamente {selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min</span>
-                      : availableNeighborhoods.length > 0 ? "Informe um bairro atendido para calcular a taxa." : "As áreas de entrega ainda não foram cadastradas. Entre em contato com a loja para confirmar o atendimento."}
-                  </div>
+                      ? `Taxa de entrega: ${formatCurrency(deliveryFee)} · ${selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min`
+                      : availableNeighborhoods.length > 0 ? "Selecione ou digite um dos bairros atendidos para calcular a taxa." : "A loja ainda não cadastrou áreas de entrega."}
+                  </p>
                 )}
               </section>
             )}
 
-            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
-              <div className="flex items-start gap-3">
-                <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-secondary-foreground">
-                  <span className="text-xs font-black">04</span>
-                </div>
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Pagamento</p>
-                  <h2 className="mt-0.5 text-base font-bold tracking-tight sm:text-lg">Como você vai pagar?</h2>
-                </div>
-              </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <section className="rounded-3xl border bg-card p-5 shadow-soft">
+              <p className="text-sm font-semibold">Pagamento</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {availablePayments.map((method) => (
                   <button
                     key={method}
                     onClick={() => setPaymentMethod(method)}
-                    className={`rounded-2xl border p-3.5 text-left transition-all active:scale-[.99] ${paymentMethod === method ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary" : "border-black/8 bg-[#faf9f7] hover:border-primary/40"}`}
+                    className={`rounded-2xl border p-4 text-left ${paymentMethod === method ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-bold">{method === "PIX" ? "PIX" : method === "CASH" ? "Dinheiro" : method === "CARD_ON_DELIVERY" ? "Cartão na entrega" : "Cartão no local"}</span>
-                      <span className={`grid size-6 place-items-center rounded-full ${paymentMethod === method ? "bg-white/15" : "bg-primary/10 text-primary"}`}>
-                        {paymentMethod === method ? <Check className="size-3.5" /> : <ChevronRight className="size-3.5" />}
-                      </span>
-                    </div>
-                    <p className={`mt-1 text-[10px] ${paymentMethod === method ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                    <p className="font-semibold">
+                      {method === "PIX" ? "PIX" : method === "CASH" ? "Dinheiro" : method === "CARD_ON_DELIVERY" ? "Cartão na entrega" : "Cartão no local"}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {method === "PIX" ? "Pagamento via PIX" : "Pagamento combinado com a loja"}
                     </p>
                   </button>
@@ -1964,112 +1629,62 @@ function CheckoutPanel({
               </div>
             </section>
 
-            <section className="rounded-[1.5rem] border border-black/8 bg-white p-4 shadow-[0_8px_25px_rgba(0,0,0,.05)] sm:p-5">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Opcional</p>
-                  <label htmlFor="checkout-notes" className="mt-0.5 block text-base font-bold tracking-tight">Observações do pedido</label>
-                </div>
-                <span className="text-[9px] text-muted-foreground">{notes.length}/500</span>
-              </div>
-              <Textarea id="checkout-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-3 min-h-20 resize-none rounded-xl border-black/10 bg-[#faf9f7]" placeholder="Ex.: tocar a campainha, tirar cebola..." maxLength={500} />
+            <section className="rounded-3xl border bg-card p-5 shadow-soft">
+              <label htmlFor="checkout-notes" className="text-sm font-semibold">Observações do pedido</label>
+              <Textarea id="checkout-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-3" placeholder="Ex.: tocar a campainha, tirar cebola..." maxLength={500} />
             </section>
-              </>
-            )}
-          </main>
-
-          <aside className="lg:sticky lg:top-5">
-            <div className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-foreground text-background shadow-[0_18px_45px_rgba(0,0,0,.14)] sm:rounded-[2rem]">
-              <div className="border-b border-background/10 px-4 py-4 sm:px-5">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[.2em] text-primary">Seu pedido</p>
-                    <h2 className="mt-0.5 font-display text-xl tracking-tight">Resumo</h2>
-                  </div>
-                  <div className="grid size-9 place-items-center rounded-xl bg-background/8">
-                    <ShoppingBag className="size-4" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="max-h-[min(42vh,28rem)] space-y-3 overflow-y-auto px-4 py-4 sm:px-5">
-                {items.map((item) => (
-                  <div key={item.lineId} className="rounded-xl border border-background/10 bg-background/[.04] p-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
-                        <p className="mt-1 text-[10px] text-background/55">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
-                        {(item.complements ?? []).length > 0 && <p className="mt-1 text-[10px] text-primary">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
-                      </div>
-                      <span className="shrink-0 text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="border-t border-background/10 px-4 py-4 sm:px-5">
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between gap-3 text-background/60"><span>{addingToOrder ? "Acréscimo" : "Subtotal"}</span><span>{formatCurrency(subtotal)}</span></div>
-                  {!addingToOrder && fulfillment === "DELIVERY" && (
-                    <>
-                      <div className="flex justify-between gap-3 text-background/60"><span>Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "A calcular"}</span></div>
-                      {selectedZone && (
-                        <div className="mt-2 rounded-lg bg-primary/10 px-3 py-2 text-[10px] leading-4 text-background/65">
-                          Pedido mínimo dos produtos: <strong className="text-background">{formatCurrency(deliveryMinimum)}</strong>
-                          <span className="mt-0.5 block text-[9px] text-background/45">+ taxa de entrega {formatCurrency(deliveryFee)}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-                  <div className="my-3 border-t border-background/10" />
-                  <div className="flex items-end justify-between gap-3">
-                    <div>
-                      <p className="text-[9px] font-bold uppercase tracking-[.16em] text-background/45">{addingToOrder ? "Valor adicional" : "Total do pedido"}</p>
-                      <p className="mt-0.5 font-display text-3xl tracking-tight">{formatCurrency(displayTotal)}</p>
-                    </div>
-                    <span className="rounded-full bg-primary px-2.5 py-1 text-[9px] font-bold text-primary-foreground">{items.reduce((sum, item) => sum + item.quantity, 0)} itens</span>
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="mt-4 rounded-xl border border-red-300/20 bg-red-400/10 p-3 text-xs leading-5 text-red-100">
-                    {error}
-                  </div>
-                )}
-
-                <Button
-                  disabled={submitting || items.length === 0 || (!storeOpen && !addingToOrder)}
-                  onClick={submitOrder}
-                  className="mt-4 h-13 w-full rounded-xl bg-primary text-sm font-black text-primary-foreground shadow-[0_10px_24px_hsl(var(--primary)/.28)] transition hover:brightness-105"
-                >
-                  {!storeOpen && !addingToOrder ? "Loja fechada" : submitting ? (addingToOrder ? "Adicionando..." : "Enviando pedido...") : addingToOrder ? `Adicionar ao pedido · ${formatCurrency(displayTotal)}` : `Confirmar pedido · ${formatCurrency(displayTotal)}`}
-                </Button>
-                <div className="mt-3 flex items-center justify-center gap-2 text-[9px] text-background/45">
-                  <Clock3 className="size-3" />
-                  <span>{storeOpen ? storeStatusLabel : "A loja está fechada no momento."}</span>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
-
-        <div className="fixed inset-x-0 bottom-0 z-[70] border-t border-black/10 bg-white/95 px-3 py-2.5 backdrop-blur-xl lg:hidden">
-          <div className="mx-auto flex max-w-2xl items-center gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[9px] font-bold uppercase tracking-[.12em] text-muted-foreground">Total</p>
-              <p className="text-lg font-black leading-none">{formatCurrency(total)}</p>
-            </div>
-            <Button
-              disabled={submitting || items.length === 0 || (!storeOpen && !addingToOrder)}
-              onClick={submitOrder}
-              className="h-11 shrink-0 rounded-full px-5 text-xs font-black shadow-[0_8px_20px_hsl(var(--primary)/.2)]"
-            >
-              {!storeOpen && !addingToOrder ? "Loja fechada" : submitting ? (addingToOrder ? "Adicionando..." : "Enviando...") : addingToOrder ? "Adicionar ao pedido" : "Confirmar pedido"}
-            </Button>
           </div>
+
+          <aside className="h-fit rounded-3xl border bg-card p-5 shadow-soft lg:sticky lg:top-6">
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Resumo</p>
+            <div className="mt-4 space-y-3">
+              {items.map((item) => (
+                <div key={item.lineId} className="flex items-start justify-between gap-3 text-sm">
+                  <div>
+                    <p className="font-medium">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
+                    <p className="text-xs text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
+                    {(item.complements ?? []).length > 0 && <p className="mt-1 text-xs text-primary">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
+                  </div>
+                  <span className="font-semibold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="my-4 border-t" />
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
+              {fulfillment === "DELIVERY" && (
+                <div className="flex justify-between"><span className="text-muted-foreground">Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "—"}</span></div>
+              )}
+              <div className="flex justify-between pt-2 text-lg font-bold"><span>Total</span><span>{formatCurrency(total)}</span></div>
+            </div>
+            {error && <p className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
+            <Button disabled={submitting || items.length === 0 || !storeOpen} onClick={submitOrder} className="mt-5 h-12 w-full rounded-full">
+              {!storeOpen ? "Loja fechada" : submitting ? "Enviando pedido..." : `Enviar pedido · ${formatCurrency(total)}`}
+            </Button>
+            <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
+              Ao enviar, o pedido será encaminhado diretamente para a loja.
+            </p>
+          </aside>
         </div>
       </div>
     </div>
   );
+}
 
+function StorefrontSkeleton() {
+  return (
+    <main className="min-h-screen bg-background">
+      <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6">
+        <Skeleton className="h-16 w-full rounded-2xl" />
+        <div className="mt-5 grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
+          <Skeleton className="h-[390px] rounded-[2rem]" />
+          <div className="grid gap-3"><Skeleton className="h-28 rounded-3xl" /><Skeleton className="h-28 rounded-3xl" /></div>
+        </div>
+        <Skeleton className="mt-10 h-10 w-56 rounded-xl" />
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((item) => <Skeleton key={item} className="h-80 rounded-3xl" />)}
+        </div>
+      </div>
+    </main>
+  );
 }
