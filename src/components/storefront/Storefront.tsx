@@ -102,7 +102,13 @@ export function Storefront({ slug }: { slug?: string }) {
         if (cancelled) return;
 
         const activeOrders: TrackedOrder[] = results
-          .filter(({ error, status }) => error || (status !== "DELIVERED" && status !== "CANCELLED"))
+          .filter(
+            ({ error, status }) =>
+              !error &&
+              Boolean(status) &&
+              status !== "DELIVERED" &&
+              status !== "CANCELLED",
+          )
           .map(({ stored, current, status }) => ({
             ...stored,
             items: current?.items ?? undefined,
@@ -539,7 +545,13 @@ export function Storefront({ slug }: { slug?: string }) {
             cart.clear();
             setComplementOrderId(null);
             setTrackedOrders((current) => {
-              const next = [order, ...current.filter((item) => item.id !== order.id)];
+              const previous = current.find((item) => item.id === order.id);
+              const nextOrder: TrackedOrder = {
+                ...(previous ?? {}),
+                ...order,
+                status: previous?.status ?? "RECEIVED",
+              };
+              const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
               try {
                 localStorage.setItem(
                   `ppp:tracked-orders:${data.organization.id}`,
