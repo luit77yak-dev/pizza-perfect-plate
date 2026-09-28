@@ -27,7 +27,7 @@ function getTrackedOrderStatusLabel(status?: OrderStatus) {
   }
 }
 
-function TrackedOrderPanel({
+export function TrackedOrderPanel({
   order,
   onClose,
   onAddToOrder,
