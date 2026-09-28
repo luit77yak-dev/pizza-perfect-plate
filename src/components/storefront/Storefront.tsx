@@ -612,15 +612,23 @@ export function Storefront({ slug }: { slug?: string }) {
                   Number(snapshot?.order_number) > 0
                     ? Number(snapshot?.order_number)
                     : order.number,
-                items: snapshotItems ?? previous?.items,
+                // Prefer the fresh RPC snapshot, then the checkout payload, then
+                // the previous tracked snapshot. This keeps new orders populated even
+                // when the tracking RPC has not been refreshed yet.
+                items: snapshotItems ?? order.items ?? previous?.items,
                 subtotal: Number.isFinite(Number(snapshot?.subtotal))
                   ? Number(snapshot?.subtotal)
-                  : previous?.subtotal,
+                  : Number.isFinite(Number(order.subtotal))
+                    ? Number(order.subtotal)
+                    : previous?.subtotal,
                 total: Number.isFinite(Number(snapshot?.total))
                   ? Number(snapshot?.total)
-                  : previous?.total,
+                  : Number.isFinite(Number(order.total))
+                    ? Number(order.total)
+                    : previous?.total,
                 fulfillment:
                   (snapshot?.fulfillment as TrackedOrder["fulfillment"] | undefined) ??
+                  order.fulfillment ??
                   previous?.fulfillment,
                 status: snapshotStatus ?? order.status ?? previous?.status ?? "RECEIVED",
               };
