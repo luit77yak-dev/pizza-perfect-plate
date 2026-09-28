@@ -32,7 +32,7 @@ export function CartPanel({
 }) {
   return (
     <div
-      className="ppp-cart-panel fixed inset-0 z-50 bg-foreground/35 backdrop-blur-sm"
+      className="ppp-cart-panel fixed inset-0 z-[120] bg-foreground/35 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label="Carrinho"
