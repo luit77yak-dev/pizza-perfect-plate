@@ -46,6 +46,8 @@ export function Storefront({ slug }: { slug?: string }) {
     status?: OrderStatus;
   } | null>(null);
   const [trackingOpen, setTrackingOpen] = useState(false);
+  const [complementPickerOpen, setComplementPickerOpen] = useState(false);
+  const [selectedComplementIds, setSelectedComplementIds] = useState<string[]>([]);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -206,7 +208,8 @@ export function Storefront({ slug }: { slug?: string }) {
         logoUrl={data.settings.logo_url ?? null}
         itemCount={itemCount}
         selectedTrackedOrdersCount={trackedOrder ? 1 : 0}
-        onOpenCart={() => { if (trackedOrder && itemCount === 0) setTrackingOpen(true); else setCartOpen(true); }}
+        onOpenCart={() => setCartOpen(true)}
+        onOpenTracking={() => setTrackingOpen(true)}
       />
 
       <main id="inicio" className="ppp-reference-storefront">
@@ -345,6 +348,92 @@ export function Storefront({ slug }: { slug?: string }) {
         />
       )}
 
+      {complementPickerOpen && (
+        <div className="fixed inset-0 z-[140] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label="Adicionar itens">
+          <button type="button" className="absolute inset-0" onClick={() => setComplementPickerOpen(false)} aria-label="Fechar seleção de adicionais" />
+          <section className="relative flex max-h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-background shadow-2xl sm:rounded-[2rem]">
+            <header className="shrink-0 border-b bg-card px-5 py-4 sm:px-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">Pedido em andamento</p>
+                  <h2 className="mt-1 text-2xl font-display">Esqueceu alguma coisa?</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">Escolha bebidas, acompanhamentos ou sobremesas para fazer um novo pedido.</p>
+                </div>
+                <button type="button" onClick={() => setComplementPickerOpen(false)} className="rounded-full p-2 hover:bg-muted" aria-label="Fechar">
+                  <span className="text-xl leading-none">×</span>
+                </button>
+              </div>
+            </header>
+            <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
+              {comboProducts.length === 0 ? (
+                <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+                  Nenhum adicional disponível no momento.
+                </div>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {comboProducts.map((item) => {
+                    const selected = selectedComplementIds.includes(item.id);
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setSelectedComplementIds((current) => selected ? current.filter((id) => id !== item.id) : [...current, item.id])}
+                        className={"flex items-center gap-3 rounded-2xl border p-3 text-left transition " + (selected ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card hover:border-primary/40")}
+                      >
+                        <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
+                          {item.image_url ? <img src={item.image_url} alt="" className="size-full object-cover" /> : <div className="grid size-full place-items-center text-lg font-display text-primary/40">{item.name.charAt(0)}</div>}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold">{item.name}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">{formatCurrency(Number(item.base_price) || 0)}</p>
+                        </div>
+                        {selected && <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"><span className="text-xs">✓</span></span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <footer className="shrink-0 border-t bg-card p-4">
+              <Button
+                disabled={selectedComplementIds.length === 0}
+                onClick={() => {
+                  selectedComplementIds.forEach((id) => {
+                    const item = comboProducts.find((product) => product.id === id);
+                    if (!item) return;
+                    cart.addItem({
+                      lineId: crypto.randomUUID(),
+                      productId: item.id,
+                      productName: item.name,
+                      imageUrl: item.image_url,
+                      secondProductId: null,
+                      secondProductName: null,
+                      isHalf: false,
+                      sizeId: null,
+                      sizeName: null,
+                      crustId: null,
+                      crustName: null,
+                      crustPrice: 0,
+                      addons: [],
+                      complements: [],
+                      quantity: 1,
+                      notes: null,
+                      unitPrice: Number(item.base_price) || 0,
+                    });
+                  });
+                  setSelectedComplementIds([]);
+                  setComplementPickerOpen(false);
+                  setCartOpen(true);
+                }}
+                className="h-12 w-full rounded-full"
+              >
+                Adicionar à sacola
+              </Button>
+            </footer>
+          </section>
+        </div>
+      )}
+
       {cartOpen && (
         <CartPanel
           items={cart.items}
@@ -371,7 +460,8 @@ export function Storefront({ slug }: { slug?: string }) {
           onClose={() => setTrackingOpen(false)}
           onAddToOrder={() => {
             setTrackingOpen(false);
-            document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            setSelectedComplementIds([]);
+            setComplementPickerOpen(true);
           }}
         />
       )}
@@ -405,25 +495,6 @@ export function Storefront({ slug }: { slug?: string }) {
             }
           }}
         />
-      )}
-
-      {trackedOrder && !trackingOpen && !checkoutOpen && !cartOpen && itemCount === 0 && (
-        <div className="fixed inset-x-0 bottom-4 z-30 mx-auto w-[calc(100%-2rem)] max-w-md">
-          <button
-            onClick={() => setTrackingOpen(true)}
-            className="flex w-full items-center justify-between rounded-2xl border bg-card px-5 py-4 text-left shadow-lifted"
-          >
-            <span>
-              <span className="block text-xs font-semibold uppercase tracking-[.12em] text-primary">
-                Pedido em andamento
-              </span>
-              <span className="mt-1 block text-sm font-semibold">
-                Acompanhar pedido #{trackedOrder.number}
-              </span>
-            </span>
-            <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
-          </button>
-        </div>
       )}
 
       {itemCount > 0 && !cartOpen && !checkoutOpen && (
