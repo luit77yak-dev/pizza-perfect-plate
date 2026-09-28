@@ -111,9 +111,15 @@ export function Storefront({ slug }: { slug?: string }) {
           )
           .map(({ stored, current, status }) => ({
             ...stored,
-            items: current?.items ?? undefined,
-            subtotal: current?.subtotal ?? undefined,
-            total: current?.total ?? undefined,
+            items: Array.isArray(current?.items)
+              ? (current.items as unknown as CartItem[])
+              : undefined,
+            subtotal: Number.isFinite(Number(current?.subtotal))
+              ? Number(current?.subtotal)
+              : undefined,
+            total: Number.isFinite(Number(current?.total))
+              ? Number(current?.total)
+              : undefined,
             fulfillment: current?.fulfillment ?? undefined,
             status,
           }));
@@ -541,15 +547,51 @@ export function Storefront({ slug }: { slug?: string }) {
           }
           storeOpen={status.open}
           storeStatusLabel={status.label}
-          onSuccess={(order) => {
+          onSuccess={async (order) => {
             cart.clear();
             setComplementOrderId(null);
+
+            // Refresh the complete public snapshot immediately so the tracking panel
+            // shows the real items and total after both a new order and an addition.
+            let snapshot: Record<string, unknown> | null = null;
+            try {
+              const { data: tracking } = await supabase.rpc("get_public_order_status", {
+                p_order_id: order.id,
+                p_customer_phone: order.phone,
+              });
+              const current = Array.isArray(tracking) ? tracking[0] : tracking;
+              if (current && typeof current === "object") {
+                snapshot = current as Record<string, unknown>;
+              }
+            } catch {
+              // The normal tracking refresh will retry shortly.
+            }
+
             setTrackedOrders((current) => {
               const previous = current.find((item) => item.id === order.id);
+              const snapshotItems = Array.isArray(snapshot?.items)
+                ? (snapshot?.items as unknown as CartItem[])
+                : undefined;
+              const snapshotStatus = snapshot?.status as OrderStatus | undefined;
               const nextOrder: TrackedOrder = {
                 ...(previous ?? {}),
                 ...order,
-                status: previous?.status ?? "RECEIVED",
+                number:
+                  Number.isFinite(Number(snapshot?.order_number)) &&
+                  Number(snapshot?.order_number) > 0
+                    ? Number(snapshot?.order_number)
+                    : order.number,
+                items: snapshotItems ?? previous?.items,
+                subtotal: Number.isFinite(Number(snapshot?.subtotal))
+                  ? Number(snapshot?.subtotal)
+                  : previous?.subtotal,
+                total: Number.isFinite(Number(snapshot?.total))
+                  ? Number(snapshot?.total)
+                  : previous?.total,
+                fulfillment:
+                  (snapshot?.fulfillment as TrackedOrder["fulfillment"] | undefined) ??
+                  previous?.fulfillment,
+                status: snapshotStatus ?? previous?.status ?? "RECEIVED",
               };
               const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
               try {
@@ -562,9 +604,13 @@ export function Storefront({ slug }: { slug?: string }) {
               }
               return next;
             });
+
             setSelectedTrackedOrderId(order.id);
             try {
-              localStorage.setItem(`ppp:last-order:${data.organization.id}`, JSON.stringify(order));
+              localStorage.setItem(
+                `ppp:last-order:${data.organization.id}`,
+                JSON.stringify(order),
+              );
             } catch {
               // Ignore storage failures.
             }
