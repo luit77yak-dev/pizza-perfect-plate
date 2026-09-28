@@ -34,7 +34,11 @@ export function Storefront({ slug }: { slug?: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [trackedOrder, setTrackedOrder] = useState<{ id: string; number: number; phone: string } | null>(null);
+  const [trackedOrder, setTrackedOrder] = useState<{
+    id: string;
+    number: number;
+    phone: string;
+  } | null>(null);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -96,14 +100,17 @@ export function Storefront({ slug }: { slug?: string }) {
   const complementProducts = useMemo(() => {
     if (!data) return [];
     return data.products.filter((product) => {
-      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
+      const categoryName =
+        data.categories.find((category) => category.id === product.category_id)?.name ?? "";
       const normalizedCategory = categoryName
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toLocaleLowerCase("pt-BR");
       return (
         product.kind === "SIMPLE" ||
-        /(bebida|bebidas|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(normalizedCategory)
+        /(bebida|bebidas|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(
+          normalizedCategory,
+        )
       );
     });
   }, [data]);
@@ -111,17 +118,25 @@ export function Storefront({ slug }: { slug?: string }) {
   const mainProducts = useMemo(() => {
     if (!data) return [];
     const complementIds = new Set(complementProducts.map((product) => product.id));
-    const pizzas = data.products.filter((product) => product.kind === "PIZZA" && !complementIds.has(product.id));
-    return pizzas.length > 0 ? pizzas : data.products.filter((product) => !complementIds.has(product.id));
+    const pizzas = data.products.filter(
+      (product) => product.kind === "PIZZA" && !complementIds.has(product.id),
+    );
+    return pizzas.length > 0
+      ? pizzas
+      : data.products.filter((product) => !complementIds.has(product.id));
   }, [data, complementProducts]);
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
     const term = searchTerm.trim().toLocaleLowerCase("pt-BR");
     return mainProducts.filter((product) => {
-      const matchesCategory = selectedCategory === "all" || product.category_id === selectedCategory;
-      const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
-      const haystack = [product.name, product.description, categoryName].join(" ").toLocaleLowerCase("pt-BR");
+      const matchesCategory =
+        selectedCategory === "all" || product.category_id === selectedCategory;
+      const categoryName =
+        data.categories.find((category) => category.id === product.category_id)?.name ?? "";
+      const haystack = [product.name, product.description, categoryName]
+        .join(" ")
+        .toLocaleLowerCase("pt-BR");
       return matchesCategory && (!term || haystack.includes(term));
     });
   }, [data, mainProducts, selectedCategory, searchTerm]);
@@ -155,11 +170,9 @@ export function Storefront({ slug }: { slug?: string }) {
             Tentar novamente
           </Button>
         </section>
-
       </main>
     );
   }
-
 
   const status = getStoreStatus(data.hours, data.specialHours, now);
   const primary = data.settings.primary_color?.includes("%")
@@ -190,15 +203,28 @@ export function Storefront({ slug }: { slug?: string }) {
       />
 
       <main id="inicio" className="ppp-reference-storefront">
-        <StorefrontHero organizationName={data.organization.name} settings={data.settings} products={mainProducts} />
+        <StorefrontHero
+          organizationName={data.organization.name}
+          settings={data.settings}
+          products={mainProducts}
+        />
 
         <ProductTicker products={mainProducts} />
 
-        <section id="cardapio" className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6">
+        <section
+          id="cardapio"
+          className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6"
+        >
           <div className="ppp-reference-menu-heading mb-8 flex flex-col items-center justify-center gap-3 text-center">
-            <p className="text-xs font-semibold uppercase tracking-[.35em] text-primary">Cardápio</p>
-            <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">Escolha sua <em>pizza.</em></h2>
-            <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">Escolha uma categoria e encontre seu próximo sabor.</p>
+            <p className="text-xs font-semibold uppercase tracking-[.35em] text-primary">
+              Cardápio
+            </p>
+            <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">
+              Escolha sua <em>pizza.</em>
+            </h2>
+            <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+              Escolha uma categoria e encontre seu próximo sabor.
+            </p>
           </div>
 
           <MenuImageAccordion categories={data.categories} products={mainProducts} />
@@ -223,7 +249,9 @@ export function Storefront({ slug }: { slug?: string }) {
               {filteredProducts.map((product, index) => {
                 const firstSize = data.sizes[0];
                 const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
-                const categoryImage = data.categories.find((category) => category.id === product.category_id)?.image_url;
+                const categoryImage = data.categories.find(
+                  (category) => category.id === product.category_id,
+                )?.image_url;
                 const productImage = product.image_url || categoryImage;
                 return (
                   <button
@@ -247,12 +275,16 @@ export function Storefront({ slug }: { slug?: string }) {
                             <div className="flex size-20 items-center justify-center rounded-full border-2 border-secondary/15 bg-background/55 shadow-sm backdrop-blur-sm">
                               <Pizza className="size-10" strokeWidth={1.5} />
                             </div>
-                            <span className="text-[11px] font-semibold uppercase tracking-[.18em]">Imagem em breve</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-[.18em]">
+                              Imagem em breve
+                            </span>
                           </div>
                         </div>
                       )}
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent p-4 pt-12">
-                        <p className="font-display text-xl uppercase leading-none text-white drop-shadow-sm sm:text-2xl">{product.name}</p>
+                        <p className="font-display text-xl uppercase leading-none text-white drop-shadow-sm sm:text-2xl">
+                          {product.name}
+                        </p>
                       </div>
                       {product.featured && (
                         <span className="absolute left-3 top-3 border-2 border-secondary bg-primary px-3 py-1 font-display text-[10px] uppercase tracking-[.12em] text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]">
@@ -263,7 +295,10 @@ export function Storefront({ slug }: { slug?: string }) {
                     <div className="p-4 sm:p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 pr-1">
-                          <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">{data.categories.find((category) => category.id === product.category_id)?.name || "Pizza"}</p>
+                          <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+                            {data.categories.find((category) => category.id === product.category_id)
+                              ?.name || "Pizza"}
+                          </p>
                           <p className="mt-2 line-clamp-2 text-sm leading-5 text-muted-foreground">
                             {product.description || "Uma opção preparada para você."}
                           </p>
@@ -288,7 +323,6 @@ export function Storefront({ slug }: { slug?: string }) {
         <StorefrontAbout settings={data.settings} categories={data.categories} />
 
         <StorefrontContact settings={data.settings} />
-
       </main>
 
       {selectedProduct && (
@@ -362,8 +396,12 @@ export function Storefront({ slug }: { slug?: string }) {
             className="flex w-full items-center justify-between rounded-2xl border bg-card px-5 py-4 text-left shadow-lifted"
           >
             <span>
-              <span className="block text-xs font-semibold uppercase tracking-[.12em] text-primary">Pedido em andamento</span>
-              <span className="mt-1 block text-sm font-semibold">Acompanhar pedido #{trackedOrder.number}</span>
+              <span className="block text-xs font-semibold uppercase tracking-[.12em] text-primary">
+                Pedido em andamento
+              </span>
+              <span className="mt-1 block text-sm font-semibold">
+                Acompanhar pedido #{trackedOrder.number}
+              </span>
             </span>
             <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
           </button>
@@ -387,6 +425,3 @@ export function Storefront({ slug }: { slug?: string }) {
     </div>
   );
 }
-
-
-

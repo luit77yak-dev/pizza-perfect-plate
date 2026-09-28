@@ -31,21 +31,36 @@ export function CartPanel({
   onCheckout: () => void;
 }) {
   return (
-    <div className="ppp-cart-panel fixed inset-0 z-50 bg-foreground/35 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Carrinho">
-      <button className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar carrinho" />
+    <div
+      className="ppp-cart-panel fixed inset-0 z-50 bg-foreground/35 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Carrinho"
+    >
+      <button
+        className="absolute inset-0 cursor-default"
+        onClick={onClose}
+        aria-label="Fechar carrinho"
+      />
       <aside className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-background shadow-lifted">
         <div className="flex items-center justify-between border-b px-5 py-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Seu pedido</p>
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">
+              Seu pedido
+            </p>
             <h2 className="text-2xl">Carrinho</h2>
           </div>
-          <button onClick={onClose} aria-label="Fechar" className="rounded-full p-2 hover:bg-muted"><X className="size-5" /></button>
+          <button onClick={onClose} aria-label="Fechar" className="rounded-full p-2 hover:bg-muted">
+            <X className="size-5" />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5">
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
-              <div className="flex size-16 items-center justify-center rounded-full bg-muted"><ShoppingBag className="size-7 text-muted-foreground" /></div>
+              <div className="flex size-16 items-center justify-center rounded-full bg-muted">
+                <ShoppingBag className="size-7 text-muted-foreground" />
+              </div>
               <p className="mt-4 font-semibold">Seu carrinho está vazio</p>
               <p className="mt-1 text-sm text-muted-foreground">Adicione uma pizza para começar.</p>
             </div>
@@ -55,25 +70,65 @@ export function CartPanel({
                 <div key={item.lineId} className="rounded-2xl border bg-card p-4">
                   <div className="flex gap-3">
                     <div className="size-16 shrink-0 overflow-hidden rounded-xl bg-muted">
-                      {item.imageUrl ? <img src={item.imageUrl} alt="" className="size-full object-cover" /> : <div className="flex size-full items-center justify-center font-display text-xl text-primary/40">{item.productName.charAt(0)}</div>}
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt="" className="size-full object-cover" />
+                      ) : (
+                        <div className="flex size-full items-center justify-center font-display text-xl text-primary/40">
+                          {item.productName.charAt(0)}
+                        </div>
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex justify-between gap-2">
                         <div>
-                          <p className="font-semibold">{item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
+                          <p className="font-semibold">
+                            {item.productName}
+                            {item.secondProductName ? ` + ${item.secondProductName}` : ""}
+                          </p>
                           <p className="text-xs text-muted-foreground">
-                            {[item.sizeName, item.crustName, item.addons.length ? `${item.addons.length} adicional(is)` : null, (item.complements ?? []).length ? `${(item.complements ?? []).length} complemento(s)` : null].filter(Boolean).join(" · ")}
+                            {[
+                              item.sizeName,
+                              item.crustName,
+                              item.addons.length ? `${item.addons.length} adicional(is)` : null,
+                              (item.complements ?? []).length
+                                ? `${(item.complements ?? []).length} complemento(s)`
+                                : null,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
                           </p>
                         </div>
-                        <button onClick={() => onRemove(item.lineId)} className="text-muted-foreground hover:text-destructive" aria-label={`Remover ${item.productName}`}><X className="size-4" /></button>
+                        <button
+                          onClick={() => onRemove(item.lineId)}
+                          className="text-muted-foreground hover:text-destructive"
+                          aria-label={`Remover ${item.productName}`}
+                        >
+                          <X className="size-4" />
+                        </button>
                       </div>
                       <div className="mt-3 flex items-center justify-between">
                         <div className="flex items-center rounded-full border">
-                          <button onClick={() => onUpdate(item.lineId, item.quantity - 1)} className="p-2" aria-label="Diminuir"><Minus className="size-3.5" /></button>
-                          <span className="w-7 text-center text-xs font-semibold">{item.quantity}</span>
-                          <button onClick={() => onUpdate(item.lineId, item.quantity + 1)} className="p-2" aria-label="Aumentar"><Plus className="size-3.5" /></button>
+                          <button
+                            onClick={() => onUpdate(item.lineId, item.quantity - 1)}
+                            className="p-2"
+                            aria-label="Diminuir"
+                          >
+                            <Minus className="size-3.5" />
+                          </button>
+                          <span className="w-7 text-center text-xs font-semibold">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => onUpdate(item.lineId, item.quantity + 1)}
+                            className="p-2"
+                            aria-label="Aumentar"
+                          >
+                            <Plus className="size-3.5" />
+                          </button>
                         </div>
-                        <span className="font-semibold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                        <span className="font-semibold">
+                          {formatCurrency(item.unitPrice * item.quantity)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -113,9 +168,14 @@ export function CartPanel({
           >
             {storeOpen ? "Continuar para checkout" : "Loja fechada"}
           </Button>
-          {!storeOpen && <p className="mt-2 text-center text-xs font-medium text-primary">{storeStatusLabel}</p>}
+          {!storeOpen && (
+            <p className="mt-2 text-center text-xs font-medium text-primary">{storeStatusLabel}</p>
+          )}
           {items.length > 0 && (
-            <button onClick={onClear} className="mt-3 w-full text-center text-xs font-medium text-muted-foreground hover:text-destructive">
+            <button
+              onClick={onClear}
+              className="mt-3 w-full text-center text-xs font-medium text-muted-foreground hover:text-destructive"
+            >
               Limpar carrinho
             </button>
           )}
@@ -124,4 +184,3 @@ export function CartPanel({
     </div>
   );
 }
-

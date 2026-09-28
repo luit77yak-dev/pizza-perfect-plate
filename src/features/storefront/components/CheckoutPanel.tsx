@@ -71,11 +71,11 @@ export function CheckoutPanel({
 
   const selectedZone =
     fulfillment === "DELIVERY"
-      ? deliveryZones.find((zone) =>
+      ? (deliveryZones.find((zone) =>
           zone.neighborhoods.some(
             (item) => normalizeNeighborhood(item) === normalizeNeighborhood(neighborhood),
           ),
-        ) ?? null
+        ) ?? null)
       : null;
 
   const matchedNeighborhood =
@@ -85,7 +85,9 @@ export function CheckoutPanel({
 
   const availableNeighborhoods = Array.from(
     new Set(
-      deliveryZones.flatMap((zone) => zone.neighborhoods.map((item) => item.trim()).filter(Boolean)),
+      deliveryZones.flatMap((zone) =>
+        zone.neighborhoods.map((item) => item.trim()).filter(Boolean),
+      ),
     ),
   );
   const deliveryFee = selectedZone?.delivery_fee ?? 0;
@@ -118,11 +120,7 @@ export function CheckoutPanel({
       }
     }
     const minOrderAmount = Number(settings.min_order_amount ?? 0);
-    if (
-      fulfillment === "DELIVERY" &&
-      minOrderAmount > 0 &&
-      subtotal < minOrderAmount
-    ) {
+    if (fulfillment === "DELIVERY" && minOrderAmount > 0 && subtotal < minOrderAmount) {
       setError(
         `Para entrega, o pedido mínimo é ${formatCurrency(minOrderAmount)}. Faltam ${formatCurrency(minOrderAmount - subtotal)}.`,
       );
@@ -140,7 +138,8 @@ export function CheckoutPanel({
         payment_method: paymentMethod,
         address_street: fulfillment === "DELIVERY" ? street.trim() : null,
         address_number: fulfillment === "DELIVERY" ? number.trim() : null,
-        address_neighborhood: fulfillment === "DELIVERY" ? (matchedNeighborhood ?? neighborhood.trim()) : null,
+        address_neighborhood:
+          fulfillment === "DELIVERY" ? (matchedNeighborhood ?? neighborhood.trim()) : null,
         address_complement: fulfillment === "DELIVERY" ? complement.trim() || null : null,
         address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
         notes: notes.trim() || null,
@@ -169,24 +168,31 @@ export function CheckoutPanel({
         ]),
       };
 
-      const { data: created, error: createError } = await supabase.rpc(
-        "create_public_order",
-        { p_order: payload },
-      );
+      const { data: created, error: createError } = await supabase.rpc("create_public_order", {
+        p_order: payload,
+      });
       if (createError) throw createError;
 
       const order = Array.isArray(created) ? created[0] : created;
-      if (!order?.order_number || !order?.order_id) throw new Error("Não foi possível criar o pedido.");
+      if (!order?.order_number || !order?.order_id)
+        throw new Error("Não foi possível criar o pedido.");
       setSuccessOrderId(String(order.order_id));
       setSuccessNumber(Number(order.order_number));
       setSuccessStatus("RECEIVED");
-      onSuccess({ id: String(order.order_id), number: Number(order.order_number), phone: phone.trim() });
+      onSuccess({
+        id: String(order.order_id),
+        number: Number(order.order_number),
+        phone: phone.trim(),
+      });
     } catch (submitError) {
       const message =
         submitError instanceof Error
           ? submitError.message
           : typeof submitError === "object" && submitError !== null && "message" in submitError
-            ? String((submitError as { message?: unknown }).message ?? "Não foi possível enviar o pedido.")
+            ? String(
+                (submitError as { message?: unknown }).message ??
+                  "Não foi possível enviar o pedido.",
+              )
             : "Não foi possível enviar o pedido.";
       setError(message);
     } finally {
@@ -240,7 +246,9 @@ export function CheckoutPanel({
                 <Check className="size-7" />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">Pedido recebido</p>
+                <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
+                  Pedido recebido
+                </p>
                 <h2 className="mt-1 text-3xl">Pedido #{successNumber}</h2>
                 <p className="mt-2 text-sm text-muted-foreground">{organization.name}</p>
               </div>
@@ -263,12 +271,20 @@ export function CheckoutPanel({
                   if (fulfillment === "PICKUP" && value === "OUT_FOR_DELIVERY") return null;
                   return (
                     <div key={value} className="flex items-center gap-3">
-                      <div className={`flex size-9 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${isDone ? "border-primary bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}>
+                      <div
+                        className={`flex size-9 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${isDone ? "border-primary bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}
+                      >
                         {isDone ? <Check className="size-4" /> : index + 1}
                       </div>
                       <div className="min-w-0">
-                        <p className={`text-sm font-semibold ${isCurrent ? "text-primary" : ""}`}>{label}</p>
-                        {isCurrent && <p className="text-xs text-muted-foreground">Status atualizado automaticamente.</p>}
+                        <p className={`text-sm font-semibold ${isCurrent ? "text-primary" : ""}`}>
+                          {label}
+                        </p>
+                        {isCurrent && (
+                          <p className="text-xs text-muted-foreground">
+                            Status atualizado automaticamente.
+                          </p>
+                        )}
                       </div>
                     </div>
                   );
@@ -278,14 +294,19 @@ export function CheckoutPanel({
 
             <div className="mt-6 rounded-2xl bg-muted p-4 text-sm">
               <p className="font-semibold">
-                {successStatus === "CANCELLED" ? "Pedido cancelado" :
-                  successStatus === "DELIVERED" ? "Pedido finalizado" :
-                  successStatus === "READY" && fulfillment === "PICKUP" ? "Pode retirar seu pedido" :
-                  successStatus === "OUT_FOR_DELIVERY" ? "Seu pedido está a caminho!" :
-                  "A loja está preparando seu pedido."}
+                {successStatus === "CANCELLED"
+                  ? "Pedido cancelado"
+                  : successStatus === "DELIVERED"
+                    ? "Pedido finalizado"
+                    : successStatus === "READY" && fulfillment === "PICKUP"
+                      ? "Pode retirar seu pedido"
+                      : successStatus === "OUT_FOR_DELIVERY"
+                        ? "Seu pedido está a caminho!"
+                        : "A loja está preparando seu pedido."}
               </p>
               <p className="mt-1 text-muted-foreground">
-                {trackingError ?? "Esta tela verifica automaticamente se a loja atualizou o pedido."}
+                {trackingError ??
+                  "Esta tela verifica automaticamente se a loja atualizou o pedido."}
               </p>
             </div>
 
@@ -303,10 +324,16 @@ export function CheckoutPanel({
       <div className="mx-auto min-h-screen max-w-3xl px-4 pb-10 pt-5 sm:px-6 sm:pt-8">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">Finalizar pedido</p>
+            <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
+              Finalizar pedido
+            </p>
             <h1 className="mt-1 text-3xl sm:text-4xl">Quase lá</h1>
           </div>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-muted" aria-label="Fechar checkout">
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 hover:bg-muted"
+            aria-label="Fechar checkout"
+          >
             <X className="size-5" />
           </button>
         </div>
@@ -341,12 +368,27 @@ export function CheckoutPanel({
               <p className="text-sm font-semibold">Seus dados</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <label className="text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Nome *</span>
-                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                    Nome *
+                  </span>
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Seu nome"
+                    className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                  />
                 </label>
                 <label className="text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Telefone *</span>
-                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(00) 00000-0000" inputMode="tel" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                    Telefone *
+                  </span>
+                  <input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="(00) 00000-0000"
+                    inputMode="tel"
+                    className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                  />
                 </label>
               </div>
             </section>
@@ -356,17 +398,33 @@ export function CheckoutPanel({
                 <p className="text-sm font-semibold">Endereço de entrega</p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_120px]">
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Rua *</span>
-                    <input value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Rua, avenida..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                      Rua *
+                    </span>
+                    <input
+                      value={street}
+                      onChange={(e) => setStreet(e.target.value)}
+                      placeholder="Rua, avenida..."
+                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    />
                   </label>
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Número *</span>
-                    <input value={number} onChange={(e) => setNumber(e.target.value)} placeholder="123" className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                      Número *
+                    </span>
+                    <input
+                      value={number}
+                      onChange={(e) => setNumber(e.target.value)}
+                      placeholder="123"
+                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    />
                   </label>
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Bairro *</span>
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                      Bairro *
+                    </span>
                     <input
                       list="delivery-neighborhoods"
                       value={neighborhood}
@@ -376,24 +434,42 @@ export function CheckoutPanel({
                     />
                     {availableNeighborhoods.length > 0 && (
                       <datalist id="delivery-neighborhoods">
-                        {availableNeighborhoods.map((item) => <option key={item} value={item} />)}
+                        {availableNeighborhoods.map((item) => (
+                          <option key={item} value={item} />
+                        ))}
                       </datalist>
                     )}
                   </label>
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Complemento</span>
-                    <input value={complement} onChange={(e) => setComplement(e.target.value)} placeholder="Apto, casa..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                      Complemento
+                    </span>
+                    <input
+                      value={complement}
+                      onChange={(e) => setComplement(e.target.value)}
+                      placeholder="Apto, casa..."
+                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    />
                   </label>
                 </div>
                 <label className="mt-3 block text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">Ponto de referência</span>
-                  <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Próximo a..." className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary" />
+                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                    Ponto de referência
+                  </span>
+                  <input
+                    value={reference}
+                    onChange={(e) => setReference(e.target.value)}
+                    placeholder="Próximo a..."
+                    className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                  />
                 </label>
                 {deliveryZones.length > 0 && (
                   <p className="mt-3 text-xs text-muted-foreground">
                     {selectedZone
                       ? `Taxa de entrega: ${formatCurrency(deliveryFee)} · ${selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min`
-                      : availableNeighborhoods.length > 0 ? "Selecione ou digite um dos bairros atendidos para calcular a taxa." : "A loja ainda não cadastrou áreas de entrega."}
+                      : availableNeighborhoods.length > 0
+                        ? "Selecione ou digite um dos bairros atendidos para calcular a taxa."
+                        : "A loja ainda não cadastrou áreas de entrega."}
                   </p>
                 )}
               </section>
@@ -409,7 +485,13 @@ export function CheckoutPanel({
                     className={`rounded-2xl border p-4 text-left ${paymentMethod === method ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
                   >
                     <p className="font-semibold">
-                      {method === "PIX" ? "PIX" : method === "CASH" ? "Dinheiro" : method === "CARD_ON_DELIVERY" ? "Cartão na entrega" : "Cartão no local"}
+                      {method === "PIX"
+                        ? "PIX"
+                        : method === "CASH"
+                          ? "Dinheiro"
+                          : method === "CARD_ON_DELIVERY"
+                            ? "Cartão na entrega"
+                            : "Cartão no local"}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {method === "PIX" ? "Pagamento via PIX" : "Pagamento combinado com a loja"}
@@ -420,8 +502,17 @@ export function CheckoutPanel({
             </section>
 
             <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <label htmlFor="checkout-notes" className="text-sm font-semibold">Observações do pedido</label>
-              <Textarea id="checkout-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-3" placeholder="Ex.: tocar a campainha, tirar cebola..." maxLength={500} />
+              <label htmlFor="checkout-notes" className="text-sm font-semibold">
+                Observações do pedido
+              </label>
+              <Textarea
+                id="checkout-notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="mt-3"
+                placeholder="Ex.: tocar a campainha, tirar cebola..."
+                maxLength={500}
+              />
             </section>
           </div>
 
@@ -431,25 +522,60 @@ export function CheckoutPanel({
               {items.map((item) => (
                 <div key={item.lineId} className="flex items-start justify-between gap-3 text-sm">
                   <div>
-                    <p className="font-medium">{item.quantity}× {item.productName}{item.secondProductName ? ` + ${item.secondProductName}` : ""}</p>
-                    <p className="text-xs text-muted-foreground">{[item.sizeName, item.crustName].filter(Boolean).join(" · ")}</p>
-                    {(item.complements ?? []).length > 0 && <p className="mt-1 text-xs text-primary">+ {(item.complements ?? []).map((complement) => complement.productName).join(", ")}</p>}
+                    <p className="font-medium">
+                      {item.quantity}× {item.productName}
+                      {item.secondProductName ? ` + ${item.secondProductName}` : ""}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {[item.sizeName, item.crustName].filter(Boolean).join(" · ")}
+                    </p>
+                    {(item.complements ?? []).length > 0 && (
+                      <p className="mt-1 text-xs text-primary">
+                        +{" "}
+                        {(item.complements ?? [])
+                          .map((complement) => complement.productName)
+                          .join(", ")}
+                      </p>
+                    )}
                   </div>
-                  <span className="font-semibold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                  <span className="font-semibold">
+                    {formatCurrency(item.unitPrice * item.quantity)}
+                  </span>
                 </div>
               ))}
             </div>
             <div className="my-4 border-t" />
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span>{formatCurrency(subtotal)}</span>
+              </div>
               {fulfillment === "DELIVERY" && (
-                <div className="flex justify-between"><span className="text-muted-foreground">Entrega</span><span>{selectedZone ? formatCurrency(deliveryFee) : "—"}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Entrega</span>
+                  <span>{selectedZone ? formatCurrency(deliveryFee) : "—"}</span>
+                </div>
               )}
-              <div className="flex justify-between pt-2 text-lg font-bold"><span>Total</span><span>{formatCurrency(total)}</span></div>
+              <div className="flex justify-between pt-2 text-lg font-bold">
+                <span>Total</span>
+                <span>{formatCurrency(total)}</span>
+              </div>
             </div>
-            {error && <p className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
-            <Button disabled={submitting || items.length === 0 || !storeOpen} onClick={submitOrder} className="mt-5 h-12 w-full rounded-full">
-              {!storeOpen ? "Loja fechada" : submitting ? "Enviando pedido..." : `Enviar pedido · ${formatCurrency(total)}`}
+            {error && (
+              <p className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">
+                {error}
+              </p>
+            )}
+            <Button
+              disabled={submitting || items.length === 0 || !storeOpen}
+              onClick={submitOrder}
+              className="mt-5 h-12 w-full rounded-full"
+            >
+              {!storeOpen
+                ? "Loja fechada"
+                : submitting
+                  ? "Enviando pedido..."
+                  : `Enviar pedido · ${formatCurrency(total)}`}
             </Button>
             <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
               Ao enviar, o pedido será encaminhado diretamente para a loja.
@@ -460,4 +586,3 @@ export function CheckoutPanel({
     </div>
   );
 }
-
