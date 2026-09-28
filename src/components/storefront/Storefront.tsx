@@ -956,7 +956,24 @@ export function Storefront({ slug }: { slug?: string }) {
 
 function getTrackedOrderStatusLabel(status?: OrderStatus) {
   switch (status) {
-    case "RECEI;
+    case "RECEIVED": return "Pedido recebido";
+    case "CONFIRMED": return "Pedido confirmado";
+    case "PREPARING": return "Em preparo";
+    case "READY": return "Pronto";
+    case "OUT_FOR_DELIVERY": return "Saiu para entrega";
+    case "DELIVERED": return "Entregue";
+    case "CANCELLED": return "Cancelado";
+    default: return "Em andamento";
+  }
+}
+
+function ProductConfigurator({
+  product,
+  data,
+  onClose,
+  onAdded,
+}: {
+  product: Product;
   data: StoreData;
   onClose: () => void;
   onAdded: (items: CartItem[]) => void;
