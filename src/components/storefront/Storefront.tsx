@@ -598,7 +598,7 @@ export function Storefront({ slug }: { slug?: string }) {
                 fulfillment:
                   (snapshot?.fulfillment as TrackedOrder["fulfillment"] | undefined) ??
                   previous?.fulfillment,
-                status: snapshotStatus ?? previous?.status ?? "RECEIVED",
+                status: snapshotStatus ?? order.status ?? previous?.status ?? "RECEIVED",
               };
               const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
               try {
@@ -616,7 +616,10 @@ export function Storefront({ slug }: { slug?: string }) {
             try {
               localStorage.setItem(
                 `ppp:last-order:${data.organization.id}`,
-                JSON.stringify(order),
+                JSON.stringify({
+                  ...order,
+                  ...(trackedOrders.find((item) => item.id === order.id) ?? {}),
+                }),
               );
             } catch {
               // Ignore storage failures.
@@ -629,7 +632,7 @@ export function Storefront({ slug }: { slug?: string }) {
                 if (next.length > 0) {
                   localStorage.setItem(
                     `ppp:tracked-orders:${data.organization.id}`,
-                    JSON.stringify(next.map(({ id, number, phone }) => ({ id, number, phone }))),
+                    JSON.stringify(next),
                   );
                 } else {
                   localStorage.removeItem(`ppp:tracked-orders:${data.organization.id}`);
