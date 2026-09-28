@@ -9,6 +9,9 @@ on:
       - fix/reconnect-storefront-components
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -24,6 +27,23 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Format refactored storefront
+        if: github.event_name == 'push'
+        run: npx prettier --write src/components/storefront/Storefront.tsx src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx
+
+      - name: Commit formatting
+        if: github.event_name == 'push'
+        run: |
+          if git diff --quiet; then
+            echo "No formatting changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/components/storefront/Storefront.tsx src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx
+          git commit -m "style(storefront): apply prettier formatting"
+          git push
 
       - name: Lint refactored storefront
         run: npx eslint src/components/storefront/Storefront.tsx src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx
