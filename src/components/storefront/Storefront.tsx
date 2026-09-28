@@ -22,7 +22,7 @@ import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, Product } from "@/lib/domain/types";
 
-import { getPrice, getStoreStatus, normalizeNeighborhood } from "@/features/storefront/domain/storefront-utils";
+import { getPrice, getStoreStatus } from "@/features/storefront/domain/storefront-utils";
 export function Storefront({ slug }: { slug?: string }) {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["public-store", slug ?? "demo"],
