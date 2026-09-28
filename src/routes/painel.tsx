@@ -4,7 +4,7 @@ import { BarChart3, Check, ChevronDown, ChevronUp, Clock3, ImagePlus, LogOut, Ma
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
-import { TopPanelNav } from "@/components/panel/TopPanelNav";
+import { TopPanelNav, type PanelView } from "@/features/admin/components/TopPanelNav";
 import type { Addon as DomainAddon, Crust, DeliveryZone, OrderStatus, SpecialHour, StoreHour, PaymentMethod } from "@/lib/domain/types";
 
 export const Route = createFileRoute("/painel")({
@@ -12,7 +12,6 @@ export const Route = createFileRoute("/painel")({
 });
 
 type BusinessType = "PIZZERIA" | "RESTAURANT" | "RETAIL" | "SERVICES" | "BEAUTY";
-type PanelView = "overview" | "catalog" | "operations" | "settings" | "orders";
 
 type StoreSettings = {
   description: string | null;
