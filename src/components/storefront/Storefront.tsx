@@ -23,6 +23,17 @@ import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
 
 import { getPrice, getStoreStatus } from "@/features/storefront/domain/storefront-utils";
+export type TrackedOrder = {
+  id: string;
+  number: number;
+  phone: string;
+  items?: CartItem[];
+  subtotal?: number;
+  total?: number;
+  fulfillment?: "DELIVERY" | "PICKUP";
+  status?: OrderStatus;
+};
+
 export function Storefront({ slug }: { slug?: string }) {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["public-store", slug ?? "demo"],
@@ -35,16 +46,8 @@ export function Storefront({ slug }: { slug?: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [trackedOrder, setTrackedOrder] = useState<{
-    id: string;
-    number: number;
-    phone: string;
-    items?: CartItem[];
-    subtotal?: number;
-    total?: number;
-    fulfillment?: "DELIVERY" | "PICKUP";
-    status?: OrderStatus;
-  } | null>(null);
+  const [trackedOrders, setTrackedOrders] = useState<TrackedOrder[]>([]);
+  const [selectedTrackedOrderId, setSelectedTrackedOrderId] = useState<string | null>(null);
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [complementPickerOpen, setComplementPickerOpen] = useState(false);
   const [selectedComplementIds, setSelectedComplementIds] = useState<string[]>([]);
@@ -52,55 +55,91 @@ export function Storefront({ slug }: { slug?: string }) {
 
   useEffect(() => {
     if (!data?.organization?.id) return;
-
     let cancelled = false;
 
-    const loadTrackedOrder = async () => {
+    const loadTrackedOrders = async () => {
       try {
-        const raw = localStorage.getItem(`ppp:last-order:${data.organization.id}`);
+        const raw = localStorage.getItem(`ppp:tracked-orders:${data.organization.id}`) ?? localStorage.getItem(`ppp:last-order:${data.organization.id}`);
         if (!raw) {
-          if (!cancelled) setTrackedOrder(null);
+          if (!cancelled) {
+            setTrackedOrders([]);
+            setSelectedTrackedOrderId(null);
+          }
           return;
         }
 
-        const stored = JSON.parse(raw) as { id: string; number: number; phone: string };
-        if (!stored?.id || !stored?.phone) {
-          localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
-          if (!cancelled) setTrackedOrder(null);
+        const parsed = JSON.parse(raw);
+        const storedOrders = (Array.isArray(parsed) ? parsed : [parsed]).filter(
+          (item): item is { id: string; number: number; phone: string } =>
+            Boolean(item?.id && item?.phone),
+        );
+
+        if (storedOrders.length === 0) {
+          if (!cancelled) {
+            setTrackedOrders([]);
+            setSelectedTrackedOrderId(null);
+          }
           return;
         }
 
-        const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
-          p_order_id: stored.id,
-          p_customer_phone: stored.phone,
-        });
+        const results = await Promise.all(
+          storedOrders.map(async (stored) => {
+            const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
+              p_order_id: stored.id,
+              p_customer_phone: stored.phone,
+            });
+            const current = Array.isArray(tracking) ? tracking[0] : tracking;
+            return {
+              stored,
+              current,
+              error,
+              status: current?.status as OrderStatus | undefined,
+            };
+          }),
+        );
 
         if (cancelled) return;
 
-        const current = Array.isArray(tracking) ? tracking[0] : tracking;
-        const status = current?.status as OrderStatus | undefined;
-        const finished = status === "DELIVERED" || status === "CANCELLED";
+        const activeOrders: TrackedOrder[] = results
+          .filter(({ error, status }) => error || (status !== "DELIVERED" && status !== "CANCELLED"))
+          .map(({ stored, current, status }) => ({
+            ...stored,
+            items: current?.items ?? undefined,
+            subtotal: current?.subtotal ?? undefined,
+            total: current?.total ?? undefined,
+            fulfillment: current?.fulfillment ?? undefined,
+            status,
+          }));
 
-        if (!error && finished) {
+        setTrackedOrders(activeOrders);
+        setSelectedTrackedOrderId((current) =>
+          current && activeOrders.some((order) => order.id === current)
+            ? current
+            : activeOrders[0]?.id ?? null,
+        );
+
+        if (activeOrders.length > 0) {
+          localStorage.setItem(
+            `ppp:tracked-orders:${data.organization.id}`,
+            JSON.stringify(activeOrders.map(({ id, number, phone }) => ({ id, number, phone }))),
+          );
+        } else {
+          localStorage.removeItem(`ppp:tracked-orders:${data.organization.id}`);
           localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
-          setTrackedOrder(null);
-          return;
         }
-
-        // If the status lookup fails, keep the stored order so the customer can
-        // still try to track it instead of silently losing the tracking reference.
-        setTrackedOrder({ ...stored, items: current?.items ?? undefined, subtotal: current?.subtotal ?? undefined, total: current?.total ?? undefined, fulfillment: current?.fulfillment ?? undefined, status });
       } catch {
-        if (!cancelled) setTrackedOrder(null);
+        if (!cancelled) {
+          setTrackedOrders([]);
+          setSelectedTrackedOrderId(null);
+        }
       }
     };
 
-    void loadTrackedOrder();
+    void loadTrackedOrders();
     return () => {
       cancelled = true;
     };
   }, [data?.organization?.id]);
-
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 30_000);
     return () => window.clearInterval(interval);
@@ -207,9 +246,12 @@ export function Storefront({ slug }: { slug?: string }) {
         organizationName={data.organization.name}
         logoUrl={data.settings.logo_url ?? null}
         itemCount={itemCount}
-        selectedTrackedOrdersCount={trackedOrder ? 1 : 0}
+        selectedTrackedOrdersCount={trackedOrders.length}
         onOpenCart={() => setCartOpen(true)}
-        onOpenTracking={() => setTrackingOpen(true)}
+        onOpenTracking={() => {
+          setSelectedTrackedOrderId((current) => current ?? trackedOrders[0]?.id ?? null);
+          setTrackingOpen(true);
+        }}
       />
 
       <main id="inicio" className="ppp-reference-storefront">
@@ -454,17 +496,23 @@ export function Storefront({ slug }: { slug?: string }) {
         />
       )}
 
-      {trackingOpen && trackedOrder && (
-        <TrackedOrderPanel
-          order={trackedOrder}
-          onClose={() => setTrackingOpen(false)}
-          onAddToOrder={() => {
-            setTrackingOpen(false);
-            setSelectedComplementIds([]);
-            setComplementPickerOpen(true);
-          }}
-        />
-      )}
+      {trackingOpen && trackedOrders.length > 0 && selectedTrackedOrderId && (() => {
+        const selectedOrder = trackedOrders.find((order) => order.id === selectedTrackedOrderId);
+        if (!selectedOrder) return null;
+        return (
+          <TrackedOrderPanel
+            order={selectedOrder}
+            availableOrders={trackedOrders}
+            onSelectOrder={setSelectedTrackedOrderId}
+            onClose={() => setTrackingOpen(false)}
+            onAddToOrder={() => {
+              setTrackingOpen(false);
+              setSelectedComplementIds([]);
+              setComplementPickerOpen(true);
+            }}
+          />
+        );
+      })()}
 
       {checkoutOpen && (
         <CheckoutPanel
@@ -478,15 +526,43 @@ export function Storefront({ slug }: { slug?: string }) {
           storeStatusLabel={status.label}
           onSuccess={(order) => {
             cart.clear();
-            setTrackedOrder(order);
+            setTrackedOrders((current) => {
+              const next = [order, ...current.filter((item) => item.id !== order.id)];
+              try {
+                localStorage.setItem(
+                  `ppp:tracked-orders:${data.organization.id}`,
+                  JSON.stringify(next.map(({ id, number, phone }) => ({ id, number, phone }))),
+                );
+              } catch {
+                // Ignore storage failures; tracking still works for the current session.
+              }
+              return next;
+            });
+            setSelectedTrackedOrderId(order.id);
             try {
               localStorage.setItem(`ppp:last-order:${data.organization.id}`, JSON.stringify(order));
             } catch {
-              // Ignore storage failures; tracking still works for the current session.
+              // Ignore storage failures.
             }
           }}
           onOrderFinished={() => {
-            setTrackedOrder(null);
+            setTrackedOrders((current) => {
+              const next = current.filter((item) => item.id !== selectedTrackedOrderId);
+              try {
+                if (next.length > 0) {
+                  localStorage.setItem(
+                    `ppp:tracked-orders:${data.organization.id}`,
+                    JSON.stringify(next.map(({ id, number, phone }) => ({ id, number, phone }))),
+                  );
+                } else {
+                  localStorage.removeItem(`ppp:tracked-orders:${data.organization.id}`);
+                }
+              } catch {
+                // Ignore storage failures.
+              }
+              return next;
+            });
+            setSelectedTrackedOrderId(null);
             try {
               localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
             } catch {
