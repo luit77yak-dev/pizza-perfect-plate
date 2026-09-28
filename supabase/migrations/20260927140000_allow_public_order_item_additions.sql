@@ -287,9 +287,6 @@ BEGIN
 
       INSERT INTO public.order_item_addons (
         organization_id, order_item_id, addon_id, name, price, quantity
-      )
-      INSERT INTO public.order_item_addons (
-        organization_id, order_item_id, addon_id, name, price, quantity
       ) VALUES (
         v_order.organization_id,
         v_item_id,
