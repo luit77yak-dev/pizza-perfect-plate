@@ -51,6 +51,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [complementPickerOpen, setComplementPickerOpen] = useState(false);
   const [selectedComplementIds, setSelectedComplementIds] = useState<string[]>([]);
+  const [complementOrderId, setComplementOrderId] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -508,6 +509,7 @@ export function Storefront({ slug }: { slug?: string }) {
             onAddToOrder={() => {
               setTrackingOpen(false);
               setSelectedComplementIds([]);
+              setComplementOrderId(selectedOrder.id);
               setComplementPickerOpen(true);
             }}
           />
@@ -521,11 +523,20 @@ export function Storefront({ slug }: { slug?: string }) {
           deliveryZones={data.deliveryZones}
           items={cart.items}
           subtotal={subtotal}
-          onClose={() => setCheckoutOpen(false)}
+          onClose={() => {
+            setCheckoutOpen(false);
+            setComplementOrderId(null);
+          }}
+          existingOrder={
+            complementOrderId
+              ? (trackedOrders.find((order) => order.id === complementOrderId) ?? null)
+              : null
+          }
           storeOpen={status.open}
           storeStatusLabel={status.label}
           onSuccess={(order) => {
             cart.clear();
+            setComplementOrderId(null);
             setTrackedOrders((current) => {
               const next = [order, ...current.filter((item) => item.id !== order.id)];
               try {
