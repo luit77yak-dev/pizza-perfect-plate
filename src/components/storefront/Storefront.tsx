@@ -17,7 +17,7 @@ import { ImageAccordion } from "@/components/ui/image-accordion";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { useLocalCart } from "@/hooks/use-local-cart";
+import { useLocalCart } from "@/carrinho/hooks/use-local-cart";
 import { calculateCartSubtotal, calculateProductUnitPrice } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type {
