@@ -35,7 +35,6 @@ export function CheckoutPanel({
   subtotal: number;
   onClose: () => void;
   onSuccess: (order: { id: string; number: number; phone: string }) => void;
-  trackedOrder?: { id: string; number: number; phone: string } | null;
   storeOpen: boolean;
   storeStatusLabel: string;
   onOrderFinished: () => void;
@@ -60,14 +59,6 @@ export function CheckoutPanel({
   const [successNumber, setSuccessNumber] = useState<number | null>(null);
   const [successStatus, setSuccessStatus] = useState<OrderStatus>("RECEIVED");
   const [trackingError, setTrackingError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!trackedOrder) return;
-    setSuccessOrderId(trackedOrder.id);
-    setSuccessNumber(trackedOrder.number);
-    setSuccessStatus("RECEIVED");
-    setPhone(trackedOrder.phone);
-  }, [trackedOrder]);
 
   const selectedZone =
     fulfillment === "DELIVERY"
