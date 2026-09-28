@@ -142,7 +142,7 @@ export function ProductConfigurator({
 
   return (
     <div
-      className="ppp-order-builder fixed inset-0 z-50 flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-6"
+      className="ppp-order-builder fixed inset-0 z-[120] flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-label={"Montar " + product.name}
