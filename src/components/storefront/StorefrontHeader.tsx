@@ -8,6 +8,7 @@ type StorefrontHeaderProps = {
   itemCount: number;
   selectedTrackedOrdersCount: number;
   onOpenCart: () => void;
+  onOpenTracking: () => void;
 };
 
 export function StorefrontHeader({
@@ -16,6 +17,7 @@ export function StorefrontHeader({
   itemCount,
   selectedTrackedOrdersCount,
   onOpenCart,
+  onOpenTracking,
 }: StorefrontHeaderProps) {
   return (
       <header className="ppp-reference-header absolute inset-x-0 top-0 z-[100] isolate border-b border-white/15 bg-black/55 text-white backdrop-blur-xl">
@@ -36,12 +38,24 @@ export function StorefrontHeader({
           </nav>
 
           <div className="relative z-[110] flex items-center gap-2">
-            <Button size="sm" style={{ backgroundColor: "#f97316", borderColor: "#f97316", color: "#ffffff" }} className="gap-2 rounded-none px-3.5 font-body text-[10px] font-medium uppercase tracking-[.16em] text-white shadow-[3px_3px_0_rgba(0,0,0,.45)] transition-transform hover:-translate-y-0.5 sm:px-4" onClick={() => onOpenCart()}>
+            {selectedTrackedOrdersCount > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={onOpenTracking}
+                className="gap-1.5 rounded-none border border-white/20 bg-black/25 px-2.5 text-white hover:bg-white/10 hover:text-white sm:px-3"
+                aria-label="Acompanhar pedido"
+              >
+                <Clock3 className="size-3.5" />
+                <span className="hidden text-[9px] font-medium uppercase tracking-[.14em] sm:inline">Acompanhar</span>
+                <Badge className="rounded-full bg-white px-1.5 text-foreground">{selectedTrackedOrdersCount}</Badge>
+              </Button>
+            )}
+            <Button size="sm" style={{ backgroundColor: "#f97316", borderColor: "#f97316", color: "#ffffff" }} className="gap-2 rounded-none px-3.5 font-body text-[10px] font-medium uppercase tracking-[.16em] text-white shadow-[3px_3px_0_rgba(0,0,0,.45)] transition-transform hover:-translate-y-0.5 sm:px-4" onClick={onOpenCart}>
               <ShoppingBag className="size-3.5" />
               <span>{itemCount > 0 ? "Sacola" : "Pedir"}</span>
               {itemCount > 0 && <Badge className="rounded-full bg-white px-1.5 text-foreground">{itemCount}</Badge>}
             </Button>
-            {selectedTrackedOrdersCount > 0 && <span className="flex items-center gap-1 rounded-full border border-white/25 bg-black/30 px-2 py-1 text-[9px] font-bold text-white/85"><Clock3 className="size-3" />{selectedTrackedOrdersCount}</span>}
           </div>
         </div>
       </header>
