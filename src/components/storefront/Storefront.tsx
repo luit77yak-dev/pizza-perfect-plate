@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { loadStore, type StoreData } from "@/features/storefront/services/load-store";
 import { Button } from "@/components/ui/button";
 import { ImageAccordion } from "@/components/ui/image-accordion";
 import { Badge } from "@/components/ui/badge";
