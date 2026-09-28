@@ -5,8 +5,10 @@ import { formatCurrency } from "@/lib/domain/money";
 import { calculateProductUnitPrice } from "@/lib/domain/pricing";
 import type { CartItem, Product } from "@/lib/domain/types";
 import type { StoreData } from "@/features/storefront/services/load-store";
+import { getPrice } from "@/features/storefront/domain/storefront-utils";
 
-function ProductConfigurator({
+
+export function ProductConfigurator({
   product,
   data,
   onClose,
