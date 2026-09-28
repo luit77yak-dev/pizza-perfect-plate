@@ -246,7 +246,7 @@ export function Storefront({ slug }: { slug?: string }) {
       const categoryName = data.categories.find((category) => category.id === product.category_id)?.name ?? "";
       const normalizedCategory = categoryName
         .normalize("NFD")
-        .replace(/[\\u0300-\\u036f]/g, "")
+        .replace(/[\u0300-\u036f]/g, "")
         .toLocaleLowerCase("pt-BR");
       return (
         product.kind === "SIMPLE" ||
@@ -642,7 +642,7 @@ function ProductConfigurator({
     const categoryName = data.categories.find((category) => category.id === item.category_id)?.name ?? "";
     const normalizedCategory = categoryName
       .normalize("NFD")
-      .replace(/[\\u0300-\\u036f]/g, "")
+      .replace(/[\u0300-\u036f]/g, "")
       .toLocaleLowerCase("pt-BR");
     return (
       item.kind === "SIMPLE" ||
