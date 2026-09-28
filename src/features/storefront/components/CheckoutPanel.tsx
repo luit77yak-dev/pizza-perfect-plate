@@ -229,7 +229,7 @@ export function CheckoutPanel({
 
   if (successNumber != null && successOrderId != null) {
     return (
-      <div className="ppp-checkout-panel fixed inset-0 z-[60] overflow-y-auto bg-background">
+      <div className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-background">
         <section className="mx-auto min-h-screen w-full max-w-2xl px-4 pb-10 pt-8 sm:px-6 sm:pt-12">
           <div className="rounded-[2rem] border bg-card p-6 shadow-lifted sm:p-8">
             <div className="flex items-start gap-4">
