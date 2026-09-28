@@ -93,7 +93,10 @@ export function TrackedOrderPanel({
     >
       <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar acompanhamento" />
       <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#0d1117] text-white shadow-2xl sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem]">
-        <header className="relative shrink-0 overflow-hidden bg-[#173b2a] px-5 pb-5 pt-4 text-white sm:px-7 sm:pb-6">
+        <header
+          className="relative shrink-0 overflow-hidden px-5 pb-5 pt-4 text-white sm:px-7 sm:pb-6"
+          style={{ backgroundColor: "#173b2a" }}
+        >
           <div className="absolute -right-16 -top-20 size-44 rounded-full bg-primary/20 blur-2xl" />
           <div className="absolute -bottom-20 left-1/3 size-36 rounded-full bg-primary/10 blur-2xl" />
           <div className="relative flex items-start justify-between gap-4">
@@ -107,33 +110,9 @@ export function TrackedOrderPanel({
                   <h2 className="mt-0.5 truncate font-display text-2xl tracking-tight sm:text-3xl">Pedido #{orderNumber}</h2>
                 </div>
               </div>
-              {availableOrders && availableOrders.length > 1 && onSelectOrder && (
-                <div className="mt-4 rounded-2xl border border-white/15 bg-black/10 p-1.5">
-                  <div className="flex gap-1 overflow-x-auto">
-                    {availableOrders.map((availableOrder) => {
-                      const selected = availableOrder.id === order.id;
-                      return (
-                        <button
-                          key={availableOrder.id}
-                          type="button"
-                          onClick={() => onSelectOrder(availableOrder.id)}
-                          aria-pressed={selected}
-                          className={
-                            "min-w-[112px] shrink-0 rounded-xl border px-3 py-2 text-[10px] font-black transition-all " +
-                            (selected
-                              ? "border-primary bg-primary text-white shadow-md"
-                              : "border-transparent bg-white/5 text-white/70 hover:border-white/10 hover:bg-white/10 hover:text-white")
-                          }
-                        >
-                          Pedido #{availableOrder.number}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-background/60">
-                <span className="rounded-full border border-background/10 bg-background/10 px-2.5 py-1">
+}
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-white/75">
+                <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1">
                   {itemCount} {itemCount === 1 ? "item" : "itens"}
                 </span>
                 <span className="rounded-full border border-background/10 bg-background/10 px-2.5 py-1">
@@ -148,6 +127,34 @@ export function TrackedOrderPanel({
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          {availableOrders && availableOrders.length > 1 && onSelectOrder && (
+            <div className="border-b border-white/10 bg-[#111820] px-4 py-3 sm:px-6">
+              <p className="mb-2 text-[9px] font-black uppercase tracking-[.18em] text-white/50">
+                Seus pedidos em andamento
+              </p>
+              <div className="flex gap-2 overflow-x-auto pb-0.5">
+                {availableOrders.map((availableOrder) => {
+                  const selected = availableOrder.id === order.id;
+                  return (
+                    <button
+                      key={availableOrder.id}
+                      type="button"
+                      onClick={() => onSelectOrder(availableOrder.id)}
+                      aria-pressed={selected}
+                      className={
+                        "min-w-[118px] shrink-0 rounded-xl border px-3 py-2.5 text-[11px] font-black transition-all " +
+                        (selected
+                          ? "border-primary bg-primary text-white shadow-md"
+                          : "border-white/10 bg-white/[.06] text-white/75 hover:bg-white/10 hover:text-white")
+                      }
+                    >
+                      Pedido #{availableOrder.number}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div className="space-y-4 p-4 pb-6 sm:space-y-5 sm:p-6 sm:pb-7">
             <section className="overflow-hidden rounded-3xl border border-primary/15 bg-background/[.035] shadow-sm">
               <div className="p-4 sm:p-5">
