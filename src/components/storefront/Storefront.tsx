@@ -40,29 +40,6 @@ import type {
   OrderStatus,
 } from "@/lib/domain/types";
 
-type ProductAddonLink = {
-  product_id: string;
-  addon_id: string;
-  sort_order: number;
-};
-
-type StoreData = {
-  organization: Organization;
-  settings: OrganizationSettings;
-  categories: Category[];
-  sizes: ProductSize[];
-  products: Product[];
-  prices: ProductPrice[];
-  crusts: Crust[];
-  addons: Addon[];
-  productAddonLinks: ProductAddonLink[];
-  hours: StoreHour[];
-  specialHours: SpecialHour[];
-  deliveryZones: DeliveryZone[];
-};
-
-export { loadStore } from "@/features/storefront/services/load-store";
-export type { ProductAddonLink, StoreData } from "@/features/storefront/services/load-store";
 function normalizeNeighborhood(value: string) {
   return value
     .normalize("NFD")
