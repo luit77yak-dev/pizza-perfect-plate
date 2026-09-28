@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { StorefrontSkeleton } from "@/components/storefront/StorefrontSkeleton";
-import { useLocalCart } from "@/carrinho/hooks/use-local-cart";
+import { useLocalCart } from "@/features/cart/hooks/use-local-cart";
 import { calculateCartSubtotal, calculateProductUnitPrice } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type {
