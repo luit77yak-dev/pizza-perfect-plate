@@ -94,8 +94,7 @@ export function TrackedOrderPanel({
       <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar acompanhamento" />
       <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#0d1117] text-white shadow-2xl sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem]">
         <header
-          className="relative shrink-0 overflow-hidden px-5 pb-5 pt-4 text-white sm:px-7 sm:pb-6"
-          style={{ backgroundColor: "#e8751a" }}
+          className="relative shrink-0 overflow-hidden bg-[#e8751a] px-5 pb-5 pt-4 text-white sm:px-7 sm:pb-6 ![background-color:#e8751a]"
         >
           <div className="absolute -right-16 -top-20 size-44 rounded-full bg-primary/20 blur-2xl" />
           <div className="absolute -bottom-20 left-1/3 size-36 rounded-full bg-primary/10 blur-2xl" />
