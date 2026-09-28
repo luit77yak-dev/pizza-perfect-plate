@@ -31,10 +31,14 @@ export function TrackedOrderPanel({
   order,
   onClose,
   onAddToOrder,
+  availableOrders,
+  onSelectOrder,
 }: {
   order: PublicTrackedOrder;
   onClose: () => void;
   onAddToOrder: () => void;
+  availableOrders?: PublicTrackedOrder[];
+  onSelectOrder?: (orderId: string) => void;
 }) {
   const currentStatus = order.status ?? "RECEIVED";
   const canAddMore = ["RECEIVED", "CONFIRMED", "PREPARING", "READY"].includes(currentStatus);
@@ -103,6 +107,23 @@ export function TrackedOrderPanel({
                   <h2 className="mt-0.5 truncate font-display text-2xl tracking-tight sm:text-3xl">Pedido #{orderNumber}</h2>
                 </div>
               </div>
+              {availableOrders && availableOrders.length > 1 && onSelectOrder && (
+                <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+                  {availableOrders.map((availableOrder) => {
+                    const selected = availableOrder.id === order.id;
+                    return (
+                      <button
+                        key={availableOrder.id}
+                        type="button"
+                        onClick={() => onSelectOrder(availableOrder.id)}
+                        className={"shrink-0 rounded-full border px-3 py-1.5 text-[10px] font-bold transition " + (selected ? "border-primary bg-primary text-primary-foreground" : "border-background/10 bg-background/10 text-background/60 hover:bg-background/15")}
+                      >
+                        Pedido #{availableOrder.number}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-background/60">
                 <span className="rounded-full border border-background/10 bg-background/10 px-2.5 py-1">
                   {itemCount} {itemCount === 1 ? "item" : "itens"}
