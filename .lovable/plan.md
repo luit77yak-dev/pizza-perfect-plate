@@ -1,15 +1,24 @@
-# Corrigir contraste do cabeçalho da loja
+# Diagnóstico: prévia não atualiza (somente leitura, nada foi alterado)
 
-## Objetivo
-Melhorar a leitura do cabeçalho público em desktop e celular, sem alterar o painel ou qualquer funcionalidade.
+## Causa
+Erro de sintaxe (arquivo cortado/colado errado). O Vite não consegue ler o arquivo e a prévia não carrega.
 
-## Alterações
-- Aplicar uma superfície escura sofisticada e consistente ao cabeçalho, separada da fotografia de fundo.
-- Usar tons claros para nome, navegação e ícones, reservando um verde mais luminoso para detalhes e estados.
-- Reforçar o botão de pedido/carrinho e seus estados hover, active e focus.
-- Preservar dimensões compactas e boa leitura no celular.
-- Validar visualmente nos dois tamanhos e conferir a compilação.
+1. `src/components/storefront/Storefront.tsx`, linha ~959 (principal)
+   ```text
+   function getTrackedOrderStatusLabel(status?: OrderStatus) {
+     switch (status) {
+       case "RECEI;          <- texto cortado aqui
+     data: StoreData;        <- começa o meio de outra função (ProductConfigurator)
+   ```
+   Parte da função `getTrackedOrderStatusLabel` e o começo do `ProductConfigurator` foram apagados e o restante foi colado junto. Por isso aparecem "Unterminated string" (959) e "'}' expected" (2059).
+   - Esse defeito **não** foi criado pelo commit 4285964: ele já existia no commit anterior 9b81d8a (linha 896). O 4285964 só adicionou 63 linhas acima e o erro desceu para 959.
+   - O commit mais recente (81b17ce "Work in progress") só mexe em `src/integrations/supabase/types.ts` e não é a causa.
 
-## Detalhes técnicos
-- As mudanças ficarão limitadas às regras `.ppp-reference-header` em `src/styles.css`.
-- Nenhuma lógica, dado ou tela administrativa será alterada.
+2. `src/components/storefront/StorefrontSkeleton.tsx`, linhas 4-5 e 21 (secundário)
+   `return (` aparece duas vezes e há um `}` sobrando no final. Veio do commit 36be7e6 ("extract loading skeleton").
+
+Dependências, configuração e sincronização estão normais (pacotes instalados, servidor ativo). O problema é só de sintaxe nesses dois arquivos.
+
+## Correção sugerida (só se você aprovar)
+- Recuperar `getTrackedOrderStatusLabel` e o começo de `ProductConfigurator` de um commit antigo em que o arquivo ainda estava inteiro, e colar no lugar da linha 959.
+- No Skeleton, apagar o `return (` repetido e o `}` sobrando.
