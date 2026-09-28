@@ -14,11 +14,18 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { loadStore, type StoreData } from "@/features/storefront/services/load-store";
 import { Button } from "@/components/ui/button";
-import { ImageAccordion } from "@/components/ui/image-accordion";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { StorefrontSkeleton } from "@/components/storefront/StorefrontSkeleton";
+import { StorefrontHeader } from "@/components/storefront/StorefrontHeader";
+import { StorefrontHero } from "@/components/storefront/StorefrontHero";
+import { StorefrontTicker } from "@/components/storefront/StorefrontTicker";
+import { ProductTicker } from "@/components/storefront/ProductTicker";
+import { MenuImageAccordion } from "@/components/storefront/MenuImageAccordion";
+import { MenuFilters } from "@/components/storefront/MenuFilters";
+import { StorefrontAbout } from "@/components/storefront/StorefrontAbout";
+import { StorefrontContact } from "@/components/storefront/StorefrontContact";
 import { useLocalCart } from "@/features/cart/hooks/use-local-cart";
 import { calculateCartSubtotal, calculateProductUnitPrice } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
@@ -198,64 +205,24 @@ export function Storefront({ slug }: { slug?: string }) {
         } as CSSProperties
       }
     >
-      <div className="ppp-top-ticker overflow-hidden bg-secondary text-secondary-foreground" aria-hidden="true"><div className="ppp-ticker-run flex min-w-max items-center gap-8 py-2 font-display text-[11px] uppercase tracking-[.16em] text-white">{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={index} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}{[data.organization.name, "Pizza artesanal", status.label, "Delivery e retirada", "Peça online"].map((item, index) => <span key={`repeat-${index}`} className="inline-flex items-center gap-8">{item}<span className="text-primary">✦</span></span>)}</div></div>
+      <StorefrontTicker organizationName={data.organization.name} statusLabel={status.label} />
 
-      <header className="ppp-reference-header absolute inset-x-0 top-0 z-[100] isolate border-b border-white/15 bg-black/55 text-white backdrop-blur-xl">
-        <div className="mx-auto flex h-[5.5rem] max-w-[1400px] items-center justify-between gap-6 px-5 sm:h-[6rem] sm:px-8 lg:px-12">
-          <a href="#inicio" className="group flex min-w-0 items-center gap-3 text-white">
-            {data.settings.logo_url ? (
-              <img src={data.settings.logo_url} alt="" className="size-9 rounded-full border border-white/35 object-cover sm:size-10" />
-            ) : (
-              <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/40 bg-black/20 font-display text-lg sm:size-10">{data.organization.name.charAt(0)}</span>
-            )}
-            <span className="truncate font-display text-xl font-medium tracking-[-.03em] sm:text-2xl">{data.organization.name}</span>
-          </a>
+      <StorefrontHeader
+        organizationName={data.organization.name}
+        logoUrl={data.settings.logo_url ?? null}
+        itemCount={itemCount}
+        selectedTrackedOrdersCount={trackedOrder ? 1 : 0}
+        onOpenCart={() => setCartOpen(true)}
+      />
 
-          <nav className="hidden items-center gap-10 text-[10px] font-medium uppercase tracking-[.38em] text-white/75 md:flex">
-            <a href="#cardapio" className="transition-colors hover:text-white">Cardápio</a>
-            <a href="#sobre" className="transition-colors hover:text-white">A casa</a>
-            <a href="#contato" className="transition-colors hover:text-white">Contato</a>
-          </nav>
-
-          <Button size="sm" style={{ backgroundColor: "#f97316", borderColor: "#f97316", color: "#ffffff" }} className="relative z-[110] gap-2 rounded-none px-4 font-body text-[10px] font-medium uppercase tracking-[.22em] text-white shadow-[3px_3px_0_rgba(0,0,0,.45)] transition-transform hover:-translate-y-0.5" onClick={() => setCartOpen(true)}>
-            <span>Pedir</span>
-            {itemCount > 0 && <Badge className="rounded-full bg-primary px-1.5 text-primary-foreground">{itemCount}</Badge>}
-          </Button>
-        </div>
-      </header>
+      <main id="inicio"
 
       <main id="inicio" className="ppp-reference-storefront">
-        <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
-          <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
-            <div className="ppp-reference-hero-grid grid min-h-0 lg:min-h-[760px] lg:grid-cols-1">
-              <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-7 sm:p-10 lg:p-14">
-                <p className="mb-5 w-fit bg-transparent px-0 font-body text-[10px] uppercase tracking-[.42em] text-white/75">Feita na hora · Est. 2026</p>
-                <h1 className="w-full max-w-4xl text-[2.35rem] leading-[.86] tracking-[-.045em] sm:text-6xl lg:text-[clamp(4rem,8.5vw,8rem)]">{data.settings.hero_title && !/MASSA DE FERMENTA/i.test(data.settings.hero_title) ? data.settings.hero_title : "Pizza que fica na memória."}</h1>
-                <p className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">{data.settings.hero_subtitle || data.settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
-                <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-sm bg-primary px-6 py-4 font-display text-sm uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.85)] transition-transform hover:-translate-y-1">{data.settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
-              </div>
-              <div className="ppp-reference-hero-media pointer-events-none absolute inset-0 z-0 min-h-[560px] overflow-hidden bg-secondary p-0 sm:min-h-[680px] lg:min-h-[760px]">
-                <div className="relative h-full min-h-[560px] overflow-hidden bg-background/10 p-0 sm:min-h-[680px] lg:min-h-[760px]">
-                  {data.settings.hero_image_url ? (
-                    <img src={data.settings.hero_image_url} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
-                  ) : mainProducts.find((product) => Boolean(product.image_url)) ? (
-                    <img src={mainProducts.find((product) => Boolean(product.image_url))?.image_url ?? ""} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
-                  ) : (
-                    <div className="grid h-full min-h-[560px] place-items-center text-secondary-foreground/50"><Pizza className="size-28" strokeWidth={1} /></div>
-                  )}
-                </div>
-                <div className="pointer-events-none absolute bottom-2 left-2 z-10 flex size-24 rotate-[-8deg] items-center justify-center rounded-full border-2 border-secondary bg-primary p-3 text-center font-display text-[9px] uppercase leading-3 text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.7)] sm:bottom-4 sm:left-4 sm:size-28 sm:text-[10px]">{data.organization.name}<br />feito na hora<br />pizza artesanal</div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <StorefrontHero organizationName={data.organization.name} settings={data.settings} products={mainProducts} />
 
-        <div className="ppp-product-ticker mb-12 overflow-hidden border-y-2 border-secondary bg-secondary text-secondary-foreground" aria-hidden="true">
-          <div className="ppp-ticker-run flex min-w-max items-center gap-8 py-4 font-display text-sm uppercase tracking-[.08em] text-white">
-            {mainProducts.slice(0, 8).map((product) => <span key={product.id} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
-            {mainProducts.slice(0, 8).map((product) => <span key={`ticker-${product.id}`} className="inline-flex items-center gap-8">{product.name}<span>✦</span></span>)}
-          </div>
-        </div>
+        <ProductTicker products={mainProducts} />
+
+        <section id="cardapio"
 
         <section id="cardapio" className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6">
           <div className="ppp-reference-menu-heading mb-8 flex flex-col items-center justify-center gap-3 text-center">
@@ -264,52 +231,19 @@ export function Storefront({ slug }: { slug?: string }) {
             <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">Escolha uma categoria e encontre seu próximo sabor.</p>
           </div>
 
-          <div className="ppp-reference-category-accordion mb-8">
-            <ImageAccordion
-              items={[
-                ...data.categories
-                  .filter((category) => Boolean(category.image_url))
-                  .slice(0, 6)
-                  .map((category) => ({ image: category.image_url!, title: category.name, subtitle: "Confira os sabores" })),
-                ...mainProducts
-                  .filter((product) => Boolean(product.image_url))
-                  .slice(0, 6)
-                  .map((product) => ({ image: product.image_url!, title: product.name, subtitle: "Feito na hora" })),
-              ]}
-              className="h-[330px] sm:h-[410px] lg:h-[460px]"
-            />
-          </div>
+          <MenuImageAccordion categories={data.categories} products={mainProducts} />
 
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-            <button
-              onClick={() => setSelectedCategory("all")}
-              className={`shrink-0 rounded-sm border-2 border-secondary px-4 py-2 text-sm font-semibold uppercase transition-colors ${selectedCategory === "all" ? "bg-primary text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]" : "bg-card hover:-translate-y-0.5"}`}
-            >
-              Todos
-            </button>
-            {data.categories.filter((category) => mainProducts.some((product) => product.category_id === category.id)).map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`shrink-0 rounded-sm border-2 border-secondary px-4 py-2 text-sm font-semibold uppercase transition-colors ${selectedCategory === category.id ? "bg-primary text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]" : "bg-card hover:-translate-y-0.5"}`}
-              >
-                {category.name}
-                <span className="ml-1.5 opacity-60">{categoryProducts.get(category.id) ?? 0}</span>
-              </button>
-            ))}
-            </div>
-            <label className="relative block shrink-0 sm:w-64">
-              <span className="sr-only">Buscar no cardápio</span>
-              <input
-                type="search"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Buscar no cardápio"
-                className="h-11 w-full rounded-sm border-2 border-secondary bg-card px-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:shadow-[3px_3px_0_rgba(0,0,0,.7)]"
-              />
-            </label>
-          </div>
+          <MenuFilters
+            categories={data.categories}
+            mainProducts={mainProducts}
+            categoryProducts={categoryProducts}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+          />
+
+          {filteredProducts.length === 0 ?
 
           {filteredProducts.length === 0 ? (
             <div className="rounded-3xl border border-dashed bg-card p-12 text-center">
@@ -383,9 +317,11 @@ export function Storefront({ slug }: { slug?: string }) {
             </div>
           )}
         </section>
-        <section id="sobre" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6"><div className="overflow-hidden rounded-[.75rem] border-2 border-secondary bg-secondary text-secondary-foreground shadow-lifted"><div className="grid lg:grid-cols-[.9fr_1.1fr]"><div className="p-7 sm:p-10 lg:p-14"><p className="text-xs font-semibold uppercase tracking-[.2em] text-primary">A casa</p><h2 className="mt-3 text-4xl uppercase leading-[.9] sm:text-6xl">Feita para quem ama pizza.</h2><p className="mt-5 max-w-xl text-sm leading-7 text-secondary-foreground/75 sm:text-base">{data.settings.description || "Massa, molho, queijo e ingredientes escolhidos para transformar um pedido comum em uma experiência que dá vontade de repetir."}</p><a href="#cardapio" className="mt-7 inline-flex rounded-sm bg-primary px-5 py-3 font-display uppercase text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.5)]">Ver o cardápio</a></div><div className="grid grid-cols-2 gap-3 bg-primary p-4 sm:p-6">{[data.settings.hero_image_url, ...data.categories.slice(0, 3).map((category) => category.image_url)].filter(Boolean).slice(0, 3).map((image, index) => <div key={`about-${index}`} className={`overflow-hidden rounded-sm border-2 border-secondary shadow-[5px_5px_0_rgba(0,0,0,.6)] ${index === 0 ? "col-span-2 aspect-[2/1] rotate-[-1.5deg]" : "aspect-square rotate-[1.5deg]"}`}><img src={image!} alt="" className="size-full object-cover transition duration-500 hover:scale-105" loading="lazy" /></div>)}</div></div></div></section>
+        <StorefrontAbout settings={data.settings} categories={data.categories} />
 
-        <section id="contato" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6"><div className="rounded-[.75rem] border-2 border-secondary bg-primary p-7 text-primary-foreground shadow-lifted sm:p-10 lg:p-14"><p className="text-xs font-semibold uppercase tracking-[.2em] opacity-75">Contato</p><h2 className="mt-2 text-[clamp(4.5rem,15vw,10rem)] uppercase leading-[.75]">Bora pedir?</h2><div className="mt-10 grid gap-3 sm:grid-cols-3"><a href="#cardapio" className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)] transition-transform hover:-translate-y-1"><span className="block text-xs uppercase tracking-widest opacity-60">Cardápio</span><span className="mt-1 block font-semibold">Escolher agora</span></a><div className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)]"><span className="block text-xs uppercase tracking-widest opacity-60">Atendimento</span><span className="mt-1 block font-semibold">{data.settings.delivery_enabled && data.settings.pickup_enabled ? "Delivery e retirada" : data.settings.delivery_enabled ? "Delivery" : "Retirada"}</span></div><div className="rounded-sm border-2 border-secondary bg-background p-4 text-foreground shadow-[4px_4px_0_rgba(0,0,0,.7)]"><span className="block text-xs uppercase tracking-widest opacity-60">WhatsApp</span><span className="mt-1 block font-semibold">{data.settings.whatsapp_phone || "Consulte a loja"}</span></div></div></div></section>
+        <StorefrontContact settings={data.settings} />
+
+      </main>
 
       </main>
 
