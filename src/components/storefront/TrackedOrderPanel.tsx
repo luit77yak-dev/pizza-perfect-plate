@@ -110,12 +110,11 @@ export function TrackedOrderPanel({
                   <h2 className="mt-0.5 truncate font-display text-2xl tracking-tight sm:text-3xl">Pedido #{orderNumber}</h2>
                 </div>
               </div>
-}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-white/75">
                 <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1">
                   {itemCount} {itemCount === 1 ? "item" : "itens"}
                 </span>
-                <span className="rounded-full border border-background/10 bg-background/10 px-2.5 py-1">
+                <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1">
                   {order.fulfillment === "DELIVERY" ? "Entrega" : "Retirada"}
                 </span>
               </div>
