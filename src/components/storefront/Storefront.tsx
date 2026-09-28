@@ -83,8 +83,31 @@ export function Storefront({ slug }: { slug?: string }) {
           return;
         }
 
+        // Local snapshots are the source of truth for showing the order immediately.
+        // The RPC only enriches/updates the snapshot; a temporary RPC/schema-cache
+        // failure must never make the tracking UI disappear.
+        const storedActiveOrders: TrackedOrder[] = storedOrders
+          .map((stored) => ({
+            ...stored,
+            status: stored.status ?? "RECEIVED",
+          }))
+          .filter(
+            (stored) =>
+              stored.status !== "DELIVERED" &&
+              stored.status !== "CANCELLED",
+          );
+
+        if (!cancelled) {
+          setTrackedOrders(storedActiveOrders);
+          setSelectedTrackedOrderId((current) =>
+            current && storedActiveOrders.some((order) => order.id === current)
+              ? current
+              : storedActiveOrders[0]?.id ?? null,
+          );
+        }
+
         const results = await Promise.all(
-          storedOrders.map(async (stored) => {
+          storedActiveOrders.map(async (stored) => {
             const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
               p_order_id: stored.id,
               p_customer_phone: stored.phone,
@@ -102,15 +125,6 @@ export function Storefront({ slug }: { slug?: string }) {
         if (cancelled) return;
 
         const activeOrders: TrackedOrder[] = results
-          .filter(({ error, status, stored }) => {
-            const effectiveStatus = status ?? stored.status;
-            return (
-              (!error || Boolean(stored.status)) &&
-              Boolean(effectiveStatus) &&
-              effectiveStatus !== "DELIVERED" &&
-              effectiveStatus !== "CANCELLED"
-            );
-          })
           .map(({ stored, current, status }) => ({
             ...stored,
             number:
@@ -128,8 +142,13 @@ export function Storefront({ slug }: { slug?: string }) {
               ? Number(current?.total)
               : stored.total,
             fulfillment: current?.fulfillment ?? stored.fulfillment,
-            status: status ?? stored.status,
-          }));
+            status: status ?? stored.status ?? "RECEIVED",
+          }))
+          .filter(
+            (order) =>
+              order.status !== "DELIVERED" &&
+              order.status !== "CANCELLED",
+          );
 
         setTrackedOrders(activeOrders);
         setSelectedTrackedOrderId((current) =>
