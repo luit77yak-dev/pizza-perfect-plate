@@ -42,6 +42,9 @@ export function CheckoutPanel({
     id: string;
     number: number;
     phone: string;
+    items?: CartItem[];
+    subtotal?: number;
+    total?: number;
     fulfillment?: FulfillmentType;
   } | null;
 }) {
@@ -149,7 +152,16 @@ export function CheckoutPanel({
         setSuccessNumber(Number(order.order_number));
         setSuccessStatus((order.status as OrderStatus) ?? "RECEIVED");
         setPhone(existingOrder.phone);
-        onSuccess({ id: String(order.order_id), number: Number(order.order_number), phone: existingOrder.phone });
+        onSuccess({
+          id: String(order.order_id),
+          number: Number(order.order_number),
+          phone: existingOrder.phone,
+          items: [...(existingOrder.items ?? []), ...items],
+          subtotal: Number(order.subtotal),
+          total: Number(order.total),
+          fulfillment: existingOrder.fulfillment,
+          status: (order.status as OrderStatus) ?? "RECEIVED",
+        });
       } catch (appendError) {
         const message =
           appendError instanceof Error
@@ -238,10 +250,21 @@ export function CheckoutPanel({
       setSuccessOrderId(String(order.order_id));
       setSuccessNumber(Number(order.order_number));
       setSuccessStatus("RECEIVED");
+      const createdTotal = Number(order.total);
+      const fallbackTotal =
+        fulfillment === "DELIVERY"
+          ? subtotal + Number(selectedZone?.delivery_fee ?? 0)
+          : subtotal;
+
       onSuccess({
         id: String(order.order_id),
         number: Number(order.order_number),
         phone: phone.trim(),
+        items,
+        subtotal,
+        total: Number.isFinite(createdTotal) ? createdTotal : fallbackTotal,
+        fulfillment,
+        status: "RECEIVED",
       });
     } catch (submitError) {
       const message =
