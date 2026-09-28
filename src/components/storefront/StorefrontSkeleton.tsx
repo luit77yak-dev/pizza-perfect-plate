@@ -2,7 +2,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function StorefrontSkeleton() {
   return (
-return (
     <main className="min-h-[100dvh] w-full overflow-x-hidden bg-background">
       <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6">
         <Skeleton className="h-16 w-full rounded-2xl" />
