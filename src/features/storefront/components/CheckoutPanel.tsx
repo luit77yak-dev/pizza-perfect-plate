@@ -23,7 +23,6 @@ export function CheckoutPanel({
   subtotal,
   onClose,
   onSuccess,
-  trackedOrder,
   storeOpen,
   storeStatusLabel,
   onOrderFinished,
