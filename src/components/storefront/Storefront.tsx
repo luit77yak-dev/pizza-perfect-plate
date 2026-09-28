@@ -621,10 +621,7 @@ export function Storefront({ slug }: { slug?: string }) {
             try {
               localStorage.setItem(
                 `ppp:last-order:${data.organization.id}`,
-                JSON.stringify({
-                  ...order,
-                  ...(trackedOrders.find((item) => item.id === order.id) ?? {}),
-                }),
+                JSON.stringify(order),
               );
             } catch {
               // Ignore storage failures.
