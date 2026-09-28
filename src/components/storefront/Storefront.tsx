@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, Pizza, ShoppingBag, Store } from "lucide-react";
 import { loadStore, type StoreData } from "@/features/storefront/services/load-store";
@@ -20,7 +21,7 @@ import { CheckoutPanel } from "@/features/storefront/components/CheckoutPanel";
 import { useLocalCart } from "@/features/cart/hooks/use-local-cart";
 import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
-import type { CartItem, Product } from "@/lib/domain/types";
+import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
 
 import { getPrice, getStoreStatus } from "@/features/storefront/domain/storefront-utils";
 export function Storefront({ slug }: { slug?: string }) {
