@@ -466,7 +466,8 @@ export function Storefront({ slug }: { slug?: string }) {
                   });
                   setSelectedComplementIds([]);
                   setComplementPickerOpen(false);
-                  setCartOpen(true);
+                  setCartOpen(false);
+                  setCheckoutOpen(true);
                 }}
                 className="h-12 w-full rounded-full"
               >
