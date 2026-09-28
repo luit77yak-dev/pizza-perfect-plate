@@ -1280,6 +1280,22 @@ export type Database = {
           total: number
         }[]
       }
+      append_public_order_items_with_payment: {
+        Args: {
+          p_customer_phone: string
+          p_items: Json
+          p_order_id: string
+          p_payment_method: Database["public"]["Enums"]["payment_method"]
+        }
+        Returns: {
+          delivery_fee: number
+          order_id: string
+          order_number: number
+          status: Database["public"]["Enums"]["order_status"]
+          subtotal: number
+          total: number
+        }[]
+      }
       claim_first_owner: { Args: never; Returns: boolean }
       create_public_order: {
         Args: { p_order: Json }
