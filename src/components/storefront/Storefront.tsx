@@ -476,7 +476,6 @@ export function Storefront({ slug }: { slug?: string }) {
           onClose={() => setCheckoutOpen(false)}
           storeOpen={status.open}
           storeStatusLabel={status.label}
-          trackedOrder={trackedOrder}
           onSuccess={(order) => {
             cart.clear();
             setTrackedOrder(order);
