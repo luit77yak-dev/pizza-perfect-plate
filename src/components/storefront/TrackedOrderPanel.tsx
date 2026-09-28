@@ -92,8 +92,8 @@ export function TrackedOrderPanel({
       aria-label={`Acompanhar pedido #${orderNumber}`}
     >
       <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar acompanhamento" />
-      <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#0d1117] text-background shadow-2xl sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem]">
-        <header className="relative shrink-0 overflow-hidden bg-[#10151d] px-5 pb-5 pt-4 text-background sm:px-7 sm:pb-6">
+      <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#0d1117] text-white shadow-2xl sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem]">
+        <header className="relative shrink-0 overflow-hidden bg-[#173b2a] px-5 pb-5 pt-4 text-white sm:px-7 sm:pb-6">
           <div className="absolute -right-16 -top-20 size-44 rounded-full bg-primary/20 blur-2xl" />
           <div className="absolute -bottom-20 left-1/3 size-36 rounded-full bg-primary/10 blur-2xl" />
           <div className="relative flex items-start justify-between gap-4">
@@ -103,25 +103,33 @@ export function TrackedOrderPanel({
                   <ShoppingBag className="size-4" />
                 </span>
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-[.2em] text-primary">Acompanhamento</p>
+                  <p className="text-[9px] font-black uppercase tracking-[.2em] text-[#f6c7ad]">Acompanhamento</p>
                   <h2 className="mt-0.5 truncate font-display text-2xl tracking-tight sm:text-3xl">Pedido #{orderNumber}</h2>
                 </div>
               </div>
               {availableOrders && availableOrders.length > 1 && onSelectOrder && (
-                <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-                  {availableOrders.map((availableOrder) => {
-                    const selected = availableOrder.id === order.id;
-                    return (
-                      <button
-                        key={availableOrder.id}
-                        type="button"
-                        onClick={() => onSelectOrder(availableOrder.id)}
-                        className={"shrink-0 rounded-full border px-3 py-1.5 text-[10px] font-bold transition " + (selected ? "border-primary bg-primary text-primary-foreground" : "border-background/10 bg-background/10 text-background/60 hover:bg-background/15")}
-                      >
-                        Pedido #{availableOrder.number}
-                      </button>
-                    );
-                  })}
+                <div className="mt-4 rounded-2xl border border-white/15 bg-black/10 p-1.5">
+                  <div className="flex gap-1 overflow-x-auto">
+                    {availableOrders.map((availableOrder) => {
+                      const selected = availableOrder.id === order.id;
+                      return (
+                        <button
+                          key={availableOrder.id}
+                          type="button"
+                          onClick={() => onSelectOrder(availableOrder.id)}
+                          aria-pressed={selected}
+                          className={
+                            "min-w-[112px] shrink-0 rounded-xl border px-3 py-2 text-[10px] font-black transition-all " +
+                            (selected
+                              ? "border-primary bg-primary text-white shadow-md"
+                              : "border-transparent bg-white/5 text-white/70 hover:border-white/10 hover:bg-white/10 hover:text-white")
+                          }
+                        >
+                          Pedido #{availableOrder.number}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-background/60">
@@ -133,7 +141,7 @@ export function TrackedOrderPanel({
                 </span>
               </div>
             </div>
-            <button type="button" onClick={onClose} className="relative grid size-10 shrink-0 place-items-center rounded-full border border-background/10 bg-background/10 text-background transition hover:bg-background/20 active:scale-95" aria-label="Fechar">
+            <button type="button" onClick={onClose} className="relative grid size-10 shrink-0 place-items-center rounded-full border border-white/25 bg-white/10 text-white transition hover:bg-white/20 active:scale-95" aria-label="Fechar">
               <X className="size-4" />
             </button>
           </div>
