@@ -71,7 +71,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
         const parsed = JSON.parse(raw);
         const storedOrders = (Array.isArray(parsed) ? parsed : [parsed]).filter(
-          (item): item is { id: string; number: number; phone: string } =>
+          (item): item is TrackedOrder =>
             Boolean(item?.id && item?.phone),
         );
 
@@ -102,26 +102,33 @@ export function Storefront({ slug }: { slug?: string }) {
         if (cancelled) return;
 
         const activeOrders: TrackedOrder[] = results
-          .filter(
-            ({ error, status }) =>
-              !error &&
-              Boolean(status) &&
-              status !== "DELIVERED" &&
-              status !== "CANCELLED",
-          )
+          .filter(({ error, status, stored }) => {
+            const effectiveStatus = status ?? stored.status;
+            return (
+              (!error || Boolean(stored.status)) &&
+              Boolean(effectiveStatus) &&
+              effectiveStatus !== "DELIVERED" &&
+              effectiveStatus !== "CANCELLED"
+            );
+          })
           .map(({ stored, current, status }) => ({
             ...stored,
+            number:
+              Number.isFinite(Number(current?.order_number)) &&
+              Number(current?.order_number) > 0
+                ? Number(current?.order_number)
+                : stored.number,
             items: Array.isArray(current?.items)
               ? (current.items as unknown as CartItem[])
-              : undefined,
+              : stored.items,
             subtotal: Number.isFinite(Number(current?.subtotal))
               ? Number(current?.subtotal)
-              : undefined,
+              : stored.subtotal,
             total: Number.isFinite(Number(current?.total))
               ? Number(current?.total)
-              : undefined,
-            fulfillment: current?.fulfillment ?? undefined,
-            status,
+              : stored.total,
+            fulfillment: current?.fulfillment ?? stored.fulfillment,
+            status: status ?? stored.status,
           }));
 
         setTrackedOrders(activeOrders);
@@ -134,7 +141,7 @@ export function Storefront({ slug }: { slug?: string }) {
         if (activeOrders.length > 0) {
           localStorage.setItem(
             `ppp:tracked-orders:${data.organization.id}`,
-            JSON.stringify(activeOrders.map(({ id, number, phone }) => ({ id, number, phone }))),
+            JSON.stringify(activeOrders),
           );
         } else {
           localStorage.removeItem(`ppp:tracked-orders:${data.organization.id}`);
@@ -597,7 +604,7 @@ export function Storefront({ slug }: { slug?: string }) {
               try {
                 localStorage.setItem(
                   `ppp:tracked-orders:${data.organization.id}`,
-                  JSON.stringify(next.map(({ id, number, phone }) => ({ id, number, phone }))),
+                  JSON.stringify(next),
                 );
               } catch {
                 // Ignore storage failures; tracking still works for the current session.
