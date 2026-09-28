@@ -610,7 +610,7 @@ export function CheckoutPanel({
                 <span className="text-muted-foreground">Subtotal</span>
                 <span>{formatCurrency(subtotal)}</span>
               </div>
-              {fulfillment === "DELIVERY" && (
+              {!existingOrder && fulfillment === "DELIVERY" && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Entrega</span>
                   <span>{selectedZone ? formatCurrency(deliveryFee) : "—"}</span>
