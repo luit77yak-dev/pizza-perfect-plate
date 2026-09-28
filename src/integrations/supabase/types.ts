@@ -1270,27 +1270,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      append_public_order_items: {
+        Args: { p_customer_phone: string; p_items: Json; p_order_id: string }
+        Returns: {
+          order_id: string
+          order_number: number
+          status: Database["public"]["Enums"]["order_status"]
+          subtotal: number
+          total: number
+        }[]
+      }
       claim_first_owner: { Args: never; Returns: boolean }
       create_public_order: {
         Args: { p_order: Json }
         Returns: {
           order_id: string
           order_number: number
-        }[]
-      }
-      append_public_order_items: {
-        Args: {
-          p_items: Json
-          p_customer_phone: string
-          p_order_id: string
-        }
-        Returns: {
-          order_id: string
-          order_number: number
-          subtotal: number
-          delivery_fee: number
-          total: number
-          status: Database["public"]["Enums"]["order_status"]
         }[]
       }
       get_public_order_status: {
