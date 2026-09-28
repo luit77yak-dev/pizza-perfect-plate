@@ -15,7 +15,7 @@ import type {
   OrderStatus,
 } from "@/lib/domain/types";
 
-function CheckoutPanel({
+export function CheckoutPanel({
   organization,
   settings,
   deliveryZones,
