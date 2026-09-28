@@ -1,6 +1,6 @@
 import type { Product, ProductPrice, SpecialHour, StoreHour } from "@/lib/domain/types";
 
-function normalizeNeighborhood(value: string) {
+export function normalizeNeighborhood(value: string) {
   return value
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -9,13 +9,13 @@ function normalizeNeighborhood(value: string) {
     .toLowerCase();
 }
 
-function getPrice(product: Product, sizeId: string | null, prices: ProductPrice[]) {
+export function getPrice(product: Product, sizeId: string | null, prices: ProductPrice[]) {
   if (!sizeId) return Number(product.base_price) || 0;
   const row = prices.find((price) => price.product_id === product.id && price.size_id === sizeId);
   return row ? Number(row.price) : Number(product.base_price) || 0;
 }
 
-function getStoreStatus(hours: StoreHour[], specialHours: SpecialHour[], now = new Date()) {
+export function getStoreStatus(hours: StoreHour[], specialHours: SpecialHour[], now = new Date()) {
   const dateKey = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
   const special = specialHours.find((item) => item.date === dateKey);
   const weekday = now.getDay();
