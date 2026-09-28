@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem } from "@/lib/domain/types";
 
-function CartPanel({
+export function CartPanel({
   items,
   subtotal,
   onClose,
