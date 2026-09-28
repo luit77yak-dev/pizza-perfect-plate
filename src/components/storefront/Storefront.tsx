@@ -16,6 +16,7 @@ import { StorefrontContact } from "@/components/storefront/StorefrontContact";
 import { ProductConfigurator } from "@/features/storefront/components/ProductConfigurator";
 import { CartPanel } from "@/features/cart/components/CartPanel";
 import { CheckoutPanel } from "@/features/storefront/components/CheckoutPanel";
+import { TrackedOrderPanel } from "@/components/storefront/TrackedOrderPanel";
 import { useLocalCart } from "@/features/cart/hooks/use-local-cart";
 import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
@@ -38,7 +39,13 @@ export function Storefront({ slug }: { slug?: string }) {
     id: string;
     number: number;
     phone: string;
+    items?: CartItem[];
+    subtotal?: number;
+    total?: number;
+    fulfillment?: "DELIVERY" | "PICKUP";
+    status?: OrderStatus;
   } | null>(null);
+  const [trackingOpen, setTrackingOpen] = useState(false);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -80,7 +87,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
         // If the status lookup fails, keep the stored order so the customer can
         // still try to track it instead of silently losing the tracking reference.
-        setTrackedOrder(stored);
+        setTrackedOrder({ ...stored, items: current?.items ?? undefined, subtotal: current?.subtotal ?? undefined, total: current?.total ?? undefined, fulfillment: current?.fulfillment ?? undefined, status });
       } catch {
         if (!cancelled) setTrackedOrder(null);
       }
@@ -199,7 +206,7 @@ export function Storefront({ slug }: { slug?: string }) {
         logoUrl={data.settings.logo_url ?? null}
         itemCount={itemCount}
         selectedTrackedOrdersCount={trackedOrder ? 1 : 0}
-        onOpenCart={() => setCartOpen(true)}
+        onOpenCart={() => { if (trackedOrder && itemCount === 0) setTrackingOpen(true); else setCartOpen(true); }}
       />
 
       <main id="inicio" className="ppp-reference-storefront">
@@ -358,6 +365,17 @@ export function Storefront({ slug }: { slug?: string }) {
         />
       )}
 
+      {trackingOpen && trackedOrder && (
+        <TrackedOrderPanel
+          order={trackedOrder}
+          onClose={() => setTrackingOpen(false)}
+          onAddToOrder={() => {
+            setTrackingOpen(false);
+            document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+        />
+      )}
+
       {checkoutOpen && (
         <CheckoutPanel
           organization={data.organization}
@@ -389,10 +407,10 @@ export function Storefront({ slug }: { slug?: string }) {
         />
       )}
 
-      {trackedOrder && !checkoutOpen && !cartOpen && itemCount === 0 && (
+      {trackedOrder && !trackingOpen && !checkoutOpen && !cartOpen && itemCount === 0 && (
         <div className="fixed inset-x-0 bottom-4 z-30 mx-auto w-[calc(100%-2rem)] max-w-md">
           <button
-            onClick={() => setCheckoutOpen(true)}
+            onClick={() => setTrackingOpen(true)}
             className="flex w-full items-center justify-between rounded-2xl border bg-card px-5 py-4 text-left shadow-lifted"
           >
             <span>
