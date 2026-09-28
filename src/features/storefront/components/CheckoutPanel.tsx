@@ -26,6 +26,7 @@ export function CheckoutPanel({
   storeOpen,
   storeStatusLabel,
   onOrderFinished,
+  existingOrder = null,
 }: {
   organization: Organization;
   settings: OrganizationSettings;
@@ -37,15 +38,21 @@ export function CheckoutPanel({
   storeOpen: boolean;
   storeStatusLabel: string;
   onOrderFinished: () => void;
+  existingOrder?: {
+    id: string;
+    number: number;
+    phone: string;
+    fulfillment?: FulfillmentType;
+  } | null;
 }) {
   const [fulfillment, setFulfillment] = useState<FulfillmentType>(
-    settings.delivery_enabled ? "DELIVERY" : "PICKUP",
+    existingOrder?.fulfillment ?? (settings.delivery_enabled ? "DELIVERY" : "PICKUP"),
   );
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     settings.payment_methods[0] ?? "PIX",
   );
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(existingOrder?.phone ?? "");
   const [street, setStreet] = useState("");
   const [number, setNumber] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
@@ -92,6 +99,63 @@ export function CheckoutPanel({
 
     if (!storeOpen) {
       setError(`A loja está fechada. ${storeStatusLabel}.`);
+      return;
+    }
+
+    if (existingOrder) {
+      if (items.length === 0) {
+        setError("Adicione pelo menos um item.");
+        return;
+      }
+      setSubmitting(true);
+      try {
+        const appendItems = items.flatMap((item) => [
+          {
+            product_id: item.productId,
+            second_product_id: item.secondProductId,
+            is_half: item.isHalf,
+            size_id: item.sizeId,
+            crust_id: item.crustId,
+            quantity: item.quantity,
+            notes: item.notes,
+            addons: item.addons.map((addon) => ({ id: addon.id })),
+          },
+          ...(item.complements ?? []).map((complement) => ({
+            product_id: complement.productId,
+            second_product_id: null,
+            is_half: false,
+            size_id: null,
+            crust_id: null,
+            quantity: 1,
+            notes: "Complemento do pedido: " + item.productName,
+            addons: [],
+          })),
+        ]);
+        const { data: appended, error: appendError } = await supabase.rpc(
+          "append_public_order_items_with_payment",
+          {
+            p_order_id: existingOrder.id,
+            p_customer_phone: existingOrder.phone,
+            p_items: appendItems,
+            p_payment_method: paymentMethod,
+          },
+        );
+        if (appendError) throw appendError;
+        const order = Array.isArray(appended) ? appended[0] : appended;
+        if (!order?.order_number || !order?.order_id) {
+          throw new Error("Não foi possível adicionar o complemento ao pedido.");
+        }
+        setSuccessOrderId(String(order.order_id));
+        setSuccessNumber(Number(order.order_number));
+        setSuccessStatus((order.status as OrderStatus) ?? "RECEIVED");
+        setPhone(existingOrder.phone);
+        onSuccess({ id: String(order.order_id), number: Number(order.order_number), phone: existingOrder.phone });
+      } catch (appendError) {
+        const message = appendError instanceof Error ? appendError.message : "Não foi possível adicionar o complemento.";
+        setError(message);
+      } finally {
+        setSubmitting(false);
+      }
       return;
     }
 
@@ -315,9 +379,9 @@ export function CheckoutPanel({
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
-              Finalizar pedido
+              {existingOrder ? "Complementar pedido" : "Finalizar pedido"}
             </p>
-            <h1 className="mt-1 text-3xl sm:text-4xl">Quase lá</h1>
+            <h1 className="mt-1 text-3xl sm:text-4xl">{existingOrder ? `Pedido #${existingOrder.number}` : "Quase lá"}</h1>
           </div>
           <button
             onClick={onClose}
@@ -330,6 +394,7 @@ export function CheckoutPanel({
 
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
           <div className="space-y-4">
+            {!existingOrder && (
             <section className="rounded-3xl border bg-card p-5 shadow-soft">
               <p className="text-sm font-semibold">Como você quer receber?</p>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -353,7 +418,9 @@ export function CheckoutPanel({
                 )}
               </div>
             </section>
+            )}
 
+            {!existingOrder && (
             <section className="rounded-3xl border bg-card p-5 shadow-soft">
               <p className="text-sm font-semibold">Seus dados</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -382,8 +449,9 @@ export function CheckoutPanel({
                 </label>
               </div>
             </section>
+            )}
 
-            {fulfillment === "DELIVERY" && (
+            {!existingOrder && fulfillment === "DELIVERY" && (
               <section className="rounded-3xl border bg-card p-5 shadow-soft">
                 <p className="text-sm font-semibold">Endereço de entrega</p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_120px]">
@@ -491,6 +559,7 @@ export function CheckoutPanel({
               </div>
             </section>
 
+            {!existingOrder && (
             <section className="rounded-3xl border bg-card p-5 shadow-soft">
               <label htmlFor="checkout-notes" className="text-sm font-semibold">
                 Observações do pedido
@@ -504,6 +573,7 @@ export function CheckoutPanel({
                 maxLength={500}
               />
             </section>
+            )}
           </div>
 
           <aside className="h-fit rounded-3xl border bg-card p-5 shadow-soft lg:sticky lg:top-6">
@@ -565,10 +635,14 @@ export function CheckoutPanel({
                 ? "Loja fechada"
                 : submitting
                   ? "Enviando pedido..."
-                  : `Enviar pedido · ${formatCurrency(total)}`}
+                  : existingOrder
+                    ? `Confirmar complemento · ${formatCurrency(subtotal)}`
+                    : `Enviar pedido · ${formatCurrency(total)}`}
             </Button>
             <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
-              Ao enviar, o pedido será encaminhado diretamente para a loja.
+              {existingOrder
+                ? "O complemento será adicionado ao pedido em andamento após a confirmação."
+                : "Ao enviar, o pedido será encaminhado diretamente para a loja."}
             </p>
           </aside>
         </div>
