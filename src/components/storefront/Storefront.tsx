@@ -156,8 +156,13 @@ export function Storefront({ slug }: { slug?: string }) {
     };
 
     void loadTrackedOrders();
+    const interval = window.setInterval(() => {
+      void loadTrackedOrders();
+    }, 5000);
+
     return () => {
       cancelled = true;
+      window.clearInterval(interval);
     };
   }, [data?.organization?.id]);
   useEffect(() => {
