@@ -215,14 +215,10 @@ export function Storefront({ slug }: { slug?: string }) {
         onOpenCart={() => setCartOpen(true)}
       />
 
-      <main id="inicio"
-
       <main id="inicio" className="ppp-reference-storefront">
         <StorefrontHero organizationName={data.organization.name} settings={data.settings} products={mainProducts} />
 
         <ProductTicker products={mainProducts} />
-
-        <section id="cardapio"
 
         <section id="cardapio" className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6">
           <div className="ppp-reference-menu-heading mb-8 flex flex-col items-center justify-center gap-3 text-center">
@@ -242,8 +238,6 @@ export function Storefront({ slug }: { slug?: string }) {
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
           />
-
-          {filteredProducts.length === 0 ?
 
           {filteredProducts.length === 0 ? (
             <div className="rounded-3xl border border-dashed bg-card p-12 text-center">
@@ -320,8 +314,6 @@ export function Storefront({ slug }: { slug?: string }) {
         <StorefrontAbout settings={data.settings} categories={data.categories} />
 
         <StorefrontContact settings={data.settings} />
-
-      </main>
 
       </main>
 
