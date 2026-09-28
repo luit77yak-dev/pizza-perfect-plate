@@ -151,7 +151,12 @@ export function CheckoutPanel({
         setPhone(existingOrder.phone);
         onSuccess({ id: String(order.order_id), number: Number(order.order_number), phone: existingOrder.phone });
       } catch (appendError) {
-        const message = appendError instanceof Error ? appendError.message : "Não foi possível adicionar o complemento.";
+        const message =
+          appendError instanceof Error
+            ? appendError.message
+            : typeof appendError === "object" && appendError !== null && "message" in appendError
+              ? String((appendError as { message?: unknown }).message ?? "Não foi possível adicionar o complemento.")
+              : "Não foi possível adicionar o complemento.";
         setError(message);
       } finally {
         setSubmitting(false);
