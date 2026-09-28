@@ -34,7 +34,7 @@ export type StoreData = {
   deliveryZones: DeliveryZone[];
 };
 
-async function loadStore(slug?: string): Promise<StoreData> {
+export async function loadStore(slug?: string): Promise<StoreData> {
   const { data: organization, error: organizationError } = await supabase
     .from("organizations")
     .select("*")
