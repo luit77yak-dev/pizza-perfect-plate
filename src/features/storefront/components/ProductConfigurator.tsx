@@ -261,7 +261,7 @@ export function ProductConfigurator({
                     Selecione
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {data.sizes.map((size, index) => {
                     const price = getPrice(product, size.id, data.prices);
                     const selected = sizeId === size.id;
@@ -270,16 +270,16 @@ export function ProductConfigurator({
                         key={size.id}
                         onClick={() => setSizeId(size.id)}
                         className={
-                          "group relative min-h-[68px] overflow-hidden rounded-xl border p-2.5 text-left transition-all duration-200 sm:min-h-0 sm:p-2 " +
+                          "group relative min-h-[72px] overflow-hidden rounded-xl border p-3 text-left transition-all duration-200 sm:min-h-[60px] sm:p-2 " +
                           (selected
                             ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary/20"
                             : "border-white/10 bg-[#0a3035] text-[#f4eee2] hover:-translate-y-0.5 hover:border-primary/50 hover:bg-[#0d373c]")
                         }
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                           <div
                             className={
-                              "grid size-8 shrink-0 place-items-center rounded-md border text-xl transition-transform group-hover:scale-105 sm:size-7 " +
+                              "grid size-9 shrink-0 place-items-center rounded-md border text-xl transition-transform group-hover:scale-105 sm:size-7 " +
                               (selected
                                 ? "border-primary-foreground/20 bg-primary-foreground/10"
                                 : "border-border bg-muted")
