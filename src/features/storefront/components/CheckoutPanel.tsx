@@ -278,48 +278,6 @@ export function CheckoutPanel({
   };
 
   return (
-      <div className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md">
-        <section className="mx-auto min-h-screen w-full max-w-2xl bg-[#06282d] px-4 pb-10 pt-0 text-[#f4eee2] sm:px-6">
-          <div className="sticky top-0 z-30 -mx-4 mb-5 flex items-center justify-between gap-3 border-b border-white/10 bg-[#06282d]/95 px-4 py-4 backdrop-blur-xl sm:-mx-6 sm:px-6">
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#f3ad4b]">Checkout</p>
-                <p className="mt-0.5 font-display text-lg">Pedido #{successNumber}</p>
-              </div>
-              <button type="button" onClick={onClose} className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10" aria-label="Fechar checkout">
-                <X className="size-5" />
-              </button>
-            </div>
-
-            <div className="rounded-[2rem] border border-white/10 bg-[#0a3035] p-6 shadow-lifted sm:p-8">
-            <div className="flex items-start gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Check className="size-7" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
-                  Pedido recebido
-                </p>
-                <h2 className="mt-1 text-3xl">Pedido #{successNumber}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{organization.name}</p>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <p className="text-sm font-semibold">Acompanhe seu pedido</p>
-              <div className="mt-4 space-y-3">
-                {[
-                  ["RECEIVED", "Pedido recebido"],
-                  ["CONFIRMED", "Pedido confirmado"],
-                  ["PREPARING", "Em preparo"],
-                  ["READY", fulfillment === "DELIVERY" ? "Pedido pronto" : "Pronto para retirada"],
-                  ["OUT_FOR_DELIVERY", "Saiu para entrega"],
-                  ["DELIVERED", fulfillment === "DELIVERY" ? "Entregue" : "Retirado"],
-                ].map(([value, label], index, steps) => {
-                  const currentIndex = steps.findIndex(([step]) => step === successStatus);
-                  const isDone = currentIndex >= 0 && index <= currentIndex;
-                  const isCurrent = value === successStatus;
-                  if (fulfillment === "PICKUP" && value === "OUT_FOR_DELIVERY") return null;
-                  return (
                     <div key={value} className="flex items-center gap-3">
                       <div
                         className={`flex size-9 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${isDone ? "border-primary bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}
