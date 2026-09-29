@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      organization_domains: {
+        Row: {
+          id: string
+          organization_id: string
+          domain: string
+          active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          domain: string
+          active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          domain?: string
+          active?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_domains_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
