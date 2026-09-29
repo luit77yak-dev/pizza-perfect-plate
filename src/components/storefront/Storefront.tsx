@@ -686,30 +686,7 @@ export function Storefront({ slug }: { slug?: string }) {
               // Ignore storage failures.
             }
           }}
-          onOrderFinished={() => {
-            setTrackedOrders((current) => {
-              const next = current.filter((item) => item.id !== selectedTrackedOrderId);
-              try {
-                if (next.length > 0) {
-                  localStorage.setItem(
-                    `ppp:tracked-orders:${data.organization.id}`,
-                    JSON.stringify(next),
-                  );
-                } else {
-                  localStorage.removeItem(`ppp:tracked-orders:${data.organization.id}`);
-                }
-              } catch {
-                // Ignore storage failures.
-              }
-              return next;
-            });
-            setSelectedTrackedOrderId(null);
-            try {
-              localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
-            } catch {
-              // Ignore storage failures.
-            }
-          }}
+
         />
       )}
 
