@@ -978,6 +978,5 @@ export function ProductConfigurator({
         </footer>
       </div>
     </div>
-  )
   );
 }
