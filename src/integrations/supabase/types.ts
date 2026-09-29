@@ -1308,10 +1308,14 @@ export type Database = {
         Args: { p_customer_phone: string; p_order_id: string }
         Returns: {
           created_at: string
+          delivery_fee: number
           fulfillment: Database["public"]["Enums"]["fulfillment_type"]
+          items: Json
           order_id: string
           order_number: number
           status: Database["public"]["Enums"]["order_status"]
+          subtotal: number
+          total: number
           updated_at: string
         }[]
       }
