@@ -1,24 +1,22 @@
-# Diagnóstico: prévia não atualiza (somente leitura, nada foi alterado)
+# Refinamento visual da loja pública
 
-## Causa
-Erro de sintaxe (arquivo cortado/colado errado). O Vite não consegue ler o arquivo e a prévia não carrega.
+## Objetivo
+Aplicar a direção “Midnight premium artisan” à experiência dos clientes, preservando textos, produtos, identidade white-label e todas as funcionalidades existentes.
 
-1. `src/components/storefront/Storefront.tsx`, linha ~959 (principal)
-   ```text
-   function getTrackedOrderStatusLabel(status?: OrderStatus) {
-     switch (status) {
-       case "RECEI;          <- texto cortado aqui
-     data: StoreData;        <- começa o meio de outra função (ProductConfigurator)
-   ```
-   Parte da função `getTrackedOrderStatusLabel` e o começo do `ProductConfigurator` foram apagados e o restante foi colado junto. Por isso aparecem "Unterminated string" (959) e "'}' expected" (2059).
-   - Esse defeito **não** foi criado pelo commit 4285964: ele já existia no commit anterior 9b81d8a (linha 896). O 4285964 só adicionou 63 linhas acima e o erro desceu para 959.
-   - O commit mais recente (81b17ce "Work in progress") só mexe em `src/integrations/supabase/types.ts` e não é a causa.
+## Mudanças visuais
+- Reequilibrar a paleta escura com marfim, terracota e acentos quentes para melhorar contraste e leitura.
+- Refinar o cabeçalho para manter marca, navegação, acompanhamento e sacola claramente visíveis em desktop e celular.
+- Ajustar a apresentação inicial para uma composição editorial sobre a fotografia, com hierarquia tipográfica mais clara e chamada principal elegante.
+- Organizar o cardápio com maior respiro, filtros mais discretos e produtos com acabamento fotográfico premium, sem alterar informações ou ações.
+- Harmonizar galeria sanfona, seções institucionais, contato, carrinho e janelas de configuração com a mesma linguagem visual.
+- Preservar estados de foco, hover e active, além de respeitar redução de movimento.
 
-2. `src/components/storefront/StorefrontSkeleton.tsx`, linhas 4-5 e 21 (secundário)
-   `return (` aparece duas vezes e há um `}` sobrando no final. Veio do commit 36be7e6 ("extract loading skeleton").
+## Responsividade e validação
+- Revisar em celular, tablet e desktop, evitando cortes, sobreposições e alvos pequenos.
+- Conferir visualmente topo, cardápio e ações principais.
+- Verificar compilação e relatar separadamente qualquer erro funcional anterior que não pertença ao redesign.
 
-Dependências, configuração e sincronização estão normais (pacotes instalados, servidor ativo). O problema é só de sintaxe nesses dois arquivos.
-
-## Correção sugerida (só se você aprovar)
-- Recuperar `getTrackedOrderStatusLabel` e o começo de `ProductConfigurator` de um commit antigo em que o arquivo ainda estava inteiro, e colar no lugar da linha 959.
-- No Skeleton, apagar o `return (` repetido e o `}` sobrando.
+## Detalhes técnicos
+- Mudanças limitadas aos componentes e estilos da loja pública; o painel administrativo não será alterado.
+- Cores serão mantidas em tokens semânticos e poderão continuar recebendo a identidade configurada por cada pizzaria.
+- Nenhuma regra de preço, checkout, rastreamento, banco ou permissão será modificada.
