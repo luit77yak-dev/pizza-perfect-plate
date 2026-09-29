@@ -1,4 +1,4 @@
-import { Clock3, Pizza } from "lucide-react";
+import { ChevronRight, Pizza } from "lucide-react";
 import type { OrganizationSettings, Product } from "@/lib/domain/types";
 
 type StorefrontHeroProps = {
@@ -7,62 +7,29 @@ type StorefrontHeroProps = {
   products: Product[];
 };
 
-function Ornament() {
-  return (
-    <svg viewBox="0 0 140 14" aria-hidden="true" className="ppp-ornament h-3 w-32">
-      <path d="M2 7h50M88 7h50" />
-      <circle cx="70" cy="7" r="4" />
-      <circle cx="62" cy="7" r="1.5" />
-      <circle cx="78" cy="7" r="1.5" />
-    </svg>
-  );
-}
-
 export function StorefrontHero({ organizationName, settings, products }: StorefrontHeroProps) {
-  const heroImage =
-    settings.hero_image_url ??
-    products.find((product) => Boolean(product.image_url))?.image_url ??
-    null;
-
   return (
-    <section className="ppp-reference-hero">
-      <div className="ppp-reference-hero-frame">
-        <div className="ppp-reference-hero-grid">
-          <div className="ppp-reference-hero-copy">
-            <p className="ppp-reference-hero-eyebrow">Pizza napoletana</p>
-            <h1>{settings.hero_title || "Farinha, água, sal e tempo."}</h1>
-            <Ornament />
-            <p className="ppp-reference-hero-sub">
-              {settings.hero_subtitle ||
-                settings.description ||
-                "Massa descansada, forno bem quente e ingredientes escolhidos para respeitar a tradição napolitana."}
-            </p>
-            <div className="ppp-reference-hero-actions">
-              <a href="#cardapio" className="ppp-hero-primary-cta">
-                {settings.hero_cta_label || "Ver o cardápio"}
-              </a>
-              <span className="ppp-hero-hours">
-                <Clock3 className="size-4" />
-                Terça a domingo, das 18h30 às 23h
-              </span>
-            </div>
+    <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
+      <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
+        <div className="ppp-reference-hero-grid grid min-h-[min(760px,calc(100dvh-5.5rem))] lg:min-h-[760px] lg:grid-cols-1">
+          <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-[clamp(1.25rem,5vw,3.5rem)]">
+            <p className="mb-5 w-fit rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 font-body text-[10px] font-semibold uppercase tracking-[.28em] text-accent">Feita na hora · Est. 2026</p>
+            <h1 className="w-full max-w-4xl text-[clamp(2rem,8vw,8rem)] leading-[.86] tracking-[-.045em]">{settings.hero_title && !/MASSA DE FERMENTA/i.test(settings.hero_title) ? settings.hero_title : "Pizza que fica na memória."}</h1>
+            <p className="mt-7 max-w-xl text-base leading-7 text-secondary-foreground/75 sm:text-lg">{settings.hero_subtitle || settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
+            <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-full border border-primary bg-primary px-6 py-4 font-body text-sm font-semibold uppercase text-primary-foreground shadow-lifted transition-transform hover:-translate-y-1 hover:bg-primary/90">{settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
           </div>
-
-          <figure className="ppp-reference-hero-media">
-            {heroImage ? (
-              <img
-                src={heroImage}
-                alt={organizationName}
-                className="ppp-reference-hero-image"
-                loading="eager"
-              />
-            ) : (
-              <div className="grid size-full place-items-center text-secondary-foreground/40">
-                <Pizza className="size-20" strokeWidth={1} />
-              </div>
-            )}
-            <figcaption>{organizationName}</figcaption>
-          </figure>
+          <div className="ppp-reference-hero-media pointer-events-none absolute inset-0 z-0 min-h-[min(680px,calc(100dvh-5.5rem))] overflow-hidden bg-secondary p-0 lg:min-h-[760px]">
+            <div className="relative h-full min-h-[560px] overflow-hidden bg-background/10 p-0 sm:min-h-[680px] lg:min-h-[760px]">
+              {settings.hero_image_url ? (
+                <img src={settings.hero_image_url} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
+              ) : products.find((product) => Boolean(product.image_url)) ? (
+                <img src={products.find((product) => Boolean(product.image_url))?.image_url ?? ""} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
+              ) : (
+                <div className="grid h-full min-h-[560px] place-items-center text-secondary-foreground/50"><Pizza className="size-28" strokeWidth={1} /></div>
+              )}
+            </div>
+            <div className="pointer-events-none absolute bottom-2 left-2 z-10 flex size-24 rotate-[-8deg] items-center justify-center rounded-full border-2 border-secondary bg-primary p-3 text-center font-display text-[9px] uppercase leading-3 text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.7)] sm:bottom-4 sm:left-4 sm:size-28 sm:text-[10px]">{organizationName}<br />feito na hora<br />pizza artesanal</div>
+          </div>
         </div>
       </div>
     </section>
