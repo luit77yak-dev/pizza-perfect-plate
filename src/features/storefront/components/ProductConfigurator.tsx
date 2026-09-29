@@ -138,7 +138,7 @@ export function ProductConfigurator({
     onAdded([mainItem]);
   };
 
-  const stepTitle = step === 1 ? "Escolha" : step === 2 ? "Personalize sua pizza" : "Revise seu pedido";
+  const stepTitle = step === 1 ? "Escolha" : step === 2 ? "Personalize" : "Finalize";
   const complementsTotal = comboProductIds.reduce((sum, id) => {
     const item = data.products.find((item) => item.id === id);
     return sum + (Number(item?.base_price) || 0);
@@ -193,7 +193,7 @@ export function ProductConfigurator({
 
         <div className="shrink-0 border-b bg-card px-4 py-2.5 sm:px-6 sm:py-3">
           <div className="mx-auto flex max-w-3xl items-center gap-2 sm:gap-3">
-            {["Escolha", "Personalize sua pizza", "Revise seu pedido"].map((label, index) => {
+            {["Escolha", "Personalize", "Finalize"].map((label, index) => {
               const active = index + 1 === step;
               const complete = index + 1 < step;
 
@@ -241,13 +241,13 @@ export function ProductConfigurator({
               <div className="space-y-7">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
-                    Escolha sua pizza
+                    Comece por aqui
                   </p>
                   <h3 className="mt-1 text-2xl font-semibold tracking-[-.03em]">
-                    Escolha os detalhes
+                    Monte sua pizza
                   </h3>
                   <p className="mt-1 max-w-xl text-sm leading-6 text-muted-foreground">
-                    Defina o tamanho e, se quiser, combine dois sabores na mesma pizza.
+                    Escolha o tamanho e, se quiser, combine dois sabores na mesma pizza.
                   </p>
                 </div>
 
@@ -255,12 +255,12 @@ export function ProductConfigurator({
                   <div className="mb-3 flex items-end justify-between gap-3">
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">
-                        Tamanho
+                        01 · Tamanho
                       </p>
-                      <p className="mt-1 text-base font-semibold">Escolha o tamanho</p>
+                      <p className="mt-1 text-base font-semibold">Qual vai ser o tamanho?</p>
                     </div>
                     <span className="hidden rounded-full border bg-card px-2.5 py-1 text-[9px] font-semibold text-muted-foreground sm:inline">
-                      Selecione uma opção
+                      Toque para escolher
                     </span>
                   </div>
 
@@ -333,7 +333,7 @@ export function ProductConfigurator({
                   <div>
                     <div className="mb-3">
                       <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">
-                        Formato
+                        02 · Formato
                       </p>
                       <p className="mt-1 text-base font-semibold">Um sabor ou meio a meio?</p>
                     </div>
@@ -617,7 +617,7 @@ export function ProductConfigurator({
                   <div className="mb-3 flex items-end justify-between gap-3">
                     <div>
                       <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
-                        Acabamento
+                        01 · Acabamento
                       </p>
                       <h3 className="mt-1 text-xl font-semibold tracking-[-.03em]">
                         Escolha a borda
@@ -707,7 +707,7 @@ export function ProductConfigurator({
                     <div className="mb-3 flex items-end justify-between gap-3">
                       <div>
                         <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
-                          Toque final
+                          02 · Toque final
                         </p>
                         <h3 className="mt-1 text-xl font-semibold tracking-[-.03em]">
                           Adicione o que você ama
@@ -779,7 +779,7 @@ export function ProductConfigurator({
                       </div>
                       <div>
                         <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
-                          Pedido especial
+                          03 · Pedido especial
                         </p>
                         <h3 className="mt-1 text-base font-semibold">Tem algum detalhe?</h3>
                         <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
