@@ -442,7 +442,7 @@ export function Storefront({ slug }: { slug?: string }) {
       {complementPickerOpen && (
         <div className="fixed inset-0 z-[140] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label="Adicionar itens">
           <button type="button" className="absolute inset-0" onClick={() => setComplementPickerOpen(false)} aria-label="Fechar seleção de adicionais" />
-          <section className="relative flex max-h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#06282d] text-[#f4eee2] shadow-2xl sm:rounded-[2rem]">
+          <section className="ppp-complement-picker relative flex max-h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#06282d] text-[#f4eee2] shadow-2xl sm:rounded-[2rem]">
             <header className="shrink-0 border-b border-white/10 bg-[#06282d] px-5 py-4 text-[#f4eee2] sm:px-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
@@ -469,16 +469,16 @@ export function Storefront({ slug }: { slug?: string }) {
                         key={item.id}
                         type="button"
                         onClick={() => setSelectedComplementIds((current) => selected ? current.filter((id) => id !== item.id) : [...current, item.id])}
-                        className={"flex items-center gap-3 rounded-2xl border p-3 text-left transition " + (selected ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card hover:border-primary/40")}
+                        className={"flex items-center gap-3 rounded-2xl border p-3 text-left transition " + (selected ? "border-[#e8751a] bg-[#e8751a]/10 ring-1 ring-[#e8751a]" : "border-white/10 bg-[#0a3035] text-[#f4eee2] hover:border-white/25 hover:bg-[#0d373c]")}
                       >
-                        <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
+                        <div className="size-14 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#06282d]">
                           {item.image_url ? <img src={item.image_url} alt="" className="size-full object-cover" /> : <div className="grid size-full place-items-center text-lg font-display text-primary/40">{item.name.charAt(0)}</div>}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold">{item.name}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">{formatCurrency(Number(item.base_price) || 0)}</p>
+                          <p className="truncate text-sm font-bold text-[#f4eee2]">{item.name}</p>
+                          <p className="mt-1 text-xs text-white/45">{formatCurrency(Number(item.base_price) || 0)}</p>
                         </div>
-                        {selected && <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"><span className="text-xs">✓</span></span>}
+                        {selected && <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#e8751a] text-white shadow-sm"><span className="text-xs">✓</span></span>}
                       </button>
                     );
                   })}
