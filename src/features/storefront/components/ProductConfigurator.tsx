@@ -268,7 +268,7 @@ export function ProductConfigurator({
                         <div className="flex items-center gap-3">
                           <div
                             className={
-                              "grid size-9 shrink-0 place-items-center rounded-lg border text-xl transition-transform group-hover:scale-105  +
+                              "grid size-9 shrink-0 place-items-center rounded-lg border text-xl transition-transform group-hover:scale-105 " +
                               (selected
                                 ? "border-primary-foreground/20 bg-primary-foreground/10"
                                 : "border-border bg-muted")
@@ -324,7 +324,7 @@ export function ProductConfigurator({
                       Como você quer sua pizza?
                     </p>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-2 sm:grid-cols-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -332,7 +332,7 @@ export function ProductConfigurator({
                         setSecondProductId(null);
                       }}
                       className={
-                        "group relative overflow-hidden rounded-2xl border p-4 text-left transition-all " +
+                        "group relative overflow-hidden rounded-xl border p-3 text-left transition-all " +
                         (!halfMode
                           ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20"
                           : "bg-card hover:border-primary/50 hover:shadow-md")
@@ -342,7 +342,7 @@ export function ProductConfigurator({
                       <div className="mb-3 flex items-center justify-between">
                         <div
                           className={
-                            "relative grid size-11 place-items-center overflow-hidden rounded-xl border text-lg " +
+                            "relative grid size-9 place-items-center overflow-hidden rounded-lg border text-lg " +
                             (!halfMode
                               ? "border-primary-foreground/15 bg-primary-foreground/10"
                               : "border-border bg-muted")
@@ -391,7 +391,7 @@ export function ProductConfigurator({
                       <div className="mb-3 flex items-center justify-between">
                         <div
                           className={
-                            "relative grid size-11 place-items-center overflow-hidden rounded-xl border " +
+                            "relative grid size-9 place-items-center overflow-hidden rounded-lg border " +
                             (halfMode
                               ? "border-primary-foreground/15 bg-primary-foreground/10"
                               : "border-border bg-muted")
@@ -581,7 +581,7 @@ export function ProductConfigurator({
                           key={item.id}
                           onClick={() => toggleAddon(item.id)}
                           className={
-                            "flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm " +
+                            "flex items-center justify-between rounded-xl border px-3 py-2.5 text-left text-sm " +
                             (checked ? "border-primary bg-primary/5" : "bg-card")
                           }
                         >
