@@ -278,9 +278,21 @@ export function Storefront({ slug }: { slug?: string }) {
       className="ppp-customer-shell min-h-screen bg-background text-foreground"
       style={
         {
-          ...(primary ? { "--primary": primary } : {}),
-          "--secondary": secondary,
-          "--secondary-foreground": secondaryForeground,
+          "--primary": "3.4 71% 41%",
+          "--secondary": "88 30% 32%",
+          "--secondary-foreground": "40 56% 96%",
+          "--background": "40 55% 90%",
+          "--foreground": "27 29% 13%",
+          "--card": "40 56% 95.5%",
+          "--card-foreground": "27 29% 13%",
+          "--muted": "38 35% 86%",
+          "--muted-foreground": "27 16% 36%",
+          "--border": "34 22% 78%",
+          "--input": "34 22% 78%",
+          "--ring": "3.4 71% 41%",
+          "--font-heading": '"Cormorant Garamond", Georgia, serif',
+          "--font-body": 'Inter, ui-sans-serif, system-ui, sans-serif',
+          "--radius": "2px",
         } as CSSProperties
       }
     >
