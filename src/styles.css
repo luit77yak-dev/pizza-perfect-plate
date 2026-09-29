@@ -2924,3 +2924,97 @@
     .ppp-admin-feedback { top: 68px; right: .75rem; width: calc(100vw - 1.5rem); margin-inline: 0; font-size: .76rem; }
   }
 }
+
+
+/* ============================================================
+   MIDNIGHT UI FINAL OVERRIDES — customer order flows
+   Keep these after legacy/reference rules so dark surfaces win.
+   ============================================================ */
+@layer components {
+  .ppp-reference-header > div > button {
+    min-height: 3rem !important;
+  }
+
+  .ppp-reference-header > div > button svg {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    stroke-width: 1.9 !important;
+  }
+
+  .ppp-tracked-order-panel > section {
+    background: #06282d !important;
+    color: #f4eee2 !important;
+  }
+
+  .ppp-tracked-order-panel > section > header {
+    background: #e8751a !important;
+    color: #ffffff !important;
+    border-bottom-color: rgba(0,0,0,.12) !important;
+  }
+
+  .ppp-tracked-order-panel > section > header p,
+  .ppp-tracked-order-panel > section > header h2,
+  .ppp-tracked-order-panel > section > header button,
+  .ppp-tracked-order-panel > section > header svg {
+    color: #ffffff !important;
+  }
+
+  .ppp-complement-picker {
+    background: #06282d !important;
+    color: #f4eee2 !important;
+  }
+
+  .ppp-complement-picker > header {
+    background: #06282d !important;
+    color: #f4eee2 !important;
+    border-bottom-color: rgba(244,238,226,.1) !important;
+  }
+
+  .ppp-complement-picker > header p,
+  .ppp-complement-picker > header h2,
+  .ppp-complement-picker > header button,
+  .ppp-complement-picker > header svg {
+    color: #f4eee2 !important;
+  }
+
+  .ppp-complement-picker button {
+    color: #f4eee2;
+  }
+
+  .ppp-order-builder > div {
+    background: #06282d !important;
+    color: #f4eee2 !important;
+  }
+
+  .ppp-order-builder > div > header {
+    background: #06282d !important;
+    color: #f4eee2 !important;
+  }
+
+  .ppp-order-builder > div > div:nth-child(2) {
+    background: #092f34 !important;
+    border-color: rgba(244,238,226,.1) !important;
+  }
+
+  .ppp-order-builder .bg-card {
+    background: #0a3035 !important;
+    color: #f4eee2 !important;
+  }
+
+  .ppp-order-builder .bg-muted {
+    background: #0d373c !important;
+    color: #f4eee2 !important;
+  }
+
+  .ppp-order-builder .text-muted-foreground {
+    color: rgba(244,238,226,.5) !important;
+  }
+
+  .ppp-order-builder textarea {
+    color: #f4eee2 !important;
+  }
+
+  .ppp-order-builder textarea::placeholder {
+    color: rgba(244,238,226,.3) !important;
+  }
+}

@@ -26,6 +26,7 @@ export function ProductConfigurator({
   const [addonIds, setAddonIds] = useState<string[]>([]);
   const [comboProductIds, setComboProductIds] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
+  const [notesOpen, setNotesOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const personalizationScrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -138,16 +139,16 @@ export function ProductConfigurator({
     onAdded([mainItem]);
   };
 
-  const stepTitle = step === 1 ? "Escolha" : step === 2 ? "Personalize" : "Finalize";
+  const stepTitle = step === 1 ? "Escolha" : step === 2 ? "Montagem" : "Finalize";
 
   return (
     <div
-      className="ppp-order-builder fixed inset-0 z-[120] flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-6"
+      className="ppp-order-builder fixed inset-0 z-[120] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-label={"Montar " + product.name}
     >
-      <div className="flex h-[88dvh] max-h-[88dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[86vh] sm:max-h-[86vh] sm:rounded-[2rem]">
+      <div className="flex h-[88dvh] max-h-[88dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-[2rem] border border-white/10 bg-[#06282d] text-[#f4eee2] shadow-[0_24px_80px_rgba(0,0,0,.5)] sm:h-[86vh] sm:max-h-[86vh] sm:rounded-[2rem]">
         <div className="relative shrink-0 overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
           <div className="absolute -right-10 -top-16 size-40 rounded-full bg-primary/25 blur-3xl" />
           <div className="relative flex items-center gap-4">
@@ -183,9 +184,9 @@ export function ProductConfigurator({
           </div>
         </div>
 
-        <div className="shrink-0 border-b bg-card px-4 py-3 sm:px-5">
+        <div className="shrink-0 border-b border-white/10 bg-[#092f34] px-4 py-3 sm:px-5">
           <div className="flex items-center justify-between gap-2">
-            {["Escolha", "Personalize", "Finalize"].map((label, index) => {
+            {["Escolha", "Montagem", "Finalize"].map((label, index) => {
               const active = index + 1 === step;
               const complete = index + 1 < step;
               return (
@@ -223,16 +224,16 @@ export function ProductConfigurator({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#06282d] px-4 py-4 sm:px-5 sm:py-5">
           {step === 1 && (
-            <section className="space-y-5">
-              <div className="rounded-xl border bg-card p-3">
-                <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">
+            <section className="space-y-4">
+              <div className="rounded-2xl border border-white/10 bg-[#0a3035] p-3.5">
+                <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">
                   Produto principal
                 </p>
-                <p className="mt-1 text-lg font-semibold">{product.name}</p>
+                <p className="mt-1 text-base font-bold text-[#f4eee2]">{product.name}</p>
                 {product.description && (
-                  <p className="mt-1 text-sm text-muted-foreground">{product.description}</p>
+                  <p className="mt-1 text-xs leading-5 text-white/55">{product.description}</p>
                 )}
               </div>
 
@@ -242,15 +243,15 @@ export function ProductConfigurator({
                     <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
                       01 · Escolha o tamanho
                     </p>
-                    <p className="mt-1 text-lg font-semibold tracking-tight">
-                      Qual vai ser o tamanho?
+                    <p className="mt-1 text-base font-bold tracking-tight text-[#f4eee2]">
+                      Escolha o tamanho
                     </p>
                   </div>
-                  <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Toque para escolher
+                  <span className="rounded-full border border-white/10 bg-white/[.04] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white/50">
+                    Selecione
                   </span>
                 </div>
-                <div className="grid gap-1.5 sm:grid-cols-2">
+                <div className="grid grid-cols-2 gap-2">
                   {data.sizes.map((size, index) => {
                     const price = getPrice(product, size.id, data.prices);
                     const selected = sizeId === size.id;
@@ -259,10 +260,10 @@ export function ProductConfigurator({
                         key={size.id}
                         onClick={() => setSizeId(size.id)}
                         className={
-                          "group relative overflow-hidden rounded-lg border p-2 text-left transition-all duration-200 " +
+                          "group relative overflow-hidden rounded-xl border p-2 text-left transition-all duration-200 " +
                           (selected
                             ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary/20"
-                            : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md")
+                            : "border-white/10 bg-[#0a3035] text-[#f4eee2] hover:-translate-y-0.5 hover:border-primary/50 hover:bg-[#0d373c]")
                         }
                       >
                         <div className="flex items-center gap-2">
@@ -320,8 +321,8 @@ export function ProductConfigurator({
                     <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
                       02 · Formato
                     </p>
-                    <p className="mt-1 text-lg font-semibold tracking-tight">
-                      Como você quer sua pizza?
+                    <p className="mt-1 text-base font-bold tracking-tight text-[#f4eee2]">
+                      Formato da pizza
                     </p>
                   </div>
                   <div className="grid gap-1.5 sm:grid-cols-2">
@@ -332,20 +333,20 @@ export function ProductConfigurator({
                         setSecondProductId(null);
                       }}
                       className={
-                        "group relative overflow-hidden rounded-lg border p-2.5 text-left transition-all " +
+                        "group relative flex min-h-16 items-center gap-2.5 overflow-hidden rounded-xl border p-2.5 text-left transition-all " +
                         (!halfMode
                           ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20"
                           : "bg-card hover:border-primary/50 hover:shadow-md")
                       }
                       aria-pressed={!halfMode}
                     >
-                      <div className="mb-2 flex items-center justify-between">
+                      <div className="shrink-0">
                         <div
                           className={
-                            "relative grid size-9 place-items-center overflow-hidden rounded-lg border text-lg " +
+                            "relative grid size-8 place-items-center overflow-hidden rounded-lg border text-lg " +
                             (!halfMode
                               ? "border-primary-foreground/15 bg-primary-foreground/10"
-                              : "border-border bg-muted")
+                              : "border-white/10 bg-[#0d373c]")
                           }
                         >
                           <div className="absolute inset-y-0 left-0 w-1/2 bg-background/15" />
@@ -358,7 +359,7 @@ export function ProductConfigurator({
                           </span>
                         )}
                       </div>
-                      <p className="font-bold">Pizza inteira</p>
+                      <div className="min-w-0"><p className="text-sm font-bold">Pizza inteira</p>
                       <p
                         className={
                           "mt-1 text-xs " +
@@ -366,7 +367,7 @@ export function ProductConfigurator({
                         }
                       >
                         1 sabor · {product.name}
-                      </p>
+                      </p></div>
                     </button>
 
                     <button
@@ -384,17 +385,17 @@ export function ProductConfigurator({
                         "group relative overflow-hidden rounded-lg border p-2.5 text-left transition-all " +
                         (halfMode
                           ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20"
-                          : "bg-card hover:border-primary/50 hover:shadow-md")
+                          : "border-white/10 bg-[#0a3035] text-[#f4eee2] hover:border-primary/50 hover:bg-[#0d373c]")
                       }
                       aria-pressed={halfMode}
                     >
-                      <div className="mb-3 flex items-center justify-between">
+                      <div className="shrink-0">
                         <div
                           className={
-                            "relative grid size-9 place-items-center overflow-hidden rounded-lg border " +
+                            "relative grid size-8 place-items-center overflow-hidden rounded-lg border " +
                             (halfMode
                               ? "border-primary-foreground/15 bg-primary-foreground/10"
-                              : "border-border bg-muted")
+                              : "border-white/10 bg-[#0d373c]")
                           }
                         >
                           <div
@@ -417,7 +418,7 @@ export function ProductConfigurator({
                           </span>
                         )}
                       </div>
-                      <p className="font-bold">Meio a meio</p>
+                      <div className="min-w-0"><p className="text-sm font-bold">Meio a meio</p>
                       <p
                         className={
                           "mt-1 text-xs " +
@@ -425,20 +426,20 @@ export function ProductConfigurator({
                         }
                       >
                         2 sabores · metade de cada
-                      </p>
+                      </p></div>
                     </button>
                   </div>
 
                   {halfMode && (
-                    <div className="mt-3 flex items-start gap-3 rounded-2xl border border-primary/25 bg-primary/5 px-3.5 py-3">
-                      <div className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                    <div className="mt-2.5 flex items-start gap-3 rounded-2xl border border-[#f3ad4b]/25 bg-[#f3ad4b]/[.07] px-3.5 py-3">
+                      <div className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-[#f3ad4b] text-[#06282d]">
                         <span className="text-sm font-bold">2</span>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-foreground">
+                        <p className="text-sm font-bold text-[#f4eee2]">
                           Você escolheu meio a meio
                         </p>
-                        <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+                        <p className="mt-0.5 text-xs leading-5 text-white/60">
                           Agora escolha o <strong>segundo sabor</strong>. O primeiro já é{" "}
                           <strong>{product.name}</strong>.
                         </p>
@@ -451,15 +452,15 @@ export function ProductConfigurator({
               {product.allow_half && halfMode && (
                 <div
                   ref={personalizationScrollRef}
-                  className="scroll-mt-4 rounded-2xl border border-primary/20 bg-card p-4 shadow-sm"
+                  className="scroll-mt-4 rounded-2xl border border-white/10 bg-[#0a3035] p-3.5 shadow-sm"
                 >
-                  <div className="mb-4 flex items-start gap-3">
-                    <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <div className="mb-3 flex items-start gap-3">
+                    <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-[#f3ad4b]">
                       <Circle className="size-4" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold">Escolha o segundo sabor</p>
-                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      <p className="text-sm font-bold text-[#f4eee2]">Escolha a outra metade</p>
+                      <p className="mt-1 text-xs leading-5 text-white/55">
                         Primeiro sabor: <strong>{product.name}</strong>. Agora escolha a outra
                         metade.
                       </p>
@@ -470,7 +471,7 @@ export function ProductConfigurator({
                       </p>
                     </div>
                   </div>
-                  <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
+                  <div className="max-h-64 space-y-1.5 overflow-y-auto pr-1">
                     {data.products
                       .filter((item) => item.kind === "PIZZA" && item.id !== product.id)
                       .map((item) => {
@@ -489,23 +490,23 @@ export function ProductConfigurator({
                             type="button"
                             onClick={() => setSecondProductId(item.id)}
                             className={
-                              "flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left " +
+                              "flex w-full items-center justify-between rounded-xl border border-white/10 px-3 py-2.5 text-left text-[#f4eee2] transition " +
                               (selected
-                                ? "border-primary bg-primary/5 ring-1 ring-primary"
-                                : "bg-background")
+                                ? "border-primary bg-primary/15 ring-1 ring-primary/40"
+                                : "bg-[#0c3439] hover:border-white/20 hover:bg-[#103b40]")
                             }
                           >
                             <span>
                               <span className="block text-sm font-semibold">{item.name}</span>
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-[11px] text-white/45">
                                 Segunda metade · {formatCurrency(price)}
                               </span>
                             </span>
-                            <span className="text-right">
+                            <span className="shrink-0 text-right">
                               <span className="block text-sm font-bold">
                                 {formatCurrency(previewPrice)}
                               </span>
-                              <span className="text-[11px] text-muted-foreground">
+                              <span className="text-[10px] text-white/40">
                                 total da pizza
                               </span>
                             </span>
@@ -514,9 +515,9 @@ export function ProductConfigurator({
                       })}
                   </div>
                   {secondProduct && (
-                    <div className="mt-3 rounded-2xl border border-primary/20 bg-primary/5 p-3">
+                    <div className="mt-2.5 rounded-2xl border border-[#f3ad4b]/20 bg-[#f3ad4b]/[.06] p-3">
                       <div className="flex items-center gap-3">
-                        <div className="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-full border border-primary/20 bg-background">
+                        <div className="relative grid size-9 shrink-0 place-items-center overflow-hidden rounded-full border border-white/10 bg-[#06282d]">
                           <div className="absolute inset-y-0 left-0 w-1/2 bg-primary/20" />
                           <div className="absolute inset-y-0 right-0 w-1/2 bg-primary/45" />
                           <Pizza className="relative z-10 size-4" />
@@ -544,25 +545,49 @@ export function ProductConfigurator({
           )}
 
           {step === 2 && (
-            <section className="space-y-4">
+            <section className="space-y-3">
+              <div className="rounded-2xl border border-white/10 bg-[#0a3035] p-3.5">
+                <div className="flex items-center gap-3">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-[#f3ad4b]">
+                    <Pizza className="size-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">Montagem</p>
+                    <p className="mt-0.5 truncate text-sm font-bold text-[#f4eee2]">
+                      {product.name}{secondProduct ? " + " + secondProduct.name : ""}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-white/45">
+                      {selectedSize?.name ?? "Sem tamanho"} · {halfMode && secondProduct ? "Meio a meio" : "Pizza inteira"}
+                    </p>
+                  </div>
+                  <span className="shrink-0 font-display text-lg font-bold text-[#f4eee2]">
+                    {formatCurrency(unitPrice * quantity)}
+                  </span>
+                </div>
+              </div>
+
               {data.crusts.length > 0 && (
-                <div>
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[.16em] text-primary">Borda</p>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-[#092f34] p-3">
+                  <div className="mb-2.5 flex items-center justify-between">
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">Borda</p>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-white/35">Opcional</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
                     {data.crusts.map((item) => (
                       <button
                         key={item.id}
+                        type="button"
                         onClick={() => setCrustId(crustId === item.id ? null : item.id)}
                         className={
-                          "flex items-center justify-between rounded-xl border px-3 py-2.5 text-left text-sm " +
-                          (crustId === item.id ? "border-primary bg-primary/5" : "bg-card")
+                          "min-h-10 rounded-full border px-3 py-2 text-left text-xs font-bold transition " +
+                          (crustId === item.id
+                            ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                            : "border-white/10 bg-[#0c3439] text-[#f4eee2] hover:border-white/25")
                         }
                       >
-                        <span>{item.name}</span>
-                        <span className="font-semibold">
-                          {Number(item.price) > 0
-                            ? "+" + formatCurrency(Number(item.price))
-                            : "Grátis"}
+                        {item.name}
+                        <span className="ml-1.5 text-[10px] opacity-70">
+                          {Number(item.price) > 0 ? "+" + formatCurrency(Number(item.price)) : "Grátis"}
                         </span>
                       </button>
                     ))}
@@ -571,34 +596,31 @@ export function ProductConfigurator({
               )}
 
               {availableAddons.length > 0 && (
-                <div>
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[.16em] text-primary">Adicionais</p>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-[#092f34] p-3">
+                  <div className="mb-2.5 flex items-center justify-between">
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">Adicionais</p>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-white/35">Toque para adicionar</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
                     {availableAddons.map((item) => {
                       const checked = addonIds.includes(item.id);
                       return (
                         <button
                           key={item.id}
+                          type="button"
                           onClick={() => toggleAddon(item.id)}
                           className={
-                            "flex items-center justify-between rounded-xl border px-3 py-2.5 text-left text-sm " +
-                            (checked ? "border-primary bg-primary/5" : "bg-card")
+                            "inline-flex min-h-10 items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold transition " +
+                            (checked
+                              ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                              : "border-white/10 bg-[#0c3439] text-[#f4eee2] hover:border-white/25")
                           }
                         >
-                          <span className="flex items-center gap-2">
-                            <span
-                              className={
-                                "flex size-5 items-center justify-center rounded-md border " +
-                                (checked ? "border-primary bg-primary text-primary-foreground" : "")
-                              }
-                            >
-                              {checked ? <Check className="size-3.5" /> : null}
-                            </span>
-                            {item.name}
+                          <span className={"grid size-4 place-items-center rounded-full border " + (checked ? "border-primary-foreground/30 bg-primary-foreground/15" : "border-white/20")}>
+                            {checked ? <Check className="size-2.5" /> : null}
                           </span>
-                          <span className="font-semibold">
-                            +{formatCurrency(Number(item.price))}
-                          </span>
+                          <span>{item.name}</span>
+                          <span className="text-[10px] opacity-65">+{formatCurrency(Number(item.price))}</span>
                         </button>
                       );
                     })}
@@ -606,19 +628,33 @@ export function ProductConfigurator({
                 </div>
               )}
 
-              <div>
-                <label htmlFor="product-notes" className="mb-2 block text-[10px] font-bold uppercase tracking-[.16em] text-primary">
-                  Observações
-                </label>
-                <Textarea
-                  id="product-notes"
-                  value={notes}
-                  onChange={(event) => setNotes(event.target.value)}
-                  placeholder="Alguma observação? (opcional)"
-                  className="min-h-[72px] resize-none rounded-xl"
-                  rows={2}
-                  maxLength={300}
-                />
+              <div className="rounded-2xl border border-white/10 bg-[#092f34] p-2">
+                <button
+                  type="button"
+                  onClick={() => setNotesOpen((current) => !current)}
+                  className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left"
+                >
+                  <span>
+                    <span className="block text-sm font-bold text-[#f4eee2]">Observação</span>
+                    <span className="block text-[10px] text-white/40">{notes.trim() ? "Adicionada" : "Opcional"}</span>
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-white/[.04] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white/50">
+                    {notesOpen ? "Fechar" : "Adicionar"}
+                  </span>
+                </button>
+                {notesOpen && (
+                  <div className="px-3 pb-2.5">
+                    <Textarea
+                      id="product-notes"
+                      value={notes}
+                      onChange={(event) => setNotes(event.target.value)}
+                      placeholder="Alguma observação? (opcional)"
+                      className="min-h-[64px] resize-none rounded-xl border-white/10 bg-[#06282d] text-[#f4eee2] placeholder:text-white/30"
+                      rows={2}
+                      maxLength={300}
+                    />
+                  </div>
+                )}
               </div>
             </section>
           )}
