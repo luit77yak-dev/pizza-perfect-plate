@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Check, X } from "lucide-react";
+import { useState } from "react";
+import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +12,6 @@ import type {
   Organization,
   OrganizationSettings,
   PaymentMethod,
-  OrderStatus,
 } from "@/lib/domain/types";
 
 export function CheckoutPanel({
@@ -25,7 +24,6 @@ export function CheckoutPanel({
   onSuccess,
   storeOpen,
   storeStatusLabel,
-  onOrderFinished,
   existingOrder = null,
 }: {
   organization: Organization;
@@ -37,7 +35,6 @@ export function CheckoutPanel({
   onSuccess: (order: { id: string; number: number; phone: string }) => void;
   storeOpen: boolean;
   storeStatusLabel: string;
-  onOrderFinished: () => void;
   existingOrder?: {
     id: string;
     number: number;
@@ -64,10 +61,6 @@ export function CheckoutPanel({
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successOrderId, setSuccessOrderId] = useState<string | null>(null);
-  const [successNumber, setSuccessNumber] = useState<number | null>(null);
-  const [successStatus, setSuccessStatus] = useState<OrderStatus>("RECEIVED");
-  const [trackingError, setTrackingError] = useState<string | null>(null);
 
   const selectedZone =
     fulfillment === "DELIVERY"
@@ -148,9 +141,6 @@ export function CheckoutPanel({
         if (!order?.order_number || !order?.order_id) {
           throw new Error("Não foi possível adicionar o complemento ao pedido.");
         }
-        setSuccessOrderId(String(order.order_id));
-        setSuccessNumber(Number(order.order_number));
-        setSuccessStatus((order.status as OrderStatus) ?? "RECEIVED");
         setPhone(existingOrder.phone);
         onSuccess({
           id: String(order.order_id),
@@ -285,135 +275,6 @@ export function CheckoutPanel({
       setSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    if (!successOrderId) return;
-
-    let cancelled = false;
-    const loadStatus = async () => {
-      const { data: tracking, error: trackingQueryError } = await supabase.rpc(
-        "get_public_order_status",
-        { p_order_id: successOrderId, p_customer_phone: phone.trim() },
-      );
-
-      if (cancelled) return;
-      if (trackingQueryError) {
-        setTrackingError("Não foi possível atualizar o status agora.");
-        return;
-      }
-
-      const current = Array.isArray(tracking) ? tracking[0] : tracking;
-      if (current?.status) {
-        const currentStatus = current.status as OrderStatus;
-        setSuccessStatus(currentStatus);
-        setTrackingError(null);
-
-        if (currentStatus === "DELIVERED" || currentStatus === "CANCELLED") {
-          onOrderFinished();
-        }
-      }
-    };
-
-    void loadStatus();
-    const interval = window.setInterval(loadStatus, 5000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
-  }, [successOrderId, phone, onOrderFinished]);
-
-  if (successNumber != null && successOrderId != null) {
-    return (
-      <div className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md">
-        <section className="mx-auto min-h-screen w-full max-w-2xl bg-[#06282d] px-4 pb-10 pt-0 text-[#f4eee2] sm:px-6">
-          <div className="sticky top-0 z-30 -mx-4 mb-5 flex items-center justify-between gap-3 border-b border-white/10 bg-[#06282d]/95 px-4 py-4 backdrop-blur-xl sm:-mx-6 sm:px-6">
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#f3ad4b]">Checkout</p>
-                <p className="mt-0.5 font-display text-lg">Pedido #{successNumber}</p>
-              </div>
-              <button type="button" onClick={onClose} className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10" aria-label="Fechar checkout">
-                <X className="size-5" />
-              </button>
-            </div>
-
-            <div className="rounded-[2rem] border border-white/10 bg-[#0a3035] p-6 shadow-lifted sm:p-8">
-            <div className="flex items-start gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Check className="size-7" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
-                  Pedido recebido
-                </p>
-                <h2 className="mt-1 text-3xl">Pedido #{successNumber}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{organization.name}</p>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <p className="text-sm font-semibold">Acompanhe seu pedido</p>
-              <div className="mt-4 space-y-3">
-                {[
-                  ["RECEIVED", "Pedido recebido"],
-                  ["CONFIRMED", "Pedido confirmado"],
-                  ["PREPARING", "Em preparo"],
-                  ["READY", fulfillment === "DELIVERY" ? "Pedido pronto" : "Pronto para retirada"],
-                  ["OUT_FOR_DELIVERY", "Saiu para entrega"],
-                  ["DELIVERED", fulfillment === "DELIVERY" ? "Entregue" : "Retirado"],
-                ].map(([value, label], index, steps) => {
-                  const currentIndex = steps.findIndex(([step]) => step === successStatus);
-                  const isDone = currentIndex >= 0 && index <= currentIndex;
-                  const isCurrent = value === successStatus;
-                  if (fulfillment === "PICKUP" && value === "OUT_FOR_DELIVERY") return null;
-                  return (
-                    <div key={value} className="flex items-center gap-3">
-                      <div
-                        className={`flex size-9 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${isDone ? "border-primary bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}
-                      >
-                        {isDone ? <Check className="size-4" /> : index + 1}
-                      </div>
-                      <div className="min-w-0">
-                        <p className={`text-sm font-semibold ${isCurrent ? "text-primary" : ""}`}>
-                          {label}
-                        </p>
-                        {isCurrent && (
-                          <p className="text-xs text-muted-foreground">
-                            Status atualizado automaticamente.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="mt-6 rounded-2xl bg-muted p-4 text-sm">
-              <p className="font-semibold">
-                {successStatus === "CANCELLED"
-                  ? "Pedido cancelado"
-                  : successStatus === "DELIVERED"
-                    ? "Pedido finalizado"
-                    : successStatus === "READY" && fulfillment === "PICKUP"
-                      ? "Pode retirar seu pedido"
-                      : successStatus === "OUT_FOR_DELIVERY"
-                        ? "Seu pedido está a caminho!"
-                        : "A loja está preparando seu pedido."}
-              </p>
-              <p className="mt-1 text-muted-foreground">
-                {trackingError ??
-                  "Esta tela verifica automaticamente se a loja atualizou o pedido."}
-              </p>
-            </div>
-
-            <Button className="mt-6 h-12 w-full rounded-full" onClick={onClose}>
-              Voltar ao cardápio
-            </Button>
-          </div>
-        </section>
-      </div>
-    );
-  }
 
   return (
     <div className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md">
