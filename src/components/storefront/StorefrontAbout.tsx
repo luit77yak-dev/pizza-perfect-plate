@@ -20,10 +20,10 @@ export function StorefrontAbout({ settings, categories }: StorefrontAboutProps) 
           <span />
         </div>
         <p className="ppp-about-kicker">Nossa história</p>
-        <h2>{settings.hero_title ? "Feito para ser lembrado." : "Uma história feita à mão."}</h2>
+        <h2>{"Uma receita de família."}</h2>
         <p className="ppp-about-copy">
           {settings.description ||
-            "Ingredientes escolhidos, tempo de fermentação e cuidado em cada etapa para transformar um pedido comum em uma experiência especial."}
+            "Uma massa feita com tempo, ingredientes escolhidos e respeito pela tradição. Cada pizza é aberta à mão e assada para chegar à mesa com sabor, leveza e personalidade."}
         </p>
         {gallery.length > 0 && (
           <div className="ppp-about-gallery">
@@ -37,7 +37,7 @@ export function StorefrontAbout({ settings, categories }: StorefrontAboutProps) 
             ))}
           </div>
         )}
-        <a href="#cardapio" className="ppp-about-cta">Ver o cardápio</a>
+        <a href="#cardapio" className="ppp-about-cta">Conheça o menu</a>
       </div>
     </section>
   );
