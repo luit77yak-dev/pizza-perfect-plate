@@ -43,18 +43,18 @@ export function StorefrontHeader({
                 size="sm"
                 variant="ghost"
                 onClick={onOpenTracking}
-                className="min-h-11 gap-2 rounded-full border border-secondary-foreground/20 bg-secondary-foreground/5 px-3 text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground sm:px-3.5"
+                className="min-h-12 min-w-12 shrink-0 gap-2.5 rounded-full border border-secondary-foreground/25 bg-secondary-foreground/10 px-3 text-secondary-foreground shadow-sm hover:bg-secondary-foreground/15 hover:text-secondary-foreground sm:min-w-0 sm:px-4"
                 aria-label="Acompanhar pedido"
               >
-                <Clock3 className="size-5" />
+                <Clock3 className="size-7 shrink-0" strokeWidth={1.9} />
                 <span className="hidden text-[9px] font-medium uppercase tracking-[.14em] sm:inline">Acompanhar</span>
-                <Badge className="rounded-full bg-secondary-foreground px-2 text-secondary">{selectedTrackedOrdersCount}</Badge>
+                <Badge className="grid size-6 shrink-0 place-items-center rounded-full bg-secondary-foreground p-0 text-[10px] font-black text-secondary">{selectedTrackedOrdersCount}</Badge>
               </Button>
             )}
-            <Button size="sm" className="min-h-11 gap-2.5 rounded-full border border-primary bg-primary px-4 font-body text-[10px] font-medium uppercase tracking-[.16em] text-primary-foreground shadow-lifted transition-transform hover:-translate-y-0.5 hover:bg-primary/90 sm:px-4" onClick={onOpenCart}>
-              <ShoppingBag className="size-5" />
+            <Button size="sm" className="min-h-12 min-w-12 shrink-0 gap-2.5 rounded-full border border-primary bg-primary px-3.5 font-body text-[10px] font-bold uppercase tracking-[.16em] text-primary-foreground shadow-lifted transition-transform hover:-translate-y-0.5 hover:bg-primary/90 sm:min-w-0 sm:px-4" onClick={onOpenCart}>
+              <ShoppingBag className="size-7 shrink-0" strokeWidth={1.9} />
               <span>{itemCount > 0 ? "Sacola" : "Pedir"}</span>
-              {itemCount > 0 && <Badge className="rounded-full bg-primary-foreground px-2 text-primary">{itemCount}</Badge>}
+              {itemCount > 0 && <Badge className="grid size-6 shrink-0 place-items-center rounded-full bg-primary-foreground p-0 text-[10px] font-black text-primary">{itemCount}</Badge>}
             </Button>
           </div>
         </div>
