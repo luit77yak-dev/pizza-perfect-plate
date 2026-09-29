@@ -1166,6 +1166,152 @@
 }
 
 /* =========================================================
+   CONFIGURADOR ARTESANAL
+   Refinamento visual sem alterar seleção, preços ou checkout.
+   ========================================================= */
+
+.ppp-order-builder > div {
+  font-family: var(--font-body) !important;
+}
+
+.ppp-order-builder > div > header {
+  padding: .8rem 1rem !important;
+  border-bottom: 1px solid rgba(255,255,255,.12) !important;
+}
+
+.ppp-order-builder > div > header > div {
+  gap: .75rem !important;
+}
+
+.ppp-order-builder > div > header > div > div:first-child {
+  width: 3.4rem !important;
+  height: 3.4rem !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+}
+
+.ppp-order-builder > div > header h2 {
+  font-size: 1.45rem !important;
+  line-height: 1 !important;
+}
+
+.ppp-order-builder > div > header button {
+  border-radius: 2px !important;
+}
+
+.ppp-order-builder > div > div.shrink-0.border-b {
+  background: var(--card-hex) !important;
+  border-color: rgba(42,31,23,.12) !important;
+}
+
+.ppp-order-builder > div > div.shrink-0.border-b > div {
+  max-width: 760px !important;
+}
+
+.ppp-order-builder > div > div.shrink-0.border-b [class*="rounded-full"] {
+  border-radius: 2px !important;
+  box-shadow: none !important;
+}
+
+.ppp-order-builder > div > div.shrink-0.border-b [class*="bg-primary"] {
+  background: var(--primary-hex) !important;
+  border-color: var(--primary-hex) !important;
+}
+
+.ppp-order-builder > div > div.shrink-0.border-b [class*="bg-muted"] {
+  border-radius: 0 !important;
+  background: rgba(42,31,23,.10) !important;
+}
+
+.ppp-order-builder > div > div.shrink-0.border-b [class*="bg-primary"].h-full {
+  background: var(--primary-hex) !important;
+}
+
+.ppp-order-builder > div > main {
+  padding-top: 2rem !important;
+  padding-bottom: 2rem !important;
+}
+
+.ppp-order-builder section > div:first-child > p:first-child,
+.ppp-order-builder section p.text-primary {
+  color: var(--primary-hex) !important;
+}
+
+.ppp-order-builder section h3 {
+  font-size: clamp(1.8rem, 4vw, 2.55rem) !important;
+  line-height: .95 !important;
+  letter-spacing: -.035em !important;
+}
+
+.ppp-order-builder section button {
+  border-radius: 2px !important;
+}
+
+.ppp-order-builder section button[class*="bg-primary"] {
+  background: var(--primary-hex) !important;
+  border-color: var(--primary-hex) !important;
+  color: #fff !important;
+}
+
+.ppp-order-builder section button[class*="bg-primary"] [class*="text-primary-foreground"] {
+  color: #fff !important;
+}
+
+.ppp-order-builder section button[class*="rounded-full"] {
+  border-radius: 2px !important;
+}
+
+.ppp-order-builder section button[class*="rounded-2xl"] {
+  border-radius: 2px !important;
+}
+
+.ppp-order-builder section button:hover {
+  transform: none !important;
+}
+
+.ppp-order-builder section button .rounded-xl,
+.ppp-order-builder section button .rounded-full {
+  border-radius: 2px !important;
+}
+
+.ppp-order-builder footer {
+  padding: .75rem 1rem !important;
+}
+
+.ppp-order-builder footer button {
+  min-height: 2.8rem !important;
+  border-radius: 2px !important;
+}
+
+.ppp-order-builder footer button.bg-primary {
+  background: var(--primary-hex) !important;
+  border-color: var(--primary-hex) !important;
+}
+
+@media (max-width: 639px) {
+  .ppp-order-builder > div > header {
+    padding: .7rem .8rem !important;
+  }
+
+  .ppp-order-builder > div > header > div > div:first-child {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+
+  .ppp-order-builder > div > div.shrink-0.border-b {
+    padding: .65rem .8rem !important;
+  }
+
+  .ppp-order-builder > div > main {
+    padding: 1.4rem .85rem 7rem !important;
+  }
+
+  .ppp-order-builder section h3 {
+    font-size: 2rem !important;
+  }
+}
+
+/* =========================================================
    MOVIMENTO
    Um único momento marcante: entrada do hero.
    ========================================================= */
