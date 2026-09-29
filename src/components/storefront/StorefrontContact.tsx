@@ -20,7 +20,7 @@ export function StorefrontContact({ settings }: StorefrontContactProps) {
       <div className="ppp-contact-ticket">
         <div>
           <p className="ppp-contact-kicker">Visite</p>
-          <h2>Quando quiser uma pizza especial.</h2>
+          <h2>Venha comer com a gente.</h2>
           <div className="ppp-contact-details">
             <div>
               <span>Endereço</span>
@@ -28,7 +28,7 @@ export function StorefrontContact({ settings }: StorefrontContactProps) {
             </div>
             <div>
               <span>Horário</span>
-              <strong>Consulte o horário de atendimento</strong>
+              <strong>Terça a domingo, das 18h30 às 23h</strong>
             </div>
             <div>
               <span>Atendimento</span>
@@ -43,7 +43,7 @@ export function StorefrontContact({ settings }: StorefrontContactProps) {
           </div>
         </div>
         <div className="ppp-contact-stub">
-          <a href="#cardapio">Ver o cardápio</a>
+          <a href="#cardapio">Conheça o menu</a>
         </div>
       </div>
     </section>
