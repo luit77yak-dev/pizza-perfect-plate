@@ -2996,8 +2996,18 @@
     border-color: rgba(244,238,226,.1) !important;
   }
 
-  .ppp-order-builder [class*="bg-card"] {
-    color: #f4eee2;
+  .ppp-order-builder .bg-card {
+    background: #0a3035 !important;
+    color: #f4eee2 !important;
+  }
+
+  .ppp-order-builder .bg-muted {
+    background: #0d373c !important;
+    color: #f4eee2 !important;
+  }
+
+  .ppp-order-builder .text-muted-foreground {
+    color: rgba(244,238,226,.5) !important;
   }
 
   .ppp-order-builder textarea {
