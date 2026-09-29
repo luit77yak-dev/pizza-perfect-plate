@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Pizza, ShoppingBag, Store } from "lucide-react";
+import { Pizza, ShoppingBag, Store } from "lucide-react";
 import { loadStore } from "@/features/storefront/services/load-store";
 import { Button } from "@/components/ui/button";
 import { StorefrontSkeleton } from "@/components/storefront/StorefrontSkeleton";
@@ -267,12 +267,6 @@ export function Storefront({ slug }: { slug?: string }) {
   }
 
   const status = getStoreStatus(data.hours, data.specialHours, now);
-  const primary = data.settings.primary_color?.includes("%")
-    ? `hsl(${data.settings.primary_color})`
-    : undefined;
-  const secondary = "hsl(145 28% 32%)";
-  const secondaryForeground = "hsl(42 35% 96%)";
-
   return (
     <div
       className="ppp-customer-shell min-h-screen bg-background text-foreground"
@@ -348,79 +342,47 @@ export function Storefront({ slug }: { slug?: string }) {
           />
 
           {filteredProducts.length === 0 ? (
-            <div className="rounded-3xl border border-dashed bg-card p-12 text-center">
-              <p className="font-medium">Nenhum produto nesta categoria.</p>
-              <p className="mt-1 text-sm text-muted-foreground">Tente outra categoria.</p>
+            <div className="ppp-menu-empty">
+              <p>Nenhum produto nesta categoria.</p>
+              <span>Tente outra categoria.</span>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredProducts.map((product, index) => {
+            <div className="ppp-menu-list">
+              {filteredProducts.map((product) => {
                 const firstSize = data.sizes[0];
                 const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
                 const categoryImage = data.categories.find(
                   (category) => category.id === product.category_id,
                 )?.image_url;
                 const productImage = product.image_url || categoryImage;
+
                 return (
                   <button
                     key={product.id}
+                    type="button"
                     onClick={() => setSelectedProduct(product)}
-                    className="ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lifted"
+                    className="ppp-menu-item group text-left"
                   >
-                    <div className="relative aspect-[1.35] overflow-hidden border-b border-border bg-muted">
+                    <div className="ppp-menu-item-photo">
                       {productImage ? (
-                        <img
-                          src={productImage}
-                          alt={product.name}
-                          loading="lazy"
-                          className="size-full object-cover transition duration-500 group-hover:scale-110"
-                        />
+                        <img src={productImage} alt={product.name} loading="lazy" />
                       ) : (
-                        <div className="relative flex size-full items-center justify-center overflow-hidden bg-gradient-to-br from-primary/15 via-accent to-secondary/15">
-                          <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/10 blur-2xl" />
-                          <div className="absolute -bottom-12 -left-8 size-36 rounded-full bg-secondary/15 blur-2xl" />
-                          <div className="relative flex flex-col items-center gap-2 text-primary/55">
-                            <div className="flex size-20 items-center justify-center rounded-full border-2 border-secondary/15 bg-background/55 shadow-sm backdrop-blur-sm">
-                              <Pizza className="size-10" strokeWidth={1.5} />
-                            </div>
-                            <span className="text-[11px] font-semibold uppercase tracking-[.18em]">
-                              Imagem em breve
-                            </span>
-                          </div>
+                        <div className="grid size-full place-items-center text-secondary">
+                          <Pizza className="size-6" strokeWidth={1.4} />
                         </div>
-                      )}
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent p-4 pt-12">
-                        <p className="font-display text-xl uppercase leading-none text-white drop-shadow-sm sm:text-2xl">
-                          {product.name}
-                        </p>
-                      </div>
-                      {product.featured && (
-                        <span className="absolute left-3 top-3 rounded-full border border-primary/40 bg-primary/90 px-3 py-1 font-body text-[10px] font-semibold uppercase tracking-[.12em] text-primary-foreground shadow-soft backdrop-blur-sm">
-                          Destaque
-                        </span>
                       )}
                     </div>
-                    <div className="p-4 sm:p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0 pr-1">
-                          <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
-                            {data.categories.find((category) => category.id === product.category_id)
-                              ?.name || "Pizza"}
-                          </p>
-                          <p className="mt-2 line-clamp-2 text-sm leading-5 text-muted-foreground">
-                            {product.description || "Uma opção preparada para você."}
-                          </p>
-                        </div>
-                        <span className="shrink-0 rounded-lg bg-primary/10 px-3 py-2 font-display text-sm font-semibold text-accent sm:px-3.5">
-                          {formatCurrency(displayPrice)}
-                        </span>
+
+                    <div className="ppp-menu-item-copy">
+                      <div className="flex min-w-0 items-baseline gap-3">
+                        <span className="ppp-menu-item-name">{product.name}</span>
+                        <span className="ppp-menu-dots" aria-hidden="true" />
+                        <span className="ppp-menu-item-price">{formatCurrency(displayPrice)}</span>
                       </div>
-                      <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-[.08em]">
-                        <span>{product.allow_half ? "Meio a meio" : "Personalizar"}</span>
-                        <span className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-background transition-transform group-hover:translate-x-1 group-hover:border-primary">
-                          <ChevronRight className="size-4" />
-                        </span>
-                      </div>
+                      <p>{product.description || "Uma opção preparada com cuidado."}</p>
+                      {product.allow_half && (
+                        <small>Meio a meio disponível</small>
+                      )}
                     </div>
                   </button>
                 );
