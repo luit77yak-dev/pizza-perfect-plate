@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Check, X } from "lucide-react";
+import { useState } from "react";
+import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,7 +25,6 @@ export function CheckoutPanel({
   onSuccess,
   storeOpen,
   storeStatusLabel,
-  onOrderFinished,
   existingOrder = null,
 }: {
   organization: Organization;
@@ -37,7 +36,6 @@ export function CheckoutPanel({
   onSuccess: (order: { id: string; number: number; phone: string }) => void;
   storeOpen: boolean;
   storeStatusLabel: string;
-  onOrderFinished: () => void;
   existingOrder?: {
     id: string;
     number: number;
@@ -64,10 +62,6 @@ export function CheckoutPanel({
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successOrderId, setSuccessOrderId] = useState<string | null>(null);
-  const [successNumber, setSuccessNumber] = useState<number | null>(null);
-  const [successStatus, setSuccessStatus] = useState<OrderStatus>("RECEIVED");
-  const [trackingError, setTrackingError] = useState<string | null>(null);
 
   const selectedZone =
     fulfillment === "DELIVERY"
@@ -148,9 +142,6 @@ export function CheckoutPanel({
         if (!order?.order_number || !order?.order_id) {
           throw new Error("Não foi possível adicionar o complemento ao pedido.");
         }
-        setSuccessOrderId(String(order.order_id));
-        setSuccessNumber(Number(order.order_number));
-        setSuccessStatus((order.status as OrderStatus) ?? "RECEIVED");
         setPhone(existingOrder.phone);
         onSuccess({
           id: String(order.order_id),
@@ -286,44 +277,7 @@ export function CheckoutPanel({
     }
   };
 
-  useEffect(() => {
-    if (!successOrderId) return;
-
-    let cancelled = false;
-    const loadStatus = async () => {
-      const { data: tracking, error: trackingQueryError } = await supabase.rpc(
-        "get_public_order_status",
-        { p_order_id: successOrderId, p_customer_phone: phone.trim() },
-      );
-
-      if (cancelled) return;
-      if (trackingQueryError) {
-        setTrackingError("Não foi possível atualizar o status agora.");
-        return;
-      }
-
-      const current = Array.isArray(tracking) ? tracking[0] : tracking;
-      if (current?.status) {
-        const currentStatus = current.status as OrderStatus;
-        setSuccessStatus(currentStatus);
-        setTrackingError(null);
-
-        if (currentStatus === "DELIVERED" || currentStatus === "CANCELLED") {
-          onOrderFinished();
-        }
-      }
-    };
-
-    void loadStatus();
-    const interval = window.setInterval(loadStatus, 5000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
-  }, [successOrderId, phone, onOrderFinished]);
-
-  if (successNumber != null && successOrderId != null) {
-    return (
+  return (
       <div className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md">
         <section className="mx-auto min-h-screen w-full max-w-2xl bg-[#06282d] px-4 pb-10 pt-0 text-[#f4eee2] sm:px-6">
           <div className="sticky top-0 z-30 -mx-4 mb-5 flex items-center justify-between gap-3 border-b border-white/10 bg-[#06282d]/95 px-4 py-4 backdrop-blur-xl sm:-mx-6 sm:px-6">
