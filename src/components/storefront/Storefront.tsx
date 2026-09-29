@@ -247,9 +247,18 @@ export function Storefront({ slug }: { slug?: string }) {
   const subtotal = calculateCartSubtotal(cart.items);
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
   const complementSubtotal = calculateCartSubtotal(complementItems);
+  const activeComplementOrderId =
+    complementOrderId && complementItems.length > 0 ? complementOrderId : null;
   const complementOrder = complementOrderId
     ? trackedOrders.find((order) => order.id === complementOrderId) ?? null
     : null;
+
+  const clearComplementFlow = () => {
+    setComplementPickerOpen(false);
+    setSelectedComplementIds([]);
+    setComplementItems([]);
+    setComplementOrderId(null);
+  };
 
   if (isLoading) return <StorefrontSkeleton />;
   if (isError || !data) {
@@ -432,6 +441,12 @@ export function Storefront({ slug }: { slug?: string }) {
           data={data}
           onClose={() => setSelectedProduct(null)}
           onAdded={(items) => {
+            // A product configurator always creates/extends the normal cart,
+            // never the temporary complement checkout context.
+            setComplementPickerOpen(false);
+            setSelectedComplementIds([]);
+            setComplementItems([]);
+            setComplementOrderId(null);
             items.forEach((item) => cart.addItem(item));
             setSelectedProduct(null);
             setCartOpen(true);
@@ -441,7 +456,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
       {complementPickerOpen && (
         <div className="fixed inset-0 z-[140] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label="Adicionar itens">
-          <button type="button" className="absolute inset-0" onClick={() => setComplementPickerOpen(false)} aria-label="Fechar seleção de adicionais" />
+          <button type="button" className="absolute inset-0" onClick={clearComplementFlow} aria-label="Fechar seleção de adicionais" />
           <section className="ppp-complement-picker relative flex max-h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#06282d] text-[#f4eee2] shadow-2xl sm:rounded-[2rem]">
             <header className="shrink-0 border-b border-white/10 bg-[#06282d] px-5 py-4 text-[#f4eee2] sm:px-6">
               <div className="flex items-center justify-between gap-4">
@@ -450,7 +465,7 @@ export function Storefront({ slug }: { slug?: string }) {
                   <h2 className="mt-1 font-display text-2xl text-[#f4eee2]">Pedido #{complementOrder?.number ?? "—"}</h2>
                   <p className="mt-1 text-xs text-white/60">Escolha algo para adicionar a este pedido.</p>
                 </div>
-                <button type="button" onClick={() => setComplementPickerOpen(false)} className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10" aria-label="Fechar">
+                <button type="button" onClick={clearComplementFlow} className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10" aria-label="Fechar">
                   <X className="size-5" />
                 </button>
               </div>
@@ -541,6 +556,10 @@ export function Storefront({ slug }: { slug?: string }) {
           pickupEnabled={Boolean(data.settings.pickup_enabled)}
           deliveryEnabled={Boolean(data.settings.delivery_enabled)}
           onCheckout={() => {
+            // Opening checkout from the normal cart always starts a new order.
+            setComplementItems([]);
+            setSelectedComplementIds([]);
+            setComplementOrderId(null);
             setCartOpen(false);
             setCheckoutOpen(true);
           }}
@@ -572,8 +591,8 @@ export function Storefront({ slug }: { slug?: string }) {
           organization={data.organization}
           settings={data.settings}
           deliveryZones={data.deliveryZones}
-          items={complementOrderId ? complementItems : cart.items}
-          subtotal={complementOrderId ? complementSubtotal : subtotal}
+          items={activeComplementOrderId ? complementItems : cart.items}
+          subtotal={activeComplementOrderId ? complementSubtotal : subtotal}
           onClose={() => {
             setCheckoutOpen(false);
             setComplementItems([]);
@@ -581,14 +600,14 @@ export function Storefront({ slug }: { slug?: string }) {
             setComplementOrderId(null);
           }}
           existingOrder={
-            complementOrderId
-              ? (trackedOrders.find((order) => order.id === complementOrderId) ?? null)
+            activeComplementOrderId
+              ? (trackedOrders.find((order) => order.id === activeComplementOrderId) ?? null)
               : null
           }
           storeOpen={status.open}
           storeStatusLabel={status.label}
           onSuccess={async (order) => {
-            if (!complementOrderId) cart.clear();
+            if (!activeComplementOrderId) cart.clear();
             setComplementItems([]);
             setSelectedComplementIds([]);
             setComplementOrderId(null);
