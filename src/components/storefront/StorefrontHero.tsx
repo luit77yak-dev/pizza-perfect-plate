@@ -29,13 +29,13 @@ export function StorefrontHero({ organizationName, settings, products }: Storefr
       <div className="ppp-reference-hero-frame">
         <div className="ppp-reference-hero-grid">
           <div className="ppp-reference-hero-copy">
-            <p className="ppp-reference-hero-eyebrow">Pizza artesanal</p>
-            <h1>{settings.hero_title || "Pizza que fica na memória."}</h1>
+            <p className="ppp-reference-hero-eyebrow">Pizza napoletana</p>
+            <h1>{settings.hero_title || "Farinha, água, sal e tempo."}</h1>
             <Ornament />
             <p className="ppp-reference-hero-sub">
               {settings.hero_subtitle ||
                 settings.description ||
-                "Escolha seu sabor, personalize e peça de forma simples."}
+                "Massa descansada, forno bem quente e ingredientes escolhidos para respeitar a tradição napolitana."}
             </p>
             <div className="ppp-reference-hero-actions">
               <a href="#cardapio" className="ppp-hero-primary-cta">
@@ -43,7 +43,7 @@ export function StorefrontHero({ organizationName, settings, products }: Storefr
               </a>
               <span className="ppp-hero-hours">
                 <Clock3 className="size-4" />
-                Confira nosso horário de atendimento
+                Terça a domingo, das 18h30 às 23h
               </span>
             </div>
           </div>
