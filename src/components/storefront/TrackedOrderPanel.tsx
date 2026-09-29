@@ -94,22 +94,21 @@ export function TrackedOrderPanel({
       <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar acompanhamento" />
       <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#0d1117] text-white shadow-2xl sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem]">
         <header
-          className="relative shrink-0 overflow-hidden px-5 pb-5 pt-4 text-white sm:px-7 sm:pb-6"
-          style={{ backgroundColor: "#e8751a", color: "#ffffff" }}
+          className="relative shrink-0 overflow-hidden border-b border-white/10 bg-[#06282d] px-5 pb-5 pt-4 text-[#f4eee2] sm:px-7 sm:pb-6"
         >
           <div className="relative flex items-start justify-between gap-4">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-black text-white shadow-lg">
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#f3ad4b] text-[#10191a] shadow-lg">
                   <ShoppingBag className="size-4" />
                 </span>
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-[.2em] text-white/80">Acompanhamento</p>
-                  <h2 className="mt-0.5 truncate font-display text-2xl tracking-tight sm:text-3xl">Pedido #{orderNumber}</h2>
+                  <p className="text-[9px] font-black uppercase tracking-[.2em] text-[#f3ad4b]">Acompanhamento</p>
+                  <h2 className="mt-0.5 truncate font-display text-2xl tracking-tight text-[#f4eee2] sm:text-3xl">Pedido #{orderNumber}</h2>
                 </div>
               </div>
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-white/75">
-                <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1">
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-[#f4eee2]/65">
+                <span className="rounded-full border border-[#f4eee2]/15 bg-[#f4eee2]/[.06] px-2.5 py-1">
                   {itemCount} {itemCount === 1 ? "item" : "itens"}
                 </span>
                 <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1">
@@ -117,7 +116,7 @@ export function TrackedOrderPanel({
                 </span>
               </div>
             </div>
-            <button type="button" onClick={onClose} className="relative grid size-10 shrink-0 place-items-center rounded-full border border-white/25 bg-white/10 text-white transition hover:bg-white/20 active:scale-95" aria-label="Fechar">
+            <button type="button" onClick={onClose} className="relative grid size-10 shrink-0 place-items-center rounded-full border border-[#f4eee2]/20 bg-[#f4eee2]/[.06] text-[#f4eee2] transition hover:bg-[#f4eee2]/10 active:scale-95" aria-label="Fechar">
               <X className="size-4" />
             </button>
           </div>
