@@ -147,11 +147,11 @@ export function ProductConfigurator({
       aria-modal="true"
       aria-label={"Montar " + product.name}
     >
-      <div className="flex h-[95dvh] max-h-[95dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[92vh] sm:max-h-[92vh] sm:rounded-[2rem]">
+      <div className="flex h-[88dvh] max-h-[88dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[86vh] sm:max-h-[86vh] sm:rounded-[2rem]">
         <div className="relative shrink-0 overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
           <div className="absolute -right-10 -top-16 size-40 rounded-full bg-primary/25 blur-3xl" />
           <div className="relative flex items-center gap-4">
-            <div className="size-20 shrink-0 overflow-hidden rounded-2xl border border-background/15 bg-background/10 shadow-lg">
+            <div className="size-14 shrink-0 overflow-hidden rounded-2xl border border-background/15 bg-background/10 shadow-lg sm:size-16">
               {product.image_url ? (
                 <img src={product.image_url} alt="" className="size-full object-cover" />
               ) : (
@@ -183,7 +183,7 @@ export function ProductConfigurator({
           </div>
         </div>
 
-        <div className="shrink-0 border-b bg-card px-5 py-4 sm:px-6">
+        <div className="shrink-0 border-b bg-card px-4 py-3 sm:px-5">
           <div className="flex items-center justify-between gap-2">
             {["Escolha", "Personalize", "Finalize"].map((label, index) => {
               const active = index + 1 === step;
@@ -223,10 +223,10 @@ export function ProductConfigurator({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5">
           {step === 1 && (
-            <section className="space-y-6">
-              <div className="rounded-2xl border bg-card p-4">
+            <section className="space-y-5">
+              <div className="rounded-xl border bg-card p-3">
                 <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">
                   Produto principal
                 </p>
@@ -259,7 +259,7 @@ export function ProductConfigurator({
                         key={size.id}
                         onClick={() => setSizeId(size.id)}
                         className={
-                          "group relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-200 " +
+                          "group relative overflow-hidden rounded-xl border p-2.5 text-left transition-all duration-200 " +
                           (selected
                             ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary/20"
                             : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md")
@@ -268,7 +268,7 @@ export function ProductConfigurator({
                         <div className="flex items-center gap-3">
                           <div
                             className={
-                              "grid size-11 shrink-0 place-items-center rounded-xl border text-xl transition-transform group-hover:scale-105 " +
+                              "grid size-9 shrink-0 place-items-center rounded-lg border text-xl transition-transform group-hover:scale-105  +
                               (selected
                                 ? "border-primary-foreground/20 bg-primary-foreground/10"
                                 : "border-border bg-muted")
@@ -544,17 +544,17 @@ export function ProductConfigurator({
           )}
 
           {step === 2 && (
-            <section className="space-y-7">
+            <section className="space-y-4">
               {data.crusts.length > 0 && (
                 <div>
-                  <p className="mb-2 text-sm font-semibold">Borda</p>
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[.16em] text-primary">Borda</p>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {data.crusts.map((item) => (
                       <button
                         key={item.id}
                         onClick={() => setCrustId(crustId === item.id ? null : item.id)}
                         className={
-                          "flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm " +
+                          "flex items-center justify-between rounded-xl border px-3 py-2.5 text-left text-sm " +
                           (crustId === item.id ? "border-primary bg-primary/5" : "bg-card")
                         }
                       >
@@ -572,7 +572,7 @@ export function ProductConfigurator({
 
               {availableAddons.length > 0 && (
                 <div>
-                  <p className="mb-2 text-sm font-semibold">Adicionais</p>
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[.16em] text-primary">Adicionais</p>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {availableAddons.map((item) => {
                       const checked = addonIds.includes(item.id);
@@ -607,14 +607,16 @@ export function ProductConfigurator({
               )}
 
               <div>
-                <label htmlFor="product-notes" className="mb-2 block text-sm font-semibold">
+                <label htmlFor="product-notes" className="mb-2 block text-[10px] font-bold uppercase tracking-[.16em] text-primary">
                   Observações
                 </label>
                 <Textarea
                   id="product-notes"
                   value={notes}
                   onChange={(event) => setNotes(event.target.value)}
-                  placeholder="Alguma observação para este item?"
+                  placeholder="Alguma observação? (opcional)"
+                  className="min-h-[72px] resize-none rounded-xl"
+                  rows={2}
                   maxLength={300}
                 />
               </div>
