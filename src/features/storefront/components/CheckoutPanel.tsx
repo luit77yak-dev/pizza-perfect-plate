@@ -12,7 +12,6 @@ import type {
   Organization,
   OrganizationSettings,
   PaymentMethod,
-  OrderStatus,
 } from "@/lib/domain/types";
 
 export function CheckoutPanel({
@@ -276,56 +275,6 @@ export function CheckoutPanel({
       setSubmitting(false);
     }
   };
-
-  return (
-                    <div key={value} className="flex items-center gap-3">
-                      <div
-                        className={`flex size-9 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${isDone ? "border-primary bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}
-                      >
-                        {isDone ? <Check className="size-4" /> : index + 1}
-                      </div>
-                      <div className="min-w-0">
-                        <p className={`text-sm font-semibold ${isCurrent ? "text-primary" : ""}`}>
-                          {label}
-                        </p>
-                        {isCurrent && (
-                          <p className="text-xs text-muted-foreground">
-                            Status atualizado automaticamente.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="mt-6 rounded-2xl bg-muted p-4 text-sm">
-              <p className="font-semibold">
-                {successStatus === "CANCELLED"
-                  ? "Pedido cancelado"
-                  : successStatus === "DELIVERED"
-                    ? "Pedido finalizado"
-                    : successStatus === "READY" && fulfillment === "PICKUP"
-                      ? "Pode retirar seu pedido"
-                      : successStatus === "OUT_FOR_DELIVERY"
-                        ? "Seu pedido está a caminho!"
-                        : "A loja está preparando seu pedido."}
-              </p>
-              <p className="mt-1 text-muted-foreground">
-                {trackingError ??
-                  "Esta tela verifica automaticamente se a loja atualizou o pedido."}
-              </p>
-            </div>
-
-            <Button className="mt-6 h-12 w-full rounded-full" onClick={onClose}>
-              Voltar ao cardápio
-            </Button>
-          </div>
-        </section>
-      </div>
-    );
-  }
 
   return (
     <div className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md">
