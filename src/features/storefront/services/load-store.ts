@@ -34,20 +34,63 @@ export type StoreData = {
   deliveryZones: DeliveryZone[];
 };
 
+function getCurrentHostname() {
+  if (typeof window === "undefined") return null;
+  return window.location.hostname.trim().toLowerCase().replace(/\.$/, "");
+}
+
+async function resolveOrganizationIdFromDomain() {
+  const hostname = getCurrentHostname();
+  if (!hostname) return null;
+
+  const { data, error } = await supabase
+    .from("organization_domains")
+    .select("organization_id")
+    .eq("domain", hostname)
+    .eq("active", true)
+    .maybeSingle();
+
+  if (error) {
+    // Keep existing demo/slug behavior working if the domain mapping migration
+    // has not been applied yet or the current hostname is not registered.
+    if (error.code === "42P01" || error.code === "PGRST205") return null;
+    throw error;
+  }
+
+  return data?.organization_id ?? null;
+}
+
 export async function loadStore(slug?: string): Promise<StoreData> {
-  const { data: organization, error: organizationError } = await supabase
+  let organizationQuery = supabase
     .from("organizations")
     .select("*")
     .eq("active", true)
-    .eq("demo_mode", slug ? false : true)
     .is("deleted_at", null)
-    .match(slug ? { slug } : {})
     .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+    .limit(1);
+
+  if (slug) {
+    organizationQuery = organizationQuery.eq("demo_mode", false).eq("slug", slug);
+  } else {
+    const organizationId = await resolveOrganizationIdFromDomain();
+
+    if (organizationId) {
+      organizationQuery = organizationQuery.eq("id", organizationId);
+    } else {
+      organizationQuery = organizationQuery.eq("demo_mode", true);
+    }
+  }
+
+  const { data: organization, error: organizationError } = await organizationQuery.maybeSingle();
 
   if (organizationError) throw organizationError;
-  if (!organization) throw new Error("Nenhuma pizzaria de demonstração foi configurada.");
+  if (!organization) {
+    throw new Error(
+      slug
+        ? "Nenhuma loja foi encontrada para este endereço."
+        : "Nenhuma pizzaria de demonstração foi configurada.",
+    );
+  }
 
   const [
     settingsResult,
@@ -105,4 +148,3 @@ export async function loadStore(slug?: string): Promise<StoreData> {
     deliveryZones: (deliveryZonesResult.data ?? []) as DeliveryZone[],
   };
 }
-
