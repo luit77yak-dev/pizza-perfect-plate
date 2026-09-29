@@ -617,7 +617,7 @@ export function ProductConfigurator({
                   <div className="mb-3 flex items-end justify-between gap-3">
                     <div>
                       <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
-                        01 · Acabamento
+                        Acabamento
                       </p>
                       <h3 className="mt-1 text-xl font-semibold tracking-[-.03em]">
                         Escolha a borda
