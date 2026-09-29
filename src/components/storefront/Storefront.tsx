@@ -44,6 +44,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [addingToExistingOrder, setAddingToExistingOrder] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [trackedOrders, setTrackedOrders] = useState<TrackedOrder[]>([]);
@@ -51,6 +52,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [complementPickerOpen, setComplementPickerOpen] = useState(false);
   const [selectedComplementIds, setSelectedComplementIds] = useState<string[]>([]);
+  const [quickAddQuantities, setQuickAddQuantities] = useState<Record<string, number>>({});
   const [complementItems, setComplementItems] = useState<CartItem[]>([]);
   const [complementOrderId, setComplementOrderId] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
@@ -256,8 +258,78 @@ export function Storefront({ slug }: { slug?: string }) {
   const clearComplementFlow = () => {
     setComplementPickerOpen(false);
     setSelectedComplementIds([]);
+    setQuickAddQuantities({});
     setComplementItems([]);
     setComplementOrderId(null);
+    setAddingToExistingOrder(false);
+  };
+
+  const updateComplementQuantity = (lineId: string, quantity: number) => {
+    setComplementItems((current) =>
+      current
+        .map((item) =>
+          item.lineId === lineId
+            ? { ...item, quantity: Math.max(0, quantity) }
+            : item,
+        )
+        .filter((item) => item.quantity > 0),
+    );
+  };
+
+  const addQuickSimpleProduct = (product: Product) => {
+    const quantity = Math.max(1, quickAddQuantities[product.id] ?? 1);
+
+    setComplementItems((current) => {
+      const existingIndex = current.findIndex(
+        (item) =>
+          item.productId === product.id &&
+          !item.secondProductId &&
+          !item.isHalf &&
+          !item.sizeId &&
+          !item.crustId &&
+          item.addons.length === 0 &&
+          item.complements.length === 0,
+      );
+
+      if (existingIndex < 0) {
+        return [
+          ...current,
+          {
+            lineId: crypto.randomUUID(),
+            productId: product.id,
+            productName: product.name,
+            imageUrl: product.image_url,
+            secondProductId: null,
+            secondProductName: null,
+            isHalf: false,
+            sizeId: null,
+            sizeName: null,
+            crustId: null,
+            crustName: null,
+            crustPrice: 0,
+            addons: [],
+            complements: [],
+            quantity,
+            notes: null,
+            unitPrice: Number(product.base_price) || 0,
+          },
+        ];
+      }
+
+      return current.map((item, index) =>
+        index === existingIndex
+          ? { ...item, quantity: item.quantity + quantity }
+          : item,
+      );
+    });
+
+    setQuickAddQuantities((current) => ({ ...current, [product.id]: 1 }));
+  };
+
+  const scrollToAddOrderCatalog = () => {
+    document
+      .getElementById("ppp-add-order-catalog")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   if (isLoading) return <StorefrontSkeleton />;
@@ -439,14 +511,28 @@ export function Storefront({ slug }: { slug?: string }) {
         <ProductConfigurator
           product={selectedProduct}
           data={data}
-          onClose={() => setSelectedProduct(null)}
+          onClose={() => {
+            setSelectedProduct(null);
+            if (addingToExistingOrder && complementOrderId) {
+              setAddingToExistingOrder(false);
+              setComplementPickerOpen(true);
+            }
+          }}
           onAdded={(items) => {
-            // A product configurator always creates/extends the normal cart,
-            // never the temporary complement checkout context.
+            if (addingToExistingOrder && complementOrderId) {
+              setComplementItems((current) => [...current, ...items]);
+              setSelectedProduct(null);
+              setAddingToExistingOrder(false);
+              setComplementPickerOpen(true);
+              return;
+            }
+
             setComplementPickerOpen(false);
             setSelectedComplementIds([]);
+            setQuickAddQuantities({});
             setComplementItems([]);
             setComplementOrderId(null);
+            setAddingToExistingOrder(false);
             items.forEach((item) => cart.addItem(item));
             setSelectedProduct(null);
             setCartOpen(true);
@@ -455,88 +541,181 @@ export function Storefront({ slug }: { slug?: string }) {
       )}
 
       {complementPickerOpen && (
-        <div className="fixed inset-0 z-[140] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label="Adicionar itens">
-          <button type="button" className="absolute inset-0" onClick={clearComplementFlow} aria-label="Fechar seleção de adicionais" />
-          <section className="ppp-complement-picker relative flex max-h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#06282d] text-[#f4eee2] shadow-2xl sm:rounded-[2rem]">
+        <div
+          className="fixed inset-0 z-[140] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Adicionar itens ao pedido"
+        >
+          <button
+            type="button"
+            className="absolute inset-0"
+            onClick={clearComplementFlow}
+            aria-label="Fechar adição ao pedido"
+          />
+          <section className="ppp-complement-picker relative flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-hidden rounded-t-[2rem] bg-[#06282d] text-[#f4eee2] shadow-2xl sm:rounded-[2rem]">
             <header className="shrink-0 border-b border-white/10 bg-[#06282d] px-5 py-4 text-[#f4eee2] sm:px-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#f3ad4b]">Pedido em andamento</p>
-                  <h2 className="mt-1 font-display text-2xl text-[#f4eee2]">Pedido #{complementOrder?.number ?? "—"}</h2>
-                  <p className="mt-1 text-xs text-white/60">Escolha algo para adicionar a este pedido.</p>
+                  <h2 className="mt-1 font-display text-2xl text-[#f4eee2]">
+                    Adicionar ao pedido #{complementOrder?.number ?? "—"}
+                  </h2>
+                  <p className="mt-1 text-xs text-white/60">
+                    Escolha pizzas, bebidas ou outros itens. Você pode acrescentar quantos quiser.
+                  </p>
                 </div>
-                <button type="button" onClick={clearComplementFlow} className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10" aria-label="Fechar">
+                <button
+                  type="button"
+                  onClick={clearComplementFlow}
+                  className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10"
+                  aria-label="Fechar"
+                >
                   <X className="size-5" />
                 </button>
               </div>
             </header>
+
             <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
-              {complementProducts.length === 0 ? (
-                <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-                  Nenhum adicional disponível no momento.
-                </div>
-              ) : (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {complementProducts.map((item) => {
-                    const selected = selectedComplementIds.includes(item.id);
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => setSelectedComplementIds((current) => selected ? current.filter((id) => id !== item.id) : [...current, item.id])}
-                        className={"flex items-center gap-3 rounded-2xl border p-3 text-left transition " + (selected ? "border-[#e8751a] bg-[#e8751a]/10 ring-1 ring-[#e8751a]" : "border-white/10 bg-[#0a3035] text-[#f4eee2] hover:border-white/25 hover:bg-[#0d373c]")}
-                      >
-                        <div className="size-14 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#06282d]">
-                          {item.image_url ? <img src={item.image_url} alt="" className="size-full object-cover" /> : <div className="grid size-full place-items-center text-lg font-display text-primary/40">{item.name.charAt(0)}</div>}
-                        </div>
+              {complementItems.length > 0 && (
+                <section className="mb-5 rounded-2xl border border-[#f3ad4b]/25 bg-[#f3ad4b]/[.07] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[.18em] text-[#f3ad4b]">Acréscimos selecionados</p>
+                      <p className="mt-1 text-sm font-bold text-[#f4eee2]">
+                        {complementItems.reduce((sum, item) => sum + item.quantity, 0)}{" "}
+                        {complementItems.reduce((sum, item) => sum + item.quantity, 0) === 1 ? "item" : "itens"}
+                      </p>
+                    </div>
+                    <span className="font-display text-xl text-[#f4eee2]">{formatCurrency(complementSubtotal)}</span>
+                  </div>
+
+                  <div className="mt-3 space-y-2">
+                    {complementItems.map((item) => (
+                      <div key={item.lineId} className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#0a3035] p-2.5">
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold text-[#f4eee2]">{item.name}</p>
-                          <p className="mt-1 text-xs text-white/45">{formatCurrency(Number(item.base_price) || 0)}</p>
+                          <p className="truncate text-xs font-bold text-[#f4eee2]">
+                            {item.productName}{item.secondProductName ? " + " + item.secondProductName : ""}
+                          </p>
+                          <p className="mt-0.5 text-[10px] text-white/45">
+                            {item.sizeName ?? "Item simples"}{item.crustName ? " · " + item.crustName : ""}
+                          </p>
                         </div>
-                        {selected && <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#e8751a] text-white shadow-sm"><span className="text-xs">✓</span></span>}
-                      </button>
-                    );
-                  })}
-                </div>
+                        <div className="flex items-center rounded-full border border-white/10 bg-[#06282d]">
+                          <button type="button" onClick={() => updateComplementQuantity(item.lineId, item.quantity - 1)} className="grid size-8 place-items-center text-white/70 transition hover:text-white" aria-label={"Diminuir " + item.productName}>−</button>
+                          <span className="w-7 text-center text-[11px] font-bold">{item.quantity}</span>
+                          <button type="button" onClick={() => updateComplementQuantity(item.lineId, item.quantity + 1)} className="grid size-8 place-items-center text-white/70 transition hover:text-white" aria-label={"Aumentar " + item.productName}>+</button>
+                        </div>
+                        <span className="w-20 text-right text-xs font-bold">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
               )}
+
+              <section id="ppp-add-order-catalog">
+                <div className="mb-3 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[.18em] text-white/45">Cardápio</p>
+                    <h3 className="mt-1 text-lg font-black text-[#f4eee2]">
+                      {complementItems.length > 0 ? "Adicionar mais itens" : "Escolha o que deseja adicionar"}
+                    </h3>
+                  </div>
+                  {complementItems.length > 0 && (
+                    <button type="button" onClick={scrollToAddOrderCatalog} className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5 text-[10px] font-bold text-white/70 transition hover:bg-white/[.08] hover:text-white">
+                      Adicionar mais
+                    </button>
+                  )}
+                </div>
+
+                {data.products.filter((product) => product.active && product.available).length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-white/45">
+                    Nenhum item disponível no momento.
+                  </div>
+                ) : (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {data.products.filter((product) => product.active && product.available).map((item) => {
+                      const displayPrice =
+                        item.kind === "PIZZA"
+                          ? getPrice(item, data.sizes[0]?.id ?? null, data.prices)
+                          : Number(item.base_price) || 0;
+                      const categoryName =
+                        data.categories.find((category) => category.id === item.category_id)?.name ??
+                        (item.kind === "PIZZA" ? "Pizza" : "Item");
+                      const quickQuantity = Math.max(1, quickAddQuantities[item.id] ?? 1);
+
+                      return (
+                        <article key={item.id} className="rounded-2xl border border-white/10 bg-[#0a3035] p-3 transition hover:border-white/20">
+                          <div className="flex gap-3">
+                            <div className="size-16 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#06282d]">
+                              {item.image_url ? (
+                                <img src={item.image_url} alt="" className="size-full object-cover" />
+                              ) : (
+                                <div className="grid size-full place-items-center text-lg font-display text-primary/40">{item.name.charAt(0)}</div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                  <p className="truncate text-sm font-bold text-[#f4eee2]">{item.name}</p>
+                                  <p className="mt-0.5 truncate text-[9px] font-bold uppercase tracking-[.12em] text-[#f3ad4b]">{categoryName}</p>
+                                </div>
+                                <span className="shrink-0 text-xs font-bold text-[#f4eee2]">{formatCurrency(displayPrice)}</span>
+                              </div>
+
+                              {item.kind === "PIZZA" ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setComplementPickerOpen(false);
+                                    setAddingToExistingOrder(true);
+                                    setSelectedProduct(item);
+                                  }}
+                                  className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-full bg-[#f3ad4b] px-3 text-[10px] font-black uppercase tracking-[.12em] text-[#06282d] transition hover:brightness-105"
+                                >
+                                  Personalizar pizza
+                                  <ChevronRight className="size-3.5" />
+                                </button>
+                              ) : (
+                                <div className="mt-3 flex items-center gap-2">
+                                  <div className="flex items-center rounded-full border border-white/10 bg-[#06282d]">
+                                    <button type="button" onClick={() => setQuickAddQuantities((current) => ({ ...current, [item.id]: Math.max(1, quickQuantity - 1) }))} className="grid size-9 place-items-center text-white/70 transition hover:text-white" aria-label={"Diminuir quantidade de " + item.name}>−</button>
+                                    <span className="w-8 text-center text-[11px] font-bold">{quickQuantity}</span>
+                                    <button type="button" onClick={() => setQuickAddQuantities((current) => ({ ...current, [item.id]: quickQuantity + 1 }))} className="grid size-9 place-items-center text-white/70 transition hover:text-white" aria-label={"Aumentar quantidade de " + item.name}>+</button>
+                                  </div>
+                                  <button type="button" onClick={() => addQuickSimpleProduct(item)} className="flex h-9 flex-1 items-center justify-center rounded-full border border-[#f3ad4b]/40 bg-[#f3ad4b]/10 px-3 text-[10px] font-black uppercase tracking-[.12em] text-[#f3ad4b] transition hover:bg-[#f3ad4b]/15">
+                                    Adicionar
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
             </div>
+
             <footer className="shrink-0 border-t border-white/10 bg-[#041e22] p-4">
-              <Button
-                disabled={selectedComplementIds.length === 0}
-                onClick={() => {
-                  const nextItems = selectedComplementIds.flatMap((id) => {
-                    const item = complementProducts.find((product) => product.id === id);
-                    if (!item) return [];
-                    return [{
-                      lineId: crypto.randomUUID(),
-                      productId: item.id,
-                      productName: item.name,
-                      imageUrl: item.image_url,
-                      secondProductId: null,
-                      secondProductName: null,
-                      isHalf: false,
-                      sizeId: null,
-                      sizeName: null,
-                      crustId: null,
-                      crustName: null,
-                      crustPrice: 0,
-                      addons: [],
-                      complements: [],
-                      quantity: 1,
-                      notes: null,
-                      unitPrice: Number(item.base_price) || 0,
-                    }];
-                  });
-                  setComplementItems(nextItems);
-                  setSelectedComplementIds([]);
-                  setComplementPickerOpen(false);
-                  setCartOpen(false);
-                  setCheckoutOpen(true);
-                }}
-                className="h-12 w-full rounded-full"
-              >
-                Adicionar ao pedido
-              </Button>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <button type="button" onClick={scrollToAddOrderCatalog} className="h-11 flex-1 rounded-full border border-white/10 bg-white/[.04] px-4 text-xs font-bold text-white/75 transition hover:bg-white/[.08] hover:text-white">
+                  Adicionar mais itens
+                </button>
+                <button
+                  type="button"
+                  disabled={complementItems.length === 0}
+                  onClick={() => {
+                    setComplementPickerOpen(false);
+                    setCartOpen(false);
+                    setCheckoutOpen(true);
+                  }}
+                  className="h-11 flex-1 rounded-full bg-[#f3ad4b] px-4 text-xs font-black text-[#06282d] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Continuar{complementItems.length > 0 ? " · " + formatCurrency(complementSubtotal) : ""}
+                </button>
+              </div>
             </footer>
           </section>
         </div>
@@ -577,7 +756,10 @@ export function Storefront({ slug }: { slug?: string }) {
             onClose={() => setTrackingOpen(false)}
             onAddToOrder={() => {
               setTrackingOpen(false);
+              setSelectedProduct(null);
+              setAddingToExistingOrder(false);
               setSelectedComplementIds([]);
+              setQuickAddQuantities({});
               setComplementItems([]);
               setComplementOrderId(selectedOrder.id);
               setComplementPickerOpen(true);
