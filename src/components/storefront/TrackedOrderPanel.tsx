@@ -92,7 +92,7 @@ export function TrackedOrderPanel({
       aria-label={`Acompanhar pedido #${orderNumber}`}
     >
       <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar acompanhamento" />
-      <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#0d1117] text-white shadow-2xl sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem]">
+      <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#06282d] text-[#f4eee2] shadow-2xl sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem]">
         <header
           className="relative shrink-0 overflow-hidden border-b border-black/10 bg-[#e8751a] px-5 pb-5 pt-4 text-white sm:px-7 sm:pb-6"
         >
@@ -151,8 +151,8 @@ export function TrackedOrderPanel({
               </div>
             </div>
           )}
-          <div className="space-y-4 p-4 pb-6 sm:space-y-5 sm:p-6 sm:pb-7">
-            <section className="overflow-hidden rounded-3xl border border-primary/15 bg-background/[.035] shadow-sm">
+          <div className="space-y-3 p-4 pb-6 sm:space-y-4 sm:p-6 sm:pb-7">
+            <section className="overflow-hidden rounded-3xl border border-white/10 bg-[#0a3035] shadow-sm">
               <div className="p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -199,13 +199,13 @@ export function TrackedOrderPanel({
               <button
                 type="button"
                 onClick={onAddToOrder}
-                className="group flex w-full items-center gap-3 rounded-2xl border border-primary/20 bg-primary/10 p-3.5 text-left transition hover:border-primary/40 hover:bg-primary/15 active:scale-[.99] sm:p-4"
+                className="group flex w-full items-center gap-3 rounded-2xl border border-[#f3ad4b]/30 bg-[#f3ad4b]/10 p-3.5 text-left transition hover:border-primary/40 hover:bg-primary/15 active:scale-[.99] sm:p-4"
               >
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm transition group-hover:scale-105">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#f3ad4b] text-[#06282d] shadow-sm transition group-hover:scale-105">
                   <Plus className="size-4" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-black">Esqueceu alguma coisa?</span>
+                  <span className="block text-sm font-black text-[#f4eee2]">Esqueceu alguma coisa?</span>
                   <span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">Adicione bebidas, acompanhamentos ou sobremesas ao pedido.</span>
                 </span>
                 <ChevronRight className="size-4 shrink-0 text-primary" />

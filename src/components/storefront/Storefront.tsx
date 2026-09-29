@@ -51,6 +51,7 @@ export function Storefront({ slug }: { slug?: string }) {
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [complementPickerOpen, setComplementPickerOpen] = useState(false);
   const [selectedComplementIds, setSelectedComplementIds] = useState<string[]>([]);
+  const [complementItems, setComplementItems] = useState<CartItem[]>([]);
   const [complementOrderId, setComplementOrderId] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
 
@@ -245,6 +246,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
   const subtotal = calculateCartSubtotal(cart.items);
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+  const complementSubtotal = calculateCartSubtotal(complementItems);
   const complementOrder = complementOrderId
     ? trackedOrders.find((order) => order.id === complementOrderId) ?? null
     : null;
@@ -487,10 +489,10 @@ export function Storefront({ slug }: { slug?: string }) {
               <Button
                 disabled={selectedComplementIds.length === 0}
                 onClick={() => {
-                  selectedComplementIds.forEach((id) => {
+                  const nextItems = selectedComplementIds.flatMap((id) => {
                     const item = complementProducts.find((product) => product.id === id);
-                    if (!item) return;
-                    cart.addItem({
+                    if (!item) return [];
+                    return [{
                       lineId: crypto.randomUUID(),
                       productId: item.id,
                       productName: item.name,
@@ -508,8 +510,9 @@ export function Storefront({ slug }: { slug?: string }) {
                       quantity: 1,
                       notes: null,
                       unitPrice: Number(item.base_price) || 0,
-                    });
+                    }];
                   });
+                  setComplementItems(nextItems);
                   setSelectedComplementIds([]);
                   setComplementPickerOpen(false);
                   setCartOpen(false);
@@ -556,6 +559,7 @@ export function Storefront({ slug }: { slug?: string }) {
             onAddToOrder={() => {
               setTrackingOpen(false);
               setSelectedComplementIds([]);
+              setComplementItems([]);
               setComplementOrderId(selectedOrder.id);
               setComplementPickerOpen(true);
             }}
@@ -568,10 +572,12 @@ export function Storefront({ slug }: { slug?: string }) {
           organization={data.organization}
           settings={data.settings}
           deliveryZones={data.deliveryZones}
-          items={cart.items}
-          subtotal={subtotal}
+          items={complementOrderId ? complementItems : cart.items}
+          subtotal={complementOrderId ? complementSubtotal : subtotal}
           onClose={() => {
             setCheckoutOpen(false);
+            setComplementItems([]);
+            setSelectedComplementIds([]);
             setComplementOrderId(null);
           }}
           existingOrder={
@@ -582,7 +588,9 @@ export function Storefront({ slug }: { slug?: string }) {
           storeOpen={status.open}
           storeStatusLabel={status.label}
           onSuccess={async (order) => {
-            cart.clear();
+            if (!complementOrderId) cart.clear();
+            setComplementItems([]);
+            setSelectedComplementIds([]);
             setComplementOrderId(null);
 
             // Refresh the complete public snapshot immediately so the tracking panel
