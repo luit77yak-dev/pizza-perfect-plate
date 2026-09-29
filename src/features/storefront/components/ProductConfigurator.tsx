@@ -139,73 +139,64 @@ export function ProductConfigurator({
   };
 
   const stepTitle = step === 1 ? "Escolha" : step === 2 ? "Personalize" : "Finalize";
-  const complementsTotal = comboProductIds.reduce((sum, id) => {
-    const item = data.products.find((item) => item.id === id);
-    return sum + (Number(item?.base_price) || 0);
-  }, 0);
-  const totalPrice = (unitPrice + complementsTotal) * quantity;
 
   return (
-<div
-      className="ppp-order-builder fixed inset-0 z-[120] flex items-end justify-center bg-foreground/60 p-0 backdrop-blur-md sm:items-center sm:p-5"
+    <div
+      className="ppp-order-builder fixed inset-0 z-[120] flex items-end justify-center bg-foreground/55 p-0 backdrop-blur-md sm:items-center sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-label={"Montar " + product.name}
     >
-      <div className="flex h-[94dvh] max-h-[94dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_28px_90px_rgba(0,0,0,.32)] sm:h-[90vh] sm:max-h-[90vh] sm:rounded-[2rem]">
-        <header className="relative shrink-0 overflow-hidden border-b bg-foreground px-4 py-3.5 text-background sm:px-6 sm:py-4">
-          <div className="pointer-events-none absolute -right-16 -top-20 size-52 rounded-full bg-primary/25 blur-3xl" />
-          <div className="relative flex items-center gap-3 sm:gap-4">
-            <div className="size-14 shrink-0 overflow-hidden rounded-2xl border border-background/15 bg-background/10 shadow-lg sm:size-16">
+      <div className="flex h-[95dvh] max-h-[95dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[92vh] sm:max-h-[92vh] sm:rounded-[2rem]">
+        <div className="relative shrink-0 overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
+          <div className="absolute -right-10 -top-16 size-40 rounded-full bg-primary/25 blur-3xl" />
+          <div className="relative flex items-center gap-4">
+            <div className="size-20 shrink-0 overflow-hidden rounded-2xl border border-background/15 bg-background/10 shadow-lg">
               {product.image_url ? (
                 <img src={product.image_url} alt="" className="size-full object-cover" />
               ) : (
-                <div className="grid size-full place-items-center text-background/45">
-                  <Pizza className="size-7" />
+                <div className="grid size-full place-items-center font-display text-2xl text-background/40">
+                  <Pizza className="size-8" />
                 </div>
               )}
             </div>
-
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="rounded-full border border-background/15 bg-background/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[.16em] text-background/70">
-                  {step}/{totalSteps}
-                </span>
-                <span className="hidden text-[10px] font-medium text-background/50 sm:inline">
-                  {stepTitle}
-                </span>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[.2em] text-background/60">
+                  Montar pedido · {step}/{totalSteps}
+                </p>
+                <button
+                  onClick={onClose}
+                  aria-label="Fechar"
+                  className="rounded-full border border-background/15 p-2 text-background/80 transition hover:bg-background/10 hover:text-background"
+                >
+                  <X className="size-5" />
+                </button>
               </div>
-              <h2 className="mt-1 truncate font-display text-xl tracking-[-.03em] sm:text-2xl">
+              <h2 className="mt-1 truncate font-display text-2xl tracking-[-.03em]">
                 {product.name}
               </h2>
+              <p className="mt-1 text-xs text-background/60">
+                {stepTitle} · personalize do seu jeito
+              </p>
             </div>
-
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Fechar"
-              className="shrink-0 rounded-full border border-background/15 p-2 text-background/75 transition hover:bg-background/10 hover:text-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <X className="size-5" />
-            </button>
           </div>
-        </header>
+        </div>
 
-        <div className="shrink-0 border-b bg-card px-4 py-2.5 sm:px-6 sm:py-3">
-          <div className="mx-auto flex max-w-3xl items-center gap-2 sm:gap-3">
+        <div className="shrink-0 border-b bg-card px-5 py-4 sm:px-6">
+          <div className="flex items-center justify-between gap-2">
             {["Escolha", "Personalize", "Finalize"].map((label, index) => {
               const active = index + 1 === step;
               const complete = index + 1 < step;
-
               return (
                 <div key={label} className="flex min-w-0 flex-1 items-center gap-2">
                   <div
                     className={
-                      "grid size-7 shrink-0 place-items-center rounded-full border text-[9px] font-bold transition-all sm:size-8 " +
+                      "grid size-8 shrink-0 place-items-center rounded-full border text-[10px] font-bold transition-all " +
                       (active
-                        ? "border-primary bg-primary text-primary-foreground shadow-[0_0_0_4px_hsl(var(--primary)/.10)]"
+                        ? "border-primary bg-primary text-primary-foreground shadow-[0_0_0_4px_hsl(var(--primary)/.12)]"
                         : complete
-                          ? "border-primary/30 bg-primary/10 text-primary"
+                          ? "border-primary bg-primary/15 text-primary"
                           : "border-border bg-background text-muted-foreground")
                     }
                   >
@@ -214,20 +205,17 @@ export function ProductConfigurator({
                   <div className="min-w-0 flex-1">
                     <p
                       className={
-                        "truncate text-[9px] font-bold uppercase tracking-[.14em] sm:text-[10px] " +
+                        "truncate text-[10px] font-semibold uppercase tracking-[.14em] " +
                         (active || complete ? "text-foreground" : "text-muted-foreground")
                       }
                     >
                       {label}
                     </p>
-                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={
-                          "h-full rounded-full transition-all duration-300 " +
-                          (complete || active ? "w-full bg-primary" : "w-0")
-                        }
-                      />
-                    </div>
+                    <div
+                      className={
+                        "mt-1 h-1 rounded-full " + (complete || active ? "bg-primary" : "bg-muted")
+                      }
+                    />
                   </div>
                 </div>
               );
@@ -235,844 +223,511 @@ export function ProductConfigurator({
           </div>
         </div>
 
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-muted/20 px-4 py-5 sm:px-7 sm:py-6">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
           {step === 1 && (
-            <section className="mx-auto grid max-w-4xl gap-5 lg:grid-cols-[minmax(0,1fr)_270px] lg:items-start">
-              <div className="space-y-7">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
-                    Comece por aqui
-                  </p>
-                  <h3 className="mt-1 text-2xl font-semibold tracking-[-.03em]">
-                    Monte sua pizza
-                  </h3>
-                  <p className="mt-1 max-w-xl text-sm leading-6 text-muted-foreground">
-                    Escolha o tamanho e, se quiser, combine dois sabores na mesma pizza.
-                  </p>
-                </div>
+            <section className="space-y-6">
+              <div className="rounded-2xl border bg-card p-4">
+                <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">
+                  Produto principal
+                </p>
+                <p className="mt-1 text-lg font-semibold">{product.name}</p>
+                {product.description && (
+                  <p className="mt-1 text-sm text-muted-foreground">{product.description}</p>
+                )}
+              </div>
 
-                <div>
-                  <div className="mb-3 flex items-end justify-between gap-3">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">
-                        01 · Tamanho
-                      </p>
-                      <p className="mt-1 text-base font-semibold">Qual vai ser o tamanho?</p>
-                    </div>
-                    <span className="hidden rounded-full border bg-card px-2.5 py-1 text-[9px] font-semibold text-muted-foreground sm:inline">
-                      Toque para escolher
-                    </span>
+              <div>
+                <div className="mb-3 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
+                      01 · Escolha o tamanho
+                    </p>
+                    <p className="mt-1 text-lg font-semibold tracking-tight">
+                      Qual vai ser o tamanho?
+                    </p>
                   </div>
-
-                  <div className="grid gap-2.5 sm:grid-cols-2">
-                    {data.sizes.map((size) => {
-                      const price = getPrice(product, size.id, data.prices);
-                      const selected = sizeId === size.id;
-
-                      return (
-                        <button
-                          key={size.id}
-                          type="button"
-                          onClick={() => setSizeId(size.id)}
-                          className={
-                            "group relative rounded-2xl border p-3.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
-                            (selected
-                              ? "border-primary bg-primary text-primary-foreground shadow-[0_10px_24px_hsl(var(--primary)/.14)]"
-                              : "border-border/80 bg-card hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-md")
-                          }
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={
-                                "grid size-11 shrink-0 place-items-center rounded-xl border text-xl transition-transform group-hover:scale-105 " +
-                                (selected
-                                  ? "border-primary-foreground/15 bg-primary-foreground/10"
-                                  : "border-border bg-muted")
-                              }
-                            >
-                              <Pizza className="size-5" />
-                            </div>
-
-                            <div className="min-w-0 flex-1">
-                              <span className="block text-sm font-bold">{size.name}</span>
-                              {size.slices ? (
-                                <span
-                                  className={
-                                    "mt-0.5 block text-[11px] " +
-                                    (selected
-                                      ? "text-primary-foreground/70"
-                                      : "text-muted-foreground")
-                                  }
-                                >
-                                  {size.slices} fatias
-                                </span>
-                              ) : null}
-                            </div>
-
-                            <div className="text-right">
-                              <span className="block text-sm font-bold">{formatCurrency(price)}</span>
+                  <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Toque para escolher
+                  </span>
+                </div>
+                <div className="grid gap-2.5 sm:grid-cols-2">
+                  {data.sizes.map((size, index) => {
+                    const price = getPrice(product, size.id, data.prices);
+                    const selected = sizeId === size.id;
+                    return (
+                      <button
+                        key={size.id}
+                        onClick={() => setSizeId(size.id)}
+                        className={
+                          "group relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-200 " +
+                          (selected
+                            ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary/20"
+                            : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md")
+                        }
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={
+                              "grid size-11 shrink-0 place-items-center rounded-xl border text-xl transition-transform group-hover:scale-105 " +
+                              (selected
+                                ? "border-primary-foreground/20 bg-primary-foreground/10"
+                                : "border-border bg-muted")
+                            }
+                          >
+                            <span aria-hidden="true">
+                              {index === 0 ? "🍕" : index === 1 ? "🍕" : "🍕"}
+                            </span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <span className="block text-sm font-bold">{size.name}</span>
+                            {size.slices ? (
                               <span
                                 className={
-                                  "mt-0.5 block text-[8px] font-bold uppercase tracking-widest " +
+                                  "mt-0.5 block text-[11px] " +
                                   (selected
-                                    ? "text-primary-foreground/65"
+                                    ? "text-primary-foreground/70"
                                     : "text-muted-foreground")
                                 }
                               >
-                                {selected ? "Escolhido" : "Selecionar"}
+                                {size.slices} fatias
                               </span>
-                            </div>
+                            ) : null}
                           </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                          <div className="text-right">
+                            <span className="block text-sm font-bold">{formatCurrency(price)}</span>
+                            {selected && (
+                              <span className="text-[8px] font-bold uppercase tracking-widest opacity-70">
+                                Selecionado
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div
+                          className={
+                            "absolute -right-8 -top-8 size-20 rounded-full blur-2xl " +
+                            (selected ? "bg-primary-foreground/15" : "bg-primary/5")
+                          }
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
+              </div>
 
-                {product.allow_half && (
-                  <div>
-                    <div className="mb-3">
-                      <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">
-                        02 · Formato
-                      </p>
-                      <p className="mt-1 text-base font-semibold">Um sabor ou meio a meio?</p>
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setHalfMode(false);
-                          setSecondProductId(null);
-                        }}
-                        aria-pressed={!halfMode}
-                        className={
-                          "rounded-2xl border p-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
-                          (!halfMode
-                            ? "border-primary bg-primary text-primary-foreground shadow-[0_10px_24px_hsl(var(--primary)/.14)]"
-                            : "border-border/80 bg-card hover:border-primary/45 hover:shadow-md")
-                        }
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div
-                            className={
-                              "grid size-11 place-items-center rounded-xl border " +
-                              (!halfMode
-                                ? "border-primary-foreground/15 bg-primary-foreground/10"
-                                : "border-border bg-muted")
-                            }
-                          >
-                            <Pizza className="size-5" />
-                          </div>
-                          {!halfMode && (
-                            <span className="rounded-full bg-primary-foreground/12 px-2 py-1 text-[8px] font-bold uppercase tracking-widest">
-                              Escolhido
-                            </span>
-                          )}
-                        </div>
-                        <p className="mt-4 font-bold">Pizza inteira</p>
-                        <p
-                          className={
-                            "mt-1 text-xs " +
-                            (!halfMode ? "text-primary-foreground/70" : "text-muted-foreground")
-                          }
-                        >
-                          1 sabor · {product.name}
-                        </p>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setHalfMode(true);
-                          requestAnimationFrame(() => {
-                            personalizationScrollRef.current?.scrollIntoView({
-                              behavior: "smooth",
-                              block: "start",
-                            });
-                          });
-                        }}
-                        aria-pressed={halfMode}
-                        className={
-                          "rounded-2xl border p-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
-                          (halfMode
-                            ? "border-primary bg-primary text-primary-foreground shadow-[0_10px_24px_hsl(var(--primary)/.14)]"
-                            : "border-border/80 bg-card hover:border-primary/45 hover:shadow-md")
-                        }
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div
-                            className={
-                              "relative grid size-11 place-items-center overflow-hidden rounded-xl border " +
-                              (halfMode
-                                ? "border-primary-foreground/15 bg-primary-foreground/10"
-                                : "border-border bg-muted")
-                            }
-                          >
-                            <div className="absolute inset-y-0 left-0 w-1/2 bg-primary/25" />
-                            <div className="absolute inset-y-0 right-0 w-1/2 bg-foreground/10" />
-                            <span className="relative z-10 text-sm font-bold">½</span>
-                          </div>
-                          {halfMode && (
-                            <span className="rounded-full bg-primary-foreground/12 px-2 py-1 text-[8px] font-bold uppercase tracking-widest">
-                              Escolhido
-                            </span>
-                          )}
-                        </div>
-                        <p className="mt-4 font-bold">Meio a meio</p>
-                        <p
-                          className={
-                            "mt-1 text-xs " +
-                            (halfMode ? "text-primary-foreground/70" : "text-muted-foreground")
-                          }
-                        >
-                          2 sabores · metade de cada
-                        </p>
-                      </button>
-                    </div>
+              {product.allow_half && (
+                <div>
+                  <div className="mb-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
+                      02 · Formato
+                    </p>
+                    <p className="mt-1 text-lg font-semibold tracking-tight">
+                      Como você quer sua pizza?
+                    </p>
                   </div>
-                )}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setHalfMode(false);
+                        setSecondProductId(null);
+                      }}
+                      className={
+                        "group relative overflow-hidden rounded-2xl border p-4 text-left transition-all " +
+                        (!halfMode
+                          ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20"
+                          : "bg-card hover:border-primary/50 hover:shadow-md")
+                      }
+                      aria-pressed={!halfMode}
+                    >
+                      <div className="mb-3 flex items-center justify-between">
+                        <div
+                          className={
+                            "relative grid size-11 place-items-center overflow-hidden rounded-xl border text-lg " +
+                            (!halfMode
+                              ? "border-primary-foreground/15 bg-primary-foreground/10"
+                              : "border-border bg-muted")
+                          }
+                        >
+                          <div className="absolute inset-y-0 left-0 w-1/2 bg-background/15" />
+                          <div className="absolute inset-y-0 right-0 w-1/2 bg-primary/30" />
+                          <Pizza className="relative z-10 size-5" />
+                        </div>
+                        {!halfMode && (
+                          <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[8px] font-bold uppercase tracking-widest">
+                            ✓ Selecionado
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-bold">Pizza inteira</p>
+                      <p
+                        className={
+                          "mt-1 text-xs " +
+                          (!halfMode ? "text-primary-foreground/70" : "text-muted-foreground")
+                        }
+                      >
+                        1 sabor · {product.name}
+                      </p>
+                    </button>
 
-                {product.allow_half && halfMode && (
-                  <div
-                    ref={personalizationScrollRef}
-                    className="scroll-mt-4 rounded-2xl border border-primary/20 bg-card p-4 shadow-sm"
-                  >
-                    <div className="mb-4 flex items-start gap-3">
-                      <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                        <span className="text-sm font-bold">½</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setHalfMode(true);
+                        requestAnimationFrame(() => {
+                          personalizationScrollRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                          });
+                        });
+                      }}
+                      className={
+                        "group relative overflow-hidden rounded-2xl border p-4 text-left transition-all " +
+                        (halfMode
+                          ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20"
+                          : "bg-card hover:border-primary/50 hover:shadow-md")
+                      }
+                      aria-pressed={halfMode}
+                    >
+                      <div className="mb-3 flex items-center justify-between">
+                        <div
+                          className={
+                            "relative grid size-11 place-items-center overflow-hidden rounded-xl border " +
+                            (halfMode
+                              ? "border-primary-foreground/15 bg-primary-foreground/10"
+                              : "border-border bg-muted")
+                          }
+                        >
+                          <div
+                            className={
+                              "absolute inset-y-0 left-0 w-1/2 " +
+                              (halfMode ? "bg-primary-foreground/15" : "bg-muted-foreground/10")
+                            }
+                          />
+                          <div
+                            className={
+                              "absolute inset-y-0 right-0 w-1/2 " +
+                              (halfMode ? "bg-primary-foreground/35" : "bg-primary/10")
+                            }
+                          />
+                          <span className="relative z-10 text-lg">◐</span>
+                        </div>
+                        {halfMode && (
+                          <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[8px] font-bold uppercase tracking-widest">
+                            ✓ Selecionado
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-bold">Meio a meio</p>
+                      <p
+                        className={
+                          "mt-1 text-xs " +
+                          (halfMode ? "text-primary-foreground/75" : "text-muted-foreground")
+                        }
+                      >
+                        2 sabores · metade de cada
+                      </p>
+                    </button>
+                  </div>
+
+                  {halfMode && (
+                    <div className="mt-3 flex items-start gap-3 rounded-2xl border border-primary/25 bg-primary/5 px-3.5 py-3">
+                      <div className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                        <span className="text-sm font-bold">2</span>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold">Escolha o segundo sabor</p>
-                        <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                          Primeiro sabor: <strong>{product.name}</strong>. Agora escolha a outra metade.
+                        <p className="text-sm font-semibold text-foreground">
+                          Você escolheu meio a meio
+                        </p>
+                        <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+                          Agora escolha o <strong>segundo sabor</strong>. O primeiro já é{" "}
+                          <strong>{product.name}</strong>.
                         </p>
                       </div>
                     </div>
+                  )}
+                </div>
+              )}
 
-                    <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-                      {data.products
-                        .filter((item) => item.kind === "PIZZA" && item.id !== product.id)
-                        .map((item) => {
-                          const price = getPrice(item, sizeId, data.prices);
-                          const selected = secondProductId === item.id;
-                          const previewPrice = calculateProductUnitPrice({
-                            basePrice,
-                            secondBasePrice: price,
-                            isHalf: true,
-                            halfRule: data.settings.half_pizza_pricing_rule,
-                            halfFixedPrice: data.settings.half_pizza_fixed_price,
-                          });
-
-                          return (
-                            <button
-                              key={item.id}
-                              type="button"
-                              onClick={() => setSecondProductId(item.id)}
-                              className={
-                                "flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
-                                (selected
-                                  ? "border-primary bg-primary/5 ring-1 ring-primary"
-                                  : "border-border/70 bg-background hover:border-primary/35")
-                              }
-                            >
-                              <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted">
-                                <Pizza className="size-4 text-primary/70" />
-                              </div>
-                              <span className="min-w-0 flex-1">
-                                <span className="block truncate text-sm font-semibold">{item.name}</span>
-                                <span className="text-[11px] text-muted-foreground">
-                                  Segunda metade · {formatCurrency(price)}
-                                </span>
-                              </span>
-                              <span className="shrink-0 text-right">
-                                <span className="block text-sm font-bold">{formatCurrency(previewPrice)}</span>
-                                <span className="text-[9px] text-muted-foreground">pizza</span>
-                              </span>
-                              {selected && <Check className="size-4 shrink-0 text-primary" />}
-                            </button>
-                          );
-                        })}
+              {product.allow_half && halfMode && (
+                <div
+                  ref={personalizationScrollRef}
+                  className="scroll-mt-4 rounded-2xl border border-primary/20 bg-card p-4 shadow-sm"
+                >
+                  <div className="mb-4 flex items-start gap-3">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                      <span className="text-base">◐</span>
                     </div>
-
-                    {secondProduct && (
-                      <div className="mt-3 flex items-center gap-3 rounded-xl border border-primary/15 bg-primary/5 p-3">
-                        <div className="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-full border border-primary/15 bg-background">
-                          <div className="absolute inset-y-0 left-0 w-1/2 bg-primary/15" />
-                          <div className="absolute inset-y-0 right-0 w-1/2 bg-primary/35" />
-                          <span className="relative z-10 text-xs font-bold">½</span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold">Escolha o segundo sabor</p>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                        Primeiro sabor: <strong>{product.name}</strong>. Agora escolha a outra
+                        metade.
+                      </p>
+                      <p className="mt-1 text-[11px] font-medium text-primary">
+                        {selectedSize?.name
+                          ? selectedSize.name + " · " + formatCurrency(basePrice)
+                          : "Escolha um tamanho primeiro"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
+                    {data.products
+                      .filter((item) => item.kind === "PIZZA" && item.id !== product.id)
+                      .map((item) => {
+                        const price = getPrice(item, sizeId, data.prices);
+                        const selected = secondProductId === item.id;
+                        const previewPrice = calculateProductUnitPrice({
+                          basePrice,
+                          secondBasePrice: price,
+                          isHalf: true,
+                          halfRule: data.settings.half_pizza_pricing_rule,
+                          halfFixedPrice: data.settings.half_pizza_fixed_price,
+                        });
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => setSecondProductId(item.id)}
+                            className={
+                              "flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left " +
+                              (selected
+                                ? "border-primary bg-primary/5 ring-1 ring-primary"
+                                : "bg-background")
+                            }
+                          >
+                            <span>
+                              <span className="block text-sm font-semibold">{item.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                Segunda metade · {formatCurrency(price)}
+                              </span>
+                            </span>
+                            <span className="text-right">
+                              <span className="block text-sm font-bold">
+                                {formatCurrency(previewPrice)}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground">
+                                total da pizza
+                              </span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                  </div>
+                  {secondProduct && (
+                    <div className="mt-3 rounded-2xl border border-primary/20 bg-primary/5 p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-full border border-primary/20 bg-background">
+                          <div className="absolute inset-y-0 left-0 w-1/2 bg-primary/20" />
+                          <div className="absolute inset-y-0 right-0 w-1/2 bg-primary/45" />
+                          <span className="relative z-10 text-xs">🍕</span>
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-primary">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
                             Pizza montada
                           </p>
                           <p className="truncate text-sm font-semibold">
                             {product.name} + {secondProduct.name}
                           </p>
+                          <p className="text-xs text-muted-foreground">
+                            ½ {product.name} · ½ {secondProduct.name}
+                          </p>
                         </div>
-                        <span className="shrink-0 text-sm font-bold">{formatCurrency(halfBasePrice)}</span>
+                        <span className="shrink-0 text-sm font-bold">
+                          {formatCurrency(halfBasePrice)}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <aside className="hidden lg:block">
-                <div className="sticky top-0 rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
-                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
-                    Seu pedido
-                  </p>
-                  <div className="mt-3 flex items-center gap-3">
-                    <div className="size-12 overflow-hidden rounded-xl bg-muted">
-                      {product.image_url ? (
-                        <img src={product.image_url} alt="" className="size-full object-cover" />
-                      ) : (
-                        <div className="grid size-full place-items-center text-primary/40">
-                          <Pizza className="size-5" />
-                        </div>
-                      )}
                     </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-bold">{product.name}</p>
-                      <p className="text-[11px] text-muted-foreground">
-                        {selectedSize?.name ?? "Escolha um tamanho"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="my-4 h-px bg-border" />
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between gap-3">
-                      <span className="text-muted-foreground">Base</span>
-                      <span className="font-semibold">{formatCurrency(basePrice)}</span>
-                    </div>
-                    {secondProduct && (
-                      <div className="flex justify-between gap-3">
-                        <span className="text-muted-foreground">Meio a meio</span>
-                        <span className="font-semibold">2 sabores</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-4 rounded-xl bg-muted p-3">
-                    <span className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                      A partir de
-                    </span>
-                    <span className="mt-0.5 block text-xl font-black">{formatCurrency(unitPrice)}</span>
-                  </div>
+                  )}
                 </div>
-              </aside>
+              )}
             </section>
           )}
 
           {step === 2 && (
-            <section className="mx-auto grid max-w-5xl gap-5 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-              <div className="space-y-6">
-                <div className="relative overflow-hidden rounded-[1.5rem] border border-border/70 bg-card shadow-sm">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/[.07] via-transparent to-transparent" />
-                  <div className="relative flex items-center gap-4 p-4 sm:p-5">
-                    <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl border border-border bg-muted shadow-sm sm:size-[4.5rem]">
-                      {product.image_url ? (
-                        <img src={product.image_url} alt="" className="size-full object-cover" />
-                      ) : (
-                        <div className="grid size-full place-items-center text-primary/45">
-                          <Pizza className="size-7" />
-                        </div>
-                      )}
-                      {secondProduct && (
-                        <div className="absolute bottom-1 right-1 rounded-full border border-background/80 bg-background/90 px-1.5 py-0.5 text-[8px] font-black text-primary shadow-sm">
-                          ½ + ½
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
-                          Sua pizza
-                        </span>
-                        <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-muted-foreground">
-                          {selectedSize?.name ?? "Tamanho não definido"}
-                        </span>
-                      </div>
-                      <p className="mt-1 truncate text-base font-bold tracking-[-.01em]">
-                        {product.name}
-                        {secondProduct ? " + " + secondProduct.name : ""}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">
-                        Agora escolha os acabamentos que combinam com ela.
-                      </p>
-                    </div>
-
-                    <div className="hidden shrink-0 text-right sm:block">
-                      <span className="block text-[8px] font-bold uppercase tracking-[.16em] text-muted-foreground">
-                        Atual
-                      </span>
-                      <span className="mt-0.5 block text-lg font-black tracking-tight">
-                        {formatCurrency(unitPrice)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
+            <section className="space-y-7">
+              {data.crusts.length > 0 && (
                 <div>
-                  <div className="mb-3 flex items-end justify-between gap-3">
-                    <div>
-                      <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
-                        01 · Acabamento
-                      </p>
-                      <h3 className="mt-1 text-xl font-semibold tracking-[-.03em]">
-                        Escolha a borda
-                      </h3>
-                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                        Um detalhe pode mudar toda a experiência.
-                      </p>
-                    </div>
-                    {crust ? (
-                      <span className="hidden rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[9px] font-bold text-primary sm:inline-flex">
-                        {crust.name}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  {data.crusts.length > 0 ? (
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {data.crusts.map((item) => {
-                        const selected = crustId === item.id;
-                        const price = Number(item.price) || 0;
-
-                        return (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => setCrustId(selected ? null : item.id)}
-                            aria-pressed={selected}
-                            className={
-                              "group relative overflow-hidden rounded-[1.25rem] border p-4 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
-                              (selected
-                                ? "border-primary bg-primary/[.06] shadow-[0_12px_28px_hsl(var(--primary)/.10)] ring-1 ring-primary/20"
-                                : "border-border/80 bg-card hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md")
-                            }
-                          >
-                            <div
-                              className={
-                                "absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-primary transition-transform duration-300 " +
-                                (selected ? "scale-x-100" : "group-hover:scale-x-40")
-                              }
-                            />
-                            <div className="flex items-start justify-between gap-3">
-                              <div
-                                className={
-                                  "grid size-11 shrink-0 place-items-center rounded-2xl border transition-all duration-200 " +
-                                  (selected
-                                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                                    : "border-border bg-muted text-primary/65 group-hover:border-primary/25")
-                                }
-                              >
-                                {selected ? <Check className="size-4" /> : <Pizza className="size-4" />}
-                              </div>
-
-                              <div
-                                className={
-                                  "grid size-6 shrink-0 place-items-center rounded-full border transition-all " +
-                                  (selected
-                                    ? "border-primary bg-primary text-primary-foreground"
-                                    : "border-border bg-background text-transparent")
-                                }
-                              >
-                                <Check className="size-3" />
-                              </div>
-                            </div>
-
-                            <p className="mt-4 text-sm font-bold">{item.name}</p>
-                            <div className="mt-1 flex items-center justify-between gap-3">
-                              <span className="text-[11px] text-muted-foreground">
-                                {price > 0 ? "Acrescente à pizza" : "Sem custo adicional"}
-                              </span>
-                              <span className="text-xs font-black text-foreground">
-                                {price > 0 ? "+" + formatCurrency(price) : "Grátis"}
-                              </span>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="rounded-2xl border border-dashed bg-card p-6 text-center text-xs text-muted-foreground">
-                      Nenhuma opção de borda disponível para este produto.
-                    </div>
-                  )}
-                </div>
-
-                {availableAddons.length > 0 && (
-                  <div>
-                    <div className="mb-3 flex items-end justify-between gap-3">
-                      <div>
-                        <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
-                          02 · Toque final
-                        </p>
-                        <h3 className="mt-1 text-xl font-semibold tracking-[-.03em]">
-                          Adicione o que você ama
-                        </h3>
-                        <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                          Escolhas opcionais para deixar a pizza ainda mais sua.
-                        </p>
-                      </div>
-
-                      <span className="shrink-0 rounded-full border border-border bg-card px-2.5 py-1 text-[9px] font-bold text-muted-foreground">
-                        {addons.length === 0
-                          ? "Opcional"
-                          : addons.length + (addons.length === 1 ? " escolhido" : " escolhidos")}
-                      </span>
-                    </div>
-
-                    <div className="grid gap-2.5 sm:grid-cols-2">
-                      {availableAddons.map((item) => {
-                        const checked = addonIds.includes(item.id);
-                        const price = Number(item.price) || 0;
-
-                        return (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => toggleAddon(item.id)}
-                            aria-pressed={checked}
-                            className={
-                              "group relative flex items-center gap-3 overflow-hidden rounded-2xl border p-3.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
-                              (checked
-                                ? "border-primary bg-primary/[.05] shadow-sm ring-1 ring-primary/20"
-                                : "border-border/80 bg-card hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-sm")
-                            }
-                          >
-                            <span
-                              className={
-                                "grid size-9 shrink-0 place-items-center rounded-xl border transition-all duration-200 " +
-                                (checked
-                                  ? "border-primary bg-primary text-primary-foreground"
-                                  : "border-border bg-muted text-primary/55 group-hover:border-primary/25")
-                              }
-                            >
-                              {checked ? <Check className="size-3.5" /> : <Pizza className="size-3.5" />}
-                            </span>
-
-                            <span className="min-w-0 flex-1">
-                              <span className="block truncate text-sm font-semibold">{item.name}</span>
-                              <span className="mt-0.5 block text-[10px] text-muted-foreground">
-                                {price > 0 ? "Adicional · " + formatCurrency(price) : "Incluído"}
-                              </span>
-                            </span>
-
-                            <span className="shrink-0 text-xs font-black">
-                              {price > 0 ? "+" + formatCurrency(price) : "Grátis"}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                <div className="relative overflow-hidden rounded-[1.25rem] border border-border/70 bg-card shadow-sm">
-                  <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/[.07] blur-2xl" />
-                  <div className="relative p-4 sm:p-5">
-                    <div className="mb-3 flex items-start gap-3">
-                      <div className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-                        <span className="text-sm font-black">✦</span>
-                      </div>
-                      <div>
-                        <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
-                          03 · Pedido especial
-                        </p>
-                        <h3 className="mt-1 text-base font-semibold">Tem algum detalhe?</h3>
-                        <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
-                          Conte para a cozinha algo que faça diferença no preparo.
-                        </p>
-                      </div>
-                    </div>
-
-                    <Textarea
-                      id="product-notes"
-                      value={notes}
-                      onChange={(event) => setNotes(event.target.value)}
-                      placeholder="Ex.: cortar em 8 pedaços, pouca cebola..."
-                      maxLength={300}
-                      className="min-h-24 resize-none rounded-xl border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-none focus-visible:ring-1 focus-visible:ring-primary/30"
-                    />
-                    <div className="mt-2 flex items-center justify-between text-[9px] text-muted-foreground">
-                      <span>Opcional</span>
-                      <span>{notes.length}/300</span>
-                    </div>
+                  <p className="mb-2 text-sm font-semibold">Borda</p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {data.crusts.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setCrustId(crustId === item.id ? null : item.id)}
+                        className={
+                          "flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm " +
+                          (crustId === item.id ? "border-primary bg-primary/5" : "bg-card")
+                        }
+                      >
+                        <span>{item.name}</span>
+                        <span className="font-semibold">
+                          {Number(item.price) > 0
+                            ? "+" + formatCurrency(Number(item.price))
+                            : "Grátis"}
+                        </span>
+                      </button>
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
 
-              <aside className="hidden lg:block">
-                <div className="sticky top-0 overflow-hidden rounded-[1.5rem] border border-border/70 bg-card shadow-sm">
-                  <div className="relative overflow-hidden border-b bg-foreground p-5 text-background">
-                    <div className="pointer-events-none absolute -right-10 -top-10 size-28 rounded-full bg-primary/25 blur-2xl" />
-                    <div className="relative flex items-center gap-3">
-                      <div className="size-12 shrink-0 overflow-hidden rounded-xl border border-background/15 bg-background/10">
-                        {product.image_url ? (
-                          <img src={product.image_url} alt="" className="size-full object-cover" />
-                        ) : (
-                          <div className="grid size-full place-items-center text-background/45">
-                            <Pizza className="size-5" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[8px] font-bold uppercase tracking-[.18em] text-background/55">
-                          Resumo da criação
-                        </p>
-                        <p className="mt-1 truncate text-sm font-bold">{product.name}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 p-4">
-                    <div className="rounded-xl border border-border/70 bg-muted/50 p-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          Tamanho
-                        </span>
-                        <span className="text-xs font-bold">
-                          {selectedSize?.name ?? "Não escolhido"}
-                        </span>
-                      </div>
-                      {secondProduct && (
-                        <div className="mt-2 border-t border-border/60 pt-2">
-                          <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                            Meio a meio
-                          </span>
-                          <span className="mt-0.5 block truncate text-xs font-semibold">
-                            {secondProduct.name}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="space-y-2.5 text-xs">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-muted-foreground">Base</span>
-                        <span className="font-semibold">{formatCurrency(basePrice)}</span>
-                      </div>
-                      {crust && (
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-muted-foreground">Borda</span>
-                          <span className="max-w-[150px] truncate font-semibold">{crust.name}</span>
-                        </div>
-                      )}
-                      {addons.length > 0 && (
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-muted-foreground">Adicionais</span>
-                          <span className="font-semibold">{addons.length}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="border-t pt-4">
-                      <span className="block text-[9px] font-bold uppercase tracking-[.16em] text-muted-foreground">
-                        Total desta etapa
-                      </span>
-                      <div className="mt-1 flex items-end justify-between gap-3">
-                        <span className="text-xs text-muted-foreground">1 unidade</span>
-                        <span className="text-2xl font-black tracking-[-.04em]">
-                          {formatCurrency(unitPrice)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </aside>
-            </section>
-          )}
-
-          {step === 3 && (
-            <section className="mx-auto grid max-w-4xl gap-5 lg:grid-cols-[minmax(0,1fr)_270px] lg:items-start">
-              <div className="space-y-6">
+              {availableAddons.length > 0 && (
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
-                    Últimos detalhes
-                  </p>
-                  <h3 className="mt-1 text-2xl font-semibold tracking-[-.03em]">
-                    Quer completar o pedido?
-                  </h3>
-                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                    Bebidas e acompanhamentos são opcionais. Se não quiser nada, é só avançar para adicionar a pizza.
-                  </p>
-                </div>
-
-                {comboProducts.length > 0 ? (
-                  <div className="grid gap-2.5 sm:grid-cols-2">
-                    {comboProducts.map((item) => {
-                      const checked = comboProductIds.includes(item.id);
+                  <p className="mb-2 text-sm font-semibold">Adicionais</p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {availableAddons.map((item) => {
+                      const checked = addonIds.includes(item.id);
                       return (
                         <button
                           key={item.id}
-                          type="button"
-                          onClick={() => toggleCombo(item.id)}
-                          aria-pressed={checked}
+                          onClick={() => toggleAddon(item.id)}
                           className={
-                            "group flex items-center gap-3 rounded-2xl border p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
-                            (checked
-                              ? "border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20"
-                              : "border-border/80 bg-card hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-sm")
+                            "flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm " +
+                            (checked ? "border-primary bg-primary/5" : "bg-card")
                           }
                         >
-                          <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
-                            {item.image_url ? (
-                              <img src={item.image_url} alt="" className="size-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                            ) : (
-                              <div className="grid size-full place-items-center text-primary/45">
-                                <Pizza className="size-5" />
-                              </div>
-                            )}
-                          </div>
-
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-sm font-semibold">{item.name}</span>
-                            <span className="mt-0.5 block text-[11px] text-muted-foreground">
-                              {formatCurrency(Number(item.base_price) || 0)}
+                          <span className="flex items-center gap-2">
+                            <span
+                              className={
+                                "flex size-5 items-center justify-center rounded-md border " +
+                                (checked ? "border-primary bg-primary text-primary-foreground" : "")
+                              }
+                            >
+                              {checked ? <Check className="size-3.5" /> : null}
                             </span>
+                            {item.name}
                           </span>
-
-                          <span
-                            className={
-                              "grid size-7 shrink-0 place-items-center rounded-full border transition-all " +
-                              (checked
-                                ? "border-primary bg-primary text-primary-foreground"
-                                : "border-border bg-background text-transparent")
-                            }
-                          >
-                            <Check className="size-3.5" />
+                          <span className="font-semibold">
+                            +{formatCurrency(Number(item.price))}
                           </span>
                         </button>
                       );
                     })}
                   </div>
-                ) : (
-                  <div className="rounded-2xl border border-dashed bg-card p-8 text-center text-sm text-muted-foreground">
-                    Nenhum acompanhamento ou bebida disponível no momento.
-                  </div>
-                )}
-
-                <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="text-[9px] font-bold uppercase tracking-[.16em] text-primary">
-                        Revisão
-                      </p>
-                      <p className="mt-1 truncate text-sm font-bold">
-                        {product.name}
-                        {secondProduct ? " + " + secondProduct.name : ""}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">
-                        {selectedSize?.name ?? "Sem tamanho"} · {addons.length} adicional(is)
-                        {crust ? " · " + crust.name : ""}
-                      </p>
-                    </div>
-                    <span className="shrink-0 text-lg font-black">{formatCurrency(totalPrice)}</span>
-                  </div>
-
-                  {comboProductIds.length > 0 && (
-                    <div className="mt-3 flex items-center justify-between border-t pt-3 text-[11px]">
-                      <span className="text-muted-foreground">
-                        {comboProductIds.length} complemento(s)
-                      </span>
-                      <span className="font-semibold">+{formatCurrency(complementsTotal)}</span>
-                    </div>
-                  )}
                 </div>
+              )}
+
+              <div>
+                <label htmlFor="product-notes" className="mb-2 block text-sm font-semibold">
+                  Observações
+                </label>
+                <Textarea
+                  id="product-notes"
+                  value={notes}
+                  onChange={(event) => setNotes(event.target.value)}
+                  placeholder="Alguma observação para este item?"
+                  maxLength={300}
+                />
+              </div>
+            </section>
+          )}
+
+          {step === 3 && (
+            <section>
+              <div className="mb-5 rounded-2xl border bg-card p-4">
+                <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">
+                  Últimos detalhes
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Escolha bebidas e acompanhamentos para adicionar junto com esta pizza.
+                </p>
               </div>
 
-              <aside className="hidden lg:block">
-                <div className="sticky top-0 rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
-                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
-                    Tudo certo?
-                  </p>
-                  <div className="mt-3 rounded-xl bg-muted p-4">
-                    <p className="text-xs font-semibold">
+              {comboProducts.length > 0 ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {comboProducts.map((item) => {
+                    const checked = comboProductIds.includes(item.id);
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => toggleCombo(item.id)}
+                        className={
+                          "flex items-center gap-3 rounded-2xl border p-3 text-left " +
+                          (checked ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card")
+                        }
+                      >
+                        <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
+                          {item.image_url ? (
+                            <img src={item.image_url} alt="" className="size-full object-cover" />
+                          ) : (
+                            <div className="flex size-full items-center justify-center font-display text-lg text-primary/40">
+                              {item.name.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-semibold">{item.name}</span>
+                          <span className="text-xs text-muted-foreground">Adicionar ao pedido</span>
+                        </span>
+                        <span className="shrink-0 text-sm font-bold">
+                          {formatCurrency(Number(item.base_price) || 0)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                  Nenhum acompanhamento ou bebida disponível no momento.
+                </div>
+              )}
+
+              <div className="mt-5 rounded-2xl bg-muted p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold">
                       {product.name}
                       {secondProduct ? " + " + secondProduct.name : ""}
                     </p>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      {selectedSize?.name ?? "Sem tamanho"}
+                    <p className="text-xs text-muted-foreground">
+                      {selectedSize?.name ?? "Sem tamanho"} · {addons.length} adicional(is)
+                      {crust ? " · " + crust.name : ""}
                     </p>
                   </div>
-
-                  <div className="my-4 h-px bg-border" />
-
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Pizza</span>
-                      <span className="font-semibold">{formatCurrency(unitPrice)}</span>
-                    </div>
-                    {complementsTotal > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Complementos</span>
-                        <span className="font-semibold">{formatCurrency(complementsTotal)}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-4 border-t pt-4">
-                    <span className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                      Total
-                    </span>
-                    <span className="mt-0.5 block text-2xl font-black">{formatCurrency(totalPrice)}</span>
-                  </div>
+                  <p className="font-bold">{formatCurrency(unitPrice * quantity)}</p>
                 </div>
-              </aside>
+                {comboProductIds.length > 0 && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    + {comboProductIds.length} complemento(s) serão adicionados ao carrinho.
+                  </p>
+                )}
+              </div>
             </section>
           )}
-        </main>
+        </div>
 
-        <footer className="relative z-20 shrink-0 border-t border-border/70 bg-card px-3 pb-[calc(.45rem+env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-10px_28px_rgba(0,0,0,.10)] sm:px-5 sm:py-3">
-          <div className="mx-auto flex max-w-4xl items-center gap-2.5 sm:gap-3">
-            <div className="hidden items-center rounded-full border bg-background p-1 sm:flex">
-              <button
-                type="button"
-                onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-                aria-label="Diminuir quantidade"
-                className="grid size-7 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              >
-                −
-              </button>
-              <span className="w-7 text-center text-xs font-bold">{quantity}</span>
-              <button
-                type="button"
-                onClick={() => setQuantity((current) => current + 1)}
-                aria-label="Aumentar quantidade"
-                className="grid size-7 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              >
-                +
-              </button>
+        <div className="relative z-20 shrink-0 border-t border-primary/10 bg-card px-3 pb-[calc(.35rem+env(safe-area-inset-bottom))] pt-1.5 sm:px-4 sm:py-2.5 shadow-[0_-8px_20px_rgba(0,0,0,.12)]">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <span className="rounded-full bg-primary px-2 py-0.5 text-[8px] font-bold text-primary-foreground">
+              {quantity} {quantity === 1 ? "pizza" : "pizzas"}
+            </span>
+            <div className="flex min-w-0 items-baseline gap-1.5">
+              <span className="truncate text-[8px] uppercase tracking-wider text-muted-foreground">
+                {step < totalSteps ? "Seu pedido" : "Total"}
+              </span>
+              <span className="whitespace-nowrap text-xs font-black tracking-tight text-foreground">
+                {formatCurrency(unitPrice * quantity)}
+              </span>
             </div>
-
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[9px] font-bold uppercase tracking-[.14em] text-muted-foreground">
-                {quantity} {quantity === 1 ? "item" : "itens"} · {step < totalSteps ? stepTitle : "pronto"}
-              </p>
-              <p className="truncate text-sm font-black tracking-tight">{formatCurrency(totalPrice)}</p>
-            </div>
-
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
             <button
               type="button"
               onClick={step > 1 ? previousStep : onClose}
-              className="flex h-10 shrink-0 items-center justify-center rounded-full border border-foreground bg-foreground px-4 text-xs font-semibold text-background shadow-sm transition active:scale-[.98] hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="flex h-10 w-full min-w-0 items-center justify-center whitespace-nowrap rounded-full border border-foreground bg-foreground px-2 text-xs font-semibold text-background shadow-sm transition active:scale-[.98] hover:bg-foreground/90"
             >
               {step > 1 ? "Voltar" : "Cancelar"}
             </button>
-
             {step < totalSteps ? (
               <button
                 type="button"
                 onClick={nextStep}
                 disabled={step === 1 && product.allow_half && halfMode && !secondProductId}
-                className="flex h-10 min-w-0 max-w-[48%] items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-[0_7px_18px_hsl(var(--primary)/.20)] transition active:scale-[.98] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:max-w-none sm:px-5"
+                className="flex h-9 w-full min-w-0 items-center justify-center gap-1 overflow-hidden rounded-full bg-primary px-2 text-[11px] font-bold text-primary-foreground shadow-[0_6px_16px_hsl(var(--primary)/.18)] transition active:scale-[.98] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"
               >
                 <span className="truncate">
                   {step === 1 && product.allow_half && halfMode && !secondProductId
                     ? "Escolha o segundo sabor"
-                    : "Continuar"}
+                    : "Próxima etapa"}
                 </span>
                 {!(step === 1 && product.allow_half && halfMode && !secondProductId) && (
                   <ChevronRight className="size-3.5 shrink-0" />
@@ -1082,35 +737,15 @@ export function ProductConfigurator({
               <button
                 type="button"
                 onClick={addToCart}
-                className="flex h-10 min-w-0 max-w-[52%] items-center justify-center rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-[0_7px_18px_hsl(var(--primary)/.20)] transition active:scale-[.98] hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:max-w-none sm:px-5"
+                className="flex h-9 w-full min-w-0 items-center justify-center overflow-hidden rounded-full bg-primary px-2 text-[11px] font-bold text-primary-foreground shadow-[0_6px_16px_hsl(var(--primary)/.18)] transition active:scale-[.98] hover:brightness-105 sm:px-4"
               >
-                <span className="truncate">Adicionar · {formatCurrency(totalPrice)}</span>
+                <span className="truncate">
+                  Adicionar ao carrinho · {formatCurrency(unitPrice * quantity)}
+                </span>
               </button>
             )}
           </div>
-
-          <div className="mt-2 flex justify-center sm:hidden">
-            <div className="flex items-center rounded-full border bg-background p-0.5">
-              <button
-                type="button"
-                onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-                aria-label="Diminuir quantidade"
-                className="grid size-7 place-items-center rounded-full text-sm text-muted-foreground transition hover:bg-muted"
-              >
-                −
-              </button>
-              <span className="w-8 text-center text-[10px] font-bold">{quantity}</span>
-              <button
-                type="button"
-                onClick={() => setQuantity((current) => current + 1)}
-                aria-label="Aumentar quantidade"
-                className="grid size-7 place-items-center rounded-full text-sm text-muted-foreground transition hover:bg-muted"
-              >
-                +
-              </button>
-            </div>
-          </div>
-        </footer>
+        </div>
       </div>
     </div>
   );
