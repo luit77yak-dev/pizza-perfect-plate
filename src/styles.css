@@ -2463,7 +2463,7 @@
     }
 
     .ppp-reference-header > div > button {
-      min-height: 2.4rem !important;
+      min-height: 2.8rem !important;
       padding-inline: .85rem !important;
       font-size: .58rem !important;
     }
@@ -2581,6 +2581,25 @@
   .ppp-cart-panel .text-primary,
   .ppp-checkout-panel .text-primary {
     color: var(--primary) !important;
+  }
+
+  .ppp-checkout-panel input,
+  .ppp-checkout-panel select,
+  .ppp-checkout-panel textarea {
+    border-color: rgba(244, 238, 226, .16) !important;
+    background: #041e22 !important;
+    color: #f4eee2 !important;
+  }
+
+  .ppp-checkout-panel input::placeholder,
+  .ppp-checkout-panel textarea::placeholder {
+    color: rgba(244, 238, 226, .42) !important;
+  }
+
+  .ppp-checkout-panel button.bg-background {
+    border-color: rgba(244, 238, 226, .14) !important;
+    background: #041e22 !important;
+    color: #f4eee2 !important;
   }
 
   .ppp-order-builder > div > div:last-child,

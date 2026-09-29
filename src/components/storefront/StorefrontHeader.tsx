@@ -43,18 +43,18 @@ export function StorefrontHeader({
                 size="sm"
                 variant="ghost"
                 onClick={onOpenTracking}
-                className="gap-1.5 rounded-full border border-secondary-foreground/20 bg-secondary-foreground/5 px-2.5 text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground sm:px-3"
+                className="min-h-11 gap-2 rounded-full border border-secondary-foreground/20 bg-secondary-foreground/5 px-3 text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground sm:px-3.5"
                 aria-label="Acompanhar pedido"
               >
-                <Clock3 className="size-3.5" />
+                <Clock3 className="size-5" />
                 <span className="hidden text-[9px] font-medium uppercase tracking-[.14em] sm:inline">Acompanhar</span>
-                <Badge className="rounded-full bg-secondary-foreground px-1.5 text-secondary">{selectedTrackedOrdersCount}</Badge>
+                <Badge className="rounded-full bg-secondary-foreground px-2 text-secondary">{selectedTrackedOrdersCount}</Badge>
               </Button>
             )}
-            <Button size="sm" className="gap-2 rounded-full border border-primary bg-primary px-3.5 font-body text-[10px] font-medium uppercase tracking-[.16em] text-primary-foreground shadow-lifted transition-transform hover:-translate-y-0.5 hover:bg-primary/90 sm:px-4" onClick={onOpenCart}>
-              <ShoppingBag className="size-3.5" />
+            <Button size="sm" className="min-h-11 gap-2.5 rounded-full border border-primary bg-primary px-4 font-body text-[10px] font-medium uppercase tracking-[.16em] text-primary-foreground shadow-lifted transition-transform hover:-translate-y-0.5 hover:bg-primary/90 sm:px-4" onClick={onOpenCart}>
+              <ShoppingBag className="size-5" />
               <span>{itemCount > 0 ? "Sacola" : "Pedir"}</span>
-              {itemCount > 0 && <Badge className="rounded-full bg-primary-foreground px-1.5 text-primary">{itemCount}</Badge>}
+              {itemCount > 0 && <Badge className="rounded-full bg-primary-foreground px-2 text-primary">{itemCount}</Badge>}
             </Button>
           </div>
         </div>

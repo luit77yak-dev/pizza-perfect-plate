@@ -185,8 +185,12 @@ export function CheckoutPanel({
         setError("Para entrega, informe rua, número e bairro.");
         return;
       }
-      if (deliveryZones.length > 0 && !selectedZone) {
-        setError("Não encontramos uma área de entrega para esse bairro.");
+      if (deliveryZones.length === 0 || availableNeighborhoods.length === 0) {
+        setError("A loja ainda não cadastrou bairros para entrega.");
+        return;
+      }
+      if (!matchedNeighborhood || !selectedZone) {
+        setError("Selecione um bairro atendido pela loja.");
         return;
       }
     }
@@ -320,9 +324,19 @@ export function CheckoutPanel({
 
   if (successNumber != null && successOrderId != null) {
     return (
-      <div className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-background">
-        <section className="mx-auto min-h-screen w-full max-w-2xl px-4 pb-10 pt-8 sm:px-6 sm:pt-12">
-          <div className="rounded-[2rem] border bg-card p-6 shadow-lifted sm:p-8">
+      <div className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md">
+        <section className="mx-auto min-h-screen w-full max-w-2xl bg-[#06282d] px-4 pb-10 pt-0 text-[#f4eee2] sm:px-6">
+          <div className="sticky top-0 z-30 -mx-4 mb-5 flex items-center justify-between gap-3 border-b border-white/10 bg-[#06282d]/95 px-4 py-4 backdrop-blur-xl sm:-mx-6 sm:px-6">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#f3ad4b]">Checkout</p>
+                <p className="mt-0.5 font-display text-lg">Pedido #{successNumber}</p>
+              </div>
+              <button type="button" onClick={onClose} className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10" aria-label="Fechar checkout">
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-[#0a3035] p-6 shadow-lifted sm:p-8">
             <div className="flex items-start gap-4">
               <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <Check className="size-7" />
@@ -402,9 +416,9 @@ export function CheckoutPanel({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background">
-      <div className="mx-auto min-h-screen max-w-3xl px-4 pb-10 pt-5 sm:px-6 sm:pt-8">
-        <div className="flex items-center justify-between">
+    <div className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md">
+      <div className="mx-auto min-h-screen max-w-4xl bg-[#06282d] px-4 pb-10 pt-0 text-[#f4eee2] sm:px-6">
+        <div className="sticky top-0 z-30 -mx-4 mb-2 flex items-center justify-between gap-4 border-b border-white/10 bg-[#06282d]/95 px-4 py-4 backdrop-blur-xl sm:-mx-6 sm:px-6 sm:py-5">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
               {existingOrder ? "Complementar pedido" : "Finalizar pedido"}
@@ -413,7 +427,7 @@ export function CheckoutPanel({
           </div>
           <button
             onClick={onClose}
-            className="rounded-full p-2 hover:bg-muted"
+            className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10"
             aria-label="Fechar checkout"
           >
             <X className="size-5" />
@@ -511,20 +525,23 @@ export function CheckoutPanel({
                     <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
                       Bairro *
                     </span>
-                    <input
-                      list="delivery-neighborhoods"
+                    <select
                       value={neighborhood}
                       onChange={(e) => setNeighborhood(e.target.value)}
-                      placeholder="Seu bairro"
-                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
-                    />
-                    {availableNeighborhoods.length > 0 && (
-                      <datalist id="delivery-neighborhoods">
-                        {availableNeighborhoods.map((item) => (
-                          <option key={item} value={item} />
-                        ))}
-                      </datalist>
-                    )}
+                      disabled={availableNeighborhoods.length === 0}
+                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <option value="">
+                        {availableNeighborhoods.length > 0
+                          ? "Selecione seu bairro"
+                          : "Nenhum bairro cadastrado"}
+                      </option>
+                      {availableNeighborhoods.map((item) => (
+                        <option key={item} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                    </select>
                   </label>
                   <label className="text-sm">
                     <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
@@ -554,7 +571,7 @@ export function CheckoutPanel({
                     {selectedZone
                       ? `Taxa de entrega: ${formatCurrency(deliveryFee)} · ${selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min`
                       : availableNeighborhoods.length > 0
-                        ? "Selecione ou digite um dos bairros atendidos para calcular a taxa."
+                        ? "Selecione um bairro cadastrado para calcular a taxa."
                         : "A loja ainda não cadastrou áreas de entrega."}
                   </p>
                 )}
