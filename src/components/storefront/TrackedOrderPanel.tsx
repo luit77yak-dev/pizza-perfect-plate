@@ -58,7 +58,7 @@ export function TrackedOrderPanel({
     { status: "CONFIRMED" as OrderStatus, label: "Confirmado", description: "Pedido confirmado" },
     { status: "PREPARING" as OrderStatus, label: "Em preparo", description: "A cozinha está preparando" },
     { status: "READY" as OrderStatus, label: "Pronto", description: "Tudo pronto" },
-    ...(order.fulfillment === "DELIVERY"
+    ...(order.fulfillment === "DELIVERY" || currentStatus === "OUT_FOR_DELIVERY"
       ? [{ status: "OUT_FOR_DELIVERY" as OrderStatus, label: "A caminho", description: "Saiu para entrega" }]
       : []),
   ];
