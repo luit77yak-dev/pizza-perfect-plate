@@ -263,7 +263,7 @@ export function ProductConfigurator({
                           "group relative overflow-hidden rounded-xl border p-2 text-left transition-all duration-200 " +
                           (selected
                             ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary/20"
-                            : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md")
+                            : "border-white/10 bg-[#0a3035] text-[#f4eee2] hover:-translate-y-0.5 hover:border-primary/50 hover:bg-[#0d373c]")
                         }
                       >
                         <div className="flex items-center gap-2">
@@ -346,7 +346,7 @@ export function ProductConfigurator({
                             "relative grid size-8 place-items-center overflow-hidden rounded-lg border text-lg " +
                             (!halfMode
                               ? "border-primary-foreground/15 bg-primary-foreground/10"
-                              : "border-border bg-muted")
+                              : "border-white/10 bg-[#0d373c]")
                           }
                         >
                           <div className="absolute inset-y-0 left-0 w-1/2 bg-background/15" />
@@ -385,7 +385,7 @@ export function ProductConfigurator({
                         "group relative overflow-hidden rounded-lg border p-2.5 text-left transition-all " +
                         (halfMode
                           ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20"
-                          : "bg-card hover:border-primary/50 hover:shadow-md")
+                          : "border-white/10 bg-[#0a3035] text-[#f4eee2] hover:border-primary/50 hover:bg-[#0d373c]")
                       }
                       aria-pressed={halfMode}
                     >
@@ -395,7 +395,7 @@ export function ProductConfigurator({
                             "relative grid size-8 place-items-center overflow-hidden rounded-lg border " +
                             (halfMode
                               ? "border-primary-foreground/15 bg-primary-foreground/10"
-                              : "border-border bg-muted")
+                              : "border-white/10 bg-[#0d373c]")
                           }
                         >
                           <div
