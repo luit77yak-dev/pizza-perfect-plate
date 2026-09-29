@@ -8,7 +8,7 @@ type MenuImageAccordionProps = {
 
 export function MenuImageAccordion({ categories, products }: MenuImageAccordionProps) {
   return (
-    <div className="ppp-reference-category-accordion mb-8">
+    <div className="ppp-reference-category-accordion mb-10">
       <ImageAccordion
         items={[
           ...categories
