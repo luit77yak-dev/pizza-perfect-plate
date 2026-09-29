@@ -564,39 +564,81 @@ export function ProductConfigurator({
           )}
 
           {step === 2 && (
-            <section className="mx-auto grid max-w-4xl gap-5 lg:grid-cols-[minmax(0,1fr)_270px] lg:items-start">
-              <div className="space-y-7">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
-                    Personalização
-                  </p>
-                  <h3 className="mt-1 text-2xl font-semibold tracking-[-.03em]">
-                    Deixe do seu jeito
-                  </h3>
-                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                    Escolha sua borda, adicione extras e deixe uma observação para a cozinha.
-                  </p>
-                </div>
-
-                {data.crusts.length > 0 && (
-                  <div>
-                    <div className="mb-3 flex items-end justify-between gap-3">
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">
-                          01 · Borda
-                        </p>
-                        <p className="mt-1 text-base font-semibold">Escolha o acabamento</p>
-                      </div>
-                      {crust && (
-                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold text-primary">
-                          {crust.name}
-                        </span>
+            <section className="mx-auto grid max-w-5xl gap-5 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+              <div className="space-y-6">
+                <div className="relative overflow-hidden rounded-[1.5rem] border border-border/70 bg-card shadow-sm">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/[.07] via-transparent to-transparent" />
+                  <div className="relative flex items-center gap-4 p-4 sm:p-5">
+                    <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl border border-border bg-muted shadow-sm sm:size-[4.5rem]">
+                      {product.image_url ? (
+                        <img src={product.image_url} alt="" className="size-full object-cover" />
+                      ) : (
+                        <div className="grid size-full place-items-center text-primary/45">
+                          <Pizza className="size-7" />
+                        </div>
+                      )}
+                      {secondProduct && (
+                        <div className="absolute bottom-1 right-1 rounded-full border border-background/80 bg-background/90 px-1.5 py-0.5 text-[8px] font-black text-primary shadow-sm">
+                          ½ + ½
+                        </div>
                       )}
                     </div>
 
-                    <div className="grid gap-2.5 sm:grid-cols-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
+                          Sua pizza
+                        </span>
+                        <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-muted-foreground">
+                          {selectedSize?.name ?? "Tamanho não definido"}
+                        </span>
+                      </div>
+                      <p className="mt-1 truncate text-base font-bold tracking-[-.01em]">
+                        {product.name}
+                        {secondProduct ? " + " + secondProduct.name : ""}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        Agora escolha os acabamentos que combinam com ela.
+                      </p>
+                    </div>
+
+                    <div className="hidden shrink-0 text-right sm:block">
+                      <span className="block text-[8px] font-bold uppercase tracking-[.16em] text-muted-foreground">
+                        Atual
+                      </span>
+                      <span className="mt-0.5 block text-lg font-black tracking-tight">
+                        {formatCurrency(unitPrice)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-3 flex items-end justify-between gap-3">
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
+                        01 · Acabamento
+                      </p>
+                      <h3 className="mt-1 text-xl font-semibold tracking-[-.03em]">
+                        Escolha a borda
+                      </h3>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                        Um detalhe pode mudar toda a experiência.
+                      </p>
+                    </div>
+                    {crust ? (
+                      <span className="hidden rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[9px] font-bold text-primary sm:inline-flex">
+                        {crust.name}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {data.crusts.length > 0 ? (
+                    <div className="grid gap-3 sm:grid-cols-2">
                       {data.crusts.map((item) => {
                         const selected = crustId === item.id;
+                        const price = Number(item.price) || 0;
+
                         return (
                           <button
                             key={item.id}
@@ -604,56 +646,89 @@ export function ProductConfigurator({
                             onClick={() => setCrustId(selected ? null : item.id)}
                             aria-pressed={selected}
                             className={
-                              "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
+                              "group relative overflow-hidden rounded-[1.25rem] border p-4 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
                               (selected
-                                ? "border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20"
-                                : "border-border/80 bg-card hover:border-primary/35 hover:shadow-sm")
+                                ? "border-primary bg-primary/[.06] shadow-[0_12px_28px_hsl(var(--primary)/.10)] ring-1 ring-primary/20"
+                                : "border-border/80 bg-card hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md")
                             }
                           >
                             <div
                               className={
-                                "grid size-10 shrink-0 place-items-center rounded-xl border " +
-                                (selected
-                                  ? "border-primary bg-primary text-primary-foreground"
-                                  : "border-border bg-muted")
+                                "absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-primary transition-transform duration-300 " +
+                                (selected ? "scale-x-100" : "group-hover:scale-x-40")
                               }
-                            >
-                              {selected ? <Check className="size-4" /> : <Pizza className="size-4 text-primary/60" />}
+                            />
+                            <div className="flex items-start justify-between gap-3">
+                              <div
+                                className={
+                                  "grid size-11 shrink-0 place-items-center rounded-2xl border transition-all duration-200 " +
+                                  (selected
+                                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                                    : "border-border bg-muted text-primary/65 group-hover:border-primary/25")
+                                }
+                              >
+                                {selected ? <Check className="size-4" /> : <Pizza className="size-4" />}
+                              </div>
+
+                              <div
+                                className={
+                                  "grid size-6 shrink-0 place-items-center rounded-full border transition-all " +
+                                  (selected
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-border bg-background text-transparent")
+                                }
+                              >
+                                <Check className="size-3" />
+                              </div>
                             </div>
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-sm font-semibold">{item.name}</span>
+
+                            <p className="mt-4 text-sm font-bold">{item.name}</p>
+                            <div className="mt-1 flex items-center justify-between gap-3">
                               <span className="text-[11px] text-muted-foreground">
-                                {Number(item.price) > 0
-                                  ? "+" + formatCurrency(Number(item.price))
-                                  : "Sem custo adicional"}
+                                {price > 0 ? "Acrescente à pizza" : "Sem custo adicional"}
                               </span>
-                            </span>
+                              <span className="text-xs font-black text-foreground">
+                                {price > 0 ? "+" + formatCurrency(price) : "Grátis"}
+                              </span>
+                            </div>
                           </button>
                         );
                       })}
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <div className="rounded-2xl border border-dashed bg-card p-6 text-center text-xs text-muted-foreground">
+                      Nenhuma opção de borda disponível para este produto.
+                    </div>
+                  )}
+                </div>
 
                 {availableAddons.length > 0 && (
                   <div>
                     <div className="mb-3 flex items-end justify-between gap-3">
                       <div>
-                        <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">
-                          02 · Adicionais
+                        <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
+                          02 · Toque final
                         </p>
-                        <p className="mt-1 text-base font-semibold">Quer deixar ainda melhor?</p>
+                        <h3 className="mt-1 text-xl font-semibold tracking-[-.03em]">
+                          Adicione o que você ama
+                        </h3>
+                        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                          Escolhas opcionais para deixar a pizza ainda mais sua.
+                        </p>
                       </div>
-                      {addons.length > 0 && (
-                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-bold text-primary">
-                          {addons.length} selecionado{addons.length > 1 ? "s" : ""}
-                        </span>
-                      )}
+
+                      <span className="shrink-0 rounded-full border border-border bg-card px-2.5 py-1 text-[9px] font-bold text-muted-foreground">
+                        {addons.length === 0
+                          ? "Opcional"
+                          : addons.length + (addons.length === 1 ? " escolhido" : " escolhidos")}
+                      </span>
                     </div>
 
                     <div className="grid gap-2.5 sm:grid-cols-2">
                       {availableAddons.map((item) => {
                         const checked = addonIds.includes(item.id);
+                        const price = Number(item.price) || 0;
+
                         return (
                           <button
                             key={item.id}
@@ -661,27 +736,32 @@ export function ProductConfigurator({
                             onClick={() => toggleAddon(item.id)}
                             aria-pressed={checked}
                             className={
-                              "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
+                              "group relative flex items-center gap-3 overflow-hidden rounded-2xl border p-3.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
                               (checked
-                                ? "border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20"
-                                : "border-border/80 bg-card hover:border-primary/35 hover:shadow-sm")
+                                ? "border-primary bg-primary/[.05] shadow-sm ring-1 ring-primary/20"
+                                : "border-border/80 bg-card hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-sm")
                             }
                           >
                             <span
                               className={
-                                "grid size-6 shrink-0 place-items-center rounded-full border transition-all " +
+                                "grid size-9 shrink-0 place-items-center rounded-xl border transition-all duration-200 " +
                                 (checked
                                   ? "border-primary bg-primary text-primary-foreground"
-                                  : "border-border bg-background")
+                                  : "border-border bg-muted text-primary/55 group-hover:border-primary/25")
                               }
                             >
-                              {checked ? <Check className="size-3.5" /> : null}
+                              {checked ? <Check className="size-3.5" /> : <Pizza className="size-3.5" />}
                             </span>
+
                             <span className="min-w-0 flex-1">
-                              <span className="block text-sm font-semibold">{item.name}</span>
-                              <span className="text-[11px] text-muted-foreground">
-                                +{formatCurrency(Number(item.price))}
+                              <span className="block truncate text-sm font-semibold">{item.name}</span>
+                              <span className="mt-0.5 block text-[10px] text-muted-foreground">
+                                {price > 0 ? "Adicional · " + formatCurrency(price) : "Incluído"}
                               </span>
+                            </span>
+
+                            <span className="shrink-0 text-xs font-black">
+                              {price > 0 ? "+" + formatCurrency(price) : "Grátis"}
                             </span>
                           </button>
                         );
@@ -690,60 +770,115 @@ export function ProductConfigurator({
                   </div>
                 )}
 
-                <div>
-                  <div className="mb-3">
-                    <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">
-                      03 · Observação
-                    </p>
-                    <p className="mt-1 text-base font-semibold">Algum detalhe importante?</p>
-                  </div>
-                  <div className="rounded-2xl border border-border/80 bg-card p-3 shadow-sm">
+                <div className="relative overflow-hidden rounded-[1.25rem] border border-border/70 bg-card shadow-sm">
+                  <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/[.07] blur-2xl" />
+                  <div className="relative p-4 sm:p-5">
+                    <div className="mb-3 flex items-start gap-3">
+                      <div className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+                        <span className="text-sm font-black">✦</span>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
+                          03 · Pedido especial
+                        </p>
+                        <h3 className="mt-1 text-base font-semibold">Tem algum detalhe?</h3>
+                        <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+                          Conte para a cozinha algo que faça diferença no preparo.
+                        </p>
+                      </div>
+                    </div>
+
                     <Textarea
                       id="product-notes"
                       value={notes}
                       onChange={(event) => setNotes(event.target.value)}
                       placeholder="Ex.: cortar em 8 pedaços, pouca cebola..."
                       maxLength={300}
-                      className="min-h-24 resize-none border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
+                      className="min-h-24 resize-none rounded-xl border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-none focus-visible:ring-1 focus-visible:ring-primary/30"
                     />
-                    <div className="flex justify-end px-1 pt-1 text-[9px] text-muted-foreground">
-                      {notes.length}/300
+                    <div className="mt-2 flex items-center justify-between text-[9px] text-muted-foreground">
+                      <span>Opcional</span>
+                      <span>{notes.length}/300</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               <aside className="hidden lg:block">
-                <div className="sticky top-0 rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
-                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">
-                    Resumo
-                  </p>
-                  <p className="mt-1 text-sm font-bold">{product.name}</p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {selectedSize?.name ?? "Sem tamanho"}
-                    {secondProduct ? " · meio a meio" : ""}
-                  </p>
-
-                  <div className="my-4 h-px bg-border" />
-
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between gap-3">
-                      <span className="text-muted-foreground">Borda</span>
-                      <span className="max-w-[130px] truncate font-semibold">
-                        {crust?.name ?? "Nenhuma"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                      <span className="text-muted-foreground">Adicionais</span>
-                      <span className="font-semibold">{addons.length}</span>
+                <div className="sticky top-0 overflow-hidden rounded-[1.5rem] border border-border/70 bg-card shadow-sm">
+                  <div className="relative overflow-hidden border-b bg-foreground p-5 text-background">
+                    <div className="pointer-events-none absolute -right-10 -top-10 size-28 rounded-full bg-primary/25 blur-2xl" />
+                    <div className="relative flex items-center gap-3">
+                      <div className="size-12 shrink-0 overflow-hidden rounded-xl border border-background/15 bg-background/10">
+                        {product.image_url ? (
+                          <img src={product.image_url} alt="" className="size-full object-cover" />
+                        ) : (
+                          <div className="grid size-full place-items-center text-background/45">
+                            <Pizza className="size-5" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[8px] font-bold uppercase tracking-[.18em] text-background/55">
+                          Resumo da criação
+                        </p>
+                        <p className="mt-1 truncate text-sm font-bold">{product.name}</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-4 rounded-xl bg-muted p-3">
-                    <span className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                      Subtotal
-                    </span>
-                    <span className="mt-0.5 block text-xl font-black">{formatCurrency(unitPrice)}</span>
+                  <div className="space-y-4 p-4">
+                    <div className="rounded-xl border border-border/70 bg-muted/50 p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Tamanho
+                        </span>
+                        <span className="text-xs font-bold">
+                          {selectedSize?.name ?? "Não escolhido"}
+                        </span>
+                      </div>
+                      {secondProduct && (
+                        <div className="mt-2 border-t border-border/60 pt-2">
+                          <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                            Meio a meio
+                          </span>
+                          <span className="mt-0.5 block truncate text-xs font-semibold">
+                            {secondProduct.name}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2.5 text-xs">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-muted-foreground">Base</span>
+                        <span className="font-semibold">{formatCurrency(basePrice)}</span>
+                      </div>
+                      {crust && (
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-muted-foreground">Borda</span>
+                          <span className="max-w-[150px] truncate font-semibold">{crust.name}</span>
+                        </div>
+                      )}
+                      {addons.length > 0 && (
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-muted-foreground">Adicionais</span>
+                          <span className="font-semibold">{addons.length}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <span className="block text-[9px] font-bold uppercase tracking-[.16em] text-muted-foreground">
+                        Total desta etapa
+                      </span>
+                      <div className="mt-1 flex items-end justify-between gap-3">
+                        <span className="text-xs text-muted-foreground">1 unidade</span>
+                        <span className="text-2xl font-black tracking-[-.04em]">
+                          {formatCurrency(unitPrice)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </aside>
