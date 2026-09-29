@@ -32,7 +32,16 @@ export function CheckoutPanel({
   items: CartItem[];
   subtotal: number;
   onClose: () => void;
-  onSuccess: (order: { id: string; number: number; phone: string }) => void;
+  onSuccess: (order: {
+    id: string;
+    number: number;
+    phone: string;
+    items?: CartItem[];
+    subtotal?: number;
+    total?: number;
+    fulfillment?: FulfillmentType;
+    status?: string;
+  }) => void;
   storeOpen: boolean;
   storeStatusLabel: string;
   existingOrder?: {
@@ -141,7 +150,6 @@ export function CheckoutPanel({
         if (!order?.order_number || !order?.order_id) {
           throw new Error("Não foi possível adicionar o complemento ao pedido.");
         }
-        setPhone(existingOrder.phone);
         onSuccess({
           id: String(order.order_id),
           number: Number(order.order_number),
@@ -150,7 +158,6 @@ export function CheckoutPanel({
           subtotal: Number(order.subtotal),
           total: Number(order.total),
           fulfillment: existingOrder.fulfillment,
-          status: (order.status as OrderStatus) ?? "RECEIVED",
         });
       } catch (appendError) {
         const message =
@@ -241,9 +248,6 @@ export function CheckoutPanel({
       const order = Array.isArray(created) ? created[0] : created;
       if (!order?.order_number || !order?.order_id)
         throw new Error("Não foi possível criar o pedido.");
-      setSuccessOrderId(String(order.order_id));
-      setSuccessNumber(Number(order.order_number));
-      setSuccessStatus("RECEIVED");
       const createdTotal = Number(order.total);
       const fallbackTotal =
         fulfillment === "DELIVERY"
