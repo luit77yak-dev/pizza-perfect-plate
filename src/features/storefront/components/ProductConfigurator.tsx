@@ -147,11 +147,11 @@ export function ProductConfigurator({
       aria-modal="true"
       aria-label={"Montar " + product.name}
     >
-      <div className="flex h-[95dvh] max-h-[95dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[92vh] sm:max-h-[92vh] sm:rounded-[2rem]">
+      <div className="flex h-[94dvh] max-h-[94dvh] w-full max-w-4xl flex-col overflow-hidden rounded-t-[2rem] border border-border/70 bg-background shadow-[0_24px_80px_rgba(0,0,0,.35)] sm:h-[90vh] sm:max-h-[90vh] sm:rounded-[2rem]">
         <div className="relative shrink-0 overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
           <div className="absolute -right-10 -top-16 size-40 rounded-full bg-primary/25 blur-3xl" />
-          <div className="relative flex items-center gap-4">
-            <div className="size-20 shrink-0 overflow-hidden rounded-2xl border border-background/15 bg-background/10 shadow-lg">
+          <div className="relative flex items-center gap-3 sm:gap-4">
+            <div className="size-16 shrink-0 overflow-hidden rounded-2xl sm:size-[4.5rem] border border-background/15 bg-background/10 shadow-lg">
               {product.image_url ? (
                 <img src={product.image_url} alt="" className="size-full object-cover" />
               ) : (
@@ -173,7 +173,7 @@ export function ProductConfigurator({
                   <X className="size-5" />
                 </button>
               </div>
-              <h2 className="mt-1 truncate font-display text-2xl tracking-[-.03em]">
+              <h2 className="mt-0.5 truncate font-display text-xl tracking-[-.03em] sm:text-2xl">
                 {product.name}
               </h2>
               <p className="mt-1 text-xs text-background/60">
@@ -183,7 +183,7 @@ export function ProductConfigurator({
           </div>
         </div>
 
-        <div className="shrink-0 border-b bg-card px-5 py-4 sm:px-6">
+        <div className="shrink-0 border-b bg-card px-5 py-3 sm:px-6">
           <div className="flex items-center justify-between gap-2">
             {["Escolha", "Personalize", "Finalize"].map((label, index) => {
               const active = index + 1 === step;
@@ -223,17 +223,26 @@ export function ProductConfigurator({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-7 sm:py-6">
           {step === 1 && (
             <section className="space-y-6">
-              <div className="rounded-2xl border bg-card p-4">
-                <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">
-                  Produto principal
-                </p>
-                <p className="mt-1 text-lg font-semibold">{product.name}</p>
-                {product.description && (
-                  <p className="mt-1 text-sm text-muted-foreground">{product.description}</p>
-                )}
+              <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-4">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
+                    Monte do seu jeito
+                  </p>
+                  <p className="mt-1 truncate text-base font-semibold tracking-tight sm:text-lg">
+                    {product.name}
+                  </p>
+                  {product.description && (
+                    <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground sm:text-sm">
+                      {product.description}
+                    </p>
+                  )}
+                </div>
+                <div className="hidden shrink-0 rounded-full border border-primary/15 bg-primary/5 px-3 py-1.5 text-[10px] font-semibold text-primary sm:block">
+                  Personalização
+                </div>
               </div>
 
               <div>
