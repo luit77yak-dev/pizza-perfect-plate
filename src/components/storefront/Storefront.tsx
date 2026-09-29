@@ -275,7 +275,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
   return (
     <div
-      className="min-h-screen bg-background text-foreground"
+      className="ppp-customer-shell min-h-screen bg-background text-foreground"
       style={
         {
           ...(primary ? { "--primary": primary } : {}),
@@ -353,9 +353,9 @@ export function Storefront({ slug }: { slug?: string }) {
                   <button
                     key={product.id}
                     onClick={() => setSelectedProduct(product)}
-                    className={`group relative overflow-visible rounded-sm border-2 border-secondary bg-card text-left shadow-[7px_7px_0_rgba(0,0,0,.82)] transition-all duration-200 hover:-translate-y-1.5 hover:rotate-[-.45deg] hover:shadow-[11px_11px_0_rgba(0,0,0,.82)] active:translate-x-1 active:translate-y-1 active:shadow-[3px_3px_0_rgba(0,0,0,.82)] ${index % 5 === 2 ? "lg:rotate-[.35deg]" : ""}`}
+                    className="ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lifted"
                   >
-                    <div className="relative aspect-[1.18] overflow-hidden border-b-2 border-secondary bg-muted">
+                    <div className="relative aspect-[1.35] overflow-hidden border-b border-border bg-muted">
                       {productImage ? (
                         <img
                           src={productImage}
@@ -383,7 +383,7 @@ export function Storefront({ slug }: { slug?: string }) {
                         </p>
                       </div>
                       {product.featured && (
-                        <span className="absolute left-3 top-3 border-2 border-secondary bg-primary px-3 py-1 font-display text-[10px] uppercase tracking-[.12em] text-primary-foreground shadow-[3px_3px_0_rgba(0,0,0,.75)]">
+                        <span className="absolute left-3 top-3 rounded-full border border-primary/40 bg-primary/90 px-3 py-1 font-body text-[10px] font-semibold uppercase tracking-[.12em] text-primary-foreground shadow-soft backdrop-blur-sm">
                           Destaque
                         </span>
                       )}
@@ -399,13 +399,13 @@ export function Storefront({ slug }: { slug?: string }) {
                             {product.description || "Uma opção preparada para você."}
                           </p>
                         </div>
-                        <span className="relative -mr-1 -mt-2 shrink-0 -rotate-3 border-2 border-secondary bg-primary px-3 py-2 font-display text-sm font-bold text-primary-foreground shadow-[4px_4px_0_rgba(0,0,0,.78)] sm:px-3.5">
+                        <span className="shrink-0 rounded-lg bg-primary/10 px-3 py-2 font-display text-sm font-semibold text-accent sm:px-3.5">
                           {formatCurrency(displayPrice)}
                         </span>
                       </div>
-                      <div className="mt-4 flex items-center justify-between border-t-2 border-secondary pt-3 text-xs font-bold uppercase tracking-[.08em]">
+                      <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-[.08em]">
                         <span>{product.allow_half ? "Meio a meio" : "Personalizar"}</span>
-                        <span className="inline-flex size-8 items-center justify-center border-2 border-secondary bg-background transition-transform group-hover:translate-x-1">
+                        <span className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-background transition-transform group-hover:translate-x-1 group-hover:border-primary">
                           <ChevronRight className="size-4" />
                         </span>
                       </div>
@@ -682,10 +682,10 @@ export function Storefront({ slug }: { slug?: string }) {
       )}
 
       {itemCount > 0 && !cartOpen && !checkoutOpen && (
-        <div className="fixed inset-x-0 bottom-4 z-30 mx-auto w-[calc(100%-2rem)] max-w-md">
+        <div className="ppp-floating-cart fixed inset-x-0 bottom-4 z-30 mx-auto w-[calc(100%-2rem)] max-w-md">
           <button
             onClick={() => setCartOpen(true)}
-            className="flex w-full items-center justify-between rounded-2xl bg-secondary px-5 py-4 text-secondary-foreground shadow-lifted"
+            className="flex w-full items-center justify-between rounded-full border border-secondary-foreground/10 bg-secondary/90 px-5 py-4 text-secondary-foreground shadow-lifted backdrop-blur-xl"
           >
             <span className="flex items-center gap-2 text-sm font-semibold">
               <ShoppingBag className="size-4" />
