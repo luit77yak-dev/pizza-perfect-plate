@@ -13,7 +13,7 @@ export function MenuImageAccordion({ categories, products }: MenuImageAccordionP
     .map((category) => ({
       image: category.image_url!,
       title: category.name,
-      subtitle: "Explorar sabores",
+      subtitle: "Receitas da casa",
     }));
 
   const fallbackItems = products
@@ -22,7 +22,7 @@ export function MenuImageAccordion({ categories, products }: MenuImageAccordionP
     .map((product) => ({
       image: product.image_url!,
       title: product.name,
-      subtitle: "Feito na hora",
+      subtitle: "Preparado com cuidado",
     }));
 
   const items = categoryItems.length >= 2 ? categoryItems : fallbackItems;
