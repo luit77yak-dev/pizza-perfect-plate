@@ -29,6 +29,7 @@ export function ProductConfigurator({
   const [notesOpen, setNotesOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const personalizationScrollRef = useRef<HTMLDivElement | null>(null);
+  const stepsScrollRef = useRef<HTMLDivElement | null>(null);
 
   const secondProduct = data.products.find((item) => item.id === secondProductId) ?? null;
   const comboProducts = data.products.filter((item) => {
@@ -85,6 +86,12 @@ export function ProductConfigurator({
       personalizationScrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }, [halfMode]);
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      stepsScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }, [step]);
 
   const toggleAddon = (id: string) => {
     setAddonIds((current) =>
@@ -224,7 +231,10 @@ export function ProductConfigurator({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#06282d] px-4 py-4 sm:px-5 sm:py-5">
+        <div
+          ref={stepsScrollRef}
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#06282d] px-4 py-4 sm:px-5 sm:py-5"
+        >
           {step === 1 && (
             <section className="space-y-4">
               <div className="rounded-2xl border border-white/10 bg-[#0a3035] p-3.5">
@@ -260,7 +270,7 @@ export function ProductConfigurator({
                         key={size.id}
                         onClick={() => setSizeId(size.id)}
                         className={
-                          "group relative overflow-hidden rounded-xl border p-2 text-left transition-all duration-200 " +
+                          "group relative min-h-[68px] overflow-hidden rounded-xl border p-2.5 text-left transition-all duration-200 sm:min-h-0 sm:p-2 " +
                           (selected
                             ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary/20"
                             : "border-white/10 bg-[#0a3035] text-[#f4eee2] hover:-translate-y-0.5 hover:border-primary/50 hover:bg-[#0d373c]")
@@ -269,7 +279,7 @@ export function ProductConfigurator({
                         <div className="flex items-center gap-2">
                           <div
                             className={
-                              "grid size-7 shrink-0 place-items-center rounded-md border text-xl transition-transform group-hover:scale-105 " +
+                              "grid size-8 shrink-0 place-items-center rounded-md border text-xl transition-transform group-hover:scale-105 sm:size-7 " +
                               (selected
                                 ? "border-primary-foreground/20 bg-primary-foreground/10"
                                 : "border-border bg-muted")
