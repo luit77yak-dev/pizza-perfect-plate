@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Pizza, ShoppingBag, Store } from "lucide-react";
+import { ChevronRight, Pizza, ShoppingBag, Store, X } from "lucide-react";
 import { loadStore } from "@/features/storefront/services/load-store";
 import { Button } from "@/components/ui/button";
 import { StorefrontSkeleton } from "@/components/storefront/StorefrontSkeleton";
@@ -245,6 +245,9 @@ export function Storefront({ slug }: { slug?: string }) {
 
   const subtotal = calculateCartSubtotal(cart.items);
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+  const complementOrder = complementOrderId
+    ? trackedOrders.find((order) => order.id === complementOrderId) ?? null
+    : null;
 
   if (isLoading) return <StorefrontSkeleton />;
   if (isError || !data) {
@@ -437,16 +440,16 @@ export function Storefront({ slug }: { slug?: string }) {
       {complementPickerOpen && (
         <div className="fixed inset-0 z-[140] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label="Adicionar itens">
           <button type="button" className="absolute inset-0" onClick={() => setComplementPickerOpen(false)} aria-label="Fechar seleção de adicionais" />
-          <section className="relative flex max-h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-background shadow-2xl sm:rounded-[2rem]">
-            <header className="shrink-0 border-b bg-card px-5 py-4 sm:px-6">
+          <section className="relative flex max-h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#06282d] text-[#f4eee2] shadow-2xl sm:rounded-[2rem]">
+            <header className="shrink-0 border-b border-white/10 bg-[#06282d] px-5 py-4 text-[#f4eee2] sm:px-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">Pedido em andamento</p>
-                  <h2 className="mt-1 text-2xl font-display">Esqueceu alguma coisa?</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">Escolha bebidas, acompanhamentos ou sobremesas para fazer um novo pedido.</p>
+                  <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#f3ad4b]">Pedido em andamento</p>
+                  <h2 className="mt-1 font-display text-2xl text-[#f4eee2]">Pedido #{complementOrder?.number ?? "—"}</h2>
+                  <p className="mt-1 text-xs text-white/60">Escolha algo para adicionar a este pedido.</p>
                 </div>
-                <button type="button" onClick={() => setComplementPickerOpen(false)} className="rounded-full p-2 hover:bg-muted" aria-label="Fechar">
-                  <span className="text-xl leading-none">×</span>
+                <button type="button" onClick={() => setComplementPickerOpen(false)} className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10" aria-label="Fechar">
+                  <X className="size-5" />
                 </button>
               </div>
             </header>
@@ -480,7 +483,7 @@ export function Storefront({ slug }: { slug?: string }) {
                 </div>
               )}
             </div>
-            <footer className="shrink-0 border-t bg-card p-4">
+            <footer className="shrink-0 border-t border-white/10 bg-[#041e22] p-4">
               <Button
                 disabled={selectedComplementIds.length === 0}
                 onClick={() => {
@@ -514,7 +517,7 @@ export function Storefront({ slug }: { slug?: string }) {
                 }}
                 className="h-12 w-full rounded-full"
               >
-                Adicionar à sacola
+                Adicionar ao pedido
               </Button>
             </footer>
           </section>
