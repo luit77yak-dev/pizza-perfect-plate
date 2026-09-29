@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronRight, Pizza, X } from "lucide-react";
+import { Check, ChevronRight, Circle, Pizza, X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/domain/money";
 import { calculateProductUnitPrice } from "@/lib/domain/pricing";
@@ -275,7 +275,7 @@ export function ProductConfigurator({
                             }
                           >
                             <span aria-hidden="true">
-                              {index === 0 ? "🍕" : index === 1 ? "🍕" : "🍕"}
+                              <Pizza className="size-5" />
                             </span>
                           </div>
                           <div className="min-w-0 flex-1">
@@ -354,7 +354,7 @@ export function ProductConfigurator({
                         </div>
                         {!halfMode && (
                           <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[8px] font-bold uppercase tracking-widest">
-                            ✓ Selecionado
+                            Selecionado
                           </span>
                         )}
                       </div>
@@ -409,11 +409,11 @@ export function ProductConfigurator({
                               (halfMode ? "bg-primary-foreground/35" : "bg-primary/10")
                             }
                           />
-                          <span className="relative z-10 text-lg">◐</span>
+                          <Circle className="relative z-10 size-5" />
                         </div>
                         {halfMode && (
                           <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[8px] font-bold uppercase tracking-widest">
-                            ✓ Selecionado
+                            Selecionado
                           </span>
                         )}
                       </div>
@@ -455,7 +455,7 @@ export function ProductConfigurator({
                 >
                   <div className="mb-4 flex items-start gap-3">
                     <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                      <span className="text-base">◐</span>
+                      <Circle className="size-4" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold">Escolha o segundo sabor</p>
@@ -519,7 +519,7 @@ export function ProductConfigurator({
                         <div className="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-full border border-primary/20 bg-background">
                           <div className="absolute inset-y-0 left-0 w-1/2 bg-primary/20" />
                           <div className="absolute inset-y-0 right-0 w-1/2 bg-primary/45" />
-                          <span className="relative z-10 text-xs">🍕</span>
+                          <Pizza className="relative z-10 size-4" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
