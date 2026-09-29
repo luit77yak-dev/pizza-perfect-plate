@@ -5,6 +5,16 @@ type StorefrontContactProps = {
 };
 
 export function StorefrontContact({ settings }: StorefrontContactProps) {
+  const address =
+    [
+      settings.address_street,
+      settings.address_number,
+      settings.address_neighborhood,
+      settings.address_city,
+    ]
+      .filter(Boolean)
+      .join(", ") || "Consulte a loja";
+
   return (
     <section id="contato" className="ppp-contact-section">
       <div className="ppp-contact-ticket">
@@ -14,7 +24,7 @@ export function StorefrontContact({ settings }: StorefrontContactProps) {
           <div className="ppp-contact-details">
             <div>
               <span>Endereço</span>
-              <strong>{settings.address || "Consulte a loja"}</strong>
+              <strong>{address}</strong>
             </div>
             <div>
               <span>Horário</span>
