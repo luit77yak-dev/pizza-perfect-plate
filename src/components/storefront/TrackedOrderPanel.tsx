@@ -86,7 +86,7 @@ export function TrackedOrderPanel({
 
   return (
     <div
-      className="fixed inset-0 z-[180] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5"
+      className="ppp-tracked-order-panel fixed inset-0 z-[180] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5"
       role="dialog"
       aria-modal="true"
       aria-label={`Acompanhar pedido #${orderNumber}`}
@@ -100,11 +100,11 @@ export function TrackedOrderPanel({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-black text-white shadow-lg">
-                  <ShoppingBag className="size-4" />
+                  <ShoppingBag className="size-5" strokeWidth={1.9} />
                 </span>
                 <div>
                   <p className="text-[9px] font-black uppercase tracking-[.2em] text-white/85">Acompanhamento</p>
-                  <h2 className="mt-0.5 truncate font-display text-2xl tracking-tight text-white sm:text-3xl">Pedido #{orderNumber}</h2>
+                  <h2 className="mt-0.5 truncate font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">Pedido #{orderNumber}</h2>
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-[#f4eee2]/65">
