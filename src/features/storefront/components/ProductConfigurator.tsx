@@ -250,7 +250,7 @@ export function ProductConfigurator({
                     Toque para escolher
                   </span>
                 </div>
-                <div className="grid gap-2.5 sm:grid-cols-2">
+                <div className="grid gap-1.5 sm:grid-cols-2">
                   {data.sizes.map((size, index) => {
                     const price = getPrice(product, size.id, data.prices);
                     const selected = sizeId === size.id;
@@ -259,16 +259,16 @@ export function ProductConfigurator({
                         key={size.id}
                         onClick={() => setSizeId(size.id)}
                         className={
-                          "group relative overflow-hidden rounded-xl border p-2.5 text-left transition-all duration-200 " +
+                          "group relative overflow-hidden rounded-lg border p-2 text-left transition-all duration-200 " +
                           (selected
                             ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/.16)] ring-1 ring-primary/20"
                             : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md")
                         }
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                           <div
                             className={
-                              "grid size-9 shrink-0 place-items-center rounded-lg border text-xl transition-transform group-hover:scale-105 " +
+                              "grid size-7 shrink-0 place-items-center rounded-md border text-xl transition-transform group-hover:scale-105 " +
                               (selected
                                 ? "border-primary-foreground/20 bg-primary-foreground/10"
                                 : "border-border bg-muted")
@@ -324,7 +324,7 @@ export function ProductConfigurator({
                       Como você quer sua pizza?
                     </p>
                   </div>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="grid gap-1.5 sm:grid-cols-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -332,14 +332,14 @@ export function ProductConfigurator({
                         setSecondProductId(null);
                       }}
                       className={
-                        "group relative overflow-hidden rounded-xl border p-3 text-left transition-all " +
+                        "group relative overflow-hidden rounded-lg border p-2.5 text-left transition-all " +
                         (!halfMode
                           ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20"
                           : "bg-card hover:border-primary/50 hover:shadow-md")
                       }
                       aria-pressed={!halfMode}
                     >
-                      <div className="mb-3 flex items-center justify-between">
+                      <div className="mb-2 flex items-center justify-between">
                         <div
                           className={
                             "relative grid size-9 place-items-center overflow-hidden rounded-lg border text-lg " +
@@ -381,7 +381,7 @@ export function ProductConfigurator({
                         });
                       }}
                       className={
-                        "group relative overflow-hidden rounded-2xl border p-4 text-left transition-all " +
+                        "group relative overflow-hidden rounded-lg border p-2.5 text-left transition-all " +
                         (halfMode
                           ? "border-primary bg-primary text-primary-foreground shadow-[0_8px_22px_hsl(var(--primary)/.16)] ring-2 ring-primary/20"
                           : "bg-card hover:border-primary/50 hover:shadow-md")
