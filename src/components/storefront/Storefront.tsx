@@ -656,6 +656,8 @@ export function Storefront({ slug }: { slug?: string }) {
             });
 
             setSelectedTrackedOrderId(order.id);
+            setCheckoutOpen(false);
+            setTrackingOpen(true);
             try {
               localStorage.setItem(
                 `ppp:last-order:${data.organization.id}`,
