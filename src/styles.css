@@ -2501,16 +2501,16 @@
 
 @layer components {
   /* ============================================
-     ORDER FLOW — editorial / premium treatment
+     ORDER FLOW — Midnight Premium Artisan
+     Keep storefront overlays aligned with the dark
+     reference system; do not alter business logic.
      ============================================ */
-  .ppp-order-builder > div {
-    border: 1px solid rgba(19,52,55,.18) !important;
-    border-radius: 1.6rem !important;
-    background: #f4efe5 !important;
-  }
-
-  .ppp-order-builder [role="dialog"] {
-    background: #f4efe5 !important;
+  .ppp-order-builder > div,
+  .ppp-order-builder [role="dialog"],
+  .ppp-cart-panel > aside {
+    border-color: rgba(244, 238, 226, .14) !important;
+    background: #06282d !important;
+    color: #f4eee2 !important;
   }
 
   .ppp-order-builder h2,
@@ -2520,11 +2520,13 @@
     font-family: var(--font-display, Georgia, serif) !important;
     font-weight: 500 !important;
     letter-spacing: -.035em !important;
+    color: #f4eee2 !important;
   }
 
   .ppp-order-builder .border-b,
-  .ppp-cart-panel .border-b {
-    border-color: rgba(19,52,55,.14) !important;
+  .ppp-cart-panel .border-b,
+  .ppp-checkout-panel .border-b {
+    border-color: rgba(244, 238, 226, .12) !important;
   }
 
   .ppp-order-builder button:not([aria-label="Fechar"]),
@@ -2541,13 +2543,26 @@
   .ppp-order-builder .bg-muted,
   .ppp-cart-panel .bg-card,
   .ppp-checkout-panel .bg-card {
-    background: rgba(255,252,245,.7) !important;
+    background: #0a3035 !important;
+    color: #f4eee2 !important;
   }
 
   .ppp-order-builder .border,
   .ppp-cart-panel .border,
   .ppp-checkout-panel .border {
-    border-color: rgba(19,52,55,.16) !important;
+    border-color: rgba(244, 238, 226, .14) !important;
+  }
+
+  .ppp-order-builder .text-muted-foreground,
+  .ppp-cart-panel .text-muted-foreground,
+  .ppp-checkout-panel .text-muted-foreground {
+    color: rgba(244, 238, 226, .62) !important;
+  }
+
+  .ppp-order-builder .text-foreground,
+  .ppp-cart-panel .text-foreground,
+  .ppp-checkout-panel .text-foreground {
+    color: #f4eee2 !important;
   }
 
   .ppp-order-builder .rounded-2xl,
@@ -2568,55 +2583,33 @@
     color: var(--primary) !important;
   }
 
-  .ppp-order-builder > div > div:last-child {
-    background: #0a292d !important;
-    color: #f4efe5;
-    border-color: rgba(244,239,229,.12) !important;
-  }
-
-  .ppp-order-builder > div > div:last-child .text-muted-foreground {
-    color: rgba(244,239,229,.65) !important;
-  }
-
-  .ppp-order-builder > div > div:last-child .text-foreground {
-    color: #f4efe5 !important;
-  }
-
-  .ppp-order-builder > div > div:last-child button {
-    border-color: rgba(244,239,229,.22) !important;
-  }
-
-  .ppp-order-builder > div > div:last-child button:last-child {
-    border-color: var(--primary) !important;
-    background: var(--primary) !important;
-    color: #10191a !important;
-  }
-
-  .ppp-cart-panel > aside {
-    background: #f4efe5 !important;
-  }
-
+  .ppp-order-builder > div > div:last-child,
   .ppp-cart-panel > aside > div:last-child {
-    background: #0a292d !important;
-    color: #f4efe5;
+    background: #041e22 !important;
+    color: #f4eee2 !important;
+    border-color: rgba(244, 238, 226, .12) !important;
   }
 
+  .ppp-order-builder > div > div:last-child .text-muted-foreground,
   .ppp-cart-panel > aside > div:last-child .text-muted-foreground {
-    color: rgba(244,239,229,.66) !important;
+    color: rgba(244, 238, 226, .62) !important;
   }
 
+  .ppp-order-builder > div > div:last-child .text-foreground,
   .ppp-cart-panel > aside > div:last-child .text-foreground {
-    color: #f4efe5 !important;
+    color: #f4eee2 !important;
   }
 
+  .ppp-order-builder > div > div:last-child button,
   .ppp-cart-panel > aside > div:last-child button {
-    border-color: rgba(244,239,229,.2);
+    border-color: rgba(244, 238, 226, .22) !important;
   }
 
+  .ppp-order-builder > div > div:last-child button:last-child,
   .ppp-cart-panel > aside > div:last-child button.bg-primary {
+    border-color: var(--primary) !important;
     background: var(--primary) !important;
     color: #10191a !important;
-    border-color: var(--primary) !important;
   }
 
   /* ============================================
