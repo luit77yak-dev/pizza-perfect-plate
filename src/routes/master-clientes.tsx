@@ -207,27 +207,6 @@ function MasterClientsPage() {
   return (
     <MasterShell>
     <main className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-950 text-white">
-              <span className="text-sm font-bold tracking-[0.18em]">N</span>
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Neroxa Master</p>
-              <h1 className="truncate text-lg font-semibold">Clientes</h1>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => void loadClients()}>
-              <RefreshCw className="h-4 w-4" /> Atualizar
-            </Button>
-            <Button size="sm" onClick={() => { setDraft(emptyDraft); setShowCreate(true); }}>
-              <Plus className="h-4 w-4" /> Novo cliente
-            </Button>
-          </div>
-        </div>
-      </header>
 
       <div className="mx-auto grid max-w-[1500px] gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_380px]">
         <section className="min-w-0 space-y-4">
