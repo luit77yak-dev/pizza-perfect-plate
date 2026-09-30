@@ -18,7 +18,16 @@ function MasterFinancePage(){
  const load=async(initial=false)=>{setError(null);initial?setLoading(true):setRefreshing(true);try{const staff=await isNeroxaStaff();setAuthorized(staff);if(!staff)return;const o=await loadFinanceOverview();setInvoices(o.invoices);setPayments(o.payments);setClients(o.clients)}catch(e){setError(e instanceof Error?e.message:"Não foi possível carregar o financeiro.")}finally{setLoading(false);setRefreshing(false)}};
  useEffect(()=>{void load(true)},[]);
  const clientMap=useMemo(()=>new Map(clients.map(c=>[c.id,c])),[clients]);
- const metrics=useMemo(()=>({total:invoices.length,pending:invoices.filter(i=>i.status==="PENDING").reduce((s,i)=>s+i.total_amount,0),overdue:invoices.filter(i=>i.status==="OVERDUE").reduce((s,i)=>s+i.total_amount,0),paid:invoices.filter(i=>i.status==="PAID").reduce((s,i)=>s+i.total_amount,0),payments:payments.filter(p=>p.status==="CONFIRMED").reduce((s,p)=>s+p.amount,0)}),[invoices,payments]);
+ const metrics=useMemo(
+  () => ({
+   total: invoices.length,
+   pending: invoices.filter((i)=>i.status==="PENDING").reduce((sum,i)=>sum+i.total_amount,0),
+   overdue: invoices.filter((i)=>i.status==="OVERDUE").reduce((sum,i)=>sum+i.total_amount,0),
+   paid: invoices.filter((i)=>i.status==="PAID").reduce((sum,i)=>sum+i.total_amount,0),
+   payments: payments.filter((p)=>p.status==="CONFIRMED").reduce((sum,p)=>sum+p.amount,0),
+  }),
+  [invoices,payments],
+ );
  if(authorized===false)return <main className="min-h-screen bg-slate-950 px-5 py-10 text-slate-100"><div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/5 p-8"><ShieldCheck className="mb-4 h-8 w-8 text-slate-300"/><h1 className="text-2xl font-semibold">Acesso restrito</h1><p className="mt-2 text-sm text-slate-300">Financeiro é uma área interna do Neroxa Master.</p></div></main>;
  if(authorized===null||loading)return <main className="grid min-h-screen place-items-center bg-slate-950 text-slate-100"><Loader2 className="h-7 w-7 animate-spin"/></main>;
  return <MasterShell><div className="mx-auto max-w-[1500px] space-y-5 px-4 py-5 sm:px-6">
