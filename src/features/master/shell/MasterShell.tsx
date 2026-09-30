@@ -28,19 +28,20 @@ type NavItem = {
   to: string;
   icon: typeof LayoutDashboard;
   active?: (pathname: string) => boolean;
+  enabled?: boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Visão geral", to: "/master", icon: LayoutDashboard },
   { label: "Clientes", to: "/master-clientes", icon: Users },
-  { label: "Comercial", to: "/master/comercial", icon: BriefcaseBusiness },
-  { label: "Assinaturas", to: "/master/assinaturas", icon: CreditCard },
-  { label: "Financeiro", to: "/master/financeiro", icon: BarChart3 },
-  { label: "Produtos", to: "/master/produtos", icon: Package },
-  { label: "Implantação", to: "/master/implantacao", icon: FolderKanban },
-  { label: "Domínios", to: "/master/dominios", icon: Globe2 },
-  { label: "Suporte", to: "/master/suporte", icon: CircleHelp },
-  { label: "Configurações", to: "/master/configuracoes", icon: Settings },
+  { label: "Comercial", to: "/master/comercial", icon: BriefcaseBusiness, enabled: false },
+  { label: "Assinaturas", to: "/master/assinaturas", icon: CreditCard, enabled: false },
+  { label: "Financeiro", to: "/master/financeiro", icon: BarChart3, enabled: false },
+  { label: "Produtos", to: "/master/produtos", icon: Package, enabled: false },
+  { label: "Implantação", to: "/master/implantacao", icon: FolderKanban, enabled: false },
+  { label: "Domínios", to: "/master/dominios", icon: Globe2, enabled: false },
+  { label: "Suporte", to: "/master/suporte", icon: CircleHelp, enabled: false },
+  { label: "Configurações", to: "/master/configuracoes", icon: Settings, enabled: false },
 ];
 
 export function MasterShell({ children }: MasterShellProps) {
@@ -164,6 +165,19 @@ function MasterNavItem({
   onNavigate: () => void;
 }) {
   const Icon = item.icon;
+
+  if (item.enabled === false) {
+    return (
+      <div
+        className="group flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm text-slate-500"
+        title="Módulo em construção"
+      >
+        <Icon className="h-4 w-4 shrink-0" />
+        <span className="min-w-0 flex-1 truncate">{item.label}</span>
+        <span className="text-[9px] font-medium uppercase tracking-wider text-slate-600">Em breve</span>
+      </div>
+    );
+  }
 
   return (
     <Link
