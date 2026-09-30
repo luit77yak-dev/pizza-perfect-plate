@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { MasterShell } from "@/features/master/shell/MasterShell";
 import {
   Building2,
   Check,
@@ -204,6 +205,7 @@ function MasterClientsPage() {
   }
 
   return (
+    <MasterShell>
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
@@ -411,7 +413,8 @@ function MasterClientsPage() {
           </Card>
         </div>
       )}
-    </main>
+      </main>
+    </MasterShell>
   );
 }
 
