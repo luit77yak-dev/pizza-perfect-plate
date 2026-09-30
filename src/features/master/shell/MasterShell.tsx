@@ -33,7 +33,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { label: "Visão geral", to: "/master", icon: LayoutDashboard },
   { label: "Clientes", to: "/master-clientes", icon: Users },
-  { label: "Comercial", to: "/master/comercial", icon: BriefcaseBusiness, enabled: false },
+  { label: "Comercial", to: "/master/comercial", icon: BriefcaseBusiness },
   { label: "Assinaturas", to: "/master/assinaturas", icon: CreditCard, enabled: false },
   { label: "Financeiro", to: "/master/financeiro", icon: BarChart3, enabled: false },
   { label: "Produtos", to: "/master/produtos", icon: Package, enabled: false },
