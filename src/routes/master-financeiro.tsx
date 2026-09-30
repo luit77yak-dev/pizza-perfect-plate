@@ -28,6 +28,31 @@ function MasterFinancePage(){
   }),
   [invoices,payments],
  );
+ const invoiceRows=invoices.slice(0,10).map((i)=>{
+  const c=clientMap.get(i.client_id);
+  return (
+   <div key={i.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
+    <div className="min-w-0 flex-1">
+     <p className="text-sm font-medium">{i.invoice_number}</p>
+     <p className="truncate text-xs text-slate-500">{c?.trade_name||c?.legal_name||"Cliente não identificado"} · vence {date(i.due_date)}</p>
+    </div>
+    <div className="flex items-center justify-between gap-3 sm:justify-end">
+     <p className="text-sm font-semibold">{money(i.total_amount)}</p>
+     <span className={"rounded-full px-2.5 py-1 text-[10px] font-medium "+tone[i.status]}>{INVOICE_STATUS_LABELS[i.status]}</span>
+    </div>
+   </div>
+  );
+ });
+ const confirmedPayments=payments.filter((p)=>p.status==="CONFIRMED");
+ const paymentRows=confirmedPayments.slice(0,5).map((p)=>(
+  <div key={p.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
+   <div className="min-w-0">
+    <p className="text-xs font-medium">{clientMap.get(p.client_id)?.trade_name||clientMap.get(p.client_id)?.legal_name||"Cliente"}</p>
+    <p className="text-[11px] text-slate-400">{p.method} · {date(p.paid_at)}</p>
+   </div>
+   <p className="text-sm font-semibold">{money(p.amount)}</p>
+  </div>
+ ));
  if(authorized===false)return <main className="min-h-screen bg-slate-950 px-5 py-10 text-slate-100"><div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/5 p-8"><ShieldCheck className="mb-4 h-8 w-8 text-slate-300"/><h1 className="text-2xl font-semibold">Acesso restrito</h1><p className="mt-2 text-sm text-slate-300">Financeiro é uma área interna do Neroxa Master.</p></div></main>;
  if(authorized===null||loading)return <main className="grid min-h-screen place-items-center bg-slate-950 text-slate-100"><Loader2 className="h-7 w-7 animate-spin"/></main>;
  return <MasterShell><div className="mx-auto max-w-[1500px] space-y-5 px-4 py-5 sm:px-6">
@@ -35,8 +60,8 @@ function MasterFinancePage(){
  {error&&<Card className="border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</Card>}
  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Metric icon={CreditCard} label="Faturas" value={metrics.total.toString()} hint="Total registrado"/><Metric icon={CircleDollarSign} label="Em aberto" value={money(metrics.pending)} hint="Faturas pendentes"/><Metric icon={AlertTriangle} label="Inadimplência" value={money(metrics.overdue)} hint="Faturas vencidas"/><Metric icon={CheckCircle2} label="Recebido" value={money(metrics.paid)} hint="Faturas quitadas"/></div>
  <div className="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(340px,.7fr)]">
- <Card className="border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center gap-3"><div className="grid h-9 w-9 place-items-center rounded-lg bg-[#102a2e] text-white"><WalletCards className="h-4 w-4"/></div><div><h2 className="text-base font-semibold">Faturas</h2><p className="text-xs text-slate-500">Acompanhamento por vencimento e status</p></div></div><div className="mt-4 divide-y divide-slate-100">{invoices.slice(0,10).map(i=>{const c=clientMap.get(i.client_id);return <div key={i.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center"><div className="min-w-0 flex-1"><p className="text-sm font-medium">{i.invoice_number}</p><p className="truncate text-xs text-slate-500">{c?.trade_name||c?.legal_name||"Cliente não identificado"} · vence {date(i.due_date)}</p></div><div className="flex items-center justify-between gap-3 sm:justify-end"><p className="text-sm font-semibold">{money(i.total_amount)}</p><span className={"rounded-full px-2.5 py-1 text-[10px] font-medium "+tone[i.status]}>{INVOICE_STATUS_LABELS[i.status]}</span></div></div>)}{invoices.length===0&&<div className="py-12 text-center"><WalletCards className="mx-auto h-8 w-8 text-slate-300"/><p className="mt-3 text-sm font-medium text-slate-700">Nenhuma fatura cadastrada</p><p className="mt-1 text-xs text-slate-500">As faturas criadas no Master aparecerão aqui.</p></div>}</div></Card>
- <Card className="border-slate-200 bg-[#102a2e] p-5 text-slate-100 shadow-sm"><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Recebimentos</p><h2 className="mt-2 text-lg font-semibold">Pagamentos confirmados</h2><p className="mt-2 text-sm leading-6 text-slate-300">Os pagamentos ficam separados das faturas para manter histórico e conciliação.</p><div className="mt-5 rounded-xl border border-white/10 bg-white/5 p-4"><p className="text-[11px] text-slate-400">Total confirmado</p><p className="mt-1 text-2xl font-semibold">{money(metrics.payments)}</p></div><div className="mt-4 space-y-2">{payments.filter(p=>p.status==="CONFIRMED").slice(0,5).map(p=><div key={p.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 p-3"><div className="min-w-0"><p className="text-xs font-medium">{clientMap.get(p.client_id)?.trade_name||clientMap.get(p.client_id)?.legal_name||"Cliente"}</p><p className="text-[11px] text-slate-400">{p.method} · {date(p.paid_at)}</p></div><p className="text-sm font-semibold">{money(p.amount)}</p></div>)}{payments.filter(p=>p.status==="CONFIRMED").length===0&&<p className="py-6 text-center text-xs text-slate-400">Nenhum pagamento confirmado.</p>}</div><div className="mt-5 flex items-center gap-2 border-t border-white/10 pt-4 text-xs text-slate-400"><CalendarClock className="h-4 w-4"/>Cobrança e automações entram em uma etapa posterior.</div></Card>
+ <Card className="border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center gap-3"><div className="grid h-9 w-9 place-items-center rounded-lg bg-[#102a2e] text-white"><WalletCards className="h-4 w-4"/></div><div><h2 className="text-base font-semibold">Faturas</h2><p className="text-xs text-slate-500">Acompanhamento por vencimento e status</p></div></div><div className="mt-4 divide-y divide-slate-100">{invoiceRows}{invoices.length===0&&<div className="py-12 text-center"><WalletCards className="mx-auto h-8 w-8 text-slate-300"/><p className="mt-3 text-sm font-medium text-slate-700">Nenhuma fatura cadastrada</p><p className="mt-1 text-xs text-slate-500">As faturas criadas no Master aparecerão aqui.</p></div>}</div></Card>
+ <Card className="border-slate-200 bg-[#102a2e] p-5 text-slate-100 shadow-sm"><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Recebimentos</p><h2 className="mt-2 text-lg font-semibold">Pagamentos confirmados</h2><p className="mt-2 text-sm leading-6 text-slate-300">Os pagamentos ficam separados das faturas para manter histórico e conciliação.</p><div className="mt-5 rounded-xl border border-white/10 bg-white/5 p-4"><p className="text-[11px] text-slate-400">Total confirmado</p><p className="mt-1 text-2xl font-semibold">{money(metrics.payments)}</p></div><div className="mt-4 space-y-2">{paymentRows}{confirmedPayments.length===0&&<p className="py-6 text-center text-xs text-slate-400">Nenhum pagamento confirmado.</p>}</div><div className="mt-5 flex items-center gap-2 border-t border-white/10 pt-4 text-xs text-slate-400"><CalendarClock className="h-4 w-4"/>Cobrança e automações entram em uma etapa posterior.</div></Card>
  </div></div></MasterShell>;
 }
 function Metric({icon:Icon,label,value,hint}:{icon:typeof CreditCard;label:string;value:string;hint:string}){return <Card className="border-slate-200 bg-white p-4 shadow-sm"><Icon className="h-4 w-4 text-slate-400"/><p className="mt-3 text-xs font-medium uppercase tracking-wider text-slate-500">{label}</p><p className="mt-1 text-2xl font-semibold">{value}</p><p className="mt-1 text-xs text-slate-500">{hint}</p></Card>}
