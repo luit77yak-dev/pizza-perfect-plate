@@ -6,7 +6,6 @@ import {
   CircleHelp,
   CreditCard,
   Database,
-  FileSignature,
   FolderKanban,
   Globe2,
   LayoutDashboard,
