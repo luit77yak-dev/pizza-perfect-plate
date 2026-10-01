@@ -2,7 +2,18 @@ import { supabase } from "@/integrations/supabase/client";
 import type { ClientStatus, NeroxaClient, NeroxaClientContact } from "./types";
 
 export async function isNeroxaStaff() {
-  const { data, error } = await supabase.rpc("is_neroxa_staff" as never, {} as never);
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) throw new Error(userError.message);
+  if (!user) return false;
+
+  const { data, error } = await supabase.rpc("is_neroxa_staff" as never, {
+    p_user_id: user.id,
+  } as never);
+
   if (error) throw new Error(error.message);
   return Boolean(data);
 }
