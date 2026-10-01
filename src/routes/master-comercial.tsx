@@ -25,7 +25,7 @@ import {
 } from "@/features/master/commercial/types";
 import { loadCommercialOverview } from "@/features/master/commercial/services";
 
-export const Route = createFileRoute("/master/comercial")({
+export const Route = createFileRoute("/master-comercial")({
   component: MasterCommercialPage,
 });
 
