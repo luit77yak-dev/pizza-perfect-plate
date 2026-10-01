@@ -8,7 +8,7 @@ import { MasterShell } from "@/features/master/shell/MasterShell";
 import { BILLING_INTERVAL_LABELS,SUBSCRIPTION_STATUS_LABELS,type Subscription,type SubscriptionPlan } from "@/features/master/subscriptions/types";
 import { loadSubscriptionOverview } from "@/features/master/subscriptions/services";
 
-export const Route=createFileRoute("/master/assinaturas")({component:MasterSubscriptionsPage});
+export const Route=createFileRoute("/master-assinaturas")({component:MasterSubscriptionsPage});
 const statusTone:Record<keyof typeof SUBSCRIPTION_STATUS_LABELS,string>={PENDING:"bg-blue-50 text-blue-700",ACTIVE:"bg-emerald-50 text-emerald-700",PAUSED:"bg-amber-50 text-amber-700",DELINQUENT:"bg-red-50 text-red-700",CANCELLED:"bg-slate-100 text-slate-500",EXPIRED:"bg-slate-100 text-slate-500"};
 const formatCurrency=(value:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(value);
 const formatDate=(value:string|null)=>value?new Intl.DateTimeFormat("pt-BR").format(new Date(value+"T12:00:00")):"—";
