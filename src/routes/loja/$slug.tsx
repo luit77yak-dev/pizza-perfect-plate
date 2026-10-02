@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { NeroxaAccessGuard } from "@/components/neroxa/NeroxaAccessGuard";
 import { Storefront } from "@/components/storefront/Storefront";
 
 export const Route = createFileRoute("/loja/$slug")({
@@ -7,5 +8,10 @@ export const Route = createFileRoute("/loja/$slug")({
 
 function LojaSlug() {
   const { slug } = Route.useParams();
-  return <Storefront slug={slug} />;
+
+  return (
+    <NeroxaAccessGuard>
+      <Storefront slug={slug} />
+    </NeroxaAccessGuard>
+  );
 }
