@@ -13,22 +13,25 @@ export type NeroxaSystemContext = {
   instanceName: string;
   instanceSlug: string;
   systemType: string;
-  systemSlug?: string;
-  systemName?: string;
-  organizationId?: string;
+  systemSlug: string;
+  systemName: string;
+  organizationId: string;
 };
 
 const NeroxaSystemContext = createContext<NeroxaSystemContext | null>(null);
 
 type ResolveResponse = {
-  access: "allowed";
-  instanceId: string;
-  instanceName: string;
-  instanceSlug: string;
-  systemType: string;
-  systemSlug?: string;
-  systemName?: string;
-  organizationId?: string;
+  allowed: boolean;
+  domain: string;
+  instance: {
+    id: string;
+    name: string;
+    slug: string;
+    systemType: string;
+    systemSlug: string;
+    systemName: string;
+    organizationId: string;
+  };
 };
 
 const SUPABASE_URL =
@@ -85,11 +88,14 @@ export function NeroxaAccessGuard({ children }: { children: ReactNode }) {
         const payload = (await response.json()) as ResolveResponse;
 
         if (
-          payload.access !== "allowed" ||
-          !payload.instanceId ||
-          !payload.instanceName ||
-          !payload.instanceSlug ||
-          !payload.systemType
+          !payload.allowed ||
+          !payload.instance?.id ||
+          !payload.instance.name ||
+          !payload.instance.slug ||
+          !payload.instance.systemType ||
+          !payload.instance.systemSlug ||
+          !payload.instance.systemName ||
+          !payload.instance.organizationId
         ) {
           if (!cancelled) setState("blocked");
           return;
@@ -97,13 +103,13 @@ export function NeroxaAccessGuard({ children }: { children: ReactNode }) {
 
         if (!cancelled) {
           setSystemContext({
-            instanceId: payload.instanceId,
-            instanceName: payload.instanceName,
-            instanceSlug: payload.instanceSlug,
-            systemType: payload.systemType,
-            systemSlug: payload.systemSlug,
-            systemName: payload.systemName,
-            organizationId: payload.organizationId,
+            instanceId: payload.instance.id,
+            instanceName: payload.instance.name,
+            instanceSlug: payload.instance.slug,
+            systemType: payload.instance.systemType,
+            systemSlug: payload.instance.systemSlug,
+            systemName: payload.instance.systemName,
+            organizationId: payload.instance.organizationId,
           });
           setState("allowed");
         }
@@ -135,7 +141,9 @@ export function NeroxaAccessGuard({ children }: { children: ReactNode }) {
             <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-muted text-2xl">
               🔒
             </div>
-            <h1 className="text-2xl font-semibold">Sistema temporariamente indisponível</h1>
+            <h1 className="text-2xl font-semibold">
+              Sistema temporariamente indisponível
+            </h1>
             <p className="mt-3 text-muted-foreground">
               Este endereço não está autorizado para acesso no momento. Se você
               é o responsável pelo sistema, entre em contato com a Neroxa.
