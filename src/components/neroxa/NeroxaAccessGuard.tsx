@@ -2,6 +2,27 @@ import { useEffect, useState, type ReactNode } from "react";
 
 type AccessState = "checking" | "allowed" | "blocked";
 
+export type NeroxaSystemContext = {
+  instanceId: string;
+  instanceName: string;
+  instanceSlug: string;
+  systemType: string;
+  systemSlug?: string;
+  systemName?: string;
+  organizationId?: string;
+};
+
+type ResolveResponse = {
+  access: "allowed";
+  instanceId: string;
+  instanceName: string;
+  instanceSlug: string;
+  systemType: string;
+  systemSlug?: string;
+  systemName?: string;
+  organizationId?: string;
+};
+
 const SUPABASE_URL =
   import.meta.env["VITE_SUPABASE_URL"] || process.env["SUPABASE_URL"];
 
@@ -18,7 +39,13 @@ function shouldEnforceAccess() {
   );
 }
 
-export function NeroxaAccessGuard({ children }: { children: ReactNode }) {
+export function NeroxaAccessGuard({
+  children,
+  onResolved,
+}: {
+  children: ReactNode;
+  onResolved?: (context: NeroxaSystemContext) => void;
+}) {
   const [state, setState] = useState<AccessState>("checking");
 
   useEffect(() => {
@@ -42,8 +69,35 @@ export function NeroxaAccessGuard({ children }: { children: ReactNode }) {
           { headers: { Accept: "application/json" } },
         );
 
+        if (!response.ok) {
+          if (!cancelled) setState("blocked");
+          return;
+        }
+
+        const payload = (await response.json()) as ResolveResponse;
+
+        if (
+          payload.access !== "allowed" ||
+          !payload.instanceId ||
+          !payload.instanceName ||
+          !payload.instanceSlug ||
+          !payload.systemType
+        ) {
+          if (!cancelled) setState("blocked");
+          return;
+        }
+
         if (!cancelled) {
-          setState(response.ok ? "allowed" : "blocked");
+          onResolved?.({
+            instanceId: payload.instanceId,
+            instanceName: payload.instanceName,
+            instanceSlug: payload.instanceSlug,
+            systemType: payload.systemType,
+            systemSlug: payload.systemSlug,
+            systemName: payload.systemName,
+            organizationId: payload.organizationId,
+          });
+          setState("allowed");
         }
       } catch {
         if (!cancelled) setState("blocked");
@@ -55,7 +109,7 @@ export function NeroxaAccessGuard({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [onResolved]);
 
   if (state === "allowed") return <>{children}</>;
 
