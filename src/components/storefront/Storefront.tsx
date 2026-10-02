@@ -796,7 +796,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
             // Refresh the complete public snapshot immediately so the tracking panel
             // shows the real items and total after both a new order and an addition.
-            let snapshot: { items?: unknown; status?: string; order_number?: unknown; subtotal?: unknown; total?: unknown; fulfillment?: unknown } | null = null;
+            let snapshot = null as { items?: unknown; status?: string; order_number?: unknown; subtotal?: unknown; total?: unknown; fulfillment?: unknown } | null;
             try {
               const { data: tracking } = await supabase.rpc("get_public_order_status", {
                 p_order_id: order.id,

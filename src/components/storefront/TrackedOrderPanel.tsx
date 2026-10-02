@@ -7,11 +7,11 @@ export type PublicTrackedOrder = {
   id: string;
   number: number;
   phone: string;
-  items?: CartItem[];
-  subtotal?: number;
-  total?: number;
-  fulfillment?: FulfillmentType;
-  status?: OrderStatus;
+  items?: CartItem[] | undefined;
+  subtotal?: number | undefined;
+  total?: number | undefined;
+  fulfillment?: FulfillmentType | undefined;
+  status?: OrderStatus | undefined;
 };
 
 function getTrackedOrderStatusLabel(status?: OrderStatus) {

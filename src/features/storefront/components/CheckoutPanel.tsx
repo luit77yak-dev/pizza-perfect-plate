@@ -48,10 +48,10 @@ export function CheckoutPanel({
     id: string;
     number: number;
     phone: string;
-    items?: CartItem[];
-    subtotal?: number;
-    total?: number;
-    fulfillment?: FulfillmentType;
+    items?: CartItem[] | undefined;
+    subtotal?: number | undefined;
+    total?: number | undefined;
+    fulfillment?: FulfillmentType | undefined;
   } | null;
 }) {
   const [fulfillment, setFulfillment] = useState<FulfillmentType>(
