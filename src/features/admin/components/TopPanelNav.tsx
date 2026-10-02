@@ -1,6 +1,4 @@
-import { BarChart3, MapPin, Package, Settings2, ShoppingBag, ShieldCheck } from "lucide-react";
-import { Link } from "@tanstack/react-router";
-
+import { BarChart3, MapPin, Package, Settings2, ShoppingBag } from "lucide-react";
 export type PanelView = "overview" | "catalog" | "operations" | "settings" | "orders";
 
 export function TopPanelNav({
@@ -52,17 +50,6 @@ export function TopPanelNav({
           );
         })}
       </div>
-      {["OWNER", "ADMIN"].includes(role ?? "") && (
-        <div className="mx-auto mt-1 max-w-7xl border-t pt-1.5 sm:mt-2 sm:pt-2">
-          <Link
-            to="/master"
-            className="flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-3 sm:py-2 sm:text-sm"
-          >
-            <ShieldCheck className="size-3.5 sm:size-4" />
-            Neroxa Master
-          </Link>
-        </div>
-      )}
     </nav>
   );
 }
