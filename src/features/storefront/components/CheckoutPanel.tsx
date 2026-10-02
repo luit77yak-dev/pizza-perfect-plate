@@ -36,11 +36,11 @@ export function CheckoutPanel({
     id: string;
     number: number;
     phone: string;
-    items?: CartItem[];
-    subtotal?: number;
-    total?: number;
-    fulfillment?: FulfillmentType;
-    status?: string;
+    items?: CartItem[] | undefined;
+    subtotal?: number | undefined;
+    total?: number | undefined;
+    fulfillment?: FulfillmentType | undefined;
+    status?: string | undefined;
   }) => void;
   storeOpen: boolean;
   storeStatusLabel: string;

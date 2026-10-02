@@ -115,7 +115,7 @@ export function Storefront({ slug }: { slug?: string }) {
               p_order_id: stored.id,
               p_customer_phone: stored.phone,
             });
-            const current = (Array.isArray(tracking) ? tracking[0] : tracking) as (Record<string, unknown> & { order_number?: unknown; items?: unknown; subtotal?: unknown; total?: unknown; fulfillment?: "DELIVERY" | "PICKUP"; status?: string }) | null | undefined;
+            const current = (Array.isArray(tracking) ? tracking[0] : tracking) as ({ order_number?: unknown; items?: unknown; subtotal?: unknown; total?: unknown; fulfillment?: "DELIVERY" | "PICKUP"; status?: string }) | null | undefined;
             return {
               stored,
               current,
@@ -842,7 +842,7 @@ export function Storefront({ slug }: { slug?: string }) {
                   (snapshot?.fulfillment as TrackedOrder["fulfillment"] | undefined) ??
                   order.fulfillment ??
                   previous?.fulfillment,
-                status: snapshotStatus ?? order.status ?? previous?.status ?? "RECEIVED",
+                status: snapshotStatus ?? (order.status as OrderStatus | undefined) ?? previous?.status ?? "RECEIVED",
               };
               const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
               try {
