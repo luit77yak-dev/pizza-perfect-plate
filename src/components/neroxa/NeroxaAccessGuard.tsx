@@ -1,4 +1,10 @@
-import { useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 type AccessState = "checking" | "allowed" | "blocked";
 
@@ -11,6 +17,8 @@ export type NeroxaSystemContext = {
   systemName?: string;
   organizationId?: string;
 };
+
+const NeroxaSystemContext = createContext<NeroxaSystemContext | null>(null);
 
 type ResolveResponse = {
   access: "allowed";
@@ -39,14 +47,14 @@ function shouldEnforceAccess() {
   );
 }
 
-export function NeroxaAccessGuard({
-  children,
-  onResolved,
-}: {
-  children: ReactNode;
-  onResolved?: (context: NeroxaSystemContext) => void;
-}) {
+export function useNeroxaSystemContext() {
+  return useContext(NeroxaSystemContext);
+}
+
+export function NeroxaAccessGuard({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AccessState>("checking");
+  const [systemContext, setSystemContext] =
+    useState<NeroxaSystemContext | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -88,7 +96,7 @@ export function NeroxaAccessGuard({
         }
 
         if (!cancelled) {
-          onResolved?.({
+          setSystemContext({
             instanceId: payload.instanceId,
             instanceName: payload.instanceName,
             instanceSlug: payload.instanceSlug,
@@ -109,9 +117,15 @@ export function NeroxaAccessGuard({
     return () => {
       cancelled = true;
     };
-  }, [onResolved]);
+  }, []);
 
-  if (state === "allowed") return <>{children}</>;
+  if (state === "allowed") {
+    return (
+      <NeroxaSystemContext.Provider value={systemContext}>
+        {children}
+      </NeroxaSystemContext.Provider>
+    );
+  }
 
   if (state === "blocked") {
     return (
