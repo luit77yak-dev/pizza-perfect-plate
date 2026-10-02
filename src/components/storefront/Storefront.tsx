@@ -27,11 +27,11 @@ export type TrackedOrder = {
   id: string;
   number: number;
   phone: string;
-  items?: CartItem[];
-  subtotal?: number;
-  total?: number;
-  fulfillment?: "DELIVERY" | "PICKUP";
-  status?: OrderStatus;
+  items?: CartItem[] | undefined;
+  subtotal?: number | undefined;
+  total?: number | undefined;
+  fulfillment?: "DELIVERY" | "PICKUP" | undefined;
+  status?: OrderStatus | undefined;
 };
 
 export function Storefront({ slug }: { slug?: string }) {
@@ -115,7 +115,7 @@ export function Storefront({ slug }: { slug?: string }) {
               p_order_id: stored.id,
               p_customer_phone: stored.phone,
             });
-            const current = Array.isArray(tracking) ? tracking[0] : tracking;
+            const current = (Array.isArray(tracking) ? tracking[0] : tracking) as ({ order_number?: unknown; items?: unknown; subtotal?: unknown; total?: unknown; fulfillment?: "DELIVERY" | "PICKUP"; status?: string }) | null | undefined;
             return {
               stored,
               current,
@@ -796,7 +796,7 @@ export function Storefront({ slug }: { slug?: string }) {
 
             // Refresh the complete public snapshot immediately so the tracking panel
             // shows the real items and total after both a new order and an addition.
-            let snapshot: Record<string, unknown> | null = null;
+            let snapshot = null as { items?: unknown; status?: string; order_number?: unknown; subtotal?: unknown; total?: unknown; fulfillment?: unknown } | null;
             try {
               const { data: tracking } = await supabase.rpc("get_public_order_status", {
                 p_order_id: order.id,
@@ -804,7 +804,7 @@ export function Storefront({ slug }: { slug?: string }) {
               });
               const current = Array.isArray(tracking) ? tracking[0] : tracking;
               if (current && typeof current === "object") {
-                snapshot = current as Record<string, unknown>;
+                snapshot = current as NonNullable<typeof snapshot>;
               }
             } catch {
               // The normal tracking refresh will retry shortly.
@@ -842,7 +842,7 @@ export function Storefront({ slug }: { slug?: string }) {
                   (snapshot?.fulfillment as TrackedOrder["fulfillment"] | undefined) ??
                   order.fulfillment ??
                   previous?.fulfillment,
-                status: snapshotStatus ?? order.status ?? previous?.status ?? "RECEIVED",
+                status: snapshotStatus ?? (order.status as OrderStatus | undefined) ?? previous?.status ?? "RECEIVED",
               };
               const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
               try {

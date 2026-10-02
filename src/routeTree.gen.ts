@@ -10,32 +10,27 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PainelRouteImport } from './routes/painel'
-import { Route as LojaSlugRouteImport } from './routes/loja/$slug'
 import { Route as MasterRouteImport } from './routes/master'
+import { Route as MasterAssinaturasRouteImport } from './routes/master-assinaturas'
 import { Route as MasterClientesRouteImport } from './routes/master-clientes'
 import { Route as MasterComercialRouteImport } from './routes/master-comercial'
-import { Route as MasterAssinaturasRouteImport } from './routes/master-assinaturas'
 import { Route as MasterFinanceiroRouteImport } from './routes/master-financeiro'
+import { Route as PainelRouteImport } from './routes/painel'
+import { Route as LojaSlugRouteImport } from './routes/loja/$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PainelRoute = PainelRouteImport.update({
-  id: '/painel',
-  path: '/painel',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaSlugRoute = LojaSlugRouteImport.update({
-  id: '/loja/$slug',
-  path: '/loja/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MasterRoute = MasterRouteImport.update({
   id: '/master',
   path: '/master',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MasterAssinaturasRoute = MasterAssinaturasRouteImport.update({
+  id: '/master-assinaturas',
+  path: '/master-assinaturas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MasterClientesRoute = MasterClientesRouteImport.update({
@@ -48,65 +43,95 @@ const MasterComercialRoute = MasterComercialRouteImport.update({
   path: '/master-comercial',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MasterAssinaturasRoute = MasterAssinaturasRouteImport.update({
-  id: '/master-assinaturas',
-  path: '/master-assinaturas',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MasterFinanceiroRoute = MasterFinanceiroRouteImport.update({
   id: '/master-financeiro',
   path: '/master-financeiro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelRoute = PainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaSlugRoute = LojaSlugRouteImport.update({
+  id: '/loja/$slug',
+  path: '/loja/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/painel': typeof PainelRoute
-  '/loja/$slug': typeof LojaSlugRoute
   '/master': typeof MasterRoute
+  '/master-assinaturas': typeof MasterAssinaturasRoute
   '/master-clientes': typeof MasterClientesRoute
   '/master-comercial': typeof MasterComercialRoute
-  '/master-assinaturas': typeof MasterAssinaturasRoute
   '/master-financeiro': typeof MasterFinanceiroRoute
+  '/painel': typeof PainelRoute
+  '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/painel': typeof PainelRoute
-  '/loja/$slug': typeof LojaSlugRoute
   '/master': typeof MasterRoute
+  '/master-assinaturas': typeof MasterAssinaturasRoute
   '/master-clientes': typeof MasterClientesRoute
   '/master-comercial': typeof MasterComercialRoute
-  '/master-assinaturas': typeof MasterAssinaturasRoute
   '/master-financeiro': typeof MasterFinanceiroRoute
+  '/painel': typeof PainelRoute
+  '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/painel': typeof PainelRoute
-  '/loja/$slug': typeof LojaSlugRoute
   '/master': typeof MasterRoute
+  '/master-assinaturas': typeof MasterAssinaturasRoute
   '/master-clientes': typeof MasterClientesRoute
   '/master-comercial': typeof MasterComercialRoute
-  '/master-assinaturas': typeof MasterAssinaturasRoute
   '/master-financeiro': typeof MasterFinanceiroRoute
+  '/painel': typeof PainelRoute
+  '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/painel' | '/loja/$slug' | '/master' | '/master-clientes' | '/master-comercial' | '/master-assinaturas' | '/master-financeiro'
+  fullPaths:
+    | '/'
+    | '/master'
+    | '/master-assinaturas'
+    | '/master-clientes'
+    | '/master-comercial'
+    | '/master-financeiro'
+    | '/painel'
+    | '/loja/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/painel' | '/loja/$slug' | '/master' | '/master-clientes' | '/master-comercial' | '/master-assinaturas' | '/master-financeiro'
-  id: '__root__' | '/' | '/painel' | '/loja/$slug' | '/master' | '/master-clientes' | '/master-comercial' | '/master-assinaturas' | '/master-financeiro'
+  to:
+    | '/'
+    | '/master'
+    | '/master-assinaturas'
+    | '/master-clientes'
+    | '/master-comercial'
+    | '/master-financeiro'
+    | '/painel'
+    | '/loja/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/master'
+    | '/master-assinaturas'
+    | '/master-clientes'
+    | '/master-comercial'
+    | '/master-financeiro'
+    | '/painel'
+    | '/loja/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: IndexRoute,
-  PainelRoute: PainelRoute,
-  LojaSlugRoute: LojaSlugRoute,
-  MasterRoute: MasterRoute,
-  MasterClientesRoute: MasterClientesRoute,
-  MasterComercialRoute: MasterComercialRoute,
-  MasterAssinaturasRoute: MasterAssinaturasRoute,
-  MasterFinanceiroRoute: MasterFinanceiroRoute,
+  IndexRoute: typeof IndexRoute
+  MasterRoute: typeof MasterRoute
+  MasterAssinaturasRoute: typeof MasterAssinaturasRoute
+  MasterClientesRoute: typeof MasterClientesRoute
+  MasterComercialRoute: typeof MasterComercialRoute
+  MasterFinanceiroRoute: typeof MasterFinanceiroRoute
+  PainelRoute: typeof PainelRoute
+  LojaSlugRoute: typeof LojaSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -118,25 +143,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/painel': {
-      id: '/painel'
-      path: '/painel'
-      fullPath: '/painel'
-      preLoaderRoute: typeof PainelRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/$slug': {
-      id: '/loja/$slug'
-      path: '/loja/$slug'
-      fullPath: '/loja/$slug'
-      preLoaderRoute: typeof LojaSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/master': {
       id: '/master'
       path: '/master'
       fullPath: '/master'
       preLoaderRoute: typeof MasterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/master-assinaturas': {
+      id: '/master-assinaturas'
+      path: '/master-assinaturas'
+      fullPath: '/master-assinaturas'
+      preLoaderRoute: typeof MasterAssinaturasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/master-clientes': {
@@ -153,13 +171,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MasterComercialRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/master-assinaturas': {
-      id: '/master-assinaturas'
-      path: '/master-assinaturas'
-      fullPath: '/master-assinaturas'
-      preLoaderRoute: typeof MasterAssinaturasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/master-financeiro': {
       id: '/master-financeiro'
       path: '/master-financeiro'
@@ -167,18 +178,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MasterFinanceiroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel': {
+      id: '/painel'
+      path: '/painel'
+      fullPath: '/painel'
+      preLoaderRoute: typeof PainelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/$slug': {
+      id: '/loja/$slug'
+      path: '/loja/$slug'
+      fullPath: '/loja/$slug'
+      preLoaderRoute: typeof LojaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PainelRoute: PainelRoute,
-  LojaSlugRoute: LojaSlugRoute,
   MasterRoute: MasterRoute,
+  MasterAssinaturasRoute: MasterAssinaturasRoute,
   MasterClientesRoute: MasterClientesRoute,
   MasterComercialRoute: MasterComercialRoute,
-  MasterAssinaturasRoute: MasterAssinaturasRoute,
   MasterFinanceiroRoute: MasterFinanceiroRoute,
+  PainelRoute: PainelRoute,
+  LojaSlugRoute: LojaSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
