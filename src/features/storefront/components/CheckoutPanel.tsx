@@ -245,7 +245,7 @@ export function CheckoutPanel({
       });
       if (createError) throw createError;
 
-      const order = Array.isArray(created) ? created[0] : created;
+      const order = (Array.isArray(created) ? created[0] : created) as { order_id?: string; order_number?: number; total?: number } | null | undefined;
       if (!order?.order_number || !order?.order_id)
         throw new Error("Não foi possível criar o pedido.");
       const createdTotal = Number(order.total);
