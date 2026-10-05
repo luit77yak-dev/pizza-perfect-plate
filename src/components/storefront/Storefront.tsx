@@ -353,20 +353,15 @@ export function Storefront({ slug }: { slug?: string }) {
   }
 
   const status = getStoreStatus(data.hours, data.specialHours, now);
-  const primary = data.settings.primary_color?.includes("%")
-    ? `hsl(${data.settings.primary_color})`
-    : undefined;
-  const secondary = "hsl(145 28% 32%)";
-  const secondaryForeground = "hsl(42 35% 96%)";
 
   return (
     <div
       className="ppp-customer-shell min-h-screen bg-background text-foreground"
       style={
         {
-          ...(primary ? { "--primary": primary } : {}),
-          "--secondary": secondary,
-          "--secondary-foreground": secondaryForeground,
+          "--primary": "var(--ppp-gold)",
+          "--secondary": "#0e0f0e",
+          "--secondary-foreground": "#f3ecdc",
         } as CSSProperties
       }
     >
