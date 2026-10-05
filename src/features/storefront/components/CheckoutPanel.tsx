@@ -281,18 +281,18 @@ export function CheckoutPanel({
   };
 
   return (
-    <div className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md">
-      <div className="mx-auto min-h-screen max-w-4xl bg-[#06282d] px-4 pb-10 pt-0 text-[#f4eee2] sm:px-6">
-        <div className="sticky top-0 z-30 -mx-4 mb-2 flex items-center justify-between gap-4 border-b border-white/10 bg-[#06282d]/95 px-4 py-4 backdrop-blur-xl sm:-mx-6 sm:px-6 sm:py-5">
+    <div className="fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md">
+      <div className="mx-auto min-h-screen max-w-4xl bg-[#06282d] px-4 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-0 text-[#f4eee2] sm:px-6">
+        <div className="sticky top-0 z-30 -mx-4 mb-2 flex items-center justify-between gap-4 border-b border-[#f4eee2]/10 bg-[#06282d]/95 px-4 pb-4 pt-[calc(1rem+env(safe-area-inset-top))] backdrop-blur-xl sm:-mx-6 sm:px-6 sm:py-5">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
-              {existingOrder ? "Complementar pedido" : "Finalizar pedido"}
+            <p className="text-sm text-[#f4eee2]/60">
+              {existingOrder ? "Complementar pedido" : "Passo final"}
             </p>
-            <h1 className="mt-1 text-3xl sm:text-4xl">{existingOrder ? `Pedido #${existingOrder.number}` : "Quase lá"}</h1>
+            <h1 className="mt-0.5 font-display text-[32px] font-medium leading-tight sm:text-4xl">{existingOrder ? `Pedido #${existingOrder.number}` : "Quase lá"}</h1>
           </div>
           <button
             onClick={onClose}
-            className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10"
+            className="grid size-11 shrink-0 place-items-center rounded-full border border-[#f4eee2]/20 text-[#f4eee2] transition hover:bg-white/10"
             aria-label="Fechar checkout"
           >
             <X className="size-5" />
@@ -302,25 +302,25 @@ export function CheckoutPanel({
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
           <div className="space-y-4">
             {!existingOrder && (
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <p className="text-sm font-semibold">Como você quer receber?</p>
+            <section className="rounded-2xl border border-[#f4eee2]/12 bg-[#0a3035] p-5">
+              <h2 className="font-display text-xl font-medium">Como você quer receber?</h2>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {settings.delivery_enabled && (
                   <button
                     onClick={() => setFulfillment("DELIVERY")}
-                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "DELIVERY" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                    className={`min-h-[72px] rounded-2xl border p-4 text-left transition-colors ${fulfillment === "DELIVERY" ? "border-primary bg-primary/10" : "border-[#f4eee2]/12 bg-[#041e22] hover:border-[#f4eee2]/30"}`}
                   >
-                    <p className="font-semibold">Entrega</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Receba no seu endereço</p>
+                    <p className="text-base font-medium">Entrega</p>
+                    <p className="mt-1 text-[13px] text-[#f4eee2]/60">Receba no seu endereço</p>
                   </button>
                 )}
                 {settings.pickup_enabled && (
                   <button
                     onClick={() => setFulfillment("PICKUP")}
-                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "PICKUP" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                    className={`min-h-[72px] rounded-2xl border p-4 text-left transition-colors ${fulfillment === "PICKUP" ? "border-primary bg-primary/10" : "border-[#f4eee2]/12 bg-[#041e22] hover:border-[#f4eee2]/30"}`}
                   >
-                    <p className="font-semibold">Retirada</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Retire na loja</p>
+                    <p className="text-base font-medium">Retirada</p>
+                    <p className="mt-1 text-[13px] text-[#f4eee2]/60">Retire na loja, sem pedido mínimo</p>
                   </button>
                 )}
               </div>
@@ -328,22 +328,22 @@ export function CheckoutPanel({
             )}
 
             {!existingOrder && (
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <p className="text-sm font-semibold">Seus dados</p>
+            <section className="rounded-2xl border border-[#f4eee2]/12 bg-[#0a3035] p-5">
+              <h2 className="font-display text-xl font-medium">Seus dados</h2>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <label className="text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                  <span className="mb-1.5 block text-[13px] text-[#f4eee2]/65">
                     Nome *
                   </span>
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Seu nome"
-                    className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    className="h-12 w-full rounded-xl border border-[#f4eee2]/15 bg-[#041e22] px-3.5 text-[#f4eee2] outline-none placeholder:text-[#f4eee2]/35 focus:border-primary"
                   />
                 </label>
                 <label className="text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                  <span className="mb-1.5 block text-[13px] text-[#f4eee2]/65">
                     Telefone *
                   </span>
                   <input
@@ -351,7 +351,7 @@ export function CheckoutPanel({
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="(00) 00000-0000"
                     inputMode="tel"
-                    className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    className="h-12 w-full rounded-xl border border-[#f4eee2]/15 bg-[#041e22] px-3.5 text-[#f4eee2] outline-none placeholder:text-[#f4eee2]/35 focus:border-primary"
                   />
                 </label>
               </div>
@@ -359,42 +359,42 @@ export function CheckoutPanel({
             )}
 
             {!existingOrder && fulfillment === "DELIVERY" && (
-              <section className="rounded-3xl border bg-card p-5 shadow-soft">
-                <p className="text-sm font-semibold">Endereço de entrega</p>
+              <section className="rounded-2xl border border-[#f4eee2]/12 bg-[#0a3035] p-5">
+                <h2 className="font-display text-xl font-medium">Endereço de entrega</h2>
                 <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_120px]">
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                    <span className="mb-1.5 block text-[13px] text-[#f4eee2]/65">
                       Rua *
                     </span>
                     <input
                       value={street}
                       onChange={(e) => setStreet(e.target.value)}
                       placeholder="Rua, avenida..."
-                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                      className="h-12 w-full rounded-xl border border-[#f4eee2]/15 bg-[#041e22] px-3.5 text-[#f4eee2] outline-none placeholder:text-[#f4eee2]/35 focus:border-primary"
                     />
                   </label>
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                    <span className="mb-1.5 block text-[13px] text-[#f4eee2]/65">
                       Número *
                     </span>
                     <input
                       value={number}
                       onChange={(e) => setNumber(e.target.value)}
                       placeholder="123"
-                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                      className="h-12 w-full rounded-xl border border-[#f4eee2]/15 bg-[#041e22] px-3.5 text-[#f4eee2] outline-none placeholder:text-[#f4eee2]/35 focus:border-primary"
                     />
                   </label>
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                    <span className="mb-1.5 block text-[13px] text-[#f4eee2]/65">
                       Bairro *
                     </span>
                     <select
                       value={neighborhood}
                       onChange={(e) => setNeighborhood(e.target.value)}
                       disabled={availableNeighborhoods.length === 0}
-                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
+                      className="h-12 w-full rounded-xl border border-[#f4eee2]/15 bg-[#041e22] px-3.5 text-[#f4eee2] outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <option value="">
                         {availableNeighborhoods.length > 0
@@ -409,30 +409,30 @@ export function CheckoutPanel({
                     </select>
                   </label>
                   <label className="text-sm">
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                    <span className="mb-1.5 block text-[13px] text-[#f4eee2]/65">
                       Complemento
                     </span>
                     <input
                       value={complement}
                       onChange={(e) => setComplement(e.target.value)}
                       placeholder="Apto, casa..."
-                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                      className="h-12 w-full rounded-xl border border-[#f4eee2]/15 bg-[#041e22] px-3.5 text-[#f4eee2] outline-none placeholder:text-[#f4eee2]/35 focus:border-primary"
                     />
                   </label>
                 </div>
                 <label className="mt-3 block text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                  <span className="mb-1.5 block text-[13px] text-[#f4eee2]/65">
                     Ponto de referência
                   </span>
                   <input
                     value={reference}
                     onChange={(e) => setReference(e.target.value)}
                     placeholder="Próximo a..."
-                    className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    className="h-12 w-full rounded-xl border border-[#f4eee2]/15 bg-[#041e22] px-3.5 text-[#f4eee2] outline-none placeholder:text-[#f4eee2]/35 focus:border-primary"
                   />
                 </label>
                 {deliveryZones.length > 0 && (
-                  <p className="mt-3 text-xs text-muted-foreground">
+                  <p className="mt-3 text-xs text-[#f4eee2]/60">
                     {selectedZone
                       ? `Taxa de entrega: ${formatCurrency(deliveryFee)} · ${selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min`
                       : availableNeighborhoods.length > 0
@@ -443,16 +443,16 @@ export function CheckoutPanel({
               </section>
             )}
 
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <p className="text-sm font-semibold">Pagamento</p>
+            <section className="rounded-2xl border border-[#f4eee2]/12 bg-[#0a3035] p-5">
+              <h2 className="font-display text-xl font-medium">Pagamento</h2>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {availablePayments.map((method) => (
                   <button
                     key={method}
                     onClick={() => setPaymentMethod(method)}
-                    className={`rounded-2xl border p-4 text-left ${paymentMethod === method ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                    className={`min-h-[72px] rounded-2xl border p-4 text-left transition-colors ${paymentMethod === method ? "border-primary bg-primary/10" : "border-[#f4eee2]/12 bg-[#041e22] hover:border-[#f4eee2]/30"}`}
                   >
-                    <p className="font-semibold">
+                    <p className="text-base font-medium">
                       {method === "PIX"
                         ? "PIX"
                         : method === "CASH"
@@ -461,7 +461,7 @@ export function CheckoutPanel({
                             ? "Cartão na entrega"
                             : "Cartão no local"}
                     </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-xs text-[#f4eee2]/60">
                       {method === "PIX" ? "Pagamento via PIX" : "Pagamento combinado com a loja"}
                     </p>
                   </button>
@@ -470,15 +470,15 @@ export function CheckoutPanel({
             </section>
 
             {!existingOrder && (
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <label htmlFor="checkout-notes" className="text-sm font-semibold">
+            <section className="rounded-2xl border border-[#f4eee2]/12 bg-[#0a3035] p-5">
+              <label htmlFor="checkout-notes" className="font-display text-xl font-medium">
                 Observações do pedido
               </label>
               <Textarea
                 id="checkout-notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="mt-3"
+                className="mt-3 min-h-[88px] rounded-xl border-[#f4eee2]/15 bg-[#041e22] text-[#f4eee2] placeholder:text-[#f4eee2]/35"
                 placeholder="Ex.: tocar a campainha, tirar cebola..."
                 maxLength={500}
               />
@@ -486,8 +486,8 @@ export function CheckoutPanel({
             )}
           </div>
 
-          <aside className="h-fit rounded-3xl border bg-card p-5 shadow-soft lg:sticky lg:top-6">
-            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Resumo</p>
+          <aside className="h-fit rounded-2xl border border-[#f4eee2]/12 bg-[#0a3035] p-5 lg:sticky lg:top-6">
+            <h2 className="font-display text-xl font-medium">Resumo do pedido</h2>
             <div className="mt-4 space-y-3">
               {items.map((item) => (
                 <div key={item.lineId} className="flex items-start justify-between gap-3 text-sm">
@@ -496,11 +496,11 @@ export function CheckoutPanel({
                       {item.quantity}× {item.productName}
                       {item.secondProductName ? ` + ${item.secondProductName}` : ""}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-[#f4eee2]/60">
                       {[item.sizeName, item.crustName].filter(Boolean).join(" · ")}
                     </p>
                     {(item.complements ?? []).length > 0 && (
-                      <p className="mt-1 text-xs text-primary">
+                      <p className="mt-1 text-[13px] text-[#f3ad4b]">
                         +{" "}
                         {(item.complements ?? [])
                           .map((complement) => complement.productName)
@@ -508,38 +508,38 @@ export function CheckoutPanel({
                       </p>
                     )}
                   </div>
-                  <span className="font-semibold">
+                  <span className="font-display text-base text-[#f3ad4b]">
                     {formatCurrency(item.unitPrice * item.quantity)}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="my-4 border-t" />
+            <div className="my-4 border-t border-[#f4eee2]/10" />
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-[#f4eee2]/60">Subtotal</span>
                 <span>{formatCurrency(subtotal)}</span>
               </div>
               {!existingOrder && fulfillment === "DELIVERY" && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Entrega</span>
+                  <span className="text-[#f4eee2]/60">Entrega</span>
                   <span>{selectedZone ? formatCurrency(deliveryFee) : "—"}</span>
                 </div>
               )}
-              <div className="flex justify-between pt-2 text-lg font-bold">
-                <span>Total</span>
-                <span>{formatCurrency(total)}</span>
+              <div className="flex items-baseline justify-between pt-2">
+                <span className="text-base">Total</span>
+                <span className="font-display text-[28px] font-medium text-[#f3ad4b]">{formatCurrency(total)}</span>
               </div>
             </div>
             {error && (
-              <p className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">
+              <p role="alert" className="mt-4 rounded-2xl border border-destructive/40 bg-destructive/15 p-3 text-sm text-[#ffb4a8]">
                 {error}
               </p>
             )}
             <Button
               disabled={submitting || items.length === 0 || !storeOpen}
               onClick={submitOrder}
-              className="mt-5 h-12 w-full rounded-full"
+              className="mt-5 h-14 w-full rounded-2xl bg-primary text-base font-semibold text-[#1b0f08] hover:brightness-105 disabled:bg-[#f4eee2]/10 disabled:text-[#f4eee2]/50"
             >
               {!storeOpen
                 ? "Loja fechada"
@@ -549,7 +549,7 @@ export function CheckoutPanel({
                     ? `Confirmar complemento · ${formatCurrency(subtotal)}`
                     : `Enviar pedido · ${formatCurrency(total)}`}
             </Button>
-            <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
+            <p className="mt-3 text-center text-[13px] leading-5 text-[#f4eee2]/55">
               {existingOrder
                 ? "O complemento será adicionado ao pedido em andamento após a confirmação."
                 : "Ao enviar, o pedido será encaminhado diretamente para a loja."}

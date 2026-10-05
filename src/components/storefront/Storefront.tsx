@@ -464,12 +464,12 @@ export function Storefront({ slug }: { slug?: string }) {
                         </div>
                       )}
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent p-4 pt-12">
-                        <p className="font-display text-xl uppercase leading-none text-white drop-shadow-sm sm:text-2xl">
+                        <p className="font-display text-[22px] font-medium leading-tight text-white drop-shadow-sm sm:text-2xl">
                           {product.name}
                         </p>
                       </div>
                       {product.featured && (
-                        <span className="absolute left-3 top-3 rounded-full border border-primary/40 bg-primary/90 px-3 py-1 font-body text-[10px] font-semibold uppercase tracking-[.12em] text-primary-foreground shadow-soft backdrop-blur-sm">
+                        <span className="absolute left-3 top-3 rounded-full bg-[#f3ad4b] px-3 py-1 font-body text-xs font-bold text-[#241a05] shadow-soft">
                           Destaque
                         </span>
                       )}
@@ -477,7 +477,7 @@ export function Storefront({ slug }: { slug?: string }) {
                     <div className="p-4 sm:p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 pr-1">
-                          <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+                          <p className="text-[13px] font-medium text-primary">
                             {data.categories.find((category) => category.id === product.category_id)
                               ?.name || "Pizza"}
                           </p>
@@ -485,14 +485,14 @@ export function Storefront({ slug }: { slug?: string }) {
                             {product.description || "Uma opção preparada para você."}
                           </p>
                         </div>
-                        <span className="shrink-0 rounded-lg bg-primary/10 px-3 py-2 font-display text-sm font-semibold text-accent sm:px-3.5">
+                        <span className="shrink-0 font-display text-lg font-semibold text-[#f3ad4b]">
                           {formatCurrency(displayPrice)}
                         </span>
                       </div>
-                      <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-[.08em]">
-                        <span>{product.allow_half ? "Meio a meio" : "Personalizar"}</span>
-                        <span className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-background transition-transform group-hover:translate-x-1 group-hover:border-primary">
-                          <ChevronRight className="size-4" />
+                      <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-sm font-medium">
+                        <span>{product.allow_half ? "Pizza inteira ou meio a meio" : "Personalizar"}</span>
+                        <span className="inline-flex size-10 items-center justify-center rounded-full bg-primary text-[#1b0f08] transition-transform group-hover:translate-x-1">
+                          <ChevronRight className="size-5" strokeWidth={2.5} />
                         </span>
                       </div>
                     </div>
@@ -553,51 +553,51 @@ export function Storefront({ slug }: { slug?: string }) {
             onClick={clearComplementFlow}
             aria-label="Fechar adição ao pedido"
           />
-          <section className="ppp-complement-picker relative flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-hidden rounded-t-[2rem] bg-[#06282d] text-[#f4eee2] shadow-2xl sm:rounded-[2rem]">
-            <header className="shrink-0 border-b border-white/10 bg-[#06282d] px-5 py-4 text-[#f4eee2] sm:px-6">
+          <section className="relative flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-[#f4eee2]/10 bg-[#06282d] text-[#f4eee2] shadow-[0_30px_90px_rgba(0,0,0,.55)] sm:rounded-3xl">
+            <div className="shrink-0 border-b border-[#f4eee2]/10 bg-gradient-to-b from-[#241b11] to-[#06282d] px-5 pb-4 pt-5 text-[#f4eee2] sm:px-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#f3ad4b]">Pedido em andamento</p>
-                  <h2 className="mt-1 font-display text-2xl text-[#f4eee2]">
+                  <p className="text-[13px] font-medium text-[#f3ad4b]">Pedido em andamento</p>
+                  <h2 className="mt-0.5 font-display text-[26px] font-medium leading-tight text-[#f4eee2]">
                     Adicionar ao pedido #{complementOrder?.number ?? "—"}
                   </h2>
-                  <p className="mt-1 text-xs text-white/60">
+                  <p className="mt-1 text-[13px] leading-5 text-[#f4eee2]/60">
                     Escolha pizzas, bebidas ou outros itens. Você pode acrescentar quantos quiser.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={clearComplementFlow}
-                  className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10"
+                  className="grid size-11 shrink-0 place-items-center rounded-full border border-[#f4eee2]/20 text-[#f4eee2] transition hover:bg-white/10"
                   aria-label="Fechar"
                 >
                   <X className="size-5" />
                 </button>
               </div>
-            </header>
+            </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
               {complementItems.length > 0 && (
                 <section className="mb-5 rounded-2xl border border-[#f3ad4b]/25 bg-[#f3ad4b]/[.07] p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[9px] font-bold uppercase tracking-[.18em] text-[#f3ad4b]">Acréscimos selecionados</p>
-                      <p className="mt-1 text-sm font-bold text-[#f4eee2]">
+                      <p className="text-[13px] font-medium text-[#f3ad4b]">Acréscimos selecionados</p>
+                      <p className="mt-0.5 text-base font-medium text-[#f4eee2]">
                         {complementItems.reduce((sum, item) => sum + item.quantity, 0)}{" "}
                         {complementItems.reduce((sum, item) => sum + item.quantity, 0) === 1 ? "item" : "itens"}
                       </p>
                     </div>
-                    <span className="font-display text-xl text-[#f4eee2]">{formatCurrency(complementSubtotal)}</span>
+                    <span className="font-display text-xl text-[#f3ad4b]">{formatCurrency(complementSubtotal)}</span>
                   </div>
 
                   <div className="mt-3 space-y-2">
                     {complementItems.map((item) => (
                       <div key={item.lineId} className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#0a3035] p-2.5">
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-bold text-[#f4eee2]">
+                          <p className="truncate text-sm font-medium text-[#f4eee2]">
                             {item.productName}{item.secondProductName ? " + " + item.secondProductName : ""}
                           </p>
-                          <p className="mt-0.5 text-[10px] text-white/45">
+                          <p className="mt-0.5 text-xs text-[#f4eee2]/55">
                             {item.sizeName ?? "Item simples"}{item.crustName ? " · " + item.crustName : ""}
                           </p>
                         </div>
@@ -616,13 +616,12 @@ export function Storefront({ slug }: { slug?: string }) {
               <section id="ppp-add-order-catalog">
                 <div className="mb-3 flex items-end justify-between gap-3">
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[.18em] text-white/45">Cardápio</p>
-                    <h3 className="mt-1 text-lg font-black text-[#f4eee2]">
+                    <h3 className="font-display text-[22px] font-medium text-[#f4eee2]">
                       {complementItems.length > 0 ? "Adicionar mais itens" : "Escolha o que deseja adicionar"}
                     </h3>
                   </div>
                   {complementItems.length > 0 && (
-                    <button type="button" onClick={scrollToAddOrderCatalog} className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5 text-[10px] font-bold text-white/70 transition hover:bg-white/[.08] hover:text-white">
+                    <button type="button" onClick={scrollToAddOrderCatalog} className="min-h-10 rounded-full border border-[#f4eee2]/20 px-4 text-sm text-[#f4eee2]/85 transition hover:bg-white/10">
                       Adicionar mais
                     </button>
                   )}
@@ -657,10 +656,10 @@ export function Storefront({ slug }: { slug?: string }) {
                             <div className="min-w-0 flex-1">
                               <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0">
-                                  <p className="truncate text-sm font-bold text-[#f4eee2]">{item.name}</p>
-                                  <p className="mt-0.5 truncate text-[9px] font-bold uppercase tracking-[.12em] text-[#f3ad4b]">{categoryName}</p>
+                                  <p className="truncate text-[15px] font-medium text-[#f4eee2]">{item.name}</p>
+                                  <p className="mt-0.5 truncate text-[13px] text-[#f4eee2]/55">{categoryName}</p>
                                 </div>
-                                <span className="shrink-0 text-xs font-bold text-[#f4eee2]">{formatCurrency(displayPrice)}</span>
+                                <span className="shrink-0 font-display text-base text-[#f3ad4b]">{formatCurrency(displayPrice)}</span>
                               </div>
 
                               {item.kind === "PIZZA" ? (
@@ -671,7 +670,7 @@ export function Storefront({ slug }: { slug?: string }) {
                                     setAddingToExistingOrder(true);
                                     setSelectedProduct(item);
                                   }}
-                                  className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-full bg-[#f3ad4b] px-3 text-[10px] font-black uppercase tracking-[.12em] text-[#06282d] transition hover:brightness-105"
+                                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-3 text-sm font-semibold text-[#1b0f08] transition hover:brightness-105"
                                 >
                                   Personalizar pizza
                                   <ChevronRight className="size-3.5" />
@@ -683,7 +682,7 @@ export function Storefront({ slug }: { slug?: string }) {
                                     <span className="w-8 text-center text-[11px] font-bold">{quickQuantity}</span>
                                     <button type="button" onClick={() => setQuickAddQuantities((current) => ({ ...current, [item.id]: quickQuantity + 1 }))} className="grid size-9 place-items-center text-white/70 transition hover:text-white" aria-label={"Aumentar quantidade de " + item.name}>+</button>
                                   </div>
-                                  <button type="button" onClick={() => addQuickSimpleProduct(item)} className="flex h-9 flex-1 items-center justify-center rounded-full border border-[#f3ad4b]/40 bg-[#f3ad4b]/10 px-3 text-[10px] font-black uppercase tracking-[.12em] text-[#f3ad4b] transition hover:bg-[#f3ad4b]/15">
+                                  <button type="button" onClick={() => addQuickSimpleProduct(item)} className="flex h-11 flex-1 items-center justify-center rounded-xl border border-primary/50 bg-primary/10 px-3 text-sm font-semibold text-[#f4eee2] transition hover:bg-primary/20">
                                     Adicionar
                                   </button>
                                 </div>
@@ -698,9 +697,9 @@ export function Storefront({ slug }: { slug?: string }) {
               </section>
             </div>
 
-            <footer className="shrink-0 border-t border-white/10 bg-[#041e22] p-4">
+            <div className="shrink-0 border-t border-[#f4eee2]/10 bg-[#041e22] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <button type="button" onClick={scrollToAddOrderCatalog} className="h-11 flex-1 rounded-full border border-white/10 bg-white/[.04] px-4 text-xs font-bold text-white/75 transition hover:bg-white/[.08] hover:text-white">
+                <button type="button" onClick={scrollToAddOrderCatalog} className="h-12 flex-1 rounded-2xl border border-[#f4eee2]/20 px-4 text-sm font-medium text-[#f4eee2] transition hover:bg-white/10">
                   Adicionar mais itens
                 </button>
                 <button
@@ -711,12 +710,12 @@ export function Storefront({ slug }: { slug?: string }) {
                     setCartOpen(false);
                     setCheckoutOpen(true);
                   }}
-                  className="h-11 flex-1 rounded-full bg-[#f3ad4b] px-4 text-xs font-black text-[#06282d] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="h-12 flex-1 rounded-2xl bg-primary px-4 text-[15px] font-semibold text-[#1b0f08] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Continuar{complementItems.length > 0 ? " · " + formatCurrency(complementSubtotal) : ""}
                 </button>
               </div>
-            </footer>
+            </div>
           </section>
         </div>
       )}

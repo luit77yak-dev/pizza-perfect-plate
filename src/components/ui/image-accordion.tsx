@@ -20,6 +20,7 @@ export function ImageAccordion({
 
   useEffect(() => {
     if (usableItems.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const timer = window.setInterval(() => {
       setActive((current) => (current + 1) % usableItems.length);
@@ -84,9 +85,9 @@ export function ImageAccordion({
 
             <span
               className={cn(
-                "absolute left-3 top-3 rounded-full border border-white/30 bg-black/30 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[.16em] text-white/90 backdrop-blur-md",
-                "transition-opacity duration-500",
-                isActive ? "opacity-100" : "opacity-70",
+                "absolute left-3 top-3 rounded-full border border-white/30 bg-black/35 px-2.5 py-1 text-xs font-medium tabular-nums text-white/90 backdrop-blur-md",
+                "transition-opacity duration-300",
+                isActive ? "opacity-100" : "opacity-0",
               )}
             >
               {String(index + 1).padStart(2, "0")}
@@ -94,17 +95,17 @@ export function ImageAccordion({
 
             <span
               className={cn(
-                "absolute inset-x-5 bottom-5 transition-all duration-500",
+                "pointer-events-none absolute inset-x-5 bottom-5 overflow-hidden transition-all duration-300",
                 isActive
-                  ? "translate-y-0 opacity-100"
+                  ? "translate-y-0 opacity-100 delay-300"
                   : "translate-y-3 opacity-0",
               )}
             >
-              <span className="block text-lg font-semibold tracking-tight text-white drop-shadow-md sm:text-2xl">
+              <span className="block truncate text-lg font-semibold tracking-tight text-white drop-shadow-md sm:text-2xl">
                 {item.title}
               </span>
               {item.subtitle ? (
-                <span className="mt-1 block text-sm text-white/75">
+                <span className="mt-1 block truncate text-sm text-white/80">
                   {item.subtitle}
                 </span>
               ) : null}

@@ -1,5 +1,4 @@
 import { Check, ChevronRight, Clock3, Plus, Pizza, ShoppingBag, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, FulfillmentType, OrderStatus } from "@/lib/domain/types";
 
@@ -16,17 +15,31 @@ export type PublicTrackedOrder = {
 
 function getTrackedOrderStatusLabel(status?: OrderStatus) {
   switch (status) {
-    case "RECEIVED": return "Pedido recebido";
-    case "CONFIRMED": return "Pedido confirmado";
-    case "PREPARING": return "Em preparo";
-    case "READY": return "Pronto";
-    case "OUT_FOR_DELIVERY": return "Saiu para entrega";
-    case "DELIVERED": return "Entregue";
-    case "CANCELLED": return "Cancelado";
-    default: return "Em andamento";
+    case "RECEIVED":
+      return "Pedido recebido";
+    case "CONFIRMED":
+      return "Pedido confirmado";
+    case "PREPARING":
+      return "Em preparo";
+    case "READY":
+      return "Pronto";
+    case "OUT_FOR_DELIVERY":
+      return "Saiu para entrega";
+    case "DELIVERED":
+      return "Entregue";
+    case "CANCELLED":
+      return "Cancelado";
+    default:
+      return "Em andamento";
   }
 }
 
+/*
+ * Acompanhamento do pedido, versão premium.
+ * - Cabeçalho escuro (antes era um bloco laranja com texto branco).
+ * - Linha do tempo com rótulos legíveis e números visíveis em todos os passos.
+ * - Sem <header>: evita os remendos globais de CSS que quebravam o layout no celular.
+ */
 export function TrackedOrderPanel({
   order,
   onClose,
@@ -56,10 +69,20 @@ export function TrackedOrderPanel({
   const steps = [
     { status: "RECEIVED" as OrderStatus, label: "Recebido", description: "Pedido recebido" },
     { status: "CONFIRMED" as OrderStatus, label: "Confirmado", description: "Pedido confirmado" },
-    { status: "PREPARING" as OrderStatus, label: "Em preparo", description: "A cozinha está preparando" },
+    {
+      status: "PREPARING" as OrderStatus,
+      label: "Em preparo",
+      description: "A cozinha está preparando",
+    },
     { status: "READY" as OrderStatus, label: "Pronto", description: "Tudo pronto" },
     ...(order.fulfillment === "DELIVERY" || currentStatus === "OUT_FOR_DELIVERY"
-      ? [{ status: "OUT_FOR_DELIVERY" as OrderStatus, label: "A caminho", description: "Saiu para entrega" }]
+      ? [
+          {
+            status: "OUT_FOR_DELIVERY" as OrderStatus,
+            label: "A caminho",
+            description: "Saiu para entrega",
+          },
+        ]
       : []),
   ];
   const statusIndex = steps.findIndex((step) => step.status === currentStatus);
@@ -75,59 +98,75 @@ export function TrackedOrderPanel({
         : Math.min(100, Math.round((activeIndex / (steps.length - 1)) * 100));
 
   const statusMessage =
-    currentStatus === "RECEIVED" ? "Recebemos seu pedido e já estamos cuidando dele." :
-    currentStatus === "CONFIRMED" ? "Seu pedido foi confirmado e vai entrar na preparação." :
-    currentStatus === "PREPARING" ? "A cozinha está preparando tudo com carinho." :
-    currentStatus === "READY" ? order.fulfillment === "DELIVERY" ? "Seu pedido está pronto e aguardando a saída para entrega." : "Seu pedido está pronto para retirada." :
-    currentStatus === "OUT_FOR_DELIVERY" ? "Seu pedido saiu para entrega. Já já chega até você." :
-    currentStatus === "DELIVERED" ? "Pedido entregue. Bom apetite!" :
-    currentStatus === "CANCELLED" ? "Este pedido foi cancelado." :
-    "Estamos atualizando o status do seu pedido.";
+    currentStatus === "RECEIVED"
+      ? "Recebemos seu pedido e já estamos cuidando dele."
+      : currentStatus === "CONFIRMED"
+        ? "Seu pedido foi confirmado e vai entrar na preparação."
+        : currentStatus === "PREPARING"
+          ? "A cozinha está preparando tudo com carinho."
+          : currentStatus === "READY"
+            ? order.fulfillment === "DELIVERY"
+              ? "Seu pedido está pronto e aguardando a saída para entrega."
+              : "Seu pedido está pronto para retirada."
+            : currentStatus === "OUT_FOR_DELIVERY"
+              ? "Seu pedido saiu para entrega. Já já chega até você."
+              : currentStatus === "DELIVERED"
+                ? "Pedido entregue. Bom apetite!"
+                : currentStatus === "CANCELLED"
+                  ? "Este pedido foi cancelado."
+                  : "Estamos atualizando o status do seu pedido.";
 
   return (
     <div
-      className="ppp-tracked-order-panel fixed inset-0 z-[180] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5"
+      className="fixed inset-0 z-[180] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5"
       role="dialog"
       aria-modal="true"
       aria-label={`Acompanhar pedido #${orderNumber}`}
     >
-      <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar acompanhamento" />
-      <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#06282d] text-[#f4eee2] shadow-2xl sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem]">
-        <header
-          className="relative shrink-0 overflow-hidden border-b border-black/10 bg-[#e8751a] px-5 pb-5 pt-4 text-white sm:px-7 sm:pb-6"
-        >
-          <div className="relative flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-black text-white shadow-lg">
-                  <ShoppingBag className="size-5" strokeWidth={1.9} />
-                </span>
-                <div>
-                  <p className="text-[9px] font-black uppercase tracking-[.2em] text-white/85">Acompanhamento</p>
-                  <h2 className="mt-0.5 truncate font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">Pedido #{orderNumber}</h2>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-[#f4eee2]/65">
-                <span className="rounded-full border border-[#f4eee2]/15 bg-[#f4eee2]/[.06] px-2.5 py-1">
-                  {itemCount} {itemCount === 1 ? "item" : "itens"}
-                </span>
-                <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1">
-                  {order.fulfillment === "DELIVERY" ? "Entrega" : "Retirada"}
-                </span>
+      <button
+        type="button"
+        className="absolute inset-0 cursor-default"
+        onClick={onClose}
+        aria-label="Fechar acompanhamento"
+        tabIndex={-1}
+      />
+      <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-[#f4eee2]/10 bg-[#06282d] text-[#f4eee2] shadow-[0_30px_90px_rgba(0,0,0,.55)] sm:max-h-[min(900px,92dvh)] sm:rounded-3xl">
+        <div className="shrink-0 border-b border-[#f4eee2]/10 bg-gradient-to-b from-[#241b11] to-[#06282d] px-5 pb-4 pt-5 sm:px-7">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-[#1b0f08]">
+                <ShoppingBag className="size-5" strokeWidth={2} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs text-[#f4eee2]/60">Acompanhamento</p>
+                <h2 className="truncate font-display text-[30px] font-medium leading-tight">
+                  Pedido #{orderNumber}
+                </h2>
               </div>
             </div>
-            <button type="button" onClick={onClose} className="relative grid size-10 shrink-0 place-items-center rounded-full border border-white/30 bg-white/10 text-white transition hover:bg-white/20 active:scale-95" aria-label="Fechar">
-              <X className="size-4" />
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Fechar"
+              className="grid size-11 shrink-0 place-items-center rounded-full border border-[#f4eee2]/20 text-[#f4eee2] transition hover:bg-white/10"
+            >
+              <X className="size-5" strokeWidth={2} />
             </button>
           </div>
-        </header>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-[#f4eee2]/75">
+            <span className="rounded-full border border-[#f4eee2]/15 px-3 py-1">
+              {itemCount} {itemCount === 1 ? "item" : "itens"}
+            </span>
+            <span className="rounded-full border border-[#f4eee2]/15 px-3 py-1">
+              {order.fulfillment === "DELIVERY" ? "Entrega" : "Retirada"}
+            </span>
+          </div>
+        </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           {availableOrders && availableOrders.length > 1 && onSelectOrder && (
-            <div className="border-b border-white/10 bg-[#111820] px-4 py-3 sm:px-6">
-              <p className="mb-2 text-[9px] font-black uppercase tracking-[.18em] text-white/50">
-                Seus pedidos em andamento
-              </p>
+            <div className="border-b border-[#f4eee2]/10 bg-[#041e22] px-5 py-3 sm:px-7">
+              <p className="mb-2 text-[13px] text-[#f4eee2]/60">Seus pedidos em andamento</p>
               <div className="flex gap-2 overflow-x-auto pb-0.5">
                 {availableOrders.map((availableOrder) => {
                   const selected = availableOrder.id === order.id;
@@ -138,10 +177,10 @@ export function TrackedOrderPanel({
                       onClick={() => onSelectOrder(availableOrder.id)}
                       aria-pressed={selected}
                       className={
-                        "min-w-[118px] shrink-0 rounded-xl border px-3 py-2.5 text-[11px] font-black transition-all " +
+                        "min-h-11 shrink-0 rounded-full border px-4 text-sm transition " +
                         (selected
-                          ? "border-primary bg-primary text-white shadow-md"
-                          : "border-white/10 bg-white/[.06] text-white/75 hover:bg-white/10 hover:text-white")
+                          ? "border-primary bg-primary font-semibold text-[#1b0f08]"
+                          : "border-[#f4eee2]/15 text-[#f4eee2]/80 hover:border-[#f4eee2]/35")
                       }
                     >
                       Pedido #{availableOrder.number}
@@ -151,136 +190,209 @@ export function TrackedOrderPanel({
               </div>
             </div>
           )}
-          <div className="space-y-3 p-4 pb-6 sm:space-y-4 sm:p-6 sm:pb-7">
-            <section className="overflow-hidden rounded-3xl border border-white/10 bg-[#0a3035] shadow-sm">
-              <div className="p-4 sm:p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Agora</p>
-                    <h3 className="mt-1 text-xl font-black tracking-tight">{getTrackedOrderStatusLabel(currentStatus)}</h3>
-                    <p className="mt-1.5 max-w-lg text-xs leading-5 text-background/50">{statusMessage}</p>
-                  </div>
-                  <div className="hidden size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary sm:grid">
-                    {currentStatus === "PREPARING" ? <Pizza className="size-5" /> : currentStatus === "OUT_FOR_DELIVERY" ? <ChevronRight className="size-5" /> : <Clock3 className="size-5" />}
-                  </div>
+
+          <div className="space-y-4 p-5 pb-6 sm:p-7">
+            <div className="rounded-3xl border border-[#f4eee2]/12 bg-[#0a3035] p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[13px] font-medium text-[#f3ad4b]">Agora</p>
+                  <h3 className="mt-1 font-display text-[28px] font-medium leading-tight">
+                    {getTrackedOrderStatusLabel(currentStatus)}
+                  </h3>
+                  <p className="mt-2 max-w-lg text-sm leading-6 text-[#f4eee2]/65">
+                    {statusMessage}
+                  </p>
                 </div>
-
-                {!isCancelled && (
-                  <div className="mt-5">
-                    <div className="h-1.5 overflow-hidden rounded-full bg-background/5">
-                      <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${progressPercent}%` }} />
-                    </div>
-                    <div className={steps.length === 5 ? "mt-4 grid grid-cols-5 gap-1" : "mt-4 grid grid-cols-4 gap-1"}>
-                      {steps.map((step, index) => {
-                        const complete = index < activeIndex || isFinished;
-                        const active = index === activeIndex && !isFinished;
-                        return (
-                          <div key={step.status} className="min-w-0 text-center">
-                            <div className={"mx-auto grid size-7 place-items-center rounded-full border text-[9px] font-black transition sm:size-8 " + (complete || active ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-background/10 bg-[#0d1117] text-muted-foreground")}>
-                              {complete ? <Check className="size-3.5" /> : index + 1}
-                            </div>
-                            <p className={"mt-1.5 truncate text-[8px] font-bold uppercase tracking-[.06em] sm:text-[9px] " + (active || complete ? "text-background" : "text-muted-foreground")}>{step.label}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {isCancelled && (
-                  <div className="mt-4 rounded-2xl bg-destructive/10 px-3 py-2.5 text-xs text-destructive">
-                    Não é possível adicionar novos itens a um pedido cancelado.
-                  </div>
-                )}
+                <div className="hidden size-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary sm:grid">
+                  {currentStatus === "PREPARING" ? (
+                    <Pizza className="size-5" />
+                  ) : currentStatus === "OUT_FOR_DELIVERY" ? (
+                    <ChevronRight className="size-5" />
+                  ) : (
+                    <Clock3 className="size-5" />
+                  )}
+                </div>
               </div>
-            </section>
+
+              {!isCancelled && (
+                <div className="mt-6">
+                  <div className="h-1.5 overflow-hidden rounded-full bg-[#f4eee2]/12">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all duration-700"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                  <ol
+                    className={
+                      "mt-5 grid gap-0 " + (steps.length === 5 ? "grid-cols-5" : "grid-cols-4")
+                    }
+                  >
+                    {steps.map((step, index) => {
+                      const complete = index < activeIndex || isFinished;
+                      const active = index === activeIndex && !isFinished;
+                      return (
+                        <li
+                          key={step.status}
+                          className="min-w-0 text-center"
+                          aria-current={active ? "step" : undefined}
+                        >
+                          <div
+                            className={
+                              "mx-auto grid size-9 place-items-center rounded-full border text-sm font-semibold transition " +
+                              (complete || active
+                                ? "border-primary bg-primary text-[#1b0f08]"
+                                : "border-[#f4eee2]/25 bg-[#041e22] text-[#f4eee2]/60")
+                            }
+                          >
+                            {complete ? <Check className="size-4" strokeWidth={3} /> : index + 1}
+                          </div>
+                          <p
+                            className={
+                              "mt-2 text-[11px] leading-tight " +
+                              (active
+                                ? "font-semibold text-[#f4eee2]"
+                                : complete
+                                  ? "text-[#f4eee2]/85"
+                                  : "text-[#f4eee2]/50")
+                            }
+                          >
+                            {step.label}
+                          </p>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
+              )}
+
+              {isCancelled && (
+                <div className="mt-4 rounded-2xl bg-destructive/15 px-4 py-3 text-sm text-[#ffb4a8]">
+                  Não é possível adicionar novos itens a um pedido cancelado.
+                </div>
+              )}
+            </div>
 
             {canAddMore && (
               <button
                 type="button"
                 onClick={onAddToOrder}
-                className="group flex w-full items-center gap-3 rounded-2xl border border-[#f3ad4b]/30 bg-[#f3ad4b]/10 p-3.5 text-left transition hover:border-primary/40 hover:bg-primary/15 active:scale-[.99] sm:p-4"
+                className="group flex w-full items-center gap-4 rounded-3xl border border-[#f3ad4b]/30 bg-[#f3ad4b]/10 p-4 text-left transition hover:border-[#f3ad4b]/60 active:scale-[.99]"
               >
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#f3ad4b] text-[#06282d] shadow-sm transition group-hover:scale-105">
-                  <Plus className="size-4" />
+                <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#f3ad4b] text-[#06282d]">
+                  <Plus className="size-5" strokeWidth={2.5} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-black text-[#f4eee2]">Esqueceu alguma coisa?</span>
-                  <span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">Adicione bebidas, acompanhamentos ou sobremesas ao pedido.</span>
+                  <span className="block text-base font-medium">Esqueceu alguma coisa?</span>
+                  <span className="mt-0.5 block text-[13px] leading-5 text-[#f4eee2]/60">
+                    Adicione bebidas, acompanhamentos ou sobremesas ao pedido.
+                  </span>
                 </span>
-                <ChevronRight className="size-4 shrink-0 text-primary" />
+                <ChevronRight className="size-5 shrink-0 text-[#f3ad4b]" />
               </button>
             )}
 
-            <section className="overflow-hidden rounded-3xl border border-background/10 bg-background/[.035] shadow-sm">
-              <div className="flex items-center justify-between gap-3 border-b border-background/10 px-4 py-3.5 sm:px-5 sm:py-4">
-                <div>
-                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-muted-foreground">Resumo</p>
-                  <h3 className="mt-0.5 text-base font-black">Itens do pedido</h3>
-                </div>
-                <span className="rounded-full bg-muted px-2.5 py-1 text-[9px] font-bold text-muted-foreground">{itemCount} {itemCount === 1 ? "item" : "itens"}</span>
+            <div className="overflow-hidden rounded-3xl border border-[#f4eee2]/12 bg-[#0a3035]">
+              <div className="flex items-center justify-between gap-3 border-b border-[#f4eee2]/10 px-5 py-4">
+                <h3 className="font-display text-xl font-medium">Itens do pedido</h3>
+                <span className="rounded-full border border-[#f4eee2]/15 px-3 py-1 text-[13px] text-[#f4eee2]/70">
+                  {itemCount} {itemCount === 1 ? "item" : "itens"}
+                </span>
               </div>
 
-              <div className="divide-y">
-                {items.length > 0 ? items.map((item, index) => {
-                  const quantity = Number(item.quantity) || 0;
-                  const unitPrice = Number(item.unitPrice) || 0;
-                  const extras = [
-                    ...(item.sizeName ? [item.sizeName] : []),
-                    ...(item.crustName ? [item.crustName] : []),
-                    ...((item.addons ?? []).map((addon) => addon.name)),
-                    ...((item.complements ?? []).map((complement) => complement.productName)),
-                  ];
-                  return (
-                    <div key={item.lineId || item.productId || (item.productName || "item") + "-" + index} className="flex gap-3 px-4 py-3.5 sm:px-5">
-                      <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-primary">
-                        <Pizza className="size-4" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold">{quantity}× {item.productName || "Item"}{item.secondProductName ? " + " + item.secondProductName : ""}</p>
-                        {extras.length > 0 && <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-muted-foreground">{extras.join(" · ")}</p>}
-                      </div>
-                      <span className="shrink-0 pt-0.5 text-sm font-bold">{formatCurrency(unitPrice * quantity)}</span>
-                    </div>
-                  );
-                }) : (
-                  <div className="p-6 text-center">
-                    <ShoppingBag className="mx-auto size-7 text-muted-foreground/50" />
-                    <p className="mt-2 text-xs text-muted-foreground">Os itens deste pedido não estão disponíveis nesta sessão.</p>
-                  </div>
+              <ul className="divide-y divide-[#f4eee2]/10">
+                {items.length > 0 ? (
+                  items.map((item, index) => {
+                    const quantity = Number(item.quantity) || 0;
+                    const unitPrice = Number(item.unitPrice) || 0;
+                    const extras = [
+                      ...(item.sizeName ? [item.sizeName] : []),
+                      ...(item.crustName ? [item.crustName] : []),
+                      ...(item.addons ?? []).map((addon) => addon.name),
+                      ...(item.complements ?? []).map((complement) => complement.productName),
+                    ];
+                    return (
+                      <li
+                        key={
+                          item.lineId ||
+                          item.productId ||
+                          (item.productName || "item") + "-" + index
+                        }
+                        className="flex gap-3 px-5 py-4"
+                      >
+                        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#0d373c] text-primary">
+                          <Pizza className="size-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[15px] font-medium">
+                            {quantity}× {item.productName || "Item"}
+                            {item.secondProductName ? " + " + item.secondProductName : ""}
+                          </p>
+                          {extras.length > 0 && (
+                            <p className="mt-0.5 line-clamp-2 text-[13px] leading-5 text-[#f4eee2]/55">
+                              {extras.join(", ")}
+                            </p>
+                          )}
+                        </div>
+                        <span className="shrink-0 pt-0.5 text-[15px] font-medium">
+                          {formatCurrency(unitPrice * quantity)}
+                        </span>
+                      </li>
+                    );
+                  })
+                ) : (
+                  <li className="p-6 text-center">
+                    <ShoppingBag className="mx-auto size-7 text-[#f4eee2]/35" />
+                    <p className="mt-2 text-sm text-[#f4eee2]/55">
+                      Os itens deste pedido não estão disponíveis nesta sessão.
+                    </p>
+                  </li>
+                )}
+              </ul>
+
+              <div className="flex items-end justify-between gap-4 border-t border-[#f4eee2]/10 bg-[#041e22] px-5 py-4">
+                <div>
+                  <p className="text-[13px] text-[#f4eee2]/60">Total do pedido</p>
+                  <p className="font-display text-[30px] font-medium leading-tight text-[#f3ad4b]">
+                    {formatCurrency(orderTotal)}
+                  </p>
+                </div>
+                {canAddMore && (
+                  <span className="pb-1 text-[13px] text-[#f4eee2]/55">
+                    Você pode acrescentar itens
+                  </span>
                 )}
               </div>
-
-              <div className="border-t border-background/10 bg-[#0a0e14] px-4 py-4 sm:px-5">
-                <div className="flex items-end justify-between gap-4">
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[.16em] text-muted-foreground">Total do pedido</p>
-                    <p className="mt-0.5 font-display text-2xl tracking-tight sm:text-3xl">{formatCurrency(orderTotal)}</p>
-                  </div>
-                  {canAddMore && <span className="text-[10px] font-semibold text-muted-foreground">Você pode acrescentar itens</span>}
-                </div>
-              </div>
-            </section>
+            </div>
           </div>
         </div>
 
-        <footer className="shrink-0 border-t border-background/10 bg-[#0a0e14]/95 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl sm:hidden">
+        <div className="shrink-0 border-t border-[#f4eee2]/10 bg-[#041e22] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:hidden">
           <div className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-[8px] font-black uppercase tracking-[.14em] text-muted-foreground">Total</p>
-              <p className="truncate text-lg font-black">{formatCurrency(orderTotal)}</p>
+              <p className="text-[13px] text-[#f4eee2]/60">Total</p>
+              <p className="truncate font-display text-[22px] font-medium">
+                {formatCurrency(orderTotal)}
+              </p>
             </div>
             {canAddMore ? (
-              <Button type="button" onClick={onAddToOrder} className="h-11 shrink-0 rounded-full px-4 text-xs font-black shadow-lg">
-                <Plus className="mr-1.5 size-3.5" /> Adicionar
-              </Button>
+              <button
+                type="button"
+                onClick={onAddToOrder}
+                className="flex h-12 shrink-0 items-center gap-2 rounded-2xl bg-primary px-5 text-[15px] font-semibold text-[#1b0f08] transition active:scale-[.98]"
+              >
+                <Plus className="size-4" strokeWidth={2.5} /> Adicionar itens
+              </button>
             ) : (
-              <Button type="button" variant="outline" onClick={onClose} className="h-11 rounded-full px-5 text-xs font-bold">
+              <button
+                type="button"
+                onClick={onClose}
+                className="h-12 shrink-0 rounded-2xl border border-[#f4eee2]/20 px-6 text-[15px] font-medium transition hover:bg-white/10"
+              >
                 Fechar
-              </Button>
+              </button>
             )}
           </div>
-        </footer>
+        </div>
       </section>
     </div>
   );

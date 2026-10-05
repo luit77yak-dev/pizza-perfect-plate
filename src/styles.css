@@ -1674,7 +1674,7 @@
     border-radius: .9rem;
   }
 
-  [role="dialog"] .bg-primary {
+  [role="dialog"] .bg-primary:not(:disabled) {
     background-color: var(--color-primary) !important;
   }
 
@@ -3016,5 +3016,19 @@
 
   .ppp-order-builder textarea::placeholder {
     color: rgba(244,238,226,.3) !important;
+  }
+}
+
+
+/* Fluxo de pedido (montar, carrinho, checkout, acompanhamento):
+   botões pequenos não "pulam" no hover e o foco fica sempre visível. */
+@layer components {
+  [role="dialog"] button:hover {
+    transform: none;
+  }
+
+  [role="dialog"] button:focus-visible {
+    outline: 2px solid #f3ad4b;
+    outline-offset: 2px;
   }
 }
