@@ -389,6 +389,8 @@ export function Storefront({ slug }: { slug?: string }) {
           organizationName={data.organization.name}
           settings={data.settings}
           products={mainProducts}
+          statusOpen={status.open}
+          statusLabel={status.label}
         />
 
         <ProductTicker products={mainProducts} />
@@ -506,6 +508,18 @@ export function Storefront({ slug }: { slug?: string }) {
 
         <StorefrontContact settings={data.settings} />
       </main>
+
+      {itemCount > 0 && !cartOpen && !checkoutOpen && !selectedProduct && !trackingOpen && !complementPickerOpen && (
+        <div className="ppp-mobile-cart-bar">
+          <div>
+            <div className="ppp-cart-total">
+              <small>{itemCount} {itemCount === 1 ? "item" : "itens"}</small>
+              <strong>{formatCurrency(subtotal)}</strong>
+            </div>
+            <button type="button" onClick={() => setCartOpen(true)}>Ver carrinho</button>
+          </div>
+        </div>
+      )}
 
       {selectedProduct && (
         <ProductConfigurator
