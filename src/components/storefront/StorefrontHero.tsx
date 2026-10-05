@@ -1,21 +1,36 @@
 import { ChevronRight, Pizza } from "lucide-react";
+import { formatCurrency } from "@/lib/domain/money";
 import type { OrganizationSettings, Product } from "@/lib/domain/types";
 
 type StorefrontHeroProps = {
   organizationName: string;
   settings: OrganizationSettings;
   products: Product[];
+  statusOpen: boolean;
+  statusLabel: string;
 };
 
-export function StorefrontHero({ organizationName, settings, products }: StorefrontHeroProps) {
+export function StorefrontHero({ organizationName, settings, products, statusOpen, statusLabel }: StorefrontHeroProps) {
   return (
     <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
       <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
         <div className="ppp-reference-hero-grid grid min-h-[min(760px,calc(100dvh-5.5rem))] lg:min-h-[760px] lg:grid-cols-1">
           <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-[clamp(1.25rem,5vw,3.5rem)]">
+            <div className="ppp-hero-store-meta">
+              <span className="ppp-hero-store-mark">{organizationName.charAt(0)}</span>
+              <div className="min-w-0">
+                <div className="ppp-hero-store-name truncate">{organizationName}</div>
+                <div className="ppp-hero-store-status">{statusOpen ? "Aberto agora" : statusLabel || "Fechado agora"}</div>
+              </div>
+            </div>
             <p className="mb-5 w-fit rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 font-body text-[10px] font-semibold uppercase tracking-[.28em] text-accent">Feita na hora · Est. 2026</p>
             <h1 className="w-full max-w-4xl text-[clamp(2rem,8vw,8rem)] leading-[.86] tracking-[-.045em]">{settings.hero_title && !/MASSA DE FERMENTA/i.test(settings.hero_title) ? settings.hero_title : "Pizza que fica na memória."}</h1>
             <p className="mt-7 max-w-xl text-base leading-7 text-secondary-foreground/75 sm:text-lg">{settings.hero_subtitle || settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos."}</p>
+            <div className="ppp-hero-stats" aria-label="Informações da loja">
+              <div className="ppp-hero-stat"><small>Preparo</small><strong>{settings.estimated_pickup_minutes ? settings.estimated_pickup_minutes + " min" : "35–50 min"}</strong></div>
+              <div className="ppp-hero-stat"><small>Entrega</small><strong>{settings.delivery_enabled ? formatCurrency(Number(settings.delivery_fee ?? 0)) : "—"}</strong></div>
+              <div className="ppp-hero-stat"><small>Pedido mínimo</small><strong>{formatCurrency(Number(settings.min_order_amount ?? 0))}</strong></div>
+            </div>
             <a href="#cardapio" className="mt-8 inline-flex w-fit items-center gap-2 rounded-full border border-primary bg-primary px-6 py-4 font-body text-sm font-semibold uppercase text-primary-foreground shadow-lifted transition-transform hover:-translate-y-1 hover:bg-primary/90">{settings.hero_cta_label || "Pedir agora"}<ChevronRight className="size-5" /></a>
           </div>
           <div className="ppp-reference-hero-media pointer-events-none absolute inset-0 z-0 min-h-[min(680px,calc(100dvh-5.5rem))] overflow-hidden bg-secondary p-0 lg:min-h-[760px]">
