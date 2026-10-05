@@ -58,6 +58,13 @@ export function StorefrontHeader({
             </Button>
           </div>
         </div>
+
+      <nav className="ppp-mobile-step-nav" aria-label="Etapas do pedido">
+        <a href="#inicio">Início</a>
+        <a href="#cardapio">Montar pizza</a>
+        <button type="button" onClick={onOpenCart}>Carrinho{itemCount > 0 ? " · " + itemCount : ""}</button>
+        <button type="button" onClick={onOpenCart}>Finalizar</button>
+      </nav>
       </header>
 
   );
