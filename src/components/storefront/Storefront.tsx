@@ -237,7 +237,9 @@ export function Storefront() {
     });
   }, [data, mainProducts, selectedCategory, searchTerm]);
 
-  const isBurgerDelivery = data?.products.some((product) => product.kind === "BURGER") ?? false;\n\n  const categoryProducts = useMemo(() => {
+  const isBurgerDelivery = data?.products.some((product) => product.kind === "BURGER") ?? false;
+
+  const categoryProducts = useMemo(() => {
     if (!data) return new Map<string, number>();
     return new Map(
       data.categories.map((category) => [
