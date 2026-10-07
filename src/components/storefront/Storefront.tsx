@@ -34,10 +34,10 @@ export type TrackedOrder = {
   status?: OrderStatus | undefined;
 };
 
-export function Storefront({ slug }: { slug?: string }) {
+export function Storefront() {
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["public-store", slug ?? "demo"],
-    queryFn: () => loadStore(slug),
+    queryKey: ["public-store", window.location.hostname.toLowerCase()],
+    queryFn: () => loadStore(),
     staleTime: 60_000,
   });
   const cart = useLocalCart();
