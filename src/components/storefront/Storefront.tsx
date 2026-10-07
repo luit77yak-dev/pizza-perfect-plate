@@ -237,7 +237,7 @@ export function Storefront() {
     });
   }, [data, mainProducts, selectedCategory, searchTerm]);
 
-  const categoryProducts = useMemo(() => {
+  const isBurgerDelivery = data?.products.some((product) => product.kind === "BURGER") ?? false;\n\n  const categoryProducts = useMemo(() => {
     if (!data) return new Map<string, number>();
     return new Map(
       data.categories.map((category) => [
@@ -403,7 +403,7 @@ export function Storefront() {
               Cardápio
             </p>
             <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">
-              Escolha sua <em>pizza.</em>
+              {isBurgerDelivery ? <>Escolha seu <em>burger.</em></> : <>Escolha sua <em>pizza.</em></>}
             </h2>
             <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
               Escolha uma categoria e encontre seu próximo sabor.
