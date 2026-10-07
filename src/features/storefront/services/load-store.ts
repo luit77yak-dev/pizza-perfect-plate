@@ -40,7 +40,7 @@ function toProduct(row: PublicStorefrontCatalog["products"][number], organizatio
     name: row.name,
     description: row.description,
     image_url: row.image_url,
-    kind: row.metadata.kind === "SIMPLE" ? "SIMPLE" : "PIZZA",
+    kind: (["SIMPLE", "PIZZA", "BURGER", "SIDE", "COMBO", "DRINK"].includes(String(row.metadata.kind)) ? String(row.metadata.kind) : "SIMPLE") as Product["kind"],
     base_price: Number(row.price ?? 0),
     allow_half: row.metadata.allow_half === true,
     active: row.active,
