@@ -36,8 +36,9 @@ export type TrackedOrder = {
 
 export function Storefront() {
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["public-store", window.location.hostname.toLowerCase()],
+    queryKey: ["public-store", typeof window !== "undefined" ? window.location.hostname.toLowerCase() : "server"],
     queryFn: () => loadStore(),
+    enabled: typeof window !== "undefined",
     staleTime: 60_000,
   });
   const cart = useLocalCart();
