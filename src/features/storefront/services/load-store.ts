@@ -1,15 +1,8 @@
 import type {
-  Addon,
   Category,
-  Crust,
   Organization,
   OrganizationSettings,
   Product,
-  ProductPrice,
-  ProductSize,
-  StoreHour,
-  SpecialHour,
-  DeliveryZone,
 } from "@/lib/domain/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -23,86 +16,160 @@ export type StoreData = {
   organization: Organization;
   settings: OrganizationSettings;
   categories: Category[];
-  sizes: ProductSize[];
+  sizes: never[];
   products: Product[];
-  prices: ProductPrice[];
-  crusts: Crust[];
-  addons: Addon[];
+  prices: never[];
+  crusts: never[];
+  addons: never[];
   productAddonLinks: ProductAddonLink[];
-  hours: StoreHour[];
-  specialHours: SpecialHour[];
-  deliveryZones: DeliveryZone[];
+  hours: never[];
+  specialHours: never[];
+  deliveryZones: never[];
 };
 
-export async function loadStore(slug?: string): Promise<StoreData> {
-  const { data: organization, error: organizationError } = await supabase
-    .from("organizations")
-    .select("*")
-    .eq("active", true)
-    .eq("demo_mode", slug ? false : true)
-    .is("deleted_at", null)
-    .match(slug ? { slug } : {})
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+type PublicStorefrontCatalog = {
+  context: {
+    domain: string;
+    instance_id: string;
+    instance_slug: string;
+    instance_name: string;
+    instance_status: string;
+    organization_id: string;
+    organization_name: string;
+    system_id: string | null;
+    system_slug: string | null;
+    system_name: string | null;
+    system_type: string | null;
+  };
+  categories: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    sort_order: number;
+    active: boolean;
+  }>;
+  products: Array<{
+    id: string;
+    category_id: string | null;
+    name: string;
+    slug: string;
+    description: string | null;
+    image_url: string | null;
+    price: number | null;
+    active: boolean;
+    sort_order: number;
+    metadata: Record<string, unknown>;
+  }>;
+};
 
-  if (organizationError) throw organizationError;
-  if (!organization) throw new Error("Nenhuma pizzaria de demonstração foi configurada.");
+function getDomain() {
+  return window.location.hostname.replace(/\.$/, "").toLowerCase();
+}
 
-  const [
-    settingsResult,
-    categoriesResult,
-    sizesResult,
-    productsResult,
-    pricesResult,
-    crustsResult,
-    addonsResult,
-    productAddonLinksResult,
-    hoursResult,
-    specialHoursResult,
-    deliveryZonesResult,
-  ] = await Promise.all([
-    supabase.rpc("get_public_storefront_settings", { p_org: organization.id }),
-    supabase.from("categories").select("*").eq("organization_id", organization.id).eq("active", true).is("deleted_at", null).order("sort_order"),
-    supabase.from("product_sizes").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
-    supabase.from("products").select("*").eq("organization_id", organization.id).eq("active", true).eq("available", true).is("deleted_at", null).order("sort_order"),
-    supabase.from("product_prices").select("*").eq("organization_id", organization.id),
-    supabase.from("product_crusts").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
-    supabase.from("product_addons").select("*").eq("organization_id", organization.id).eq("active", true).order("sort_order"),
-    supabase.from("product_addon_links").select("product_id, addon_id, sort_order").eq("organization_id", organization.id).order("sort_order"),
-    supabase.from("store_hours").select("*").eq("organization_id", organization.id).order("weekday"),
-    supabase.from("special_hours").select("*").eq("organization_id", organization.id).order("date"),
-    supabase.from("delivery_zones").select("*").eq("organization_id", organization.id).eq("active", true).order("name"),
-  ]);
-
-  const error =
-    settingsResult.error ??
-    categoriesResult.error ??
-    sizesResult.error ??
-    productsResult.error ??
-    pricesResult.error ??
-    crustsResult.error ??
-    addonsResult.error ??
-    productAddonLinksResult.error ??
-    hoursResult.error ??
-    specialHoursResult.error ??
-    deliveryZonesResult.error;
-  if (error) throw error;
-  if (!settingsResult.data) throw new Error("As configurações públicas da loja ainda não foram cadastradas.");
-
+function toProduct(row: PublicStorefrontCatalog["products"][number], organizationId: string): Product {
+  const kind = row.metadata.kind === "SIMPLE" ? "SIMPLE" : "PIZZA";
   return {
-    organization: organization as Organization,
-    settings: settingsResult.data as unknown as OrganizationSettings,
-    categories: (categoriesResult.data ?? []) as Category[],
-    sizes: (sizesResult.data ?? []) as ProductSize[],
-    products: (productsResult.data ?? []) as Product[],
-    prices: (pricesResult.data ?? []) as ProductPrice[],
-    crusts: (crustsResult.data ?? []) as Crust[],
-    addons: (addonsResult.data ?? []) as Addon[],
-    productAddonLinks: (productAddonLinksResult.data ?? []) as ProductAddonLink[],
-    hours: (hoursResult.data ?? []) as StoreHour[],
-    specialHours: (specialHoursResult.data ?? []) as SpecialHour[],
-    deliveryZones: (deliveryZonesResult.data ?? []) as DeliveryZone[],
+    id: row.id,
+    organization_id: organizationId,
+    category_id: row.category_id,
+    name: row.name,
+    description: row.description,
+    image_url: row.image_url,
+    kind,
+    base_price: Number(row.price ?? 0),
+    allow_half: row.metadata.allow_half === true,
+    active: row.active,
+    featured: row.metadata.featured === true,
+    available: row.metadata.available !== false,
+    sort_order: row.sort_order,
   };
 }
 
+function defaultSettings(organizationId: string): OrganizationSettings {
+  return {
+    organization_id: organizationId,
+    description: null,
+    whatsapp_phone: null,
+    address_street: null,
+    address_number: null,
+    address_neighborhood: null,
+    address_city: null,
+    address_state: null,
+    address_zip: null,
+    logo_url: null,
+    favicon_url: null,
+    hero_image_url: null,
+    hero_title: null,
+    hero_subtitle: null,
+    hero_cta_label: null,
+    primary_color: "145 28% 32%",
+    secondary_color: "42 35% 96%",
+    font_family: "inherit",
+    social_links: {},
+    payment_methods: ["PIX"],
+    delivery_enabled: true,
+    pickup_enabled: true,
+    pickup_instructions: null,
+    min_order_amount: 0,
+    estimated_delivery_minutes: 45,
+    estimated_pickup_minutes: 20,
+    half_pizza_pricing_rule: "highest_half",
+    half_pizza_fixed_price: null,
+    loyalty_points_per_currency: 0,
+    scheduling_enabled: false,
+  };
+}
+
+export async function loadStore(): Promise<StoreData> {
+  const domain = getDomain();
+
+  const { data, error } = await supabase.rpc("get_public_storefront_catalog", {
+    p_domain: domain,
+  });
+
+  if (error) throw error;
+
+  const catalog = data as PublicStorefrontCatalog | null;
+  if (!catalog?.context?.instance_id) {
+    throw new Error(`Nenhuma loja ativa foi configurada para o domínio ${domain}.`);
+  }
+
+  const { context } = catalog;
+
+  const organization: Organization = {
+    id: context.organization_id,
+    slug: context.instance_slug,
+    name: context.organization_name || context.instance_name,
+    active: true,
+    demo_mode: true,
+  };
+
+  const categories: Category[] = catalog.categories.map((category) => ({
+    id: category.id,
+    organization_id: context.organization_id,
+    name: category.name,
+    description: null,
+    image_url: null,
+    sort_order: category.sort_order,
+    active: category.active,
+  }));
+
+  const products = catalog.products.map((product) =>
+    toProduct(product, context.organization_id),
+  );
+
+  return {
+    organization,
+    settings: defaultSettings(context.organization_id),
+    categories,
+    products,
+    sizes: [],
+    prices: [],
+    crusts: [],
+    addons: [],
+    productAddonLinks: [],
+    hours: [],
+    specialHours: [],
+    deliveryZones: [],
+  };
+}
