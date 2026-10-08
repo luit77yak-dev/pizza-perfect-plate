@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
 
 // Public storefront backend (same one used by food.neroxa.ia.br).
 // The publishable key is safe to ship in browser code; access is enforced by RLS.
@@ -18,7 +17,7 @@ export function resolveStorefrontDomain(hostname: string) {
   return host;
 }
 
-export const supabase = createClient<Database>(STOREFRONT_URL, STOREFRONT_PUBLISHABLE_KEY, {
+export const supabase = createClient(STOREFRONT_URL, STOREFRONT_PUBLISHABLE_KEY, {
   global: {
     fetch: (input, init) => {
       const headers = new Headers(init?.headers);
