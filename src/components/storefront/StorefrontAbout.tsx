@@ -1,12 +1,44 @@
+import { CheckCircle2, Leaf, ShieldCheck, Star, Truck } from "lucide-react";
 import type { Category, OrganizationSettings } from "@/lib/domain/types";
 
 type StorefrontAboutProps = {
   settings: OrganizationSettings;
   categories: Category[];
   isPizzaTheme?: boolean;
+  isBurgerTheme?: boolean;
 };
 
 export function StorefrontAbout({ settings, categories, isPizzaTheme = false }: StorefrontAboutProps) {
+  if (isBurgerTheme) {
+    return (
+      <section id="sobre" className="hc-about-section">
+        <div className="hc-about-inner">
+          <div className="hc-about-copy">
+            <p className="hc-section-kicker">A casa</p>
+            <h2>Artesanal.<br /><em>Sem atalhos.</em></h2>
+            <p>Hambúrgueres feitos para chegar quentes, suculentos e cheios de sabor. Ingredientes selecionados e um cardápio pensado para pedir sem complicação.</p>
+            <a href="#cardapio">Ver o cardápio <span>→</span></a>
+          </div>
+          <div className="hc-about-visual">
+            <div className="hc-about-image">
+              <img
+                src={settings.hero_image_url || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1400&q=85&fm=jpg"}
+                alt=""
+                loading="lazy"
+              />
+            </div>
+            <div className="hc-trust-grid">
+              <div><Truck /><strong>Entrega rápida</strong><span>Na sua região</span></div>
+              <div><ShieldCheck /><strong>Pagamento seguro</strong><span>Diversas opções</span></div>
+              <div><Leaf /><strong>Ingredientes frescos</strong><span>Qualidade garantida</span></div>
+              <div><Star /><strong>Avaliações reais</strong><span>Clientes satisfeitos</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (!isPizzaTheme) {
     return (
       <section id="sobre" className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
