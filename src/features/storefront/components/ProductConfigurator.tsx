@@ -606,36 +606,36 @@ export function ProductConfigurator({
                 </div>
               )}
 
-              {availableAddons.length > 0 && (
-                <div className="rounded-2xl border border-white/10 bg-[#092f34] p-3">
-                  <div className="mb-2.5 flex items-center justify-between">
-                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">Adicionais</p>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-white/35">Toque para adicionar</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {availableAddons.map((item) => {
-                      const checked = addonIds.includes(item.id);
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => toggleAddon(item.id)}
-                          className={
-                            "inline-flex min-h-10 items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold transition " +
-                            (checked
-                              ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                              : "border-white/10 bg-[#0c3439] text-[#f4eee2] hover:border-white/25")
-                          }
-                        >
-                          <span className={"grid size-4 place-items-center rounded-full border " + (checked ? "border-primary-foreground/30 bg-primary-foreground/15" : "border-white/20")}>
-                            {checked ? <Check className="size-2.5" /> : null}
-                          </span>
-                          <span>{item.name}</span>
-                          <span className="text-[10px] opacity-65">+{formatCurrency(Number(item.price))}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+              {addonSection.length > 0 && (
+                <div className="space-y-3">
+                  {addonSection.map((group) => {
+                    const selectedCount = addonIds.filter((id) => group.addons.some((item) => item.id === id)).length;
+                    return (
+                      <div key={group.id} className="rounded-2xl border border-white/10 bg-[#092f34] p-3">
+                        <div className="mb-2.5 flex items-center justify-between gap-2">
+                          <div>
+                            <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">{group.name}</p>
+                            <span className="text-[9px] text-white/40">{group.required ? "Obrigatório" : "Opcional"} · {group.min_selections}–{group.max_selections}</span>
+                          </div>
+                          <span className="text-[9px] font-bold text-white/35">{selectedCount}/{group.max_selections}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {group.addons.map((item) => {
+                            const checked = addonIds.includes(item.id);
+                            return (
+                              <button key={item.id} type="button" onClick={() => toggleAddon(item.id, group.id)}
+                                className={"inline-flex min-h-10 items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold transition " +
+                                  (checked ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-white/10 bg-[#0c3439] text-[#f4eee2] hover:border-white/25")}>
+                                <span className={"grid size-4 place-items-center rounded-full border " + (checked ? "border-primary-foreground/30 bg-primary-foreground/15" : "border-white/20")}>{checked ? <Check className="size-2.5" /> : null}</span>
+                                <span>{item.name}</span>
+                                <span className="text-[10px] opacity-65">{Number(item.price_delta) > 0 ? "+" : ""}{formatCurrency(Number(item.price_delta))}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
