@@ -7,5 +7,5 @@ export const Route = createFileRoute("/loja/$slug")({
 
 function LojaSlug() {
   const { slug } = Route.useParams();
-  return <Storefront slug={slug} />;
+  return <Storefront key={slug} />;
 }
