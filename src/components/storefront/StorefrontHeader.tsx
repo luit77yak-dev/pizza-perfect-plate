@@ -9,6 +9,7 @@ type StorefrontHeaderProps = {
   selectedTrackedOrdersCount: number;
   onOpenCart: () => void;
   onOpenTracking: () => void;
+  isPizzaTheme?: boolean;
 };
 
 export function StorefrontHeader({
@@ -18,6 +19,7 @@ export function StorefrontHeader({
   selectedTrackedOrdersCount,
   onOpenCart,
   onOpenTracking,
+  isPizzaTheme = false,
 }: StorefrontHeaderProps) {
   return (
       <header className="ppp-reference-header absolute inset-x-0 top-0 z-[100] isolate border-b bg-secondary/80 text-secondary-foreground backdrop-blur-xl">
@@ -28,7 +30,7 @@ export function StorefrontHeader({
             ) : (
               <span className="grid size-9 shrink-0 place-items-center rounded-full border border-secondary-foreground/40 bg-secondary-foreground/5 font-display text-lg sm:size-10">{organizationName.charAt(0)}</span>
             )}
-            <span className="truncate font-display text-xl font-medium tracking-[-.03em] sm:text-2xl">{organizationName}</span>
+            <span className="truncate font-display text-xl font-medium tracking-[-.03em] sm:text-2xl">{isPizzaTheme ? "Pizza Club" : organizationName}</span>
           </a>
 
           <nav className="hidden items-center gap-10 text-[10px] font-medium uppercase tracking-[.38em] text-secondary-foreground/75 md:flex">
