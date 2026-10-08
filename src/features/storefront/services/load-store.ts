@@ -26,6 +26,11 @@ type PublicStorefrontCatalog = {
   };
   categories: Array<{ id: string; name: string; slug: string; description?: string | null; image_url?: string | null; sort_order: number; active: boolean }>;
   products: Array<{ id: string; category_id: string | null; name: string; slug: string; description: string | null; image_url: string | null; price: number | null; active: boolean; sort_order: number; metadata: Record<string, unknown> }>;
+  settings?: Partial<OrganizationSettings>;
+  delivery_zones?: Array<{
+    id: string; name: string; neighborhoods: string[]; minimum_order: number;
+    delivery_fee: number; estimated_minutes: number | null; active: boolean;
+  }>;
 };
 
 function getDomain() {
@@ -77,10 +82,28 @@ export async function loadStore(): Promise<StoreData> {
       description: category.description ?? null, image_url: category.image_url ?? null,
       sort_order: category.sort_order, active: category.active,
     }));
+    const fallback = defaultSettings(context.organization_id);
+    const settings: OrganizationSettings = {
+      ...fallback,
+      ...(catalog.settings ?? {}),
+      organization_id: context.organization_id,
+      payment_methods: (catalog.settings?.payment_methods as OrganizationSettings["payment_methods"] | undefined) ?? fallback.payment_methods,
+      social_links: (catalog.settings?.social_links as Record<string, string> | undefined) ?? fallback.social_links,
+    };
+    const deliveryZones = (catalog.delivery_zones ?? []).map((zone) => ({
+      id: zone.id,
+      organization_id: context.organization_id,
+      name: zone.name,
+      neighborhoods: zone.neighborhoods ?? [],
+      minimum_order: Number(zone.minimum_order ?? 0),
+      delivery_fee: Number(zone.delivery_fee ?? 0),
+      estimated_minutes: zone.estimated_minutes ?? null,
+      active: zone.active,
+    }));
     return {
-      organization, settings: defaultSettings(context.organization_id), categories,
+      organization, settings, categories,
       products: catalog.products.map((product) => toProduct(product, context.organization_id)),
-      sizes: [], prices: [], crusts: [], addons: [], productAddonLinks: [], hours: [], specialHours: [], deliveryZones: [],
+      sizes: [], prices: [], crusts: [], addons: [], productAddonLinks: [], hours: [], specialHours: [], deliveryZones,
     };
   } catch (error) {
     if (error instanceof Error) throw error;
