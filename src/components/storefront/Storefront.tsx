@@ -404,7 +404,7 @@ export function Storefront() {
 
   return (
     <div
-      className={`ppp-customer-shell min-h-screen bg-background text-foreground ${isPizzaTheme ? "ppp-pizza-theme" : ""}`}
+      className={`ppp-customer-shell min-h-screen bg-background text-foreground ${isPizzaTheme ? "ppp-pizza-theme" : isBurgerTheme ? "ppp-burger-theme" : ""}`}
       style={
         {
           ...(primary ? { "--primary": primary } : {}),
@@ -439,7 +439,7 @@ export function Storefront() {
           statusLabel={status.label}
         />
 
-        {!isPizzaTheme && <ProductTicker products={mainProducts} />}
+        {!isPizzaTheme && !isBurgerTheme && <ProductTicker products={mainProducts} />}
 
         <section
           id="cardapio"
