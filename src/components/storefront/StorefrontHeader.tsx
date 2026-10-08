@@ -11,6 +11,7 @@ type StorefrontHeaderProps = {
   onOpenCart: () => void;
   onOpenTracking: () => void;
   isPizzaTheme?: boolean;
+  isBurgerTheme?: boolean;
 };
 
 export function StorefrontHeader({
@@ -21,6 +22,7 @@ export function StorefrontHeader({
   onOpenCart,
   onOpenTracking,
   isPizzaTheme = false,
+  isBurgerTheme = false,
 }: StorefrontHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
 
@@ -36,21 +38,19 @@ export function StorefrontHeader({
       <div className="mx-auto flex h-[5.25rem] max-w-[1400px] items-center justify-between gap-3 px-5 sm:h-[5.75rem] sm:px-8 lg:px-12">
         <a href="#inicio" className="group flex min-w-0 items-center gap-3 text-white">
           <span className="grid size-11 shrink-0 place-items-center rounded-full border border-[#ffc15e] text-[#ffc15e] font-display text-lg font-semibold sm:size-12">
-            {isPizzaTheme ? "Pc" : "PC"}
+            {isBurgerTheme ? "Hc" : isPizzaTheme ? "Pc" : "PC"}
           </span>
           <span className="truncate font-display text-xl font-semibold tracking-[-.035em] sm:text-2xl">
-            {isPizzaTheme ? "Pizza Club" : organizationName}
+            {isBurgerTheme ? "Burger Club" : isPizzaTheme ? "Pizza Club" : organizationName}
           </span>
         </a>
 
         <nav className="hidden items-center gap-8 text-xs font-medium text-white/70 lg:flex">
-          <a href="#cardapio" className="transition-colors hover:text-white">Cardápio</a>
-          <a href="#sobre" className="transition-colors hover:text-white">A casa</a>
-          <a href="#contato" className="transition-colors hover:text-white">Contato</a>
+          {isBurgerTheme ? (<><a href="#inicio" className="transition-colors hover:text-white">Início</a><a href="#cardapio" className="transition-colors hover:text-white">Cardápio</a><a href="#sobre" className="transition-colors hover:text-white">Sobre</a><a href="#contato" className="transition-colors hover:text-white">Contato</a></>) : (<><a href="#cardapio" className="transition-colors hover:text-white">Cardápio</a><a href="#sobre" className="transition-colors hover:text-white">A casa</a><a href="#contato" className="transition-colors hover:text-white">Contato</a></>)}
         </nav>
 
         <div className="relative z-[110] flex items-center gap-2">
-          {(isPizzaTheme || selectedTrackedOrdersCount > 0) && (
+          {(isPizzaTheme || isBurgerTheme || selectedTrackedOrdersCount > 0) && (
             <Button
               size="sm"
               variant="ghost"
