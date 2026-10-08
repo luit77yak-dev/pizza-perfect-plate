@@ -247,7 +247,7 @@
   box-shadow: 8px 8px 0 color-mix(in oklab, var(--color-secondary) 88%, transparent);
 }
 
-@layer components {
+
   /* Give the storefront a more editorial, poster-like rhythm without
      changing the application's existing semantic components. */
   main#inicio {
@@ -418,7 +418,7 @@
       transition: none;
     }
   }
-}
+
 
 
 /* Editorial street-food motion layer */
@@ -431,7 +431,7 @@
  * Keeps the street-food identity while prioritizing compact phones,
  * thumb-friendly controls and predictable viewport heights.
  */
-@layer components {
+
   @media (max-width: 639px) {
     html {
       overflow-x: hidden;
@@ -954,11 +954,11 @@
       font-size: clamp(3.5rem, 9vw, 5.5rem);
     }
   }
-}
+
 
 
 /* Mobile product ticker: keep the green strip full-bleed and readable on narrow screens. */
-@layer components {
+
   @media (max-width: 639px) {
     .ppp-product-ticker {
       width: 100%;
@@ -984,7 +984,7 @@
       white-space: nowrap;
     }
   }
-}
+
 
 
 /* ============================================================
@@ -1030,7 +1030,7 @@
   }
 }
 
-@layer components {
+
   /* Remove the previous street-poster language. */
   main#inicio > section:first-child::before {
     display: none;
@@ -1293,7 +1293,7 @@
       border-radius: 1rem 1rem 0 0;
     }
   }
-}
+
 
 
 /* ============================================================
@@ -1346,7 +1346,7 @@
   }
 }
 
-@layer components {
+
   /* Global rhythm */
   main#inicio {
     overflow: clip;
@@ -1759,7 +1759,7 @@
       border-radius: 1rem !important;
     }
   }
-}
+
 
 /* ============================================================
    PAVAO-INSPIRED EDITORIAL STOREFRONT
@@ -1768,7 +1768,7 @@
    full-bleed photography and accordion category gallery.
    ============================================================ */
 
-@layer components {
+
   .ppp-reference-storefront {
     --ppp-bg: #06282d;
     --ppp-bg-deep: #041e22;
@@ -2241,10 +2241,10 @@
       margin-inline: 0;
     }
   }
-}
+
 
 /* Final overrides: neutralize legacy hero treatment so the reference layout wins. */
-@layer components {
+
   .ppp-reference-storefront > .ppp-reference-hero::before {
     display: none !important;
     content: none !important;
@@ -2283,9 +2283,9 @@
       display: none !important;
     }
   }
-}
 
-@layer components {
+
+
   /* Shorter, more reference-like first fold. */
   .ppp-reference-storefront .ppp-reference-hero-frame,
   .ppp-reference-storefront .ppp-reference-hero-grid {
@@ -2330,9 +2330,9 @@
       height: 300px !important;
     }
   }
-}
 
-@layer components {
+
+
   /* Compact first fold: the reference reaches the menu faster. */
   .ppp-reference-storefront .ppp-reference-hero-frame,
   .ppp-reference-storefront .ppp-reference-hero-grid,
@@ -2388,9 +2388,9 @@
       height: 280px !important;
     }
   }
-}
 
-@layer components {
+
+
   /* Premium editorial header: transparent over the hero, not a separate block. */
   .ppp-reference-header {
     position: absolute !important;
@@ -2497,9 +2497,9 @@
       margin-top: 1.15rem !important;
     }
   }
-}
 
-@layer components {
+
+
   /* ============================================
      ORDER FLOW — Midnight Premium Artisan
      Keep storefront overlays aligned with the dark
@@ -2773,9 +2773,9 @@
       padding-inline: .9rem !important;
     }
   }
-}
 
-@layer components {
+
+
   /* Admin selected navigation: high contrast, brand-consistent. */
   .ppp-admin-panel nav[aria-label="Navegação do painel"] button[aria-current="page"],
   .ppp-admin-panel nav[aria-label="Navegação do painel"] button[data-state="active"],
@@ -2802,10 +2802,10 @@
     color: #f4efe5 !important;
     background: #0a292d !important;
   }
-}
 
 
-@layer components {
+
+
   /* Admin controls: active/selected states use petrol for reliable contrast.
      Orange remains an accent instead of a text-background combination. */
   .ppp-admin-panel main .bg-primary,
@@ -2847,10 +2847,10 @@
     background: #0a292d !important;
     color: #f4efe5 !important;
   }
-}
 
 
-@layer components {
+
+
   .ppp-admin-compact-section {
     margin-top: .75rem;
     overflow: hidden;
@@ -2885,9 +2885,9 @@
     box-shadow: none !important;
     background: transparent !important;
   }
-}
 
-@layer components {
+
+
   .ppp-admin-feedback {
     position: fixed;
     top: 76px;
@@ -2923,14 +2923,14 @@
   @media (max-width: 639px) {
     .ppp-admin-feedback { top: 68px; right: .75rem; width: calc(100vw - 1.5rem); margin-inline: 0; font-size: .76rem; }
   }
-}
+
 
 
 /* ============================================================
    MIDNIGHT UI FINAL OVERRIDES — customer order flows
    Keep these after legacy/reference rules so dark surfaces win.
    ============================================================ */
-@layer components {
+
   .ppp-reference-header > div > button {
     min-height: 3rem !important;
   }
@@ -3017,7 +3017,7 @@
   .ppp-order-builder textarea::placeholder {
     color: rgba(244,238,226,.3) !important;
   }
-}
+
 
 
 /* Pizza Club mobile reference refinements */
@@ -4103,7 +4103,7 @@
  * Fica no fim do arquivo e dentro de @layer components com seletor reforçado
  * (.ppp-customer-shell.ppp-pizza-theme) para vencer os ajustes antigos acima.
  * ========================================================================== */
-@layer components {
+
   .ppp-customer-shell.ppp-pizza-theme {
     --pizza-heading: "Fraunces", "Playfair Display", Georgia, serif !important;
     --pc-serif: "Fraunces", "Playfair Display", Georgia, serif;
@@ -4559,11 +4559,11 @@
       font-size: .9rem !important;
     }
   }
-}
+
 
 
 /* Pizza Club — about/footer continuation */
-@layer components {
+
   .ppp-customer-shell.ppp-pizza-theme .pc-about-section {
     padding: 4.5rem 1.25rem 5rem;
     background: #090807;
@@ -4718,13 +4718,13 @@
       padding: 1.6rem 1.5rem;
     }
   }
-}
+
 
 /* ==========================================================================
  * Burger Club — final mockup implementation
  * Scoped exclusively to .ppp-burger-theme so Pizza Club remains untouched.
  * ========================================================================== */
-@layer components {
+
   .ppp-customer-shell.ppp-burger-theme {
     --hc-serif: "Fraunces", "Playfair Display", Georgia, serif;
     --hc-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -5396,7 +5396,7 @@
       transition: none !important;
     }
   }
-}
+
 \n
 
 /* ==========================================================================
@@ -5404,7 +5404,7 @@
  * This is intentionally the last layer so legacy petrol/green storefront
  * rules cannot leak into the Burger Club experience.
  * ========================================================================== */
-@layer components {
+
   .ppp-customer-shell.ppp-burger-theme {
     --hc-bg: #090807 !important;
     --hc-card: #151210 !important;
@@ -5800,7 +5800,7 @@
       padding-inline: .9rem !important;
     }
   }
-}
+
 
 
 /* ==========================================================================

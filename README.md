@@ -48,6 +48,44 @@ A aplicação deve permitir que uma nova pizzaria seja configurada sem precisar 
 
 ---
 
+# ARQUITETURA NEROXA DELIVERY
+
+Este repositório é a base do **Neroxa Delivery Engine**. O backend/domínio é compartilhado; o frontend é uma camada visual substituível.
+
+### Camada estável — Delivery Engine
+
+- organizações/tenants e configurações da loja
+- catálogo, categorias, produtos, tamanhos, bordas e adicionais
+- carrinho, checkout e cálculo de preços
+- cupons e zonas de entrega
+- pedidos e transições de status
+- clientes e histórico de pedidos
+- autenticação, autorização e RLS
+- WhatsApp, auditoria e demais integrações do delivery
+
+### Camada variável — Storefront
+
+A interface não deve definir regras de negócio. Ela recebe os dados/configurações do Delivery Engine e pode mudar:
+
+- header/topo
+- hero/banner e imagem de fundo
+- formato dos cards do cardápio
+- grade/lista/horizontal
+- navegação por abas/sanfona/scroll
+- proporção das imagens
+- rodapé
+- tipografia, cores e espaçamentos
+
+A base atual do Pizza Perfect Plate será preservada como **primeiro tema**, não como contrato obrigatório para os próximos clientes.
+
+Estrutura inicial dessa separação:
+
+- `src/core/delivery/` → contratos, estados e conteúdo estável do produto
+- `src/features/storefront/themes/` → temas e configuração visual
+- `src/features/storefront/` → componentes que renderizam os dados sem possuir as regras centrais
+
+Regra arquitetural: **dados e regras pertencem ao Delivery Engine; aparência pertence ao Storefront.**
+
 # 3. ESCOPO DO MVP
 
 Implementar PRIMEIRO apenas o MVP funcional.

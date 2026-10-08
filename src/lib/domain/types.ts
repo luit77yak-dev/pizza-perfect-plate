@@ -59,6 +59,7 @@ export interface OrganizationSettings {
   half_pizza_fixed_price: number | null;
   loyalty_points_per_currency: number;
   scheduling_enabled: boolean;
+  storefront_theme?: string | null;
 }
 
 export interface Category {
