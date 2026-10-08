@@ -292,7 +292,7 @@ export function CheckoutPanel({
           </div>
           <button
             onClick={onClose}
-            className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10"
+            className="grid size-11 shrink-0 place-items-center rounded-[14px] border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10"
             aria-label="Fechar checkout"
           >
             <X className="size-5" />
@@ -434,7 +434,7 @@ export function CheckoutPanel({
                 {deliveryZones.length > 0 && (
                   <p className="mt-3 text-xs text-muted-foreground">
                     {selectedZone
-                      ? `Taxa de entrega: ${formatCurrency(deliveryFee)} · ${selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min`
+                      ? `Taxa de entrega: ${formatCurrency(deliveryFee)} ${selectedZone.estimated_minutes ?? settings.estimated_delivery_minutes} min`
                       : availableNeighborhoods.length > 0
                         ? "Selecione um bairro cadastrado para calcular a taxa."
                         : "A loja ainda não cadastrou áreas de entrega."}
@@ -497,7 +497,7 @@ export function CheckoutPanel({
                       {item.secondProductName ? ` + ${item.secondProductName}` : ""}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {[item.sizeName, item.crustName].filter(Boolean).join(" · ")}
+                      {[item.sizeName, item.crustName].filter(Boolean).join(" ")}
                     </p>
                     {(item.complements ?? []).length > 0 && (
                       <p className="mt-1 text-xs text-primary">
@@ -523,7 +523,7 @@ export function CheckoutPanel({
               {!existingOrder && fulfillment === "DELIVERY" && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Entrega</span>
-                  <span>{selectedZone ? formatCurrency(deliveryFee) : "—"}</span>
+                  <span>{selectedZone ? formatCurrency(deliveryFee) : ""}</span>
                 </div>
               )}
               <div className="flex justify-between pt-2 text-lg font-bold">
@@ -546,8 +546,8 @@ export function CheckoutPanel({
                 : submitting
                   ? "Enviando pedido..."
                   : existingOrder
-                    ? `Confirmar complemento · ${formatCurrency(subtotal)}`
-                    : `Enviar pedido · ${formatCurrency(total)}`}
+                    ? `Confirmar complemento ${formatCurrency(subtotal)}`
+                    : `Enviar pedido ${formatCurrency(total)}`}
             </Button>
             <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
               {existingOrder
