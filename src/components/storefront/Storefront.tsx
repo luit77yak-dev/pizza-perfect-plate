@@ -419,6 +419,7 @@ export function Storefront() {
         <style>{` .ppp-customer-shell.ppp-burger-theme { background:#090807 !important; color:#f7efe6 !important; } .ppp-customer-shell.ppp-burger-theme .ppp-reference-header { background:linear-gradient(180deg,rgba(9,8,7,.96),rgba(9,8,7,.28) 72%,transparent) !important; } .ppp-customer-shell.ppp-burger-theme .hc-hero { background:#090807 !important; } .ppp-customer-shell.ppp-burger-theme #cardapio,.ppp-customer-shell.ppp-burger-theme #sobre,.ppp-customer-shell.ppp-burger-theme #contato { background:#090807 !important; } .ppp-customer-shell.ppp-burger-theme .hc-footer { background:#050403 !important; }`}</style>
       )}
 
+      <div className={isBurgerTheme ? "burger-club-page" : ""}>
       <StorefrontHeader
         organizationName={data.organization.name}
         logoUrl={data.settings.logo_url ?? null}
@@ -602,6 +603,7 @@ export function Storefront() {
 
         <StorefrontContact settings={data.settings} isPizzaTheme={isPizzaTheme} isBurgerTheme={isBurgerTheme} />
       </main>
+      </div>
 
       {selectedProduct && (
         <ProductConfigurator
