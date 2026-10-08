@@ -8,7 +8,7 @@ type StorefrontHeroProps = {
   isPizzaTheme?: boolean;
 };
 
-export function StorefrontHero({ organizationName, settings, products }: StorefrontHeroProps) {
+export function StorefrontHero({ organizationName, settings, products, isPizzaTheme = false }: StorefrontHeroProps) {
   return (
     <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
       <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
