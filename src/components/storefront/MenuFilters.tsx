@@ -20,9 +20,10 @@ export function MenuFilters({
   searchTerm,
   setSearchTerm,
   isPizzaTheme = false,
+  isBurgerTheme = false,
 }: MenuFiltersProps) {
   return (
-    <div className={`${isPizzaTheme ? "pc-filters" : "ppp-menu-filters"} mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}>
+    <div className={`${isBurgerTheme ? "hc-filters" : isPizzaTheme ? "pc-filters" : "ppp-menu-filters"} mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}>
       <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         <button
           onClick={() => setSelectedCategory("all")}
