@@ -8,6 +8,7 @@ type MenuFiltersProps = {
   setSelectedCategory: (value: string) => void;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
+  isPizzaTheme?: boolean;
 };
 
 export function MenuFilters({
@@ -18,13 +19,14 @@ export function MenuFilters({
   setSelectedCategory,
   searchTerm,
   setSearchTerm,
+  isPizzaTheme = false,
 }: MenuFiltersProps) {
   return (
-    <div className="ppp-menu-filters mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="ppp-menu-filters mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         <button
           onClick={() => setSelectedCategory("all")}
-          className={`shrink-0 border-b-2 px-1 py-2 text-sm font-medium transition-colors ${selectedCategory === "all" ? "border-primary text-accent" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          className={`shrink-0 rounded-full border px-5 py-2.5 text-sm font-medium transition-colors ${selectedCategory === "all" ? "border-[#ffc15e] bg-[#f7efe6] text-[#0e0c0b]" : "border-white/15 text-white/65 hover:border-white/30 hover:text-white"}`}
         >
           Todos
         </button>
@@ -32,14 +34,14 @@ export function MenuFilters({
           <button
             key={category.id}
             onClick={() => setSelectedCategory(category.id)}
-            className={`shrink-0 border-b-2 px-1 py-2 text-sm font-medium transition-colors ${selectedCategory === category.id ? "border-primary text-accent" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`shrink-0 rounded-full border px-5 py-2.5 text-sm font-medium transition-colors ${selectedCategory === category.id ? "border-[#ffc15e] bg-[#f7efe6] text-[#0e0c0b]" : "border-white/15 text-white/65 hover:border-white/30 hover:text-white"}`}
           >
             {category.name}
-            <span className="ml-1.5 opacity-60">{categoryProducts.get(category.id) ?? 0}</span>
+            {!isPizzaTheme && <span className="ml-1.5 opacity-60">{categoryProducts.get(category.id) ?? 0}</span>}
           </button>
         ))}
       </div>
-      <label className="relative block shrink-0 sm:w-64">
+      <label className={`relative block shrink-0 sm:w-64 ${isPizzaTheme ? "hidden" : ""}`}>
         <span className="sr-only">Buscar no cardápio</span>
         <input
           type="search"
