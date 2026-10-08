@@ -10,7 +10,16 @@ type StorefrontHeroProps = {
   statusLabel?: string;
 };
 
+const BURGER_CLUB_HERO_IMAGE =
+  "https://images.unsplash.com/photo-1550547660-d9450f859349?w=1800&q=88&fm=jpg";
+
 export function StorefrontHero({ organizationName, settings, products, isPizzaTheme = false, isBurgerTheme = false, statusLabel = "Fechado agora, abre às 18:00" }: StorefrontHeroProps) {
+  const heroImage = isBurgerTheme
+    ? BURGER_CLUB_HERO_IMAGE
+    : isPizzaTheme
+      ? settings.hero_image_url || products.find((product) => /pepperoni|margherita/i.test(product.name) && Boolean(product.image_url))?.image_url
+      : settings.hero_image_url || products.find((product) => Boolean(product.image_url))?.image_url;
+
   return (
     <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
       <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
@@ -23,17 +32,9 @@ export function StorefrontHero({ organizationName, settings, products, isPizzaTh
           </div>
           <div className="ppp-reference-hero-media pointer-events-none absolute inset-0 z-0 min-h-[min(680px,calc(100dvh-5.5rem))] overflow-hidden bg-secondary p-0 lg:min-h-[760px]">
             <div className="relative h-full min-h-[560px] overflow-hidden bg-background/10 p-0 sm:min-h-[680px] lg:min-h-[760px]">
-              {(isPizzaTheme
-                ? settings.hero_image_url || products.find((product) => /pepperoni|margherita/i.test(product.name) && Boolean(product.image_url))?.image_url
-                : isBurgerTheme
-                  ? settings.hero_image_url || products.find((product) => product.kind === "BURGER" && Boolean(product.image_url))?.image_url || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1800&q=85&fm=jpg"
-                  : settings.hero_image_url) ? (
+              {heroImage ? (
                 <img
-                  src={(isPizzaTheme
-                    ? settings.hero_image_url || products.find((product) => /pepperoni|margherita/i.test(product.name) && Boolean(product.image_url))?.image_url
-                    : isBurgerTheme
-                      ? settings.hero_image_url || products.find((product) => product.kind === "BURGER" && Boolean(product.image_url))?.image_url || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1800&q=85&fm=jpg"
-                      : settings.hero_image_url) ?? ""}
+                  src={heroImage}}
                   alt=""
                   className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover"
                 />
