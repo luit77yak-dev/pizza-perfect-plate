@@ -3,9 +3,46 @@ import type { OrganizationSettings } from "@/lib/domain/types";
 type StorefrontContactProps = {
   settings: OrganizationSettings;
   isPizzaTheme?: boolean;
+  isBurgerTheme?: boolean;
 };
 
 export function StorefrontContact({ settings, isPizzaTheme = false, isBurgerTheme = false }: StorefrontContactProps) {
+  if (isBurgerTheme) {
+    return (
+      <footer id="contato" className="hc-footer">
+        <div className="hc-footer-top">
+          <div>
+            <p className="hc-section-kicker">Contato</p>
+            <h2>Burger <em>Club.</em></h2>
+          </div>
+          <a href="#cardapio">Ver o cardápio <span>→</span></a>
+        </div>
+        <div className="hc-footer-grid">
+          <div>
+            <span>Atendimento</span>
+            <strong>{settings.delivery_enabled && settings.pickup_enabled ? "Salão e delivery" : settings.delivery_enabled ? "Delivery" : "Retirada"}</strong>
+            <p>{settings.whatsapp_phone || "Consulte a loja"}</p>
+          </div>
+          <div>
+            <span>Horários</span>
+            <strong>Todos os dias</strong>
+            <p>Consulte os horários da casa</p>
+          </div>
+          <div>
+            <span>Cardápio</span>
+            <strong>Burger Club</strong>
+            <p>Hambúrgueres · Batatas · Combos · Bebidas</p>
+          </div>
+        </div>
+        <div className="hc-footer-bottom">
+          <span>Burger Club</span>
+          <span>Feito para comer sem pressa.</span>
+          <a href="#inicio">Voltar ao topo ↑</a>
+        </div>
+      </footer>
+    );
+  }
+
   if (!isPizzaTheme) {
     return (
       <section id="contato" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6">
