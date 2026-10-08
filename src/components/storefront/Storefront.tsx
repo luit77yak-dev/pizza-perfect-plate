@@ -445,7 +445,7 @@ export function Storefront() {
           id="cardapio"
           className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6"
         >
-          {isBurgerTheme ? (
+          {isPizzaTheme ? (
             <>
               <MenuFilters
                 isPizzaTheme={isPizzaTheme}
@@ -465,14 +465,39 @@ export function Storefront() {
                 </button>
               </div>
             </>
-          ) : (
+          ) : isBurgerTheme ? (
             <>
+              <MenuFilters
+                isPizzaTheme={isPizzaTheme}
+                isBurgerTheme={isBurgerTheme}
+                categories={data.categories}
+                mainProducts={mainProducts}
+                categoryProducts={categoryProducts}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
               <div className="hc-menu-title">
                 <h2>Mais pedidas</h2>
                 <button type="button" onClick={() => setSelectedCategory("all")}>
                   Ver todas <ArrowRight className="size-4" strokeWidth={2} />
                 </button>
               </div>
+            </>
+          ) : (
+            <>
+              <div className="ppp-reference-menu-heading mb-8 flex flex-col items-start justify-center gap-3 text-left">
+                <p className="text-xs font-semibold uppercase tracking-[.35em] text-primary">Cardápio</p>
+                <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">Escolha seu <em>burger.</em></h2>
+                <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+                  Assadas a 450 graus em menos de dois minutos.
+                </p>
+              </div>
+              <MenuFilters
+                isPizzaTheme={isPizzaTheme}
+                isBurgerTheme={isBurgerTheme}
+                categories={data.categories}
                 mainProducts={mainProducts}
                 categoryProducts={categoryProducts}
                 selectedCategory={selectedCategory}
@@ -495,7 +520,7 @@ export function Storefront() {
                 const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
                 const categoryImage = data.categories.find((category) => category.id === product.category_id)?.image_url;
                 const productImage = product.image_url || categoryImage || (isBurgerTheme ? burgerFallbackImages[product.name] : undefined);
-                const categoryName = data.categories.find((category) => category.id === product.category_id)?.name || "Pizza";
+                const categoryName = data.categories.find((category) => category.id === product.category_id)?.name || (isBurgerTheme ? "Hambúrguer" : "Pizza");
 
                 return (
                   <button
@@ -506,9 +531,11 @@ export function Storefront() {
                     }}
                     className={isPizzaTheme
                       ? "pc-menu-card group relative grid w-full overflow-hidden text-left"
-                      : "ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lifted"}
+                      : isBurgerTheme
+                        ? "hc-menu-card group relative grid w-full overflow-hidden text-left"
+                        : "ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lifted"}
                   >
-                    <div className="pc-menu-image relative h-full min-h-0 overflow-hidden bg-[#1a1614]">
+                    <div className={isPizzaTheme ? "pc-menu-image relative h-full min-h-0 overflow-hidden" : isBurgerTheme ? "hc-menu-image relative h-full min-h-0 overflow-hidden" : "ppp-product-card-image relative aspect-[1.32] overflow-hidden bg-card"}>
                       {productImage ? (
                         <img
                           src={productImage}
@@ -520,7 +547,7 @@ export function Storefront() {
                         <div className="grid size-full place-items-center text-[#ffc15e]/50"><Pizza className="size-12" strokeWidth={1.2} /></div>
                       )}
                       {product.featured && (
-                        <span className="pc-menu-badge">
+                        <span className={isPizzaTheme ? "pc-menu-badge" : isBurgerTheme ? "hc-menu-badge" : "absolute left-4 top-4 rounded-full bg-[#ffc15e] px-4 py-2 text-[11px] font-bold text-[#0e0c0b]"}>
                           Destaque
                         </span>
                       )}
@@ -541,8 +568,8 @@ export function Storefront() {
                         <div className="hc-menu-text">
                           <p className="hc-menu-eyebrow">{categoryName}</p>
                           <h3>{product.name}</h3>
-                          <p className="hc-menu-desc">{product.description || "Hambúrguer artesanal, ingredientes selecionados e molho da casa."}</p>
                           <span className="hc-menu-price">{formatCurrency(displayPrice)}</span>
+                          <p className="hc-menu-desc">{product.description || "Hambúrguer artesanal, ingredientes selecionados e molho da casa."}</p>
                         </div>
                         <span className="hc-menu-add" aria-hidden="true"><Plus className="size-6" strokeWidth={2} /></span>
                       </div>
