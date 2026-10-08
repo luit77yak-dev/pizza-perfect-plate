@@ -1,5 +1,5 @@
 import type { Addon, Category, Crust, Organization, OrganizationSettings, Product, ProductPrice, ProductSize } from "@/lib/domain/types";
-import { supabase } from "@/integrations/supabase/client";
+import { resolveStorefrontDomain, supabase } from "@/integrations/storefront-backend/client";
 
 export type ProductAddonLink = { product_id: string; addon_id: string; sort_order: number };
 
@@ -35,7 +35,7 @@ type PublicStorefrontCatalog = {
 
 function getDomain() {
   if (typeof window === "undefined") throw new Error("Storefront domain is unavailable outside the browser.");
-  return window.location.hostname.replace(/\.$/, "").toLowerCase();
+  return resolveStorefrontDomain(window.location.hostname);
 }
 
 function toProduct(row: PublicStorefrontCatalog["products"][number], organizationId: string): Product {
