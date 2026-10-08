@@ -22,10 +22,12 @@ export function MenuFilters({
   isPizzaTheme = false,
 }: MenuFiltersProps) {
   return (
-    <div className="ppp-menu-filters mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className={`${isPizzaTheme ? "pc-filters" : "ppp-menu-filters"} mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}>
       <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         <button
           onClick={() => setSelectedCategory("all")}
+          data-active={selectedCategory === "all"}
+          aria-pressed={selectedCategory === "all"}
           className={`shrink-0 rounded-full border px-5 py-2.5 text-sm font-medium transition-colors ${selectedCategory === "all" ? "border-[#ffc15e] bg-[#f7efe6] text-[#0e0c0b]" : "border-white/15 text-white/65 hover:border-white/30 hover:text-white"}`}
         >
           Todos
@@ -34,6 +36,8 @@ export function MenuFilters({
           <button
             key={category.id}
             onClick={() => setSelectedCategory(category.id)}
+            data-active={selectedCategory === category.id}
+            aria-pressed={selectedCategory === category.id}
             className={`shrink-0 rounded-full border px-5 py-2.5 text-sm font-medium transition-colors ${selectedCategory === category.id ? "border-[#ffc15e] bg-[#f7efe6] text-[#0e0c0b]" : "border-white/15 text-white/65 hover:border-white/30 hover:text-white"}`}
           >
             {category.name}
