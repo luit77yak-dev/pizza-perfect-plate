@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Pizza, ShoppingBag, Store, X } from "lucide-react";
+import { ArrowRight, ChevronRight, Pizza, Plus, ShoppingBag, Store, X } from "lucide-react";
 import { loadStore } from "@/features/storefront/services/load-store";
 import { Button } from "@/components/ui/button";
 import { StorefrontSkeleton } from "@/components/storefront/StorefrontSkeleton";
@@ -445,19 +445,10 @@ export function Storefront() {
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
               />
-              <div className="ppp-pizza-menu-title mb-7 flex items-end justify-between gap-4">
-                <div>
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[.32em] text-[#ffc15e]">Cardápio</p>
-                  <h2 className="font-display text-[clamp(2.8rem,11vw,5.5rem)] leading-[.88] tracking-[-.055em] text-[#f7efe6]">
-                    Mais <em className="text-[#ffc15e]">pedidas</em>
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedCategory("all")}
-                  className="hidden shrink-0 pb-1 text-sm font-semibold text-[#ffc15e] sm:block"
-                >
-                  Ver todas
+              <div className="pc-menu-title">
+                <h2>Mais pedidas</h2>
+                <button type="button" onClick={() => setSelectedCategory("all")}>
+                  Ver todas <ArrowRight className="size-4" strokeWidth={2} />
                 </button>
               </div>
             </>
@@ -489,7 +480,7 @@ export function Storefront() {
               <p className="mt-1 text-sm text-muted-foreground">Tente outra categoria.</p>
             </div>
           ) : (
-            <div className={isPizzaTheme ? "grid gap-5" : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"}>
+            <div className={isPizzaTheme ? "pc-menu-list grid gap-5" : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"}>
               {filteredProducts.map((product, index) => {
                 const firstSize = data.sizes[0];
                 const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
@@ -505,10 +496,10 @@ export function Storefront() {
                       else addSimpleProductToCart(product);
                     }}
                     className={isPizzaTheme
-                      ? "ppp-product-card ppp-pizza-menu-card group relative grid h-[285px] w-full grid-cols-[46%_54%] overflow-hidden rounded-[22px] border border-[#f7efe6]/15 bg-[#1a1614] text-left transition-transform duration-300 hover:-translate-y-0.5 sm:h-[360px]"
+                      ? "pc-menu-card group relative grid w-full overflow-hidden text-left"
                       : "ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lifted"}
                   >
-                    <div className="ppp-pizza-menu-image relative h-full min-h-0 overflow-hidden bg-[#1a1614]">
+                    <div className="pc-menu-image relative h-full min-h-0 overflow-hidden bg-[#1a1614]">
                       {productImage ? (
                         <img
                           src={productImage}
@@ -520,23 +511,21 @@ export function Storefront() {
                         <div className="grid size-full place-items-center text-[#ffc15e]/50"><Pizza className="size-12" strokeWidth={1.2} /></div>
                       )}
                       {product.featured && (
-                        <span className="absolute left-4 top-4 rounded-full bg-[#ffc15e] px-4 py-2 text-[11px] font-bold text-[#0e0c0b]">
+                        <span className="pc-menu-badge">
                           Destaque
                         </span>
                       )}
                     </div>
 
                     {isPizzaTheme ? (
-                      <div className="ppp-pizza-menu-content flex h-full min-w-0 flex-col justify-between bg-[#1a1614] p-4 sm:p-7">
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[.24em] text-[#ffc15e]">{categoryName}</p>
-                          <h3 className="mt-3 font-display text-[clamp(1.55rem,4vw,2.35rem)] leading-[.95] tracking-[-.035em] text-[#f7efe6]">{product.name}</h3>
-                          <p className="mt-3 max-w-md text-sm leading-6 text-[#f7efe6]/65">{product.description || "Uma pizza preparada para você."}</p>
+                      <div className="pc-menu-content relative min-w-0">
+                        <div className="pc-menu-text">
+                          <p className="pc-menu-eyebrow">{categoryName}</p>
+                          <h3>{product.name}</h3>
+                          <span className="pc-menu-price">{formatCurrency(displayPrice)}</span>
+                          <p className="pc-menu-desc">{product.description || "Uma pizza preparada para você."}</p>
                         </div>
-                        <div className="mt-7 flex items-end justify-between gap-4">
-                          <span className="font-display text-2xl font-semibold tracking-[-.03em] text-[#ffc15e]">{formatCurrency(displayPrice)}</span>
-                          <span className="grid size-12 shrink-0 place-items-center rounded-full bg-[#ff6a3d] text-3xl font-light leading-none text-white transition-transform group-hover:scale-105">+</span>
-                        </div>
+                        <span className="pc-menu-add" aria-hidden="true"><Plus className="size-6" strokeWidth={2} /></span>
                       </div>
                     ) : (
                       <div className="p-4 sm:p-5">
