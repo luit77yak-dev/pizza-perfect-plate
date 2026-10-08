@@ -5801,3 +5801,462 @@
     }
   }
 }
+
+
+/* ==========================================================================
+ * BURGER CLUB — UNLAYERED FINAL OVERRIDE
+ * Deliberately outside @layer so legacy unlayered storefront rules cannot win.
+ * Layout follows the approved Burger Club mockup: cinematic hero, pill filters,
+ * horizontal product cards, black sections and the compact trust strip.
+ * ========================================================================== */
+.ppp-customer-shell.ppp-burger-theme {
+  --hc-bg: #090807 !important;
+  --hc-card: #151210 !important;
+  --hc-cream: #f7efe6 !important;
+  --hc-amber: #ffc15e !important;
+  --hc-orange: #ff5a36 !important;
+  background: #090807 !important;
+  color: #f7efe6 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme,
+.ppp-customer-shell.ppp-burger-theme body,
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-storefront,
+.ppp-customer-shell.ppp-burger-theme main#inicio,
+.ppp-customer-shell.ppp-burger-theme #cardapio,
+.ppp-customer-shell.ppp-burger-theme #sobre,
+.ppp-customer-shell.ppp-burger-theme #contato {
+  background: #090807 !important;
+  color: #f7efe6 !important;
+}
+
+/* Hero: image must be the dominant visual, with the copy sitting on top. */
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero,
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-frame,
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-grid {
+  background: #090807 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-frame,
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-grid,
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-media,
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy {
+  min-height: 78svh !important;
+  height: 78svh !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-media {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  display: block !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  opacity: 1 !important;
+  background: #090807 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-media > div {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  background: #090807 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-image {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  object-fit: cover !important;
+  object-position: 58% center !important;
+  transform: scale(1.02) !important;
+  filter: saturate(1.08) contrast(1.06) brightness(.78) !important;
+  mix-blend-mode: normal !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-frame::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  pointer-events: none !important;
+  background:
+    linear-gradient(90deg, rgba(9,8,7,.88) 0%, rgba(9,8,7,.62) 36%, rgba(9,8,7,.14) 76%, rgba(9,8,7,.02) 100%),
+    linear-gradient(180deg, rgba(9,8,7,.46) 0%, rgba(9,8,7,.02) 38%, rgba(9,8,7,.08) 62%, rgba(9,8,7,.94) 100%) !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy {
+  position: relative !important;
+  z-index: 10 !important;
+  justify-content: flex-end !important;
+  padding: 5.5rem 1.25rem 2.15rem !important;
+  background: transparent !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy h1 {
+  max-width: 12ch !important;
+  margin: 0 !important;
+  color: #fff !important;
+  font-family: var(--hc-serif) !important;
+  font-size: clamp(2.75rem, 12vw, 5.4rem) !important;
+  line-height: .91 !important;
+  letter-spacing: -.045em !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy h1 em {
+  color: var(--hc-amber) !important;
+  font-style: italic !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy > p:not(.ppp-hero-status) {
+  max-width: 25rem !important;
+  margin-top: 1rem !important;
+  color: rgba(247,239,230,.88) !important;
+  font-size: 1rem !important;
+  line-height: 1.55 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy > a {
+  min-height: 3.35rem !important;
+  width: fit-content !important;
+  margin-top: 1.2rem !important;
+  padding: .85rem 1.45rem !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--hc-orange) !important;
+  color: #fff !important;
+  box-shadow: 0 14px 36px rgba(255,90,54,.2) !important;
+}
+
+/* Filters and menu title */
+.ppp-customer-shell.ppp-burger-theme .hc-filters,
+.ppp-customer-shell.ppp-burger-theme .hc-menu-title {
+  background: #090807 !important;
+  color: #f7efe6 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-filters > div {
+  scrollbar-width: none !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-filters button {
+  border-color: rgba(247,239,230,.72) !important;
+  background: transparent !important;
+  color: rgba(247,239,230,.82) !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-filters button[data-active="true"] {
+  border-color: var(--hc-amber) !important;
+  background: var(--hc-cream) !important;
+  color: #0e0c0b !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-title h2 {
+  color: var(--hc-amber) !important;
+  font-family: var(--hc-sans) !important;
+  font-size: clamp(1.4rem, 5vw, 2rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: .34em !important;
+  text-transform: none !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-title button {
+  color: var(--hc-amber) !important;
+}
+
+/* Product cards: no overlap, fixed visual hierarchy. */
+.ppp-customer-shell.ppp-burger-theme .hc-menu-list {
+  display: grid !important;
+  gap: 1rem !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-card {
+  display: grid !important;
+  grid-template-columns: 46% minmax(0, 54%) !important;
+  width: 100% !important;
+  height: 13.5rem !important;
+  min-height: 13.5rem !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(247,239,230,.24) !important;
+  border-radius: 1.15rem !important;
+  background: #151210 !important;
+  color: #f7efe6 !important;
+  box-shadow: none !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-image {
+  position: relative !important;
+  width: 100% !important;
+  height: 13.5rem !important;
+  min-height: 13.5rem !important;
+  overflow: hidden !important;
+  background: #11100f !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-image > img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-badge {
+  top: .7rem !important;
+  left: .7rem !important;
+  z-index: 4 !important;
+  padding: .5rem .85rem !important;
+  border-radius: 999px !important;
+  background: var(--hc-amber) !important;
+  color: #1a1208 !important;
+  font-size: .7rem !important;
+  font-weight: 800 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-content {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  height: 13.5rem !important;
+  min-height: 13.5rem !important;
+  padding: .95rem .8rem .8rem !important;
+  background: #151210 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-text {
+  display: grid !important;
+  grid-template-rows: auto auto auto 1fr !important;
+  align-content: start !important;
+  align-items: start !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  padding: 0 2.65rem 0 0 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-eyebrow {
+  grid-row: 1 !important;
+  margin: 0 0 .3rem !important;
+  color: var(--hc-amber) !important;
+  font-size: .58rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .18em !important;
+  line-height: 1.05 !important;
+  text-transform: uppercase !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-content h3 {
+  grid-row: 2 !important;
+  margin: 0 !important;
+  color: var(--hc-cream) !important;
+  font-family: var(--hc-serif) !important;
+  font-size: clamp(1.25rem, 5.4vw, 1.7rem) !important;
+  font-weight: 700 !important;
+  line-height: .98 !important;
+  letter-spacing: -.035em !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-price {
+  grid-row: 3 !important;
+  display: block !important;
+  margin: .45rem 0 0 !important;
+  color: var(--hc-amber) !important;
+  font-family: var(--hc-serif) !important;
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-desc {
+  grid-row: 4 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: .45rem 0 0 !important;
+  overflow: hidden !important;
+  color: rgba(247,239,230,.68) !important;
+  font-family: var(--hc-sans) !important;
+  font-size: .72rem !important;
+  line-height: 1.35 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-menu-add {
+  position: absolute !important;
+  right: .55rem !important;
+  bottom: .55rem !important;
+  z-index: 5 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 2.55rem !important;
+  height: 2.55rem !important;
+  border-radius: 999px !important;
+  background: var(--hc-orange) !important;
+  color: #140e0b !important;
+}
+
+/* About exactly follows the reference: black canvas, copy, image, trust cards. */
+.ppp-customer-shell.ppp-burger-theme .hc-about-section {
+  padding: 4rem .9rem 4.5rem !important;
+  background: #090807 !important;
+  color: var(--hc-cream) !important;
+  border-top: 1px solid rgba(247,239,230,.1) !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-about-inner {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  gap: 2rem !important;
+  background: transparent !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-about-copy,
+.ppp-customer-shell.ppp-burger-theme .hc-about-visual {
+  background: transparent !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-about-copy h2 {
+  margin: 0 !important;
+  color: #fff !important;
+  font-family: var(--hc-serif) !important;
+  font-size: clamp(2.9rem, 13vw, 5.8rem) !important;
+  line-height: .9 !important;
+  letter-spacing: -.045em !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-about-copy h2 em {
+  color: var(--hc-amber) !important;
+  font-style: italic !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-about-copy > p:not(.hc-section-kicker) {
+  max-width: 35rem !important;
+  margin: 1.25rem 0 0 !important;
+  color: rgba(247,239,230,.72) !important;
+  font-size: .96rem !important;
+  line-height: 1.65 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-about-copy > a {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: .55rem !important;
+  margin-top: 1.25rem !important;
+  color: var(--hc-amber) !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-about-image {
+  width: 100% !important;
+  min-height: 20rem !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(247,239,230,.18) !important;
+  border-radius: 1rem !important;
+  background: #11100f !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-about-image img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 20rem !important;
+  object-fit: cover !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-trust-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: .65rem !important;
+  margin-top: .65rem !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-trust-grid > div {
+  min-width: 0 !important;
+  padding: .9rem !important;
+  border: 1px solid rgba(247,239,230,.14) !important;
+  border-radius: .9rem !important;
+  background: #151210 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-trust-grid svg {
+  color: var(--hc-amber) !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-trust-grid strong {
+  color: #fff !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-trust-grid span {
+  color: rgba(247,239,230,.52) !important;
+}
+
+@media (min-width: 768px) {
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-frame,
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-grid,
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-media,
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy {
+    min-height: 34rem !important;
+    height: 34rem !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy {
+    padding: 8rem 5vw 3.5rem !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme #cardapio {
+    padding: 3rem 4vw 7rem !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-card {
+    grid-template-columns: 38% minmax(0,62%) !important;
+    height: 13rem !important;
+    min-height: 13rem !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-image,
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-content {
+    height: 13rem !important;
+    min-height: 13rem !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-about-section {
+    padding: 6rem 5vw !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-about-inner {
+    grid-template-columns: .9fr 1.1fr !important;
+    gap: 4rem !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-about-image,
+  .ppp-customer-shell.ppp-burger-theme .hc-about-image img {
+    min-height: 25rem !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ppp-customer-shell.ppp-burger-theme *,
+  .ppp-customer-shell.ppp-burger-theme *::before,
+  .ppp-customer-shell.ppp-burger-theme *::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
