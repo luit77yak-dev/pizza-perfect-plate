@@ -22,7 +22,7 @@ export function StorefrontAbout({ settings, categories, isPizzaTheme = false, is
           <div className="hc-about-visual">
             <div className="hc-about-image">
               <img
-                src={settings.hero_image_url || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1400&q=85&fm=jpg"}
+                src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1400&q=85&fm=jpg"
                 alt=""
                 loading="lazy"
               />
