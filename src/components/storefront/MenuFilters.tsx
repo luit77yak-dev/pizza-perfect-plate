@@ -42,11 +42,11 @@ export function MenuFilters({
             className={`shrink-0 rounded-full border px-5 py-2.5 text-sm font-medium transition-colors ${selectedCategory === category.id ? "border-[#ffc15e] bg-[#f7efe6] text-[#0e0c0b]" : "border-white/15 text-white/65 hover:border-white/30 hover:text-white"}`}
           >
             {category.name}
-            {!isPizzaTheme && <span className="ml-1.5 opacity-60">{categoryProducts.get(category.id) ?? 0}</span>}
+            {!isPizzaTheme && !isBurgerTheme && <span className="ml-1.5 opacity-60">{categoryProducts.get(category.id) ?? 0}</span>}
           </button>
         ))}
       </div>
-      <label className={`relative block shrink-0 sm:w-64 ${isPizzaTheme ? "hidden" : ""}`}>
+      <label className={`relative block shrink-0 sm:w-64 ${isPizzaTheme || isBurgerTheme ? "hidden" : ""}`}>
         <span className="sr-only">Buscar no cardápio</span>
         <input
           type="search"
