@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Scope customer-store visual themes under `.ppp-customer-shell`; this preserves white-label styling without leaking into the administrative panel.
+- The public storefront reads and writes through `src/integrations/storefront-backend/client.ts` (the external backend that owns the domain/instance catalog); preview and localhost hosts fall back to the food.neroxa.ia.br store so the preview matches production.
