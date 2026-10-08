@@ -3041,9 +3041,9 @@
 .ppp-pizza-theme .ppp-menu-filters { border: 0 !important; padding: 0 !important; }
 .ppp-pizza-theme .ppp-product-card { border-color: rgba(247,239,230,.13) !important; background: #1a1614 !important; border-radius: 18px !important; }
 .ppp-pizza-theme .ppp-product-card > div:first-child { aspect-ratio: 1.25 !important; border: 0 !important; }
-.ppp-pizza-theme .ppp-product-card .p-4, .ppp-pizza-theme .ppp-product-card .sm\\:p-5 { padding: 1.15rem !important; }
+ .ppp-pizza-theme .ppp-product-card .p-4 { padding: 1.15rem !important; }
 .ppp-pizza-theme .ppp-product-card .font-display { font-size: 1.55rem !important; }
-.ppp-pizza-theme .ppp-product-card .bg-primary\\/10 { background: rgba(255,193,94,.12) !important; }
+
 .ppp-pizza-theme .ppp-product-card .text-accent { color: #ffc15e !important; }
 @media (min-width: 640px) { .ppp-pizza-theme .ppp-reference-hero-copy { padding: 9rem 5vw 5rem !important; } }
 
