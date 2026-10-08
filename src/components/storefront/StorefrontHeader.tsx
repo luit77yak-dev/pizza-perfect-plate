@@ -28,7 +28,10 @@ export function StorefrontHeader({
     const onScroll = () => setScrolled(window.scrollY > 40);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return (
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
     <header className={`ppp-reference-header ${scrolled ? "scrolled" : ""} absolute inset-x-0 top-0 z-[100]`}>
       <div className="mx-auto flex h-[5.25rem] max-w-[1400px] items-center justify-between gap-3 px-5 sm:h-[5.75rem] sm:px-8 lg:px-12">
         <a href="#inicio" className="group flex min-w-0 items-center gap-3 text-white">
@@ -68,6 +71,7 @@ export function StorefrontHeader({
           </Button>
         </div>
       </div>
+    </header>
     </header>
   );
 }
