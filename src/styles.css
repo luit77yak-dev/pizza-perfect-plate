@@ -3020,6 +3020,33 @@
 }
 
 
+/* Pizza Club mobile reference refinements */
+.ppp-pizza-theme .ppp-reference-header { background: linear-gradient(180deg, rgba(14,12,11,.78), rgba(14,12,11,.28) 70%, transparent) !important; border: 0 !important; backdrop-filter: none !important; }
+.ppp-pizza-theme .ppp-reference-header.scrolled { background: rgba(14,12,11,.92) !important; backdrop-filter: blur(16px) !important; }
+.ppp-pizza-theme .ppp-header-icon-button { width: 3rem !important; height: 3rem !important; min-width: 3rem !important; padding: 0 !important; border: 1px solid rgba(247,239,230,.18) !important; border-radius: 999px !important; background: rgba(14,12,11,.2) !important; color: #f7efe6 !important; }
+.ppp-pizza-theme .ppp-header-icon-button:hover { background: rgba(247,239,230,.08) !important; }
+.ppp-pizza-theme .ppp-reference-hero-grid { min-height: 100svh !important; }
+.ppp-pizza-theme .ppp-reference-hero-copy { min-height: 100svh !important; justify-content: flex-end !important; padding: 8rem 1.35rem 3.25rem !important; }
+.ppp-pizza-theme .ppp-reference-hero-copy h1 { max-width: 760px !important; font-family: var(--pizza-heading) !important; font-size: clamp(3.25rem, 14vw, 7.5rem) !important; line-height: .88 !important; letter-spacing: -.055em !important; }
+.ppp-pizza-theme .ppp-hero-status { display: flex; align-items: center; gap: .65rem; margin-bottom: 1.1rem; color: rgba(247,239,230,.82); font-size: .95rem; }
+.ppp-pizza-theme .ppp-hero-status > span { width: .7rem; height: .7rem; flex: 0 0 auto; border-radius: 999px; background: #ff6a3d; box-shadow: 0 0 0 5px rgba(255,106,61,.08); }
+.ppp-pizza-theme .ppp-reference-hero-copy > a { border-radius: 14px !important; text-transform: none !important; font-size: .95rem !important; }
+.ppp-pizza-theme .ppp-reference-hero-media { min-height: 100svh !important; }
+.ppp-pizza-theme .ppp-reference-hero-media::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(14,12,11,.16), rgba(14,12,11,.08) 30%, rgba(14,12,11,.9) 100%); pointer-events: none; }
+.ppp-pizza-theme .ppp-reference-hero-media > div { min-height: 100svh !important; }
+.ppp-pizza-theme .ppp-reference-hero-media > div > div:last-child { display: none !important; }
+.ppp-pizza-theme .ppp-reference-menu { padding-top: 3rem !important; }
+.ppp-pizza-theme .ppp-reference-menu-heading h2 { font-size: clamp(2.9rem, 11vw, 6rem) !important; line-height: .9 !important; }
+.ppp-pizza-theme .ppp-reference-menu-heading h2 em { color: #ffc15e !important; font-style: italic; }
+.ppp-pizza-theme .ppp-menu-filters { border: 0 !important; padding: 0 !important; }
+.ppp-pizza-theme .ppp-product-card { border-color: rgba(247,239,230,.13) !important; background: #1a1614 !important; border-radius: 18px !important; }
+.ppp-pizza-theme .ppp-product-card > div:first-child { aspect-ratio: 1.25 !important; border: 0 !important; }
+.ppp-pizza-theme .ppp-product-card .p-4, .ppp-pizza-theme .ppp-product-card .sm\\:p-5 { padding: 1.15rem !important; }
+.ppp-pizza-theme .ppp-product-card .font-display { font-size: 1.55rem !important; }
+.ppp-pizza-theme .ppp-product-card .bg-primary\\/10 { background: rgba(255,193,94,.12) !important; }
+.ppp-pizza-theme .ppp-product-card .text-accent { color: #ffc15e !important; }
+@media (min-width: 640px) { .ppp-pizza-theme .ppp-reference-hero-copy { padding: 9rem 5vw 5rem !important; } }
+
 /* Pizza Club visual identity */
 
 .ppp-pizza-theme {
