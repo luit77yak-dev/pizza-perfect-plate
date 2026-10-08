@@ -79,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Pizza Perfect Plate" },
-      { name: "description", content: "Peça sua pizza de forma simples, rápida e personalizada." },
+      { name: "description", content: "Massa de fermentação longa, forno a lenha e queijo que estica." },
       { name: "author", content: "Pizza Perfect Plate" },
       { property: "og:title", content: "Pizza Perfect Plate" },
       { property: "og:description", content: "Peça sua pizza de forma simples, rápida e personalizada." },
