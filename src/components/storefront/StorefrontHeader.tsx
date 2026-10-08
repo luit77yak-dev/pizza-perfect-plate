@@ -31,7 +31,7 @@ export function StorefrontHeader({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   return (
-      <header className={`ppp-reference-header ${scrolled ? "scrolled" : ""} absolute inset-x-0 top-0 z-[100] isolate border-b bg-secondary/80 text-secondary-foreground backdrop-blur-xl">
+      <header className={`ppp-reference-header ${scrolled ? "scrolled" : ""} absolute inset-x-0 top-0 z-[100] isolate border-b bg-secondary/80 text-secondary-foreground backdrop-blur-xl`}>
         <div className="mx-auto flex h-[5.5rem] max-w-[1400px] items-center justify-between gap-6 px-5 sm:h-[6rem] sm:px-8 lg:px-12">
           <a href="#inicio" className="group flex min-w-0 items-center gap-3 text-secondary-foreground">
             {logoUrl ? (
