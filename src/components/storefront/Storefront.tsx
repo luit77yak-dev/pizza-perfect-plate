@@ -505,10 +505,10 @@ export function Storefront() {
                       else addSimpleProductToCart(product);
                     }}
                     className={isPizzaTheme
-                      ? "ppp-product-card ppp-pizza-menu-card group relative grid w-full overflow-hidden text-left transition-transform duration-300 hover:-translate-y-0.5"
+                      ? "ppp-product-card ppp-pizza-menu-card group relative grid h-[285px] w-full grid-cols-[46%_54%] overflow-hidden rounded-[22px] border border-[#f7efe6]/15 bg-[#1a1614] text-left transition-transform duration-300 hover:-translate-y-0.5 sm:h-[360px]"
                       : "ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lifted"}
                   >
-                    <div className="ppp-pizza-menu-image relative overflow-hidden bg-[#1a1614]">
+                    <div className="ppp-pizza-menu-image relative h-full min-h-0 overflow-hidden bg-[#1a1614]">
                       {productImage ? (
                         <img
                           src={productImage}
@@ -527,7 +527,7 @@ export function Storefront() {
                     </div>
 
                     {isPizzaTheme ? (
-                      <div className="ppp-pizza-menu-content flex min-w-0 flex-col justify-between bg-[#1a1614] p-5 sm:p-7">
+                      <div className="ppp-pizza-menu-content flex h-full min-w-0 flex-col justify-between bg-[#1a1614] p-4 sm:p-7">
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-[.24em] text-[#ffc15e]">{categoryName}</p>
                           <h3 className="mt-3 font-display text-[clamp(1.55rem,4vw,2.35rem)] leading-[.95] tracking-[-.035em] text-[#f7efe6]">{product.name}</h3>
