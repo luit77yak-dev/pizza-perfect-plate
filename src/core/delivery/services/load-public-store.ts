@@ -117,7 +117,7 @@ export async function loadStore(): Promise<StoreData> {
     }));
     const prices: ProductPrice[] = pizzaRows.flatMap((product) => {
       const option = optionRows.find((row) => row.product.id === product.id && row.option["id"] === "tamanho")?.option;
-      const choices = (option?.choices as Array<Record<string, unknown>> | undefined) ?? [];
+      const choices = (option?.["choices"] as Array<Record<string, unknown>> | undefined) ?? [];
       return choices.map((choice) => ({
         id: `virtual-${product.id}-${String(choice["id"])}`,
         product_id: product.id,
