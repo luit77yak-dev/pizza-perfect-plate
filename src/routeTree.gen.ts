@@ -16,6 +16,7 @@ import { Route as MasterClientesRouteImport } from './routes/master-clientes'
 import { Route as MasterComercialRouteImport } from './routes/master-comercial'
 import { Route as MasterFinanceiroRouteImport } from './routes/master-financeiro'
 import { Route as PainelRouteImport } from './routes/painel'
+import { Route as AdminPedidosRouteImport } from './routes/admin/pedidos'
 import { Route as LojaSlugRouteImport } from './routes/loja/$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -53,6 +54,11 @@ const PainelRoute = PainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPedidosRoute = AdminPedidosRouteImport.update({
+  id: '/admin/pedidos',
+  path: '/admin/pedidos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LojaSlugRoute = LojaSlugRouteImport.update({
   id: '/loja/$slug',
   path: '/loja/$slug',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/master-comercial': typeof MasterComercialRoute
   '/master-financeiro': typeof MasterFinanceiroRoute
   '/painel': typeof PainelRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
   '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/master-comercial': typeof MasterComercialRoute
   '/master-financeiro': typeof MasterFinanceiroRoute
   '/painel': typeof PainelRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
   '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/master-comercial': typeof MasterComercialRoute
   '/master-financeiro': typeof MasterFinanceiroRoute
   '/painel': typeof PainelRoute
+  '/admin/pedidos': typeof AdminPedidosRoute
   '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/master-comercial'
     | '/master-financeiro'
     | '/painel'
+    | '/admin/pedidos'
     | '/loja/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/master-comercial'
     | '/master-financeiro'
     | '/painel'
+    | '/admin/pedidos'
     | '/loja/$slug'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/master-comercial'
     | '/master-financeiro'
     | '/painel'
+    | '/admin/pedidos'
     | '/loja/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   MasterComercialRoute: typeof MasterComercialRoute
   MasterFinanceiroRoute: typeof MasterFinanceiroRoute
   PainelRoute: typeof PainelRoute
+  AdminPedidosRoute: typeof AdminPedidosRoute
   LojaSlugRoute: typeof LojaSlugRoute
 }
 
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PainelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/pedidos': {
+      id: '/admin/pedidos'
+      path: '/admin/pedidos'
+      fullPath: '/admin/pedidos'
+      preLoaderRoute: typeof AdminPedidosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/loja/$slug': {
       id: '/loja/$slug'
       path: '/loja/$slug'
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   MasterComercialRoute: MasterComercialRoute,
   MasterFinanceiroRoute: MasterFinanceiroRoute,
   PainelRoute: PainelRoute,
+  AdminPedidosRoute: AdminPedidosRoute,
   LojaSlugRoute: LojaSlugRoute,
 }
 export const routeTree = rootRouteImport
