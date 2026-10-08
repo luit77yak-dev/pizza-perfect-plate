@@ -106,7 +106,12 @@ export function ProductConfigurator({
     );
   };
 
-  const addToCart = () => {\n    const invalidGroup = availableAddonGroups.find((group) => {\n      const selected = addonIds.filter((id) => group.addons.some((item) => item.id === id)).length;\n      return selected < group.min_selections || selected > group.max_selections;\n    });\n    if (invalidGroup) return;
+  const addToCart = () => {
+    const invalidGroup = availableAddonGroups.find((group) => {
+      const selected = addonIds.filter((id) => group.addons.some((item) => item.id === id)).length;
+      return selected < group.min_selections || selected > group.max_selections;
+    });
+    if (invalidGroup) return;
     const mainItem: CartItem = {
       lineId: crypto.randomUUID(),
       productId: product.id,
@@ -147,7 +152,8 @@ export function ProductConfigurator({
     onAdded([mainItem]);
   };
 
-  const stepTitle = step === 1 ? "Escolha" : step === 2 ? "Montagem" : "Finalize";\n  const addonSection = availableAddonGroups.length > 0 ? availableAddonGroups : [];
+  const stepTitle = step === 1 ? "Escolha" : step === 2 ? "Montagem" : "Finalize";
+  const addonSection = availableAddonGroups.length > 0 ? availableAddonGroups : [];
 
   return (
     <div
