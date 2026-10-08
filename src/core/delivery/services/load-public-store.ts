@@ -1,7 +1,10 @@
 import type { Addon, Category, Crust, Organization, OrganizationSettings, Product, ProductPrice, ProductSize } from "@/lib/domain/types";
 import { supabase } from "@/integrations/supabase/client";
 
-export type ProductAddonLink = { product_id: string; addon_id: string; sort_order: number };\nexport type PublicAddon = { id: string; name: string; price_delta: number; active: boolean; sort_order: number };\nexport type PublicAddonGroup = { id: string; name: string; required: boolean; min_selections: number; max_selections: number; active: boolean; sort_order: number; products: Array<{ product_id: string; sort_order: number }>; addons: PublicAddon[] };\nexport type ProductAddonGroupLink = { product_id: string; group_id: string; sort_order: number };
+export type ProductAddonLink = { product_id: string; addon_id: string; sort_order: number };
+export type PublicAddon = { id: string; name: string; price_delta: number; active: boolean; sort_order: number };
+export type PublicAddonGroup = { id: string; name: string; required: boolean; min_selections: number; max_selections: number; active: boolean; sort_order: number; products: Array<{ product_id: string; sort_order: number }>; addons: PublicAddon[] };
+export type ProductAddonGroupLink = { product_id: string; group_id: string; sort_order: number };
 
 export type StoreData = {
   organization: Organization;
@@ -12,7 +15,9 @@ export type StoreData = {
   prices: ProductPrice[];
   crusts: Crust[];
   addons: Addon[];
-  productAddonLinks: ProductAddonLink[];\n  addonGroups: PublicAddonGroup[];\n  productAddonGroupLinks: ProductAddonGroupLink[];
+  productAddonLinks: ProductAddonLink[];
+  addonGroups: PublicAddonGroup[];
+  productAddonGroupLinks: ProductAddonGroupLink[];
   hours: never[];
   specialHours: never[];
   deliveryZones: never[];
@@ -27,7 +32,8 @@ type PublicStorefrontCatalog = {
   categories: Array<{ id: string; name: string; slug: string; description?: string | null; image_url?: string | null; sort_order: number; active: boolean }>;
   products: Array<{ id: string; category_id: string | null; name: string; slug: string; description: string | null; image_url: string | null; price: number | null; active: boolean; sort_order: number; metadata: Record<string, unknown> }>;
   settings?: Partial<OrganizationSettings>;
-  addon_groups?: PublicAddonGroup[];\n  delivery_zones?: Array<{
+  addon_groups?: PublicAddonGroup[];
+  delivery_zones?: Array<{
     id: string; name: string; neighborhoods: string[]; minimum_order: number;
     delivery_fee: number; estimated_minutes: number | null; active: boolean;
   }>;
