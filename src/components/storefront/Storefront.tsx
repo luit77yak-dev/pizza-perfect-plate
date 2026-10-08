@@ -11,8 +11,8 @@ import { StorefrontTicker } from "@/components/storefront/StorefrontTicker";
 import { ProductTicker } from "@/components/storefront/ProductTicker";
 import { MenuImageAccordion } from "@/components/storefront/MenuImageAccordion";
 import { StorefrontMenu } from "@/features/storefront/components/StorefrontMenu";
-import { StorefrontAbout } from "@/components/storefront/StorefrontAbout";
-import { StorefrontContact } from "@/components/storefront/StorefrontContact";
+import { StorefrontAbout } from "@/features/storefront/components/StorefrontAbout";
+import { StorefrontFooter } from "@/features/storefront/components/StorefrontFooter";
 import { ProductConfigurator } from "@/features/storefront/components/ProductConfigurator";
 import { CartPanel } from "@/features/cart/components/CartPanel";
 import { CheckoutPanel } from "@/features/storefront/components/CheckoutPanel";
@@ -459,9 +459,9 @@ export function Storefront() {
           imageFallbacks={burgerFallbackImages}
         />
 
-        <StorefrontAbout settings={data.settings} categories={data.categories} isPizzaTheme={isPizzaTheme} isBurgerTheme={isBurgerTheme} />
+        <StorefrontAbout theme={storefrontTheme} settings={data.settings} categories={data.categories} />
 
-        <StorefrontContact settings={data.settings} isPizzaTheme={isPizzaTheme} isBurgerTheme={isBurgerTheme} />
+        <StorefrontFooter theme={storefrontTheme} settings={data.settings} />
       </main>
       </div>
 
