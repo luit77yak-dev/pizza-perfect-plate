@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, Boxes, LogIn, MapPin, Palette, RefreshCw, ShoppingBag, Store, Tags } from "lucide-react";
+import { BarChart3, Boxes, LogIn, MapPin, Palette, RefreshCw, ShoppingBag, Store, Tags, ListPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
@@ -23,7 +23,7 @@ type Product = {
   sort_order: number;
 };
 
-type Category = { id: string; instance_id: string; name: string; slug: string; active: boolean; sort_order: number };
+type Category = { id: string; instance_id: string; name: string; slug: string; active: boolean; sort_order: number };\ntype AddonGroup = { id: string; instance_id: string; name: string; required: boolean; min_selections: number; max_selections: number; active: boolean; sort_order: number };\ntype Addon = { id: string; group_id: string; name: string; price_delta: number; active: boolean; sort_order: number };
 type Order = { id: string; order_number: number; customer_name: string; customer_phone: string; fulfillment: string; payment_method: string; status: string; total: number; created_at: string };
 type Zone = { id: string; name: string; neighborhoods: string[]; minimum_order: number; delivery_fee: number; estimated_minutes: number | null; active: boolean };
 
@@ -43,7 +43,7 @@ function SupplierPanel() {
   const [password, setPassword] = useState("");
   const [view, setView] = useState<View>("dashboard");
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);\n  const [addonGroups, setAddonGroups] = useState<AddonGroup[]>([]);\n  const [addons, setAddons] = useState<Addon[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [zones, setZones] = useState<Zone[]>([]);
   const [settings, setSettings] = useState<Record<string, unknown> | null>(null);
@@ -65,17 +65,17 @@ function SupplierPanel() {
     setContext(loaded);
     const orgId = loaded.organizationId;
     const instanceId = loaded.instance?.id;
-    const [productsResult, categoriesResult, ordersResult, zonesResult, settingsResult] = await Promise.all([
+    const [productsResult, categoriesResult, addonGroupsResult, addonsResult, ordersResult, zonesResult, settingsResult] = await Promise.all([
       instanceId ? supabase.from("neroxa_storefront_products").select("id, instance_id, category_id, name, slug, description, image_url, price, active, sort_order").eq("instance_id", instanceId).order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),
-      instanceId ? supabase.from("neroxa_storefront_categories").select("id, instance_id, name, slug, active, sort_order").eq("instance_id", instanceId).order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),
+      instanceId ? supabase.from("neroxa_storefront_categories").select("id, instance_id, name, slug, active, sort_order").eq("instance_id", instanceId).order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),\n      instanceId ? supabase.from("neroxa_storefront_addon_groups").select("id, instance_id, name, required, min_selections, max_selections, active, sort_order").eq("instance_id", instanceId).order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),\n      instanceId ? supabase.from("neroxa_storefront_addons").select("id, group_id, name, price_delta, active, sort_order").order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),
       supabase.from("neroxa_orders").select("id, order_number, customer_name, customer_phone, fulfillment, payment_method, status, total, created_at").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(50),
       supabase.from("neroxa_storefront_delivery_zones").select("id, name, neighborhoods, minimum_order, delivery_fee, estimated_minutes, active").eq("organization_id", orgId).order("sort_order").order("name"),
       supabase.from("neroxa_storefront_settings").select("*").eq("organization_id", orgId).maybeSingle(),
     ]);
-    const firstError = productsResult.error ?? categoriesResult.error ?? ordersResult.error ?? zonesResult.error ?? settingsResult.error;
+    const firstError = productsResult.error ?? categoriesResult.error ?? addonGroupsResult.error ?? addonsResult.error ?? ordersResult.error ?? zonesResult.error ?? settingsResult.error;
     if (firstError) setError(firstError.message);
     setProducts((productsResult.data ?? []) as Product[]);
-    setCategories((categoriesResult.data ?? []) as Category[]);
+    setCategories((categoriesResult.data ?? []) as Category[]);\n    setAddonGroups((addonGroupsResult.data ?? []) as AddonGroup[]);\n    setAddons((addonsResult.data ?? []) as Addon[]);
     setOrders((ordersResult.data ?? []) as Order[]);
     setZones((zonesResult.data ?? []) as Zone[]);
     setSettings((settingsResult.data ?? null) as Record<string, unknown> | null);
@@ -150,7 +150,7 @@ function SupplierPanel() {
       <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
         {error && <div className="mb-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{error}</div>}
         {safeView === "dashboard" && <SupplierDashboard context={context} metrics={{ ordersToday: orders.filter((o) => new Date(o.created_at).toDateString() === new Date().toDateString()).length, pendingOrders: orders.filter((o) => !["DELIVERED", "CANCELLED"].includes(o.status)).length, revenueToday: orders.filter((o) => new Date(o.created_at).toDateString() === new Date().toDateString()).reduce((sum, o) => sum + Number(o.total), 0), products: products.filter((p) => p.active).length, customers: new Set(orders.map((o) => o.customer_phone)).size }} />}
-        {safeView === "catalog" && <CatalogView products={products} categories={categories} instanceId={context.instance?.id} canManage={canManageCatalog(context.role)} refresh={refresh} setError={setError} />}
+        {safeView === "catalog" && <CatalogView products={products} categories={categories} addonGroups={addonGroups} addons={addons} instanceId={context.instance?.id} canManage={canManageCatalog(context.role)} refresh={refresh} setError={setError} />}
         {safeView === "orders" && <OrdersView orders={orders} canOperate={canOperateOrders(context.role)} refresh={refresh} setError={setError} />}
         {safeView === "delivery" && <DeliveryView zones={zones} canManage={canManageCatalog(context.role)} orgId={context.organizationId} refresh={refresh} setError={setError} />}
         {safeView === "store" && <StoreView settings={settings} canManage={canManageCatalog(context.role)} orgId={context.organizationId} refresh={refresh} setError={setError} />}
@@ -174,12 +174,12 @@ function LoginScreen({ email, password, setEmail, setPassword, onSignIn, loading
 
 function PanelLoading(){ return <div className="flex min-h-[100dvh] items-center justify-center text-sm text-muted-foreground">Carregando painel...</div>; }
 
-function CatalogView({products,categories,canManage,instanceId,refresh,setError}:any){
-  const [tab,setTab]=useState<"products"|"categories">("products");
+function CatalogView({products,categories,addonGroups,addons,canManage,instanceId,refresh,setError}:any){
+  const [tab,setTab]=useState<"products"|"categories"|"addons">("products");
   const [editing,setEditing]=useState<string|null>(null);
   const [saving,setSaving]=useState(false);
   const [search,setSearch]=useState("");
-  const [draft,setDraft]=useState<any>({name:"",description:"",price:"",category_id:"",active:true});
+  const [draft,setDraft]=useState<any>({name:"",description:"",price:"",category_id:"",active:true});\n  const [groupDraft,setGroupDraft]=useState<any>({name:"",required:false,min_selections:0,max_selections:1});\n  const [addonDraft,setAddonDraft]=useState<any>({name:"",price_delta:"",active:true,group_id:""});\n  const [editingAddon,setEditingAddon]=useState<string|null>(null);
 
   const beginProduct=(p?:Product)=>{setEditing(p?.id ?? "new");setDraft({name:p?.name??"",description:p?.description??"",price:p?.price??"",category_id:p?.category_id??"",active:p?.active??true});};
   const saveProduct=async()=>{
@@ -201,10 +201,10 @@ function CatalogView({products,categories,canManage,instanceId,refresh,setError}
     setSaving(false);
   };
   const removeCategory=async(id:string)=>{if(!canManage)return;if(!confirm("Excluir esta categoria? Produtos vinculados ficarão sem categoria."))return;const {error}=await supabase.from("neroxa_storefront_categories").delete().eq("id",id);if(error)setError(error.message);else void refresh();};
-  const filteredProducts=products.filter((p:Product)=>p.name.toLowerCase().includes(search.toLowerCase()));
+  const saveAddonGroup=async()=>{if(!canManage||!instanceId||!groupDraft.name.trim()){setError("Informe o nome do grupo.");return;}const min=Math.max(0,Number(groupDraft.min_selections)||0),max=Math.max(1,Number(groupDraft.max_selections)||1);if(max<min){setError("Máximo menor que mínimo.");return;}const {error}=await supabase.from("neroxa_storefront_addon_groups").insert({instance_id:instanceId,name:groupDraft.name.trim(),required:Boolean(groupDraft.required),min_selections:min,max_selections:max,active:true,sort_order:addonGroups.length});if(error)setError(error.message);else{setGroupDraft({name:"",required:false,min_selections:0,max_selections:1});void refresh();}};\n  const saveAddon=async()=>{if(!canManage||!addonDraft.group_id||!addonDraft.name.trim()){setError("Informe grupo e nome do complemento.");return;}const payload={group_id:addonDraft.group_id,name:addonDraft.name.trim(),price_delta:addonDraft.price_delta===""?0:Number(addonDraft.price_delta),active:Boolean(addonDraft.active),sort_order:addons.filter((a:Addon)=>a.group_id===addonDraft.group_id).length};const r=editingAddon==="new"?await supabase.from("neroxa_storefront_addons").insert(payload):await supabase.from("neroxa_storefront_addons").update(payload).eq("id",editingAddon);if(r.error)setError(r.error.message);else{setEditingAddon(null);void refresh();}};\n  const removeAddon=async(id:string)=>{if(!canManage||!confirm("Excluir este complemento?"))return;const {error}=await supabase.from("neroxa_storefront_addons").delete().eq("id",id);if(error)setError(error.message);else void refresh();};\n  const removeAddonGroup=async(id:string)=>{if(!canManage||!confirm("Excluir este grupo e seus complementos?"))return;const {error}=await supabase.from("neroxa_storefront_addon_groups").delete().eq("id",id);if(error)setError(error.message);else void refresh();};\n  const filteredProducts=products.filter((p:Product)=>p.name.toLowerCase().includes(search.toLowerCase()));
   return <section>
     <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Catálogo</p><h2 className="mt-1 text-2xl font-bold">Produtos e categorias</h2><p className="mt-1 text-sm text-muted-foreground">Tudo que aparece na loja é administrado aqui.</p></div>{canManage&&<Button className="rounded-full" onClick={()=>tab==="products"?beginProduct():beginCategory()}>{tab==="products"?"Novo produto":"Nova categoria"}</Button>}</div>
-    <div className="mt-5 flex flex-wrap gap-2"><Button variant={tab==="products"?"default":"outline"} className="rounded-full" onClick={()=>{setTab("products");setEditing(null)}}><Boxes className="mr-2 size-4"/>Produtos ({products.length})</Button><Button variant={tab==="categories"?"default":"outline"} className="rounded-full" onClick={()=>{setTab("categories");setEditing(null)}}><Tags className="mr-2 size-4"/>Categorias ({categories.length})</Button></div>
+    <div className="mt-5 flex flex-wrap gap-2"><Button variant={tab==="products"?"default":"outline"} className="rounded-full" onClick={()=>{setTab("products");setEditing(null)}}><Boxes className="mr-2 size-4"/>Produtos ({products.length})</Button><Button variant={tab==="categories"?"default":"outline"} className="rounded-full" onClick={()=>{setTab("categories");setEditing(null)}}><Tags className="mr-2 size-4"/>Categorias ({categories.length})</Button><Button variant={tab==="addons"?"default":"outline"} className="rounded-full" onClick={()=>{setTab("addons");setEditing(null)}}><ListPlus className="mr-2 size-4"/>Complementos ({addons.length})</Button></div>
     {tab==="products"&&<div className="mt-4"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar produto..." className="h-11 w-full rounded-xl border bg-background px-3 sm:max-w-md"/>
       <div className="mt-4 space-y-3">{editing==="new"&&<ProductEditor draft={draft} setDraft={setDraft} categories={categories} saving={saving} onCancel={()=>setEditing(null)} onSave={saveProduct}/>}
       {filteredProducts.map((p:Product)=><article key={p.id} className="rounded-2xl border bg-card p-4"><div className="flex flex-col gap-4 sm:flex-row sm:items-center"><div className="flex min-w-0 flex-1 gap-3">{p.image_url?<img src={p.image_url} className="size-16 shrink-0 rounded-xl object-cover" alt=""/>:<div className="size-16 shrink-0 rounded-xl bg-muted"/>}<div className="min-w-0"><h3 className="font-semibold">{p.name}</h3><p className="text-sm text-muted-foreground">{p.description||"Sem descrição"}</p><p className="mt-1 font-bold">{p.price==null?"Preço não definido":formatCurrency(Number(p.price))}</p></div></div><div className="flex flex-wrap items-center gap-2"><span className={p.active?"rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600":"rounded-full bg-muted px-3 py-1 text-xs"}>{p.active?"Ativo":"Inativo"}</span>{canManage&&<><Button size="sm" variant="outline" className="rounded-full" onClick={()=>beginProduct(p)}>Editar</Button><Button size="sm" variant="outline" className="rounded-full" onClick={()=>void removeProduct(p.id)}>Excluir</Button></>}</div></div>{editing===p.id&&<ProductEditor draft={draft} setDraft={setDraft} categories={categories} saving={saving} onCancel={()=>setEditing(null)} onSave={saveProduct}/>}</article>)}{filteredProducts.length===0&&<EmptyState text="Nenhum produto encontrado."/>}</div>
