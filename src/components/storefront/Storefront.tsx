@@ -243,6 +243,7 @@ export function Storefront() {
   const storefrontTheme = resolveStorefrontTheme(data?.products ?? []);
   const isBurgerTheme = storefrontTheme.id === "burger-club";
   const isPizzaTheme = storefrontTheme.id === "neroxa-classic";
+  const themeTokens = storefrontTheme.tokens;
 
   const categoryProducts = useMemo(() => {
     if (!data) return new Map<string, number>();
@@ -405,6 +406,8 @@ export function Storefront() {
       style={
         {
           ...(primary ? { "--primary": primary } : {}),
+          ...(themeTokens.primaryColor ? { "--primary": `hsl(${themeTokens.primaryColor})` } : {}),
+          ...(themeTokens.secondaryColor ? { "--secondary": `hsl(${themeTokens.secondaryColor})` } : {}),
           "--secondary": secondary,
           "--secondary-foreground": secondaryForeground,
         } as CSSProperties
