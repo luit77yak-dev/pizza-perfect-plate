@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getPublicOrderStatus } from "@/core/delivery/services/order-tracking";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ChevronRight, Pizza, Plus, ShoppingBag, Store, X } from "lucide-react";
-import { loadStore } from "@/features/storefront/services/load-store";
+import { loadStore } from "@/core/delivery/services/load-public-store";
 import { Button } from "@/components/ui/button";
 import { StorefrontSkeleton } from "@/components/storefront/StorefrontSkeleton";
 import { StorefrontHeader } from "@/components/storefront/StorefrontHeader";
@@ -896,10 +896,7 @@ export function Storefront() {
             // shows the real items and total after both a new order and an addition.
             let snapshot = null as { items?: unknown; status?: string; order_number?: unknown; subtotal?: unknown; total?: unknown; fulfillment?: unknown } | null;
             try {
-              const { data: tracking } = await supabase.rpc("get_public_order_status", {
-                p_order_id: order.id,
-                p_customer_phone: order.phone,
-              });
+              const tracking = await getPublicOrderStatus(order.id, order.phone);
               const current = Array.isArray(tracking) ? tracking[0] : tracking;
               if (current && typeof current === "object") {
                 snapshot = current as NonNullable<typeof snapshot>;
