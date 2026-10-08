@@ -22,7 +22,7 @@ import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
 
-import { getPrice, getStoreStatus } from "@/features/storefront/domain/storefront-utils";
+import { getPrice, getStoreStatus } from "@/core/delivery/services/store-rules";
 export type TrackedOrder = {
   id: string;
   number: number;
