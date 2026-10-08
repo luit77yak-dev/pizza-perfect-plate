@@ -39,7 +39,7 @@ function toProduct(row: PublicStorefrontCatalog["products"][number], organizatio
     description: row.description, image_url: row.image_url,
     kind: (["SIMPLE", "PIZZA", "BURGER", "SIDE", "COMBO", "DRINK"].includes(String(row.metadata?.kind)) ? String(row.metadata?.kind) : "SIMPLE") as Product["kind"],
     base_price: Number(row.price ?? 0), allow_half: row.metadata?.allow_half === true, active: row.active,
-    featured: row.metadata?.featured === true, available: row.metadata?.available !== false, sort_order: row.sort_order,
+    featured: row.metadata?.featured === true, available: row.metadata?.available !== false, sort_order: row.sort_order, metadata: row.metadata,
   };
 }
 
