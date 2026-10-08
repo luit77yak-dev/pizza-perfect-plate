@@ -5,7 +5,7 @@ type StorefrontContactProps = {
   isPizzaTheme?: boolean;
 };
 
-export function StorefrontContact({ settings, isPizzaTheme = false }: StorefrontContactProps) {
+export function StorefrontContact({ settings, isPizzaTheme = false, isBurgerTheme = false }: StorefrontContactProps) {
   if (!isPizzaTheme) {
     return (
       <section id="contato" className="mx-auto max-w-6xl px-4 pb-28 sm:px-6">
