@@ -433,48 +433,55 @@ export function Storefront() {
           id="cardapio"
           className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6"
         >
-          <div className="ppp-reference-menu-heading mb-8 flex flex-col items-start justify-center gap-3 text-left">
-            <p className="text-xs font-semibold uppercase tracking-[.35em] text-primary">
-              Cardápio
-            </p>
-            <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">
-              {isBurgerDelivery ? <>Escolha seu <em>burger.</em></> : <>Mais <em>pedidas</em></>}
-            </h2>
-            <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-              {isPizzaTheme ? "Massa de fermentação longa, forno a lenha e queijo que estica." : "Assadas a 450 graus em menos de dois minutos."}
-            </p>
-          </div>
-
-          {isPizzaTheme && (
-            <section className="mx-auto mb-20 grid max-w-6xl gap-3 px-4 sm:grid-cols-[1.5fr_1fr] sm:px-6" aria-label="Destaques">
-              {mainProducts.slice(0, 3).map((product, index) => {
-                const categoryImage = data.categories.find((category) => category.id === product.category_id)?.image_url;
-                const image = product.image_url || categoryImage;
-                return (
-                  <article key={product.id} className={index === 0 ? "group relative min-h-[26rem] overflow-hidden rounded-[14px] sm:row-span-2 sm:min-h-[34rem]" : "group relative min-h-[13rem] overflow-hidden rounded-[14px]"}>
-                    {image ? <img src={image} alt={product.name} loading={index === 0 ? "eager" : "lazy"} className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105" /> : <div className="absolute inset-0 bg-[#1a1614]" />}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c0b]/90 via-[#0e0c0b]/15 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
-                      <p className="text-sm font-medium text-[#ffc15e]">Destaque</p>
-                      <h3 className="mt-1 text-3xl leading-none text-[#f7efe6] sm:text-4xl">{product.name}</h3>
-                      <p className="mt-2 max-w-lg text-sm leading-6 text-[#f7efe6]/75">{product.description}</p>
-                    </div>
-                  </article>
-                );
-              })}
-            </section>
+          {isPizzaTheme ? (
+            <>
+              <MenuFilters
+                isPizzaTheme={isPizzaTheme}
+                categories={data.categories}
+                mainProducts={mainProducts}
+                categoryProducts={categoryProducts}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
+              <div className="ppp-pizza-menu-title mb-7 flex items-end justify-between gap-4">
+                <div>
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[.32em] text-[#ffc15e]">Cardápio</p>
+                  <h2 className="font-display text-[clamp(2.8rem,11vw,5.5rem)] leading-[.88] tracking-[-.055em] text-[#f7efe6]">
+                    Mais <em className="text-[#ffc15e]">pedidas</em>
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory("all")}
+                  className="hidden shrink-0 pb-1 text-sm font-semibold text-[#ffc15e] sm:block"
+                >
+                  Ver todas
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="ppp-reference-menu-heading mb-8 flex flex-col items-start justify-center gap-3 text-left">
+                <p className="text-xs font-semibold uppercase tracking-[.35em] text-primary">Cardápio</p>
+                <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">Escolha seu <em>burger.</em></h2>
+                <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+                  Assadas a 450 graus em menos de dois minutos.
+                </p>
+              </div>
+              <MenuFilters
+                isPizzaTheme={isPizzaTheme}
+                categories={data.categories}
+                mainProducts={mainProducts}
+                categoryProducts={categoryProducts}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
+            </>
           )}
-
-          <MenuFilters
-            isPizzaTheme={isPizzaTheme}
-            categories={data.categories}
-            mainProducts={mainProducts}
-            categoryProducts={categoryProducts}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-          />
 
           {filteredProducts.length === 0 ? (
             <div className="rounded-3xl border border-dashed bg-card p-12 text-center">
@@ -482,81 +489,70 @@ export function Storefront() {
               <p className="mt-1 text-sm text-muted-foreground">Tente outra categoria.</p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className={isPizzaTheme ? "grid gap-5" : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"}>
               {filteredProducts.map((product, index) => {
                 const firstSize = data.sizes[0];
                 const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
-                const categoryImage = data.categories.find(
-                  (category) => category.id === product.category_id,
-                )?.image_url;
+                const categoryImage = data.categories.find((category) => category.id === product.category_id)?.image_url;
                 const productImage = product.image_url || categoryImage;
+                const categoryName = data.categories.find((category) => category.id === product.category_id)?.name || "Pizza";
+
                 return (
                   <button
                     key={product.id}
                     onClick={() => {
-                      if (product.kind === "PIZZA") {
-                        setSelectedProduct(product);
-                      } else {
-                        addSimpleProductToCart(product);
-                      }
+                      if (product.kind === "PIZZA") setSelectedProduct(product);
+                      else addSimpleProductToCart(product);
                     }}
-                    className="ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lifted"
+                    className={isPizzaTheme
+                      ? "ppp-product-card ppp-pizza-menu-card group relative grid w-full overflow-hidden text-left transition-transform duration-300 hover:-translate-y-0.5"
+                      : "ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lifted"}
                   >
-                    <div className="relative aspect-[1.35] overflow-hidden border-b border-border bg-muted">
+                    <div className="ppp-pizza-menu-image relative overflow-hidden bg-[#1a1614]">
                       {productImage ? (
                         <img
                           src={productImage}
                           alt={product.name}
-                          loading="lazy"
-                          className="size-full object-cover transition duration-500 group-hover:scale-110"
+                          loading={index < 2 ? "eager" : "lazy"}
+                          className="size-full object-cover transition duration-700 group-hover:scale-[1.04]"
                         />
                       ) : (
-                        <div className="relative flex size-full items-center justify-center overflow-hidden bg-gradient-to-br from-primary/15 via-accent to-secondary/15">
-                          <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/10 blur-2xl" />
-                          <div className="absolute -bottom-12 -left-8 size-36 rounded-full bg-secondary/15 blur-2xl" />
-                          <div className="relative flex flex-col items-center gap-2 text-primary/55">
-                            <div className="flex size-20 items-center justify-center rounded-full border-2 border-secondary/15 bg-background/55 shadow-sm backdrop-blur-sm">
-                              <Pizza className="size-10" strokeWidth={1.5} />
-                            </div>
-                            <span className="text-[11px] font-semibold uppercase tracking-[.18em]">
-                              Imagem em breve
-                            </span>
-                          </div>
-                        </div>
+                        <div className="grid size-full place-items-center text-[#ffc15e]/50"><Pizza className="size-12" strokeWidth={1.2} /></div>
                       )}
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent p-4 pt-12">
-                        <p className="font-display text-xl uppercase leading-none text-white drop-shadow-sm sm:text-2xl">
-                          {product.name}
-                        </p>
-                      </div>
                       {product.featured && (
-                        <span className="absolute left-3 top-3 rounded-full border border-primary/40 bg-primary/90 px-3 py-1 font-body text-[10px] font-semibold uppercase tracking-[.12em] text-primary-foreground shadow-soft backdrop-blur-sm">
+                        <span className="absolute left-4 top-4 rounded-full bg-[#ffc15e] px-4 py-2 text-[11px] font-bold text-[#0e0c0b]">
                           Destaque
                         </span>
                       )}
                     </div>
-                    <div className="p-4 sm:p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0 pr-1">
-                          <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
-                            {data.categories.find((category) => category.id === product.category_id)
-                              ?.name || "Pizza"}
-                          </p>
-                          <p className="mt-2 line-clamp-2 text-sm leading-5 text-muted-foreground">
-                            {product.description || "Uma opção preparada para você."}
-                          </p>
+
+                    {isPizzaTheme ? (
+                      <div className="ppp-pizza-menu-content flex min-w-0 flex-col justify-between bg-[#1a1614] p-5 sm:p-7">
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-[.24em] text-[#ffc15e]">{categoryName}</p>
+                          <h3 className="mt-3 font-display text-[clamp(1.55rem,4vw,2.35rem)] leading-[.95] tracking-[-.035em] text-[#f7efe6]">{product.name}</h3>
+                          <p className="mt-3 max-w-md text-sm leading-6 text-[#f7efe6]/65">{product.description || "Uma pizza preparada para você."}</p>
                         </div>
-                        <span className="shrink-0 rounded-lg bg-primary/10 px-3 py-2 font-display text-sm font-semibold text-accent sm:px-3.5">
-                          {formatCurrency(displayPrice)}
-                        </span>
+                        <div className="mt-7 flex items-end justify-between gap-4">
+                          <span className="font-display text-2xl font-semibold tracking-[-.03em] text-[#ffc15e]">{formatCurrency(displayPrice)}</span>
+                          <span className="grid size-12 shrink-0 place-items-center rounded-full bg-[#ff6a3d] text-3xl font-light leading-none text-white transition-transform group-hover:scale-105">+</span>
+                        </div>
                       </div>
-                      <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-[.08em]">
-                        <span>{product.allow_half ? "Meio a meio" : "Personalizar"}</span>
-                        <span className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-background transition-transform group-hover:translate-x-1 group-hover:border-primary">
-                          <span aria-hidden="true" className="text-primary">+</span>
-                        </span>
+                    ) : (
+                      <div className="p-4 sm:p-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 pr-1">
+                            <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">{categoryName}</p>
+                            <p className="mt-2 line-clamp-2 text-sm leading-5 text-muted-foreground">{product.description || "Uma opção preparada para você."}</p>
+                          </div>
+                          <span className="shrink-0 rounded-lg bg-primary/10 px-3 py-2 font-display text-sm font-semibold text-accent">{formatCurrency(displayPrice)}</span>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-[.08em]">
+                          <span>{product.allow_half ? "Meio a meio" : "Personalizar"}</span>
+                          <span className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-background"><span aria-hidden="true" className="text-primary">+</span></span>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </button>
                 );
               })}
