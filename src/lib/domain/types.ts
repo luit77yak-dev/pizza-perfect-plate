@@ -17,7 +17,7 @@ export type OrderStatus =
 export type CouponType = "PERCENTAGE" | "FIXED" | "FREE_DELIVERY";
 export type FulfillmentType = "DELIVERY" | "PICKUP";
 export type PaymentMethod = "CASH" | "PIX" | "CARD_ON_DELIVERY" | "CARD_ON_SITE";
-export type ProductKind = "PIZZA" | "SIMPLE";
+export type ProductKind = "PIZZA" | "SIMPLE" | "BURGER" | "SIDE" | "COMBO" | "DRINK";
 export type HalfPizzaRule = "highest_half" | "average_halves" | "fixed_price";
 
 export interface Organization {

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, Clock3, LogIn, LogOut, RefreshCw, ShoppingBag, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const adminRpc = (fn: string, args?: Record<string, unknown>) => (supabase.rpc as unknown as (f: string, a?: Record<string, unknown>) => Promise<{ data: any; error: any }>)(fn, args);
 import { formatCurrency } from "@/lib/domain/money";
 import type { OrderStatus } from "@/lib/domain/types";
 
@@ -65,7 +67,7 @@ function AdminOrdersPage() {
       setSession(true);
 
       const domain = window.location.hostname.replace(/\.$/, "").toLowerCase();
-      const { data: context, error: contextError } = await supabase.rpc(
+      const { data: context, error: contextError } = await adminRpc(
         "get_public_storefront_context",
         { p_domain: domain },
       );
@@ -76,7 +78,7 @@ function AdminOrdersPage() {
       setInstanceId(current.instance_id);
       setStoreName(current.instance_name || current.organization_name || "Pedidos");
 
-      const { data, error: ordersError } = await supabase.rpc("get_admin_orders", {
+      const { data, error: ordersError } = await adminRpc("get_admin_orders", {
         p_instance_id: current.instance_id,
         p_status: filter === "ALL" ? null : filter,
       });
@@ -139,7 +141,7 @@ function AdminOrdersPage() {
     if (!selected) return;
     setLoading(true);
     setError(null);
-    const { data, error: updateError } = await supabase.rpc("update_admin_order_status", {
+    const { data, error: updateError } = await adminRpc("update_admin_order_status", {
       p_order_id: selected.id,
       p_status: status,
       p_note: null,
