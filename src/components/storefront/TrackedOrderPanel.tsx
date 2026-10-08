@@ -1,4 +1,4 @@
-import { Check, ChevronRight, Clock3, Plus, Pizza, ShoppingBag, X } from "lucide-react";
+import { Check, Clock3, Plus, Pizza, ShoppingBag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, FulfillmentType, OrderStatus } from "@/lib/domain/types";
@@ -108,7 +108,7 @@ export function TrackedOrderPanel({
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-[#f4eee2]/65">
-                <span className="rounded-full border border-[#f4eee2]/15 bg-[#f4eee2]/[.06] px-2.5 py-1">
+                <span className="rounded-[14px] border border-[#f4eee2]/15 bg-[#f4eee2]/[.06] px-2.5 py-1">
                   {itemCount} {itemCount === 1 ? "item" : "itens"}
                 </span>
                 <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1">
@@ -161,7 +161,7 @@ export function TrackedOrderPanel({
                     <p className="mt-1.5 max-w-lg text-xs leading-5 text-background/50">{statusMessage}</p>
                   </div>
                   <div className="hidden size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary sm:grid">
-                    {currentStatus === "PREPARING" ? <Pizza className="size-5" /> : currentStatus === "OUT_FOR_DELIVERY" ? <ChevronRight className="size-5" /> : <Clock3 className="size-5" />}
+                    {currentStatus === "PREPARING" ? <Pizza className="size-5" /> : currentStatus === "OUT_FOR_DELIVERY" ?  : <Clock3 className="size-5" />}
                   </div>
                 </div>
 
@@ -208,7 +208,7 @@ export function TrackedOrderPanel({
                   <span className="block text-sm font-black text-[#f4eee2]">Esqueceu alguma coisa?</span>
                   <span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">Adicione bebidas, acompanhamentos ou sobremesas ao pedido.</span>
                 </span>
-                <ChevronRight className="size-4 shrink-0 text-primary" />
+                
               </button>
             )}
 
@@ -238,7 +238,7 @@ export function TrackedOrderPanel({
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold">{quantity}× {item.productName || "Item"}{item.secondProductName ? " + " + item.secondProductName : ""}</p>
-                        {extras.length > 0 && <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-muted-foreground">{extras.join(" · ")}</p>}
+                        {extras.length > 0 && <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-muted-foreground">{extras.join(" ")}</p>}
                       </div>
                       <span className="shrink-0 pt-0.5 text-sm font-bold">{formatCurrency(unitPrice * quantity)}</span>
                     </div>
