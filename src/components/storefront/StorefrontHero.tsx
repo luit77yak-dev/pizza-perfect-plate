@@ -1,12 +1,11 @@
 import { ArrowRight, Pizza } from "lucide-react";
 import type { OrganizationSettings, Product } from "@/lib/domain/types";
+import type { StorefrontTheme } from "@/features/storefront/themes/types";
 
 type StorefrontHeroProps = {
   organizationName: string;
   settings: OrganizationSettings;
   products: Product[];
-  isPizzaTheme?: boolean;
-  isBurgerTheme?: boolean;
   statusLabel?: string;
   theme: StorefrontTheme;
 };
@@ -14,10 +13,10 @@ type StorefrontHeroProps = {
 const BURGER_CLUB_HERO_IMAGE =
   "https://images.unsplash.com/photo-1550547660-d9450f859349?w=1800&q=88&fm=jpg";
 
-export function StorefrontHero({ organizationName, settings, products, isPizzaTheme = false, isBurgerTheme = false, statusLabel = "Fechado agora, abre às 18:00" }: StorefrontHeroProps) {
+export function StorefrontHero({ organizationName, settings, products, statusLabel = "Fechado agora, abre às 18:00", theme }: StorefrontHeroProps) {
   const heroImage = theme.id === "burger-club"
     ? BURGER_CLUB_HERO_IMAGE
-    : isPizzaTheme
+    : theme.id === "neroxa-classic"
       ? settings.hero_image_url || products.find((product) => /pepperoni|margherita/i.test(product.name) && Boolean(product.image_url))?.image_url
       : settings.hero_image_url || products.find((product) => Boolean(product.image_url))?.image_url;
 
