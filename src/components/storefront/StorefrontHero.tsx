@@ -38,8 +38,7 @@ export function StorefrontHero({ organizationName, settings, products, isPizzaTh
                 <div className="grid h-full min-h-[560px] place-items-center text-secondary-foreground/50"><Pizza className="size-28" strokeWidth={1} /></div>
               )}
             </div>
-            <div className="pointer-events-none absolute bottom-2 left-2 z-10 flex size-24 rotate-[-8deg] items-center justify-center rounded-full border-2 border-secondary bg-primary p-3 text-center font-display text-[9px] uppercase leading-3 text-primary-foreground shadow-[5px_5px_0_rgba(0,0,0,.7)] sm:bottom-4 sm:left-4 sm:size-28 sm:text-[10px]">{isPizzaTheme ? "Pizza Club" : organizationName}<br />feito na hora<br />pizza artesanal</div>
-          </div>
+            </div>
         </div>
       </div>
     </section>
