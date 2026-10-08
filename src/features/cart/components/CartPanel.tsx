@@ -50,7 +50,7 @@ export function CartPanel({
             </p>
             <h2 className="text-2xl">Carrinho</h2>
           </div>
-          <button onClick={onClose} aria-label="Fechar" className="rounded-full p-2 hover:bg-muted">
+          <button onClick={onClose} aria-label="Fechar" className="rounded-[14px] p-2 hover:bg-muted">
             <X className="size-5" />
           </button>
         </div>
@@ -95,7 +95,7 @@ export function CartPanel({
                                 : null,
                             ]
                               .filter(Boolean)
-                              .join(" · ")}
+                              .join(" ")}
                           </p>
                         </div>
                         <button
