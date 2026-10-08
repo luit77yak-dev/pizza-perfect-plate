@@ -407,8 +407,7 @@ export function Storefront() {
         {
           ...(primary ? { "--primary": primary } : {}),
           ...(themeTokens.primaryColor ? { "--primary": `hsl(${themeTokens.primaryColor})` } : {}),
-          ...(themeTokens.secondaryColor ? { "--secondary": `hsl(${themeTokens.secondaryColor})` } : {}),
-          "--secondary": secondary,
+          "--secondary": themeTokens.secondaryColor ? `hsl(${themeTokens.secondaryColor})` : secondary,
           "--secondary-foreground": secondaryForeground,
         } as CSSProperties
       }
