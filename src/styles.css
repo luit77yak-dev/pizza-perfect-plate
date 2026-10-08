@@ -6260,3 +6260,306 @@
     transition: none !important;
   }
 }
+
+
+/* ==========================================================================
+ * BURGER CLUB — CASCADE ISOLATION
+ * The legacy storefront contains ID-based rules (#cardapio, #sobre, #contato).
+ * Those selectors intentionally outrank generic .hc-* classes. Burger therefore
+ * gets explicit high-specificity boundaries instead of another global override.
+ * ========================================================================== */
+
+/* Dedicated hero: no legacy ppp-reference hero box participates in Burger. */
+.ppp-customer-shell.ppp-burger-theme .hc-hero {
+  position: relative !important;
+  min-height: 78svh !important;
+  height: 78svh !important;
+  overflow: hidden !important;
+  background: #090807 !important;
+  color: #f7efe6 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-hero-media,
+.ppp-customer-shell.ppp-burger-theme .hc-hero-image {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-hero-media {
+  z-index: 0 !important;
+  overflow: hidden !important;
+  background: #090807 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-hero-image {
+  display: block !important;
+  object-fit: cover !important;
+  object-position: 58% center !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: saturate(1.08) contrast(1.06) brightness(.72) !important;
+  transform: scale(1.025) !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-hero-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  background:
+    linear-gradient(90deg, rgba(9,8,7,.9) 0%, rgba(9,8,7,.62) 38%, rgba(9,8,7,.14) 76%, rgba(9,8,7,.02) 100%),
+    linear-gradient(180deg, rgba(9,8,7,.45) 0%, rgba(9,8,7,.02) 35%, rgba(9,8,7,.08) 62%, rgba(9,8,7,.96) 100%) !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-hero-copy {
+  position: relative !important;
+  z-index: 2 !important;
+  display: flex !important;
+  min-height: 78svh !important;
+  height: 78svh !important;
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+  padding: 5.25rem 1.15rem 2rem !important;
+  background: transparent !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-hero-status {
+  display: flex !important;
+  align-items: center !important;
+  gap: .7rem !important;
+  margin: 0 0 .85rem !important;
+  color: rgba(247,239,230,.88) !important;
+  font-family: var(--hc-sans) !important;
+  font-size: .77rem !important;
+  letter-spacing: .22em !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-hero-status > span {
+  width: .62rem !important;
+  height: .62rem !important;
+  flex: 0 0 .62rem !important;
+  background: var(--hc-orange) !important;
+  display: block !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-hero-copy h1 {
+  max-width: 12ch !important;
+  margin: 0 !important;
+  color: #fff !important;
+  font-family: var(--hc-serif) !important;
+  font-size: clamp(2.65rem, 12vw, 4.8rem) !important;
+  font-weight: 700 !important;
+  line-height: .92 !important;
+  letter-spacing: -.045em !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-hero-copy h1 em {
+  color: var(--hc-amber) !important;
+  font-style: italic !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-hero-copy > p:not(.hc-hero-status) {
+  max-width: 25rem !important;
+  margin: 1rem 0 0 !important;
+  color: rgba(247,239,230,.88) !important;
+  font-family: var(--hc-sans) !important;
+  font-size: 1rem !important;
+  line-height: 1.55 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .hc-hero-copy > a {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: .75rem !important;
+  min-height: 3.35rem !important;
+  margin-top: 1.2rem !important;
+  padding: .85rem 1.45rem !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--hc-orange) !important;
+  color: #fff !important;
+  font-family: var(--hc-sans) !important;
+  font-size: .95rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+/* ID-based legacy About rules are deliberately stronger than .hc-* classes. */
+.ppp-customer-shell.ppp-burger-theme #sobre {
+  background: #090807 !important;
+  color: #f7efe6 !important;
+  border-top-color: rgba(247,239,230,.1) !important;
+  border-bottom-color: transparent !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #sobre > div {
+  background: #090807 !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #sobre > div > div:first-child,
+.ppp-customer-shell.ppp-burger-theme #sobre > div > div:last-child {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #sobre > div > div:last-child {
+  padding: 0 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #sobre h2 {
+  color: #fff !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #sobre p {
+  color: rgba(247,239,230,.72) !important;
+}
+
+/* Same isolation for Burger footer. */
+.ppp-customer-shell.ppp-burger-theme #contato {
+  background: #050403 !important;
+  color: #f7efe6 !important;
+  border: 0 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #contato > div {
+  background: #050403 !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #contato > div > div {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ID-based card rules cannot alter the Burger card hierarchy. */
+.ppp-customer-shell.ppp-burger-theme #cardapio {
+  background: #090807 !important;
+  color: #f7efe6 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-card {
+  display: grid !important;
+  grid-template-columns: 46% minmax(0,54%) !important;
+  height: 13.5rem !important;
+  min-height: 13.5rem !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(247,239,230,.24) !important;
+  border-radius: 1.15rem !important;
+  background: #151210 !important;
+  box-shadow: none !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-image {
+  position: relative !important;
+  width: 100% !important;
+  height: 13.5rem !important;
+  min-height: 13.5rem !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #11100f !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-content {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 13.5rem !important;
+  min-height: 13.5rem !important;
+  min-width: 0 !important;
+  padding: .95rem .8rem .8rem !important;
+  background: #151210 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-text {
+  display: grid !important;
+  grid-template-rows: auto auto auto 1fr !important;
+  align-content: start !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  padding: 0 2.65rem 0 0 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-eyebrow {
+  grid-row: 1 !important;
+  margin: 0 0 .3rem !important;
+  color: var(--hc-amber) !important;
+  line-height: 1.05 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-content h3 {
+  grid-row: 2 !important;
+  margin: 0 !important;
+  color: var(--hc-cream) !important;
+  font-family: var(--hc-serif) !important;
+  line-height: .98 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-price {
+  grid-row: 3 !important;
+  margin: .45rem 0 0 !important;
+  color: var(--hc-amber) !important;
+  font-family: var(--hc-serif) !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-desc {
+  grid-row: 4 !important;
+  min-height: 0 !important;
+  margin: .45rem 0 0 !important;
+  overflow: hidden !important;
+  color: rgba(247,239,230,.68) !important;
+  line-height: 1.35 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-add {
+  position: absolute !important;
+  right: .55rem !important;
+  bottom: .55rem !important;
+  width: 2.55rem !important;
+  height: 2.55rem !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  background: var(--hc-orange) !important;
+  color: #140e0b !important;
+}
+
+@media (min-width: 768px) {
+  .ppp-customer-shell.ppp-burger-theme .hc-hero,
+  .ppp-customer-shell.ppp-burger-theme .hc-hero-copy {
+    min-height: 34rem !important;
+    height: 34rem !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-hero-copy {
+    padding: 8rem 5vw 3.5rem !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-card {
+    grid-template-columns: 38% minmax(0,62%) !important;
+    height: 13rem !important;
+    min-height: 13rem !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-image,
+  .ppp-customer-shell.ppp-burger-theme #cardapio .hc-menu-content {
+    height: 13rem !important;
+    min-height: 13rem !important;
+  }
+}
