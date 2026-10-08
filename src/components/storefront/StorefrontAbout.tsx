@@ -1,4 +1,4 @@
-import { CheckCircle2, Leaf, ShieldCheck, Star, Truck } from "lucide-react";
+import { Leaf, ShieldCheck, Star, Truck } from "lucide-react";
 import type { Category, OrganizationSettings } from "@/lib/domain/types";
 
 type StorefrontAboutProps = {
@@ -8,7 +8,7 @@ type StorefrontAboutProps = {
   isBurgerTheme?: boolean;
 };
 
-export function StorefrontAbout({ settings, categories, isPizzaTheme = false }: StorefrontAboutProps) {
+export function StorefrontAbout({ settings, categories, isPizzaTheme = false, isBurgerTheme = false }: StorefrontAboutProps) {
   if (isBurgerTheme) {
     return (
       <section id="sobre" className="hc-about-section">
