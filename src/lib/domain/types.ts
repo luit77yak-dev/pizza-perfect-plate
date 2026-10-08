@@ -102,6 +102,7 @@ export interface Product {
   available: boolean;
   sort_order: number;
   prices?: ProductPrice[];
+  metadata?: Record<string, unknown>;
 }
 
 export interface Crust {
