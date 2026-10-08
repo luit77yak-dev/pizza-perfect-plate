@@ -244,6 +244,7 @@ export function Storefront() {
   }, [data, mainProducts, selectedCategory, searchTerm]);
 
   const isBurgerDelivery = data?.products.some((product) => product.kind === "BURGER") ?? false;
+  const isPizzaTheme = !isBurgerDelivery;
 
   const categoryProducts = useMemo(() => {
     if (!data) return new Map<string, number>();
@@ -370,7 +371,7 @@ export function Storefront() {
 
   return (
     <div
-      className="ppp-customer-shell min-h-screen bg-background text-foreground"
+      className={`ppp-customer-shell min-h-screen bg-background text-foreground ${isPizzaTheme ? "ppp-pizza-theme" : ""}`}
       style={
         {
           ...(primary ? { "--primary": primary } : {}),
@@ -386,6 +387,7 @@ export function Storefront() {
         logoUrl={data.settings.logo_url ?? null}
         itemCount={itemCount}
         selectedTrackedOrdersCount={trackedOrders.length}
+        isPizzaTheme={isPizzaTheme}
         onOpenCart={() => setCartOpen(true)}
         onOpenTracking={() => {
           setSelectedTrackedOrderId((current) => current ?? trackedOrders[0]?.id ?? null);
@@ -398,6 +400,7 @@ export function Storefront() {
           organizationName={data.organization.name}
           settings={data.settings}
           products={mainProducts}
+          isPizzaTheme={isPizzaTheme}
         />
 
         <ProductTicker products={mainProducts} />
@@ -411,10 +414,10 @@ export function Storefront() {
               Cardápio
             </p>
             <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">
-              {isBurgerDelivery ? <>Escolha seu <em>burger.</em></> : <>Escolha sua <em>pizza.</em></>}
+              {isBurgerDelivery ? <>Escolha seu <em>burger.</em></> : <>Pizzas da casa</>}
             </h2>
             <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-              Escolha uma categoria e encontre seu próximo sabor.
+              Assadas a 450 graus em menos de dois minutos.
             </p>
           </div>
 
@@ -501,7 +504,7 @@ export function Storefront() {
                       <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-[.08em]">
                         <span>{product.allow_half ? "Meio a meio" : "Personalizar"}</span>
                         <span className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-background transition-transform group-hover:translate-x-1 group-hover:border-primary">
-                          <ChevronRight className="size-4" />
+                          <span aria-hidden="true" className="text-primary">+</span>
                         </span>
                       </div>
                     </div>
@@ -511,9 +514,9 @@ export function Storefront() {
             </div>
           )}
         </section>
-        <StorefrontAbout settings={data.settings} categories={data.categories} />
+        <StorefrontAbout settings={data.settings} categories={data.categories} isPizzaTheme={isPizzaTheme} />
 
-        <StorefrontContact settings={data.settings} />
+        <StorefrontContact settings={data.settings} isPizzaTheme={isPizzaTheme} />
       </main>
 
       {selectedProduct && (
@@ -568,7 +571,7 @@ export function Storefront() {
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#f3ad4b]">Pedido em andamento</p>
                   <h2 className="mt-1 font-display text-2xl text-[#f4eee2]">
-                    Adicionar ao pedido #{complementOrder?.number ?? "—"}
+                    Adicionar ao pedido #{complementOrder?.number ?? "sem número"}
                   </h2>
                   <p className="mt-1 text-xs text-white/60">
                     Escolha pizzas, bebidas ou outros itens. Você pode acrescentar quantos quiser.
