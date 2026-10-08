@@ -23,6 +23,7 @@ import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
 
 import { getPrice, getStoreStatus } from "@/core/delivery/services/store-rules";
+import { resolveStorefrontTheme } from "@/features/storefront/themes/resolve";
 export type TrackedOrder = {
   id: string;
   number: number;
@@ -118,15 +119,11 @@ export function Storefront() {
 
         const results = await Promise.all(
           storedActiveOrders.map(async (stored) => {
-            const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
-              p_order_id: stored.id,
-              p_customer_phone: stored.phone,
-            });
+            const tracking = await getPublicOrderStatus(stored.id, stored.phone);
             const current = (Array.isArray(tracking) ? tracking[0] : tracking) as ({ order_number?: unknown; items?: unknown; subtotal?: unknown; total?: unknown; fulfillment?: "DELIVERY" | "PICKUP"; status?: string }) | null | undefined;
             return {
               stored,
               current,
-              error,
               status: current?.status as OrderStatus | undefined,
             };
           }),
@@ -243,9 +240,9 @@ export function Storefront() {
     });
   }, [data, mainProducts, selectedCategory, searchTerm]);
 
-  const isBurgerDelivery = data?.products.some((product) => product.kind === "BURGER") ?? false;
-  const isPizzaTheme = !isBurgerDelivery;
-  const isBurgerTheme = isBurgerDelivery;
+  const storefrontTheme = resolveStorefrontTheme(data?.products ?? []);
+  const isBurgerTheme = storefrontTheme.id === "burger-club";
+  const isPizzaTheme = storefrontTheme.id === "neroxa-classic";
 
   const categoryProducts = useMemo(() => {
     if (!data) return new Map<string, number>();
