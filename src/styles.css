@@ -3487,3 +3487,110 @@
     border-radius: var(--pizza-radius) !important;
   }
 }
+
+
+/* Pizza Club menu mockup: keep the editorial split-card composition on mobile too. */
+.ppp-pizza-theme .ppp-reference-menu {
+  background: #0e0c0b !important;
+}
+.ppp-pizza-theme .ppp-pizza-menu-title {
+  padding-top: .5rem !important;
+}
+.ppp-pizza-theme .ppp-pizza-menu-card {
+  display: grid !important;
+  grid-template-columns: 46% 54% !important;
+  min-height: 330px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(247,239,230,.16) !important;
+  border-radius: 22px !important;
+  background: #1a1614 !important;
+}
+.ppp-pizza-theme .ppp-pizza-menu-image {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 330px !important;
+  border: 0 !important;
+  border-right: 1px solid rgba(247,239,230,.1) !important;
+}
+.ppp-pizza-theme .ppp-pizza-menu-content {
+  width: 100% !important;
+  min-height: 330px !important;
+  padding: 2rem !important;
+  background: #1a1614 !important;
+}
+.ppp-pizza-theme .ppp-pizza-menu-content h3 {
+  font-size: clamp(1.5rem, 3.2vw, 2.35rem) !important;
+  line-height: .96 !important;
+}
+.ppp-pizza-theme .ppp-pizza-menu-content p {
+  color: rgba(247,239,230,.62) !important;
+}
+.ppp-pizza-theme .ppp-pizza-menu-card .absolute.left-4 {
+  left: 1rem !important;
+  top: 1rem !important;
+  border-radius: 999px !important;
+  background: #ffc15e !important;
+  color: #0e0c0b !important;
+}
+.ppp-pizza-theme .ppp-pizza-menu-content .text-2xl {
+  color: #ffc15e !important;
+}
+.ppp-pizza-theme .ppp-pizza-menu-content .size-12 {
+  background: #ff6a3d !important;
+  color: #fff !important;
+}
+@media (max-width: 639px) {
+  .ppp-pizza-theme .ppp-reference-menu {
+    padding-top: 1rem !important;
+    padding-bottom: 5rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  .ppp-pizza-theme .ppp-menu-filters {
+    margin-bottom: 1.25rem !important;
+    padding: .25rem 0 1rem !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+  }
+  .ppp-pizza-theme .ppp-pizza-menu-title {
+    margin-bottom: 1.5rem !important;
+  }
+  .ppp-pizza-theme .ppp-pizza-menu-title h2 {
+    font-size: clamp(3rem, 13vw, 4.6rem) !important;
+    line-height: .86 !important;
+  }
+  .ppp-pizza-theme .ppp-pizza-menu-card {
+    grid-template-columns: 46% 54% !important;
+    min-height: 285px !important;
+    height: 285px !important;
+    border-radius: 20px !important;
+  }
+  .ppp-pizza-theme .ppp-pizza-menu-image {
+    min-height: 285px !important;
+    height: 285px !important;
+  }
+  .ppp-pizza-theme .ppp-pizza-menu-content {
+    min-height: 285px !important;
+    height: 285px !important;
+    padding: 1.1rem !important;
+  }
+  .ppp-pizza-theme .ppp-pizza-menu-content h3 {
+    font-size: clamp(1.35rem, 5.8vw, 1.9rem) !important;
+    line-height: .96 !important;
+  }
+  .ppp-pizza-theme .ppp-pizza-menu-content p {
+    font-size: .84rem !important;
+    line-height: 1.55 !important;
+  }
+  .ppp-pizza-theme .ppp-pizza-menu-content > div:last-child {
+    margin-top: 1rem !important;
+  }
+  .ppp-pizza-theme .ppp-pizza-menu-content .text-2xl {
+    font-size: 1.55rem !important;
+  }
+  .ppp-pizza-theme .ppp-pizza-menu-content .size-12 {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    font-size: 1.75rem !important;
+  }
+}
