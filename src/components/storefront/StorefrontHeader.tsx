@@ -72,6 +72,5 @@ export function StorefrontHeader({
         </div>
       </div>
     </header>
-    </header>
   );
 }
