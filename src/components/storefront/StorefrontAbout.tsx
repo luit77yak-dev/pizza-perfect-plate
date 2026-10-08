@@ -6,7 +6,7 @@ type StorefrontAboutProps = {
   isPizzaTheme?: boolean;
 };
 
-export function StorefrontAbout({ settings, categories }: StorefrontAboutProps) {
+export function StorefrontAbout({ settings, categories, isPizzaTheme = false }: StorefrontAboutProps) {
   return (
     <section id="sobre" className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
       <div className="overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-lifted">
