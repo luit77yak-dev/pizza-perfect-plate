@@ -9,6 +9,7 @@ type MenuFiltersProps = {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
   isPizzaTheme?: boolean;
+  isBurgerTheme?: boolean;
 };
 
 export function MenuFilters({
