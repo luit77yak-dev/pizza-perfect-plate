@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { getPublicOrderStatus } from "@/core/delivery/services/order-tracking";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ChevronRight, Pizza, Plus, ShoppingBag, Store, X } from "lucide-react";
+import { ChevronRight, ShoppingBag, Store, X } from "lucide-react";
 import { loadStore } from "@/core/delivery/services/load-public-store";
 import { Button } from "@/components/ui/button";
 import { StorefrontSkeleton } from "@/components/storefront/StorefrontSkeleton";
@@ -10,7 +10,7 @@ import { StorefrontHero } from "@/components/storefront/StorefrontHero";
 import { StorefrontTicker } from "@/components/storefront/StorefrontTicker";
 import { ProductTicker } from "@/components/storefront/ProductTicker";
 import { MenuImageAccordion } from "@/components/storefront/MenuImageAccordion";
-import { MenuFilters } from "@/components/storefront/MenuFilters";
+import { StorefrontMenu } from "@/features/storefront/components/StorefrontMenu";
 import { StorefrontAbout } from "@/components/storefront/StorefrontAbout";
 import { StorefrontContact } from "@/components/storefront/StorefrontContact";
 import { ProductConfigurator } from "@/features/storefront/components/ProductConfigurator";
@@ -443,159 +443,22 @@ export function Storefront() {
 
         {!isPizzaTheme && !isBurgerTheme && <ProductTicker products={mainProducts} />}
 
-        <section
-          id="cardapio"
-          className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6"
-        >
-          {isPizzaTheme ? (
-            <>
-              <MenuFilters
-                isPizzaTheme={isPizzaTheme}
-                isBurgerTheme={isBurgerTheme}
-                categories={data.categories}
-                mainProducts={mainProducts}
-                categoryProducts={categoryProducts}
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
-              <div className="pc-menu-title">
-                <h2>Mais pedidas</h2>
-                <button type="button" onClick={() => setSelectedCategory("all")}>
-                  Ver todas <ArrowRight className="size-4" strokeWidth={2} />
-                </button>
-              </div>
-            </>
-          ) : isBurgerTheme ? (
-            <>
-              <MenuFilters
-                isPizzaTheme={isPizzaTheme}
-                isBurgerTheme={isBurgerTheme}
-                categories={data.categories}
-                mainProducts={mainProducts}
-                categoryProducts={categoryProducts}
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
-              <div className="hc-menu-title">
-                <h2>Mais pedidas</h2>
-                <button type="button" onClick={() => setSelectedCategory("all")}>
-                  Ver todas <ArrowRight className="size-4" strokeWidth={2} />
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="ppp-reference-menu-heading mb-8 flex flex-col items-start justify-center gap-3 text-left">
-                <p className="text-xs font-semibold uppercase tracking-[.35em] text-primary">Cardápio</p>
-                <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">Escolha seu <em>burger.</em></h2>
-                <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-                  Assadas a 450 graus em menos de dois minutos.
-                </p>
-              </div>
-              <MenuFilters
-                isPizzaTheme={isPizzaTheme}
-                isBurgerTheme={isBurgerTheme}
-                categories={data.categories}
-                mainProducts={mainProducts}
-                categoryProducts={categoryProducts}
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
-            </>
-          )}
+                <StorefrontMenu
+          theme={storefrontTheme}
+          categories={data.categories}
+          products={filteredProducts}
+          sizes={data.sizes}
+          prices={data.prices}
+          categoryProducts={categoryProducts}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+          searchTerm={searchTerm}
+          onSearchTermChange={setSearchTerm}
+          onSelectProduct={setSelectedProduct}
+          onAddSimpleProduct={addSimpleProductToCart}
+          imageFallbacks={burgerFallbackImages}
+        />
 
-          {filteredProducts.length === 0 ? (
-            <div className="rounded-3xl border border-dashed bg-card p-12 text-center">
-              <p className="font-medium">Nenhum produto nesta categoria.</p>
-              <p className="mt-1 text-sm text-muted-foreground">Tente outra categoria.</p>
-            </div>
-          ) : (
-            <div className={isPizzaTheme ? "pc-menu-list grid gap-5" : isBurgerTheme ? "hc-menu-list grid gap-5" : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"}>
-              {filteredProducts.map((product, index) => {
-                const firstSize = data.sizes[0];
-                const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
-                const categoryImage = data.categories.find((category) => category.id === product.category_id)?.image_url;
-                const productImage = product.image_url || categoryImage || (isBurgerTheme ? burgerFallbackImages[product.name] : undefined);
-                const categoryName = data.categories.find((category) => category.id === product.category_id)?.name || (isBurgerTheme ? "Hambúrguer" : "Pizza");
-
-                return (
-                  <button
-                    key={product.id}
-                    onClick={() => {
-                      if (product.kind === "PIZZA") setSelectedProduct(product);
-                      else addSimpleProductToCart(product);
-                    }}
-                    className={isPizzaTheme
-                      ? "pc-menu-card group relative grid w-full overflow-hidden text-left"
-                      : isBurgerTheme
-                        ? "hc-menu-card group relative grid w-full overflow-hidden text-left"
-                        : "ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lifted"}
-                  >
-                    <div className={isPizzaTheme ? "pc-menu-image relative h-full min-h-0 overflow-hidden" : isBurgerTheme ? "hc-menu-image relative h-full min-h-0 overflow-hidden" : "ppp-product-card-image relative aspect-[1.32] overflow-hidden bg-card"}>
-                      {productImage ? (
-                        <img
-                          src={productImage}
-                          alt={product.name}
-                          loading={index < 2 ? "eager" : "lazy"}
-                          className="size-full object-cover transition duration-700 group-hover:scale-[1.04]"
-                        />
-                      ) : (
-                        <div className="grid size-full place-items-center text-[#ffc15e]/50"><Pizza className="size-12" strokeWidth={1.2} /></div>
-                      )}
-                      {product.featured && (
-                        <span className={isPizzaTheme ? "pc-menu-badge" : isBurgerTheme ? "hc-menu-badge" : "absolute left-4 top-4 rounded-full bg-[#ffc15e] px-4 py-2 text-[11px] font-bold text-[#0e0c0b]"}>
-                          Destaque
-                        </span>
-                      )}
-                    </div>
-
-                    {isPizzaTheme ? (
-                      <div className="pc-menu-content relative min-w-0">
-                        <div className="pc-menu-text">
-                          <p className="pc-menu-eyebrow">{categoryName}</p>
-                          <h3>{product.name}</h3>
-                          <span className="pc-menu-price">{formatCurrency(displayPrice)}</span>
-                          <p className="pc-menu-desc">{product.description || "Uma pizza preparada para você."}</p>
-                        </div>
-                        <span className="pc-menu-add" aria-hidden="true"><Plus className="size-6" strokeWidth={2} /></span>
-                      </div>
-                    ) : isBurgerTheme ? (
-                      <div className="hc-menu-content relative min-w-0">
-                        <div className="hc-menu-text">
-                          <p className="hc-menu-eyebrow">{categoryName}</p>
-                          <h3>{product.name}</h3>
-                          <span className="hc-menu-price">{formatCurrency(displayPrice)}</span>
-                          <p className="hc-menu-desc">{product.description || "Hambúrguer artesanal, ingredientes selecionados e molho da casa."}</p>
-                        </div>
-                        <span className="hc-menu-add" aria-hidden="true"><Plus className="size-6" strokeWidth={2} /></span>
-                      </div>
-                    ) : (
-                      <div className="p-4 sm:p-5">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0 pr-1">
-                            <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">{categoryName}</p>
-                            <p className="mt-2 line-clamp-2 text-sm leading-5 text-muted-foreground">{product.description || "Uma opção preparada para você."}</p>
-                          </div>
-                          <span className="shrink-0 rounded-lg bg-primary/10 px-3 py-2 font-display text-sm font-semibold text-accent">{formatCurrency(displayPrice)}</span>
-                        </div>
-                        <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-[.08em]">
-                          <span>{product.allow_half ? "Meio a meio" : "Personalizar"}</span>
-                          <span className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-background"><span aria-hidden="true" className="text-primary">+</span></span>
-                        </div>
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </section>
         <StorefrontAbout settings={data.settings} categories={data.categories} isPizzaTheme={isPizzaTheme} isBurgerTheme={isBurgerTheme} />
 
         <StorefrontContact settings={data.settings} isPizzaTheme={isPizzaTheme} isBurgerTheme={isBurgerTheme} />
