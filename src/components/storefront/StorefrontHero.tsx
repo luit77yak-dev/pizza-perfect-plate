@@ -22,8 +22,16 @@ export function StorefrontHero({ organizationName, settings, products, isPizzaTh
           </div>
           <div className="ppp-reference-hero-media pointer-events-none absolute inset-0 z-0 min-h-[min(680px,calc(100dvh-5.5rem))] overflow-hidden bg-secondary p-0 lg:min-h-[760px]">
             <div className="relative h-full min-h-[560px] overflow-hidden bg-background/10 p-0 sm:min-h-[680px] lg:min-h-[760px]">
-              {settings.hero_image_url ? (
-                <img src={settings.hero_image_url} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
+              {(isPizzaTheme
+                ? products.find((product) => /pepperoni|margherita/i.test(product.name) && Boolean(product.image_url))?.image_url
+                : settings.hero_image_url) ? (
+                <img
+                  src={(isPizzaTheme
+                    ? products.find((product) => /pepperoni|margherita/i.test(product.name) && Boolean(product.image_url))?.image_url
+                    : settings.hero_image_url) ?? ""}
+                  alt=""
+                  className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover"
+                />
               ) : products.find((product) => Boolean(product.image_url)) ? (
                 <img src={products.find((product) => Boolean(product.image_url))?.image_url ?? ""} alt="" className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover" />
               ) : (
