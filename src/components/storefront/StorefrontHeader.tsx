@@ -21,8 +21,8 @@ export function StorefrontHeader({
   selectedTrackedOrdersCount,
   onOpenCart,
   onOpenTracking,
-  isPizzaTheme = false,
-  isBurgerTheme = false,
+  theme: StorefrontTheme;
+
 }: StorefrontHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
 
