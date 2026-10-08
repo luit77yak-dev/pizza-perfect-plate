@@ -424,6 +424,7 @@ export function Storefront() {
           settings={data.settings}
           products={mainProducts}
           isPizzaTheme={isPizzaTheme}
+          statusLabel={status.label}
         />
 
         {!isPizzaTheme && <ProductTicker products={mainProducts} />}
@@ -432,15 +433,15 @@ export function Storefront() {
           id="cardapio"
           className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6"
         >
-          <div className="ppp-reference-menu-heading mb-8 flex flex-col items-center justify-center gap-3 text-center">
+          <div className="ppp-reference-menu-heading mb-8 flex flex-col items-start justify-center gap-3 text-left">
             <p className="text-xs font-semibold uppercase tracking-[.35em] text-primary">
               Cardápio
             </p>
             <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">
-              {isBurgerDelivery ? <>Escolha seu <em>burger.</em></> : <>Pizzas da casa</>}
+              {isBurgerDelivery ? <>Escolha seu <em>burger.</em></> : <>Mais <em>pedidas</em></>}
             </h2>
             <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-              Assadas a 450 graus em menos de dois minutos.
+              {isPizzaTheme ? "Massa de fermentação longa, forno a lenha e queijo que estica." : "Assadas a 450 graus em menos de dois minutos."}
             </p>
           </div>
 
@@ -465,6 +466,7 @@ export function Storefront() {
           )}
 
           <MenuFilters
+            isPizzaTheme={isPizzaTheme}
             categories={data.categories}
             mainProducts={mainProducts}
             categoryProducts={categoryProducts}
