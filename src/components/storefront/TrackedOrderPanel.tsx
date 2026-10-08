@@ -161,7 +161,7 @@ export function TrackedOrderPanel({
                     <p className="mt-1.5 max-w-lg text-xs leading-5 text-background/50">{statusMessage}</p>
                   </div>
                   <div className="hidden size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary sm:grid">
-                    {currentStatus === "PREPARING" ? <Pizza className="size-5" /> : currentStatus === "OUT_FOR_DELIVERY" ?  : <Clock3 className="size-5" />}
+                    {currentStatus === "PREPARING" ? <Pizza className="size-5" /> : currentStatus === "OUT_FOR_DELIVERY" ? <ShoppingBag className="size-5" /> : <Clock3 className="size-5" />}
                   </div>
                 </div>
 
