@@ -34,7 +34,7 @@ export function StorefrontHero({ organizationName, settings, products, isPizzaTh
             <div className="relative h-full min-h-[560px] overflow-hidden bg-background/10 p-0 sm:min-h-[680px] lg:min-h-[760px]">
               {heroImage ? (
                 <img
-                  src={heroImage}}
+                  src={heroImage}
                   alt=""
                   className="ppp-reference-hero-image absolute inset-0 h-full w-full object-cover"
                 />
