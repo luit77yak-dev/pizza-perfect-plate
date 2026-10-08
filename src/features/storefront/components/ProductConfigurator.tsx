@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronRight, Circle, Pizza, X } from "lucide-react";
+import { Check, Circle, Pizza, X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/domain/money";
 import { calculateProductUnitPrice } from "@/lib/domain/pricing";
@@ -157,7 +157,7 @@ export function ProductConfigurator({
     >
       <div className="flex h-[88dvh] max-h-[88dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-[2rem] border border-white/10 bg-[#06282d] text-[#f4eee2] shadow-[0_24px_80px_rgba(0,0,0,.5)] sm:h-[86vh] sm:max-h-[86vh] sm:rounded-[2rem]">
         <div className="relative shrink-0 overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
-          <div className="absolute -right-10 -top-16 size-40 rounded-full bg-primary/25 blur-3xl" />
+          <div className="absolute -right-10 -top-16 size-40 rounded-[14px] bg-primary/25 blur-3xl" />
           <div className="relative flex items-center gap-4">
             <div className="size-14 shrink-0 overflow-hidden rounded-2xl border border-background/15 bg-background/10 shadow-lg sm:size-16">
               {product.image_url ? (
@@ -171,7 +171,7 @@ export function ProductConfigurator({
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[.2em] text-background/60">
-                  Montar pedido · {step}/{totalSteps}
+                  Montar pedido {step}/{totalSteps}
                 </p>
                 <button
                   onClick={onClose}
@@ -185,7 +185,7 @@ export function ProductConfigurator({
                 {product.name}
               </h2>
               <p className="mt-1 text-xs text-background/60">
-                {stepTitle} · personalize do seu jeito
+                {stepTitle} personalize do seu jeito
               </p>
             </div>
           </div>
@@ -251,7 +251,7 @@ export function ProductConfigurator({
                 <div className="mb-3 flex items-end justify-between gap-3">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
-                      01 · Escolha o tamanho
+                      01 Escolha o tamanho
                     </p>
                     <p className="mt-1 text-base font-bold tracking-tight text-[#f4eee2]">
                       Escolha o tamanho
@@ -329,7 +329,7 @@ export function ProductConfigurator({
                 <div>
                   <div className="mb-3">
                     <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
-                      02 · Formato
+                      02 Formato
                     </p>
                     <p className="mt-1 text-base font-bold tracking-tight text-[#f4eee2]">
                       Formato da pizza
@@ -376,7 +376,7 @@ export function ProductConfigurator({
                           (!halfMode ? "text-primary-foreground/70" : "text-muted-foreground")
                         }
                       >
-                        1 sabor · {product.name}
+                        1 sabor {product.name}
                       </p></div>
                     </button>
 
@@ -435,7 +435,7 @@ export function ProductConfigurator({
                           (halfMode ? "text-primary-foreground/75" : "text-muted-foreground")
                         }
                       >
-                        2 sabores · metade de cada
+                        2 sabores metade de cada
                       </p></div>
                     </button>
                   </div>
@@ -476,7 +476,7 @@ export function ProductConfigurator({
                       </p>
                       <p className="mt-1 text-[11px] font-medium text-primary">
                         {selectedSize?.name
-                          ? selectedSize.name + " · " + formatCurrency(basePrice)
+                          ? selectedSize.name + " " + formatCurrency(basePrice)
                           : "Escolha um tamanho primeiro"}
                       </p>
                     </div>
@@ -509,7 +509,7 @@ export function ProductConfigurator({
                             <span>
                               <span className="block text-sm font-semibold">{item.name}</span>
                               <span className="text-[11px] text-white/45">
-                                Segunda metade · {formatCurrency(price)}
+                                Segunda metade {formatCurrency(price)}
                               </span>
                             </span>
                             <span className="shrink-0 text-right">
@@ -540,7 +540,7 @@ export function ProductConfigurator({
                             {product.name} + {secondProduct.name}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            ½ {product.name} · ½ {secondProduct.name}
+                            ½ {product.name} ½ {secondProduct.name}
                           </p>
                         </div>
                         <span className="shrink-0 text-sm font-bold">
@@ -567,7 +567,7 @@ export function ProductConfigurator({
                       {product.name}{secondProduct ? " + " + secondProduct.name : ""}
                     </p>
                     <p className="mt-0.5 text-[11px] text-white/45">
-                      {selectedSize?.name ?? "Sem tamanho"} · {halfMode && secondProduct ? "Meio a meio" : "Pizza inteira"}
+                      {selectedSize?.name ?? "Sem tamanho"} {halfMode && secondProduct ? "Meio a meio" : "Pizza inteira"}
                     </p>
                   </div>
                   <span className="shrink-0 font-display text-lg font-bold text-[#f4eee2]">
@@ -727,8 +727,8 @@ export function ProductConfigurator({
                       {secondProduct ? " + " + secondProduct.name : ""}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {selectedSize?.name ?? "Sem tamanho"} · {addons.length} adicional(is)
-                      {crust ? " · " + crust.name : ""}
+                      {selectedSize?.name ?? "Sem tamanho"} {addons.length} adicional(is)
+                      {crust ? " " + crust.name : ""}
                     </p>
                   </div>
                   <p className="font-bold">{formatCurrency(unitPrice * quantity)}</p>
@@ -778,7 +778,7 @@ export function ProductConfigurator({
                     : "Próxima etapa"}
                 </span>
                 {!(step === 1 && product.allow_half && halfMode && !secondProductId) && (
-                  <ChevronRight className="size-3.5 shrink-0" />
+                  
                 )}
               </button>
             ) : (
@@ -788,7 +788,7 @@ export function ProductConfigurator({
                 className="flex h-9 w-full min-w-0 items-center justify-center overflow-hidden rounded-full bg-primary px-2 text-[11px] font-bold text-primary-foreground shadow-[0_6px_16px_hsl(var(--primary)/.18)] transition active:scale-[.98] hover:brightness-105 sm:px-4"
               >
                 <span className="truncate">
-                  Adicionar ao carrinho · {formatCurrency(unitPrice * quantity)}
+                  Adicionar ao carrinho {formatCurrency(unitPrice * quantity)}
                 </span>
               </button>
             )}
