@@ -1,4 +1,4 @@
-import type { Category, Organization, OrganizationSettings, Product } from "@/lib/domain/types";
+import type { Addon, Category, Crust, Organization, OrganizationSettings, Product, ProductPrice, ProductSize } from "@/lib/domain/types";
 import { supabase } from "@/integrations/supabase/client";
 
 export type ProductAddonLink = { product_id: string; addon_id: string; sort_order: number };
@@ -7,11 +7,11 @@ export type StoreData = {
   organization: Organization;
   settings: OrganizationSettings;
   categories: Category[];
-  sizes: never[];
+  sizes: ProductSize[];
   products: Product[];
-  prices: never[];
-  crusts: never[];
-  addons: never[];
+  prices: ProductPrice[];
+  crusts: Crust[];
+  addons: Addon[];
   productAddonLinks: ProductAddonLink[];
   hours: never[];
   specialHours: never[];
@@ -100,10 +100,60 @@ export async function loadStore(): Promise<StoreData> {
       estimated_minutes: zone.estimated_minutes ?? null,
       active: zone.active,
     }));
+    const products = catalog.products.map((product) => toProduct(product, context.organization_id));
+    const pizzaRows = products.filter((product) => product.kind === "PIZZA");
+    const optionRows = pizzaRows.flatMap((product) => {
+      const options = Array.isArray(product.metadata?.options) ? product.metadata.options : [];
+      return options.map((option) => ({ product, option: option as Record<string, unknown> }));
+    });
+    const sizeChoices = (optionRows.find((row) => row.option.id === "tamanho")?.option.choices as Array<Record<string, unknown>> | undefined) ?? [];
+    const sizes: ProductSize[] = sizeChoices.map((choice, index) => ({
+      id: String(choice.id),
+      organization_id: context.organization_id,
+      name: String(choice.name ?? choice.id),
+      slices: String(choice.name ?? "").match(/(\\d+)\\s*fatias/i)?.[1] ? Number(String(choice.name).match(/(\\d+)\\s*fatias/i)?.[1]) : null,
+      sort_order: index,
+      active: true,
+    }));
+    const prices: ProductPrice[] = pizzaRows.flatMap((product) => {
+      const option = optionRows.find((row) => row.product.id === product.id && row.option.id === "tamanho")?.option;
+      const choices = (option?.choices as Array<Record<string, unknown>> | undefined) ?? [];
+      return choices.map((choice) => ({
+        id: `virtual-${product.id}-${String(choice.id)}`,
+        product_id: product.id,
+        size_id: String(choice.id),
+        price: Number(product.base_price) + Number(choice.price ?? 0),
+      }));
+    });
+    const crustChoices = (optionRows.find((row) => row.option.id === "borda")?.option.choices as Array<Record<string, unknown>> | undefined) ?? [];
+    const crusts: Crust[] = crustChoices.map((choice, index) => ({
+      id: String(choice.id),
+      organization_id: context.organization_id,
+      name: String(choice.name ?? choice.id),
+      price: Number(choice.price ?? 0),
+      sort_order: index,
+      active: true,
+    }));
+    const addonProducts = products.filter((product) => {
+      const category = categories.find((item) => item.id === product.category_id)?.name ?? "";
+      return /adicional/i.test(category);
+    });
+    const addons: Addon[] = addonProducts.map((product, index) => ({
+      id: product.id,
+      organization_id: context.organization_id,
+      name: product.name,
+      price: Number(product.base_price),
+      sort_order: index,
+      active: product.active && product.available,
+    }));
     return {
-      organization, settings, categories,
-      products: catalog.products.map((product) => toProduct(product, context.organization_id)),
-      sizes: [], prices: [], crusts: [], addons: [], productAddonLinks: [], hours: [], specialHours: [], deliveryZones,
+      organization, settings, categories, products, sizes, prices, crusts, addons,
+      productAddonLinks: pizzaRows.flatMap((product) => addons.map((addon) => ({
+        product_id: product.id,
+        addon_id: addon.id,
+        sort_order: addon.sort_order,
+      }))),
+      hours: [], specialHours: [], deliveryZones,
     };
   } catch (error) {
     if (error instanceof Error) throw error;
