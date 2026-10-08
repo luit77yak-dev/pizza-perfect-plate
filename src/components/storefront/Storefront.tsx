@@ -380,7 +380,7 @@ export function Storefront() {
         } as CSSProperties
       }
     >
-      <StorefrontTicker organizationName={data.organization.name} statusLabel={status.label} />
+      {!isPizzaTheme && <StorefrontTicker organizationName={data.organization.name} statusLabel={status.label} />}
 
       <StorefrontHeader
         organizationName={data.organization.name}
@@ -403,7 +403,7 @@ export function Storefront() {
           isPizzaTheme={isPizzaTheme}
         />
 
-        <ProductTicker products={mainProducts} />
+        {!isPizzaTheme && <ProductTicker products={mainProducts} />}
 
         <section
           id="cardapio"
@@ -421,7 +421,25 @@ export function Storefront() {
             </p>
           </div>
 
-          <MenuImageAccordion categories={data.categories} products={mainProducts} />
+          {isPizzaTheme && (
+            <section className="mx-auto mb-20 grid max-w-6xl gap-3 px-4 sm:grid-cols-[1.5fr_1fr] sm:px-6" aria-label="Destaques">
+              {mainProducts.slice(0, 3).map((product, index) => {
+                const categoryImage = data.categories.find((category) => category.id === product.category_id)?.image_url;
+                const image = product.image_url || categoryImage;
+                return (
+                  <article key={product.id} className={index === 0 ? "group relative min-h-[26rem] overflow-hidden rounded-[14px] sm:row-span-2 sm:min-h-[34rem]" : "group relative min-h-[13rem] overflow-hidden rounded-[14px]"}>
+                    {image ? <img src={image} alt={product.name} loading={index === 0 ? "eager" : "lazy"} className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105" /> : <div className="absolute inset-0 bg-[#1a1614]" />}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c0b]/90 via-[#0e0c0b]/15 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
+                      <p className="text-sm font-medium text-[#ffc15e]">Destaque</p>
+                      <h3 className="mt-1 text-3xl leading-none text-[#f7efe6] sm:text-4xl">{product.name}</h3>
+                      <p className="mt-2 max-w-lg text-sm leading-6 text-[#f7efe6]/75">{product.description}</p>
+                    </div>
+                  </article>
+                );
+              })}
+            </section>
+          )}
 
           <MenuFilters
             categories={data.categories}
