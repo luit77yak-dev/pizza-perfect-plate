@@ -20,6 +20,28 @@ export function StorefrontHero({ organizationName, settings, products, isPizzaTh
       ? settings.hero_image_url || products.find((product) => /pepperoni|margherita/i.test(product.name) && Boolean(product.image_url))?.image_url
       : settings.hero_image_url || products.find((product) => Boolean(product.image_url))?.image_url;
 
+  if (isBurgerTheme) {
+    return (
+      <section className="hc-hero">
+        <div className="hc-hero-media">
+          <img
+            src={BURGER_CLUB_HERO_IMAGE}
+            alt=""
+            className="hc-hero-image"
+            fetchPriority="high"
+          />
+        </div>
+        <div className="hc-hero-overlay" aria-hidden="true" />
+        <div className="hc-hero-copy">
+          <p className="hc-hero-status"><span aria-hidden="true" />Aberto agora</p>
+          <h1>O sabor que<br /><em>faz a diferença.</em></h1>
+          <p>Hambúrgueres artesanais, ingredientes selecionados e muito mais para você se deliciar.</p>
+          <a href="#cardapio">Ver as opções <ArrowRight className="size-5" strokeWidth={2} /></a>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
       <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
