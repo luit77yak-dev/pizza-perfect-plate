@@ -40,7 +40,8 @@ export function ProductConfigurator({
       .replace(/[\u0300-\u036f]/g, "")
       .toLocaleLowerCase("pt-BR");
     return (
-      item.kind === "SIMPLE" ||
+      item.kind === "SIMPLE" &&
+      !/adicional|adicionais/i.test(normalizedCategory) &&
       /(bebida|bebidas|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(
         normalizedCategory,
       )
