@@ -12,7 +12,7 @@ export const STOREFRONT_THEMES: Record<string, StorefrontTheme> = {
     menuLayout: "grid",
     categoryNavigation: "tabs",
     footer: "complete",
-    tokens: { cardRadius: "1rem", menuImageAspect: "square" },
+    tokens: { primaryColor: "145 28% 32%", secondaryColor: "42 35% 96%", cardRadius: "1rem", menuImageAspect: "square" },
   },
   "neroxa-horizontal": {
     id: "neroxa-horizontal",
@@ -30,7 +30,7 @@ export const STOREFRONT_THEMES: Record<string, StorefrontTheme> = {
     menuLayout: "grid",
     categoryNavigation: "horizontal-scroll",
     footer: "complete",
-    tokens: { cardRadius: "1rem", menuImageAspect: "square" },
+    tokens: { primaryColor: "30 10% 8%", secondaryColor: "42 35% 96%", cardRadius: "1rem", menuImageAspect: "square" },
   },
   "neroxa-accordion": {
     id: "neroxa-accordion",
