@@ -23,6 +23,15 @@ export const STOREFRONT_THEMES: Record<string, StorefrontTheme> = {
     footer: "minimal",
     tokens: { cardRadius: "1rem", menuImageAspect: "landscape" },
   },
+  "burger-club": {
+    id: "burger-club",
+    name: "Burger Club",
+    header: "hero",
+    menuLayout: "grid",
+    categoryNavigation: "horizontal-scroll",
+    footer: "complete",
+    tokens: { cardRadius: "1rem", menuImageAspect: "square" },
+  },
   "neroxa-accordion": {
     id: "neroxa-accordion",
     name: "Neroxa Accordion",
