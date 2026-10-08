@@ -336,6 +336,29 @@ export function Storefront() {
     setQuickAddQuantities((current) => ({ ...current, [product.id]: 1 }));
   };
 
+  const addSimpleProductToCart = (product: Product) => {
+    cart.addItem({
+      lineId: crypto.randomUUID(),
+      productId: product.id,
+      productName: product.name,
+      imageUrl: product.image_url,
+      secondProductId: null,
+      secondProductName: null,
+      isHalf: false,
+      sizeId: null,
+      sizeName: null,
+      crustId: null,
+      crustName: null,
+      crustPrice: 0,
+      addons: [],
+      complements: [],
+      quantity: 1,
+      notes: null,
+      unitPrice: Number(product.base_price) || 0,
+    });
+    setCartOpen(true);
+  };
+
   const scrollToAddOrderCatalog = () => {
     document
       .getElementById("ppp-add-order-catalog")
@@ -468,7 +491,13 @@ export function Storefront() {
                 return (
                   <button
                     key={product.id}
-                    onClick={() => setSelectedProduct(product)}
+                    onClick={() => {
+                      if (product.kind === "PIZZA") {
+                        setSelectedProduct(product);
+                      } else {
+                        addSimpleProductToCart(product);
+                      }
+                    }}
                     className="ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lifted"
                   >
                     <div className="relative aspect-[1.35] overflow-hidden border-b border-border bg-muted">
