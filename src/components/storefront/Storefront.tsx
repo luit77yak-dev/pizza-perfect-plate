@@ -240,7 +240,7 @@ export function Storefront() {
     });
   }, [data, mainProducts, selectedCategory, searchTerm]);
 
-  const storefrontTheme = resolveStorefrontTheme(data?.products ?? []);
+  const storefrontTheme = resolveStorefrontTheme(data.settings.storefront_theme);
   const isBurgerTheme = storefrontTheme.id === "burger-club";
   const isPizzaTheme = storefrontTheme.id === "neroxa-classic";
   const themeTokens = storefrontTheme.tokens;
