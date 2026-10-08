@@ -245,6 +245,7 @@ export function Storefront() {
 
   const isBurgerDelivery = data?.products.some((product) => product.kind === "BURGER") ?? false;
   const isPizzaTheme = !isBurgerDelivery;
+  const isBurgerTheme = isBurgerDelivery;
 
   const categoryProducts = useMemo(() => {
     if (!data) return new Map<string, number>();
@@ -386,6 +387,15 @@ export function Storefront() {
   }
 
   const status = getStoreStatus(data.hours, data.specialHours, now);
+  const burgerFallbackImages: Record<string, string> = {
+    "Classic Burger": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=82&fm=jpg",
+    "Bacon Smash": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=1200&q=82&fm=jpg",
+    "Double Cheese": "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=1200&q=82&fm=jpg",
+    "Chicken Crispy": "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=1200&q=82&fm=jpg",
+    "Batata da Casa": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=1200&q=82&fm=jpg",
+    "Batata Cheddar & Bacon": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=1200&q=82&fm=jpg",
+  };
+
   const primary = data.settings.primary_color?.includes("%")
     ? `hsl(${data.settings.primary_color})`
     : undefined;
@@ -411,6 +421,7 @@ export function Storefront() {
         itemCount={itemCount}
         selectedTrackedOrdersCount={trackedOrders.length}
         isPizzaTheme={isPizzaTheme}
+        isBurgerTheme={isBurgerTheme}
         onOpenCart={() => setCartOpen(true)}
         onOpenTracking={() => {
           setSelectedTrackedOrderId((current) => current ?? trackedOrders[0]?.id ?? null);
@@ -424,6 +435,7 @@ export function Storefront() {
           settings={data.settings}
           products={mainProducts}
           isPizzaTheme={isPizzaTheme}
+          isBurgerTheme={isBurgerTheme}
           statusLabel={status.label}
         />
 
@@ -433,10 +445,11 @@ export function Storefront() {
           id="cardapio"
           className="ppp-reference-menu mx-auto max-w-6xl scroll-mt-24 px-4 pb-28 sm:px-6"
         >
-          {isPizzaTheme ? (
+          {isBurgerTheme ? (
             <>
               <MenuFilters
                 isPizzaTheme={isPizzaTheme}
+                isBurgerTheme={isBurgerTheme}
                 categories={data.categories}
                 mainProducts={mainProducts}
                 categoryProducts={categoryProducts}
@@ -454,16 +467,12 @@ export function Storefront() {
             </>
           ) : (
             <>
-              <div className="ppp-reference-menu-heading mb-8 flex flex-col items-start justify-center gap-3 text-left">
-                <p className="text-xs font-semibold uppercase tracking-[.35em] text-primary">Cardápio</p>
-                <h2 className="mt-1 max-w-3xl text-4xl leading-[.95] sm:text-6xl">Escolha seu <em>burger.</em></h2>
-                <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-                  Assadas a 450 graus em menos de dois minutos.
-                </p>
+              <div className="hc-menu-title">
+                <h2>Mais pedidas</h2>
+                <button type="button" onClick={() => setSelectedCategory("all")}>
+                  Ver todas <ArrowRight className="size-4" strokeWidth={2} />
+                </button>
               </div>
-              <MenuFilters
-                isPizzaTheme={isPizzaTheme}
-                categories={data.categories}
                 mainProducts={mainProducts}
                 categoryProducts={categoryProducts}
                 selectedCategory={selectedCategory}
@@ -480,12 +489,12 @@ export function Storefront() {
               <p className="mt-1 text-sm text-muted-foreground">Tente outra categoria.</p>
             </div>
           ) : (
-            <div className={isPizzaTheme ? "pc-menu-list grid gap-5" : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"}>
+            <div className={isPizzaTheme ? "pc-menu-list grid gap-5" : isBurgerTheme ? "hc-menu-list grid gap-5" : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"}>
               {filteredProducts.map((product, index) => {
                 const firstSize = data.sizes[0];
                 const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
                 const categoryImage = data.categories.find((category) => category.id === product.category_id)?.image_url;
-                const productImage = product.image_url || categoryImage;
+                const productImage = product.image_url || categoryImage || (isBurgerTheme ? burgerFallbackImages[product.name] : undefined);
                 const categoryName = data.categories.find((category) => category.id === product.category_id)?.name || "Pizza";
 
                 return (
@@ -527,6 +536,16 @@ export function Storefront() {
                         </div>
                         <span className="pc-menu-add" aria-hidden="true"><Plus className="size-6" strokeWidth={2} /></span>
                       </div>
+                    ) : isBurgerTheme ? (
+                      <div className="hc-menu-content relative min-w-0">
+                        <div className="hc-menu-text">
+                          <p className="hc-menu-eyebrow">{categoryName}</p>
+                          <h3>{product.name}</h3>
+                          <p className="hc-menu-desc">{product.description || "Hambúrguer artesanal, ingredientes selecionados e molho da casa."}</p>
+                          <span className="hc-menu-price">{formatCurrency(displayPrice)}</span>
+                        </div>
+                        <span className="hc-menu-add" aria-hidden="true"><Plus className="size-6" strokeWidth={2} /></span>
+                      </div>
                     ) : (
                       <div className="p-4 sm:p-5">
                         <div className="flex items-start justify-between gap-3">
@@ -548,9 +567,9 @@ export function Storefront() {
             </div>
           )}
         </section>
-        <StorefrontAbout settings={data.settings} categories={data.categories} isPizzaTheme={isPizzaTheme} />
+        <StorefrontAbout settings={data.settings} categories={data.categories} isPizzaTheme={isPizzaTheme} isBurgerTheme={isBurgerTheme} />
 
-        <StorefrontContact settings={data.settings} isPizzaTheme={isPizzaTheme} />
+        <StorefrontContact settings={data.settings} isPizzaTheme={isPizzaTheme} isBurgerTheme={isBurgerTheme} />
       </main>
 
       {selectedProduct && (
