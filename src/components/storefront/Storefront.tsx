@@ -399,7 +399,7 @@ export function Storefront() {
   const primary = data.settings.primary_color?.includes("%")
     ? `hsl(${data.settings.primary_color})`
     : undefined;
-  const secondary = "hsl(145 28% 32%)";
+  const secondary = isBurgerTheme ? "hsl(30 10% 8%)" : "hsl(145 28% 32%)";
   const secondaryForeground = "hsl(42 35% 96%)";
 
   return (
@@ -413,7 +413,7 @@ export function Storefront() {
         } as CSSProperties
       }
     >
-      {!isPizzaTheme && <StorefrontTicker organizationName={data.organization.name} statusLabel={status.label} />}
+      {!isPizzaTheme && !isBurgerTheme && <StorefrontTicker organizationName={data.organization.name} statusLabel={status.label} />}
 
       <StorefrontHeader
         organizationName={data.organization.name}
