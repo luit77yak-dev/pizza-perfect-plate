@@ -29,24 +29,17 @@ type PublicStorefrontCatalog = {
 };
 
 function getDomain() {
+  if (typeof window === "undefined") throw new Error("Storefront domain is unavailable outside the browser.");
   return window.location.hostname.replace(/\.$/, "").toLowerCase();
 }
 
 function toProduct(row: PublicStorefrontCatalog["products"][number], organizationId: string): Product {
   return {
-    id: row.id,
-    organization_id: organizationId,
-    category_id: row.category_id,
-    name: row.name,
-    description: row.description,
-    image_url: row.image_url,
-    kind: (["SIMPLE", "PIZZA", "BURGER", "SIDE", "COMBO", "DRINK"].includes(String(row.metadata.kind)) ? String(row.metadata.kind) : "SIMPLE") as Product["kind"],
-    base_price: Number(row.price ?? 0),
-    allow_half: row.metadata.allow_half === true,
-    active: row.active,
-    featured: row.metadata.featured === true,
-    available: row.metadata.available !== false,
-    sort_order: row.sort_order,
+    id: row.id, organization_id: organizationId, category_id: row.category_id, name: row.name,
+    description: row.description, image_url: row.image_url,
+    kind: (["SIMPLE", "PIZZA", "BURGER", "SIDE", "COMBO", "DRINK"].includes(String(row.metadata?.kind)) ? String(row.metadata?.kind) : "SIMPLE") as Product["kind"],
+    base_price: Number(row.price ?? 0), allow_half: row.metadata?.allow_half === true, active: row.active,
+    featured: row.metadata?.featured === true, available: row.metadata?.available !== false, sort_order: row.sort_order,
   };
 }
 
@@ -64,27 +57,33 @@ function defaultSettings(organizationId: string): OrganizationSettings {
 
 export async function loadStore(): Promise<StoreData> {
   const domain = getDomain();
-  const { data, error } = await supabase.rpc("get_public_storefront_catalog", { p_domain: domain });
-  if (error) throw error;
-
-  const catalog = data as PublicStorefrontCatalog | null;
-  if (!catalog?.context?.instance_id) throw new Error(`Nenhuma loja ativa foi configurada para o domínio ${domain}.`);
-
-  const { context } = catalog;
-  const organization: Organization = {
-    id: context.organization_id, slug: context.instance_slug,
-    name: context.organization_name || context.instance_name, active: true, demo_mode: true,
-  };
-
-  const categories: Category[] = catalog.categories.map((category) => ({
-    id: category.id, organization_id: context.organization_id, name: category.name,
-    description: category.description ?? null, image_url: category.image_url ?? null,
-    sort_order: category.sort_order, active: category.active,
-  }));
-
-  return {
-    organization, settings: defaultSettings(context.organization_id), categories,
-    products: catalog.products.map((product) => toProduct(product, context.organization_id)),
-    sizes: [], prices: [], crusts: [], addons: [], productAddonLinks: [], hours: [], specialHours: [], deliveryZones: [],
-  };
+  try {
+    const { data, error } = await supabase.rpc("get_public_storefront_catalog", { p_domain: domain });
+    if (error) {
+      throw new Error(`Falha ao carregar a loja (${error.code ?? "RPC"}): ${error.message ?? "erro desconhecido"}`, { cause: error });
+    }
+    const catalog = data as PublicStorefrontCatalog | null;
+    if (!catalog?.context?.instance_id) throw new Error(`Nenhuma loja ativa foi configurada para o domínio ${domain}.`);
+    if (!Array.isArray(catalog.categories) || !Array.isArray(catalog.products)) {
+      throw new Error(`Resposta inválida do catálogo para ${domain}.`);
+    }
+    const { context } = catalog;
+    const organization: Organization = {
+      id: context.organization_id, slug: context.instance_slug,
+      name: context.organization_name || context.instance_name, active: true, demo_mode: true,
+    };
+    const categories: Category[] = catalog.categories.map((category) => ({
+      id: category.id, organization_id: context.organization_id, name: category.name,
+      description: category.description ?? null, image_url: category.image_url ?? null,
+      sort_order: category.sort_order, active: category.active,
+    }));
+    return {
+      organization, settings: defaultSettings(context.organization_id), categories,
+      products: catalog.products.map((product) => toProduct(product, context.organization_id)),
+      sizes: [], prices: [], crusts: [], addons: [], productAddonLinks: [], hours: [], specialHours: [], deliveryZones: [],
+    };
+  } catch (error) {
+    if (error instanceof Error) throw error;
+    throw new Error(`Falha inesperada ao carregar a loja ${domain}.`);
+  }
 }
