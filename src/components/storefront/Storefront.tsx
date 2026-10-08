@@ -35,10 +35,16 @@ export type TrackedOrder = {
 };
 
 export function Storefront() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["public-store", typeof window !== "undefined" ? window.location.hostname.toLowerCase() : "server"],
+    queryKey: ["public-store", mounted ? window.location.hostname.toLowerCase() : "server"],
     queryFn: () => loadStore(),
-    enabled: typeof window !== "undefined",
+    enabled: mounted,
     staleTime: 60_000,
   });
   const cart = useLocalCart();
@@ -335,7 +341,7 @@ export function Storefront() {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  if (isLoading) return <StorefrontSkeleton />;
+  if (!mounted || isLoading) return <StorefrontSkeleton />;
   if (isError || !data) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-background px-6">
