@@ -777,9 +777,7 @@ export function ProductConfigurator({
                     ? "Escolha o segundo sabor"
                     : "Próxima etapa"}
                 </span>
-                {!(step === 1 && product.allow_half && halfMode && !secondProductId) && (
-                  
-                )}
+                {!(step === 1 && product.allow_half && halfMode && !secondProductId) && <span aria-hidden="true">+</span>}
               </button>
             ) : (
               <button
