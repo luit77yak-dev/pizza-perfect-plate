@@ -3594,3 +3594,506 @@
     font-size: 1.75rem !important;
   }
 }
+
+
+/* ============================================================
+   PIZZA CLUB — FINAL MOCKUP MATCH
+   Visual-only override. Ordering logic/components stay intact.
+   ============================================================ */
+
+.ppp-pizza-theme {
+  --pizza-primary: #ff5a36 !important;
+  --pizza-secondary: #ffc15e !important;
+  --pizza-bg: #090807 !important;
+  --pizza-text: #f7efe6 !important;
+  --pizza-surface: #151210 !important;
+  background:
+    radial-gradient(900px 420px at 78% 2%, rgba(255, 106, 61, .08), transparent 60%),
+    radial-gradient(700px 520px at 5% 44%, rgba(255, 193, 94, .035), transparent 60%),
+    #090807 !important;
+  color: #f7efe6 !important;
+}
+
+.ppp-pizza-theme .ppp-reference-storefront,
+.ppp-pizza-theme main#inicio,
+.ppp-pizza-theme #cardapio,
+.ppp-pizza-theme #sobre,
+.ppp-pizza-theme #contato {
+  background:
+    radial-gradient(1000px 500px at 85% 0%, rgba(255, 106, 61, .06), transparent 62%),
+    #090807 !important;
+  color: #f7efe6 !important;
+}
+
+/* Header exactly in the mockup language */
+.ppp-pizza-theme .ppp-reference-header {
+  background: linear-gradient(180deg, rgba(5,4,3,.88) 0%, rgba(5,4,3,.42) 72%, transparent 100%) !important;
+  border: 0 !important;
+}
+
+.ppp-pizza-theme .ppp-reference-header.scrolled {
+  background: rgba(9,8,7,.96) !important;
+  backdrop-filter: blur(18px);
+}
+
+.ppp-pizza-theme .ppp-reference-header > div {
+  height: 5.5rem !important;
+  padding-inline: 1.25rem !important;
+}
+
+.ppp-pizza-theme .ppp-reference-header a[href="#inicio"] > span:first-child {
+  width: 3.25rem !important;
+  height: 3.25rem !important;
+  border: 1.5px solid #ffc15e !important;
+  color: #ffc15e !important;
+  font-family: Georgia, serif !important;
+  font-size: 1.15rem !important;
+}
+
+.ppp-pizza-theme .ppp-reference-header a[href="#inicio"] > span:last-child {
+  font-family: Georgia, serif !important;
+  font-size: 1.55rem !important;
+  color: #f7efe6 !important;
+}
+
+.ppp-pizza-theme .ppp-header-icon-button {
+  width: 3.35rem !important;
+  height: 3.35rem !important;
+  min-width: 3.35rem !important;
+  border: 1px solid rgba(247,239,230,.25) !important;
+  border-radius: 999px !important;
+  background: rgba(9,8,7,.26) !important;
+  color: #f7efe6 !important;
+}
+
+.ppp-pizza-theme .ppp-header-icon-button:hover {
+  background: rgba(247,239,230,.08) !important;
+  border-color: #ffc15e !important;
+}
+
+.ppp-pizza-theme .ppp-reference-hero-frame,
+.ppp-pizza-theme .ppp-reference-hero-grid,
+.ppp-pizza-theme .ppp-reference-hero-media,
+.ppp-pizza-theme .ppp-reference-hero-media > div {
+  min-height: 88svh !important;
+  height: 88svh !important;
+}
+
+.ppp-pizza-theme .ppp-reference-hero-image {
+  filter: saturate(.92) contrast(1.08) brightness(.72) !important;
+  transform: scale(1.035) !important;
+}
+
+.ppp-pizza-theme .ppp-reference-hero-frame::after {
+  background:
+    linear-gradient(90deg, rgba(5,4,3,.87) 0%, rgba(5,4,3,.48) 48%, rgba(5,4,3,.08) 100%),
+    linear-gradient(0deg, rgba(5,4,3,.88) 0%, rgba(5,4,3,.08) 52%, rgba(5,4,3,.28) 100%) !important;
+}
+
+.ppp-pizza-theme .ppp-reference-hero-copy {
+  min-height: 88svh !important;
+  height: 88svh !important;
+  justify-content: flex-end !important;
+  padding: 7.5rem 1.4rem 3.2rem !important;
+}
+
+.ppp-pizza-theme .ppp-reference-hero-copy h1 {
+  max-width: 760px !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: clamp(3rem, 11vw, 6.7rem) !important;
+  line-height: .88 !important;
+  letter-spacing: -.055em !important;
+  color: #f7efe6 !important;
+}
+
+.ppp-pizza-theme .ppp-reference-hero-copy > p:not(.ppp-hero-status) {
+  max-width: 580px !important;
+  margin-top: 1.15rem !important;
+  font-size: clamp(.98rem, 3vw, 1.22rem) !important;
+  line-height: 1.55 !important;
+  color: rgba(247,239,230,.82) !important;
+}
+
+.ppp-pizza-theme .ppp-hero-status {
+  margin-bottom: .85rem !important;
+  gap: .7rem !important;
+  font-size: .86rem !important;
+  letter-spacing: .18em !important;
+  color: rgba(247,239,230,.86) !important;
+}
+
+.ppp-pizza-theme .ppp-hero-status > span {
+  width: .72rem !important;
+  height: .72rem !important;
+  background: #ff5a36 !important;
+  box-shadow: 0 0 0 6px rgba(255,90,54,.09) !important;
+}
+
+.ppp-pizza-theme .ppp-reference-hero-copy > a {
+  min-height: 3.7rem !important;
+  margin-top: 1.35rem !important;
+  padding: .95rem 1.7rem !important;
+  border-radius: 999px !important;
+  background: #ff5a36 !important;
+  color: #fff !important;
+  font-family: var(--pizza-body) !important;
+  font-size: .98rem !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+/* Menu section: black/cinematic instead of teal */
+.ppp-pizza-theme #cardapio {
+  max-width: 1400px !important;
+  padding: 1.35rem 1.2rem 5rem !important;
+  margin-inline: auto !important;
+}
+
+.ppp-pizza-theme .ppp-menu-filters {
+  display: flex !important;
+  gap: .75rem !important;
+  margin: 0 0 2.25rem !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow-x: auto !important;
+}
+
+.ppp-pizza-theme .ppp-menu-filters .scrollbar-none {
+  width: 100% !important;
+  gap: .7rem !important;
+  padding: 0 0 .25rem !important;
+}
+
+.ppp-pizza-theme .ppp-menu-filters button {
+  min-height: 3.15rem !important;
+  padding: .72rem 1.35rem !important;
+  border: 1px solid rgba(247,239,230,.26) !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.01) !important;
+  color: rgba(247,239,230,.88) !important;
+  font-family: var(--pizza-body) !important;
+  font-size: .9rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.ppp-pizza-theme .ppp-menu-filters button[aria-pressed="true"] {
+  border-color: #f7efe6 !important;
+  background: #f7efe6 !important;
+  color: #0a0908 !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-title {
+  position: relative !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  margin-bottom: 1.35rem !important;
+  padding: 0 !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-title > div:first-child > p {
+  display: none !important;
+}
+
+/* Keep accessible heading text, replace its visual treatment with mockup typography. */
+.ppp-pizza-theme .ppp-pizza-menu-title h2 {
+  position: relative !important;
+  width: max-content !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  font-family: var(--pizza-body) !important;
+  font-size: clamp(2rem, 8vw, 3.65rem) !important;
+  font-weight: 800 !important;
+  line-height: .95 !important;
+  letter-spacing: -.055em !important;
+  text-transform: uppercase !important;
+  color: #ffc15e !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-title h2::first-letter {
+  color: #ffc15e !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-title h2 {
+  color: transparent !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-title h2::before {
+  content: "MAIS PEDIDAS";
+  color: #ffc15e;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-title em {
+  color: inherit !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-title button {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: .35rem !important;
+  padding: 0 0 .35rem !important;
+  color: #ffc15e !important;
+  font-family: var(--pizza-body) !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+/* Product cards */
+.ppp-pizza-theme .ppp-pizza-menu-card {
+  display: grid !important;
+  grid-template-columns: 49% 51% !important;
+  width: 100% !important;
+  min-height: 285px !important;
+  height: 285px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(247,239,230,.24) !important;
+  border-radius: 22px !important;
+  background: #151210 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-card + .ppp-pizza-menu-card {
+  margin-top: 1.25rem !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(255,193,94,.52) !important;
+  box-shadow: 0 20px 44px rgba(0,0,0,.28) !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-image {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 285px !important;
+  min-height: 285px !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-right: 1px solid rgba(247,239,230,.16) !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  filter: saturate(1.04) contrast(1.04) !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-content {
+  min-width: 0 !important;
+  width: 100% !important;
+  height: 285px !important;
+  min-height: 285px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 1.35rem 1.15rem 1.15rem !important;
+  background: #151210 !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-content > div:first-child {
+  min-width: 0 !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-content > div:first-child > p {
+  margin: 0 0 .65rem !important;
+  color: #ffc15e !important;
+  font-size: .68rem !important;
+  line-height: 1.15 !important;
+  font-weight: 800 !important;
+  letter-spacing: .28em !important;
+  text-transform: uppercase !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-content h3 {
+  margin: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: clamp(1.45rem, 4.7vw, 2.1rem) !important;
+  line-height: .94 !important;
+  letter-spacing: -.035em !important;
+  color: #f7efe6 !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-content > div:first-child > p:last-child {
+  margin-top: .95rem !important;
+  color: rgba(247,239,230,.68) !important;
+  font-size: .82rem !important;
+  line-height: 1.6 !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-content > div:last-child {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: .7rem !important;
+  margin-top: .8rem !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-content .text-2xl {
+  color: #ffc15e !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: clamp(1.45rem, 4.5vw, 2rem) !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-content .size-12 {
+  width: 3rem !important;
+  height: 3rem !important;
+  min-width: 3rem !important;
+  flex: 0 0 3rem !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  background: #ff5a36 !important;
+  color: #fff !important;
+  font-size: 2rem !important;
+  box-shadow: none !important;
+}
+
+.ppp-pizza-theme .ppp-pizza-menu-card .absolute.left-4 {
+  left: 1rem !important;
+  top: 1rem !important;
+  padding: .7rem 1rem !important;
+  border-radius: 999px !important;
+  background: #ffc15e !important;
+  color: #0b0908 !important;
+  font-size: .73rem !important;
+  font-weight: 800 !important;
+}
+
+/* Mobile: preserve the horizontal mockup composition */
+@media (max-width: 639px) {
+  .ppp-pizza-theme .ppp-reference-header > div {
+    height: 4.75rem !important;
+    padding-inline: .8rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-reference-header a[href="#inicio"] {
+    gap: .6rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-reference-header a[href="#inicio"] > span:first-child {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-reference-header a[href="#inicio"] > span:last-child {
+    font-size: 1.25rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-header-icon-button {
+    width: 3rem !important;
+    height: 3rem !important;
+    min-width: 3rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-reference-hero-frame,
+  .ppp-pizza-theme .ppp-reference-hero-grid,
+  .ppp-pizza-theme .ppp-reference-hero-media,
+  .ppp-pizza-theme .ppp-reference-hero-media > div,
+  .ppp-pizza-theme .ppp-reference-hero-copy {
+    min-height: 82svh !important;
+    height: 82svh !important;
+  }
+
+  .ppp-pizza-theme .ppp-reference-hero-copy {
+    padding: 6.2rem 1.1rem 2.1rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-reference-hero-copy h1 {
+    font-size: clamp(2.65rem, 11vw, 4.6rem) !important;
+  }
+
+  .ppp-pizza-theme #cardapio {
+    padding: 1.15rem 1rem 4.5rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-menu-filters {
+    margin-bottom: 1.75rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-menu-filters button {
+    min-height: 2.95rem !important;
+    padding-inline: 1.15rem !important;
+    font-size: .86rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-title {
+    margin-bottom: 1.2rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-title h2 {
+    font-size: clamp(1.85rem, 8.4vw, 2.8rem) !important;
+    letter-spacing: -.055em !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-title h2::before {
+    content: "MAIS PEDIDAS";
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-title button {
+    display: inline-flex !important;
+    font-size: .72rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-card {
+    grid-template-columns: 48% 52% !important;
+    height: 285px !important;
+    min-height: 285px !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-image,
+  .ppp-pizza-theme .ppp-pizza-menu-content {
+    height: 285px !important;
+    min-height: 285px !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-content {
+    padding: 1.15rem .95rem 1rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-content > div:first-child > p {
+    font-size: .62rem !important;
+    letter-spacing: .24em !important;
+    margin-bottom: .55rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-content h3 {
+    font-size: clamp(1.3rem, 5.3vw, 1.8rem) !important;
+    line-height: .94 !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-content > div:first-child > p:last-child {
+    margin-top: .75rem !important;
+    font-size: .78rem !important;
+    line-height: 1.55 !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-content .text-2xl {
+    font-size: 1.5rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-content .size-12 {
+    width: 2.65rem !important;
+    height: 2.65rem !important;
+    min-width: 2.65rem !important;
+    flex-basis: 2.65rem !important;
+    font-size: 1.8rem !important;
+  }
+
+  .ppp-pizza-theme .ppp-pizza-menu-card .absolute.left-4 {
+    left: .75rem !important;
+    top: .75rem !important;
+    padding: .62rem .82rem !important;
+    font-size: .68rem !important;
+  }
+}
