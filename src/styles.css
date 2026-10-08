@@ -6563,3 +6563,93 @@
     min-height: 13rem !important;
   }
 }
+
+
+/* BURGER CLUB: final containment boundary.
+ * This wrapper intentionally sits above the legacy storefront selectors.
+ * It prevents old green/teal ID rules from painting the page edges, header,
+ * hero shell, About and footer.
+ */
+.ppp-customer-shell.ppp-burger-theme .burger-club-page {
+  position: relative !important;
+  z-index: 1 !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  overflow: clip !important;
+  background: #090807 !important;
+  color: #f7efe6 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .burger-club-page,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page::before,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page::after,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page > main,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page > main::before,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page > main::after {
+  background-color: #090807 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .burger-club-page .ppp-reference-header {
+  background: rgba(9,8,7,.82) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .burger-club-page .ppp-reference-header.scrolled {
+  background: rgba(9,8,7,.96) !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .burger-club-page .hc-hero {
+  background: #090807 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .burger-club-page #cardapio,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page #sobre,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page #contato {
+  background: #090807 !important;
+  border-color: rgba(247,239,230,.12) !important;
+  box-shadow: none !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .burger-club-page .hc-footer,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page .hc-footer > *,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page .hc-footer-top,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page .hc-footer-grid,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page .hc-footer-bottom {
+  background: #050403 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .burger-club-page #sobre > div,
+.ppp-customer-shell.ppp-burger-theme .burger-club-page #sobre > div > div {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .burger-club-page #cardapio .hc-menu-card {
+  background: #151210 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .burger-club-page .hc-menu-content {
+  background: #151210 !important;
+}
+
+.ppp-customer-shell.ppp-burger-theme .burger-club-page .hc-menu-image {
+  background: #11100f !important;
+}
+
+@media (max-width: 767px) {
+  .ppp-customer-shell.ppp-burger-theme .burger-club-page {
+    overflow-x: clip !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .burger-club-page .ppp-reference-header {
+    background: rgba(9,8,7,.9) !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .burger-club-page .hc-hero {
+    min-height: 76svh !important;
+    height: 76svh !important;
+  }
+}
