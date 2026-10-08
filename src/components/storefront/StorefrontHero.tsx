@@ -15,7 +15,8 @@ export function StorefrontHero({ organizationName, settings, products, isPizzaTh
       <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
         <div className="ppp-reference-hero-grid grid min-h-[min(760px,calc(100dvh-5.5rem))] lg:min-h-[760px] lg:grid-cols-1">
           <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-[clamp(1.25rem,5vw,3.5rem)]">
-            <p className="ppp-hero-status"><span aria-hidden="true" />{isPizzaTheme ? statusLabel : "Aberto agora"}</p>            <h1 className="w-full max-w-4xl text-[clamp(2rem,8vw,8rem)] leading-[.86] tracking-[-.045em]">{isPizzaTheme ? "A noite pede mais uma fatia." : (settings.hero_title && !/MASSA DE FERMENTA/i.test(settings.hero_title) ? settings.hero_title : "Pizza que fica na memória.")}</h1>
+            <p className="ppp-hero-status"><span aria-hidden="true" />{isPizzaTheme ? statusLabel : "Aberto agora"}</p>
+            <h1 className="w-full max-w-4xl text-[clamp(2rem,8vw,8rem)] leading-[.86] tracking-[-.045em]">{isPizzaTheme ? "A noite pede mais uma fatia." : (settings.hero_title && !/MASSA DE FERMENTA/i.test(settings.hero_title) ? settings.hero_title : "Pizza que fica na memória.")}</h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-white/75 sm:text-lg">{isPizzaTheme ? "Massa de fermentação longa, forno a lenha e queijo que estica." : (settings.hero_subtitle || settings.description || "Escolha seus sabores, monte sua pizza e peça em poucos passos.")}</p>
             <a href="#cardapio" className="mt-8 inline-flex w-fit items-center rounded-[14px] bg-[#ff6a3d] px-6 py-4 text-sm font-semibold text-white shadow-none transition-transform hover:-translate-y-0.5">{isPizzaTheme ? "Ver as pizzas" : (settings.hero_cta_label || "Pedir agora")}</a>
           </div>
