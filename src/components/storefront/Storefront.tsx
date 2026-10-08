@@ -422,8 +422,7 @@ export function Storefront() {
         logoUrl={data.settings.logo_url ?? null}
         itemCount={itemCount}
         selectedTrackedOrdersCount={trackedOrders.length}
-        isPizzaTheme={isPizzaTheme}
-        isBurgerTheme={isBurgerTheme}
+        theme={storefrontTheme}
         onOpenCart={() => setCartOpen(true)}
         onOpenTracking={() => {
           setSelectedTrackedOrderId((current) => current ?? trackedOrders[0]?.id ?? null);
@@ -436,8 +435,7 @@ export function Storefront() {
           organizationName={data.organization.name}
           settings={data.settings}
           products={mainProducts}
-          isPizzaTheme={isPizzaTheme}
-          isBurgerTheme={isBurgerTheme}
+          theme={storefrontTheme}
           statusLabel={status.label}
         />
 
