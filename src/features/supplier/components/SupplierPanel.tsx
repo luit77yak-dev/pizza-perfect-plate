@@ -23,7 +23,9 @@ type Product = {
   sort_order: number;
 };
 
-type Category = { id: string; instance_id: string; name: string; slug: string; active: boolean; sort_order: number };\ntype AddonGroup = { id: string; instance_id: string; name: string; required: boolean; min_selections: number; max_selections: number; active: boolean; sort_order: number };\ntype Addon = { id: string; group_id: string; name: string; price_delta: number; active: boolean; sort_order: number };
+type Category = { id: string; instance_id: string; name: string; slug: string; active: boolean; sort_order: number };
+type AddonGroup = { id: string; instance_id: string; name: string; required: boolean; min_selections: number; max_selections: number; active: boolean; sort_order: number };
+type Addon = { id: string; group_id: string; name: string; price_delta: number; active: boolean; sort_order: number };
 type Order = { id: string; order_number: number; customer_name: string; customer_phone: string; fulfillment: string; payment_method: string; status: string; total: number; created_at: string };
 type Zone = { id: string; name: string; neighborhoods: string[]; minimum_order: number; delivery_fee: number; estimated_minutes: number | null; active: boolean };
 
@@ -43,7 +45,9 @@ function SupplierPanel() {
   const [password, setPassword] = useState("");
   const [view, setView] = useState<View>("dashboard");
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);\n  const [addonGroups, setAddonGroups] = useState<AddonGroup[]>([]);\n  const [addons, setAddons] = useState<Addon[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [addonGroups, setAddonGroups] = useState<AddonGroup[]>([]);
+  const [addons, setAddons] = useState<Addon[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [zones, setZones] = useState<Zone[]>([]);
   const [settings, setSettings] = useState<Record<string, unknown> | null>(null);
@@ -67,7 +71,9 @@ function SupplierPanel() {
     const instanceId = loaded.instance?.id;
     const [productsResult, categoriesResult, addonGroupsResult, addonsResult, ordersResult, zonesResult, settingsResult] = await Promise.all([
       instanceId ? supabase.from("neroxa_storefront_products").select("id, instance_id, category_id, name, slug, description, image_url, price, active, sort_order").eq("instance_id", instanceId).order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),
-      instanceId ? supabase.from("neroxa_storefront_categories").select("id, instance_id, name, slug, active, sort_order").eq("instance_id", instanceId).order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),\n      instanceId ? supabase.from("neroxa_storefront_addon_groups").select("id, instance_id, name, required, min_selections, max_selections, active, sort_order").eq("instance_id", instanceId).order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),\n      instanceId ? supabase.from("neroxa_storefront_addons").select("id, group_id, name, price_delta, active, sort_order").order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),
+      instanceId ? supabase.from("neroxa_storefront_categories").select("id, instance_id, name, slug, active, sort_order").eq("instance_id", instanceId).order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),
+      instanceId ? supabase.from("neroxa_storefront_addon_groups").select("id, instance_id, name, required, min_selections, max_selections, active, sort_order").eq("instance_id", instanceId).order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),
+      instanceId ? supabase.from("neroxa_storefront_addons").select("id, group_id, name, price_delta, active, sort_order").order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),
       supabase.from("neroxa_orders").select("id, order_number, customer_name, customer_phone, fulfillment, payment_method, status, total, created_at").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(50),
       supabase.from("neroxa_storefront_delivery_zones").select("id, name, neighborhoods, minimum_order, delivery_fee, estimated_minutes, active").eq("organization_id", orgId).order("sort_order").order("name"),
       supabase.from("neroxa_storefront_settings").select("*").eq("organization_id", orgId).maybeSingle(),
@@ -75,7 +81,9 @@ function SupplierPanel() {
     const firstError = productsResult.error ?? categoriesResult.error ?? addonGroupsResult.error ?? addonsResult.error ?? ordersResult.error ?? zonesResult.error ?? settingsResult.error;
     if (firstError) setError(firstError.message);
     setProducts((productsResult.data ?? []) as Product[]);
-    setCategories((categoriesResult.data ?? []) as Category[]);\n    setAddonGroups((addonGroupsResult.data ?? []) as AddonGroup[]);\n    setAddons((addonsResult.data ?? []) as Addon[]);
+    setCategories((categoriesResult.data ?? []) as Category[]);
+    setAddonGroups((addonGroupsResult.data ?? []) as AddonGroup[]);
+    setAddons((addonsResult.data ?? []) as Addon[]);
     setOrders((ordersResult.data ?? []) as Order[]);
     setZones((zonesResult.data ?? []) as Zone[]);
     setSettings((settingsResult.data ?? null) as Record<string, unknown> | null);
@@ -179,13 +187,16 @@ function CatalogView({products,categories,addonGroups,addons,canManage,instanceI
   const [editing,setEditing]=useState<string|null>(null);
   const [saving,setSaving]=useState(false);
   const [search,setSearch]=useState("");
-  const [draft,setDraft]=useState<any>({name:"",description:"",price:"",category_id:"",active:true});\n  const [groupDraft,setGroupDraft]=useState<any>({name:"",required:false,min_selections:0,max_selections:1});\n  const [addonDraft,setAddonDraft]=useState<any>({name:"",price_delta:"",active:true,group_id:""});\n  const [editingAddon,setEditingAddon]=useState<string|null>(null);
+  const [draft,setDraft]=useState<any>({name:"",description:"",price:"",category_id:"",active:true});
+  const [groupDraft,setGroupDraft]=useState<any>({name:"",required:false,min_selections:0,max_selections:1});
+  const [addonDraft,setAddonDraft]=useState<any>({name:"",price_delta:"",active:true,group_id:""});
+  const [editingAddon,setEditingAddon]=useState<string|null>(null);
 
   const beginProduct=(p?:Product)=>{setEditing(p?.id ?? "new");setDraft({name:p?.name??"",description:p?.description??"",price:p?.price??"",category_id:p?.category_id??"",active:p?.active??true});};
   const saveProduct=async()=>{
     if(!canManage||!instanceId||!draft.name.trim()){setError("Informe o nome do produto.");return;}
     setSaving(true);
-    const payload={instance_id:instanceId,name:draft.name.trim(),slug:(draft.name.trim().toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""))||`produto-${Date.now()}`,description:draft.description?.trim()||null,price:draft.price===""?null:Number(draft.price),category_id:draft.category_id||null,active:Boolean(draft.active),sort_order:editing==="new"?products.length:(products.findIndex((p:Product)=>p.id===editing)>=0?products.findIndex((p:Product)=>p.id===editing):products.length)};
+    const payload={instance_id:instanceId,name:draft.name.trim(),slug:(draft.name.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""))||`produto-${Date.now()}`,description:draft.description?.trim()||null,price:draft.price===""?null:Number(draft.price),category_id:draft.category_id||null,active:Boolean(draft.active),sort_order:editing==="new"?products.length:(products.findIndex((p:Product)=>p.id===editing)>=0?products.findIndex((p:Product)=>p.id===editing):products.length)};
     const result=editing==="new"?await supabase.from("neroxa_storefront_products").insert(payload):await supabase.from("neroxa_storefront_products").update(payload).eq("id",editing);
     if(result.error)setError(result.error.message);else{setEditing(null);await refresh();}
     setSaving(false);
@@ -195,13 +206,17 @@ function CatalogView({products,categories,addonGroups,addons,canManage,instanceI
   const saveCategory=async()=>{
     if(!canManage||!instanceId||!draft.name.trim()){setError("Informe o nome da categoria.");return;}
     setSaving(true);
-    const payload={instance_id:instanceId,name:draft.name.trim(),slug:(draft.name.trim().toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""))||`categoria-${Date.now()}`,description:draft.description?.trim()||null,active:Boolean(draft.active),sort_order:editing==="new"?categories.length:(categories.findIndex((x:Category)=>x.id===editing)>=0?categories.findIndex((x:Category)=>x.id===editing):categories.length)};
+    const payload={instance_id:instanceId,name:draft.name.trim(),slug:(draft.name.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""))||`categoria-${Date.now()}`,description:draft.description?.trim()||null,active:Boolean(draft.active),sort_order:editing==="new"?categories.length:(categories.findIndex((x:Category)=>x.id===editing)>=0?categories.findIndex((x:Category)=>x.id===editing):categories.length)};
     const result=editing==="new"?await supabase.from("neroxa_storefront_categories").insert(payload):await supabase.from("neroxa_storefront_categories").update(payload).eq("id",editing);
     if(result.error)setError(result.error.message);else{setEditing(null);await refresh();}
     setSaving(false);
   };
   const removeCategory=async(id:string)=>{if(!canManage)return;if(!confirm("Excluir esta categoria? Produtos vinculados ficarão sem categoria."))return;const {error}=await supabase.from("neroxa_storefront_categories").delete().eq("id",id);if(error)setError(error.message);else void refresh();};
-  const saveAddonGroup=async()=>{if(!canManage||!instanceId||!groupDraft.name.trim()){setError("Informe o nome do grupo.");return;}const min=Math.max(0,Number(groupDraft.min_selections)||0),max=Math.max(1,Number(groupDraft.max_selections)||1);if(max<min){setError("Máximo menor que mínimo.");return;}const {error}=await supabase.from("neroxa_storefront_addon_groups").insert({instance_id:instanceId,name:groupDraft.name.trim(),required:Boolean(groupDraft.required),min_selections:min,max_selections:max,active:true,sort_order:addonGroups.length});if(error)setError(error.message);else{setGroupDraft({name:"",required:false,min_selections:0,max_selections:1});void refresh();}};\n  const saveAddon=async()=>{if(!canManage||!addonDraft.group_id||!addonDraft.name.trim()){setError("Informe grupo e nome do complemento.");return;}const payload={group_id:addonDraft.group_id,name:addonDraft.name.trim(),price_delta:addonDraft.price_delta===""?0:Number(addonDraft.price_delta),active:Boolean(addonDraft.active),sort_order:addons.filter((a:Addon)=>a.group_id===addonDraft.group_id).length};const r=editingAddon==="new"?await supabase.from("neroxa_storefront_addons").insert(payload):await supabase.from("neroxa_storefront_addons").update(payload).eq("id",editingAddon);if(r.error)setError(r.error.message);else{setEditingAddon(null);void refresh();}};\n  const removeAddon=async(id:string)=>{if(!canManage||!confirm("Excluir este complemento?"))return;const {error}=await supabase.from("neroxa_storefront_addons").delete().eq("id",id);if(error)setError(error.message);else void refresh();};\n  const removeAddonGroup=async(id:string)=>{if(!canManage||!confirm("Excluir este grupo e seus complementos?"))return;const {error}=await supabase.from("neroxa_storefront_addon_groups").delete().eq("id",id);if(error)setError(error.message);else void refresh();};\n  const filteredProducts=products.filter((p:Product)=>p.name.toLowerCase().includes(search.toLowerCase()));
+  const saveAddonGroup=async()=>{if(!canManage||!instanceId||!groupDraft.name.trim()){setError("Informe o nome do grupo.");return;}const min=Math.max(0,Number(groupDraft.min_selections)||0),max=Math.max(1,Number(groupDraft.max_selections)||1);if(max<min){setError("Máximo menor que mínimo.");return;}const {error}=await supabase.from("neroxa_storefront_addon_groups").insert({instance_id:instanceId,name:groupDraft.name.trim(),required:Boolean(groupDraft.required),min_selections:min,max_selections:max,active:true,sort_order:addonGroups.length});if(error)setError(error.message);else{setGroupDraft({name:"",required:false,min_selections:0,max_selections:1});void refresh();}};
+  const saveAddon=async()=>{if(!canManage||!addonDraft.group_id||!addonDraft.name.trim()){setError("Informe grupo e nome do complemento.");return;}const payload={group_id:addonDraft.group_id,name:addonDraft.name.trim(),price_delta:addonDraft.price_delta===""?0:Number(addonDraft.price_delta),active:Boolean(addonDraft.active),sort_order:addons.filter((a:Addon)=>a.group_id===addonDraft.group_id).length};const r=editingAddon==="new"?await supabase.from("neroxa_storefront_addons").insert(payload):await supabase.from("neroxa_storefront_addons").update(payload).eq("id",editingAddon);if(r.error)setError(r.error.message);else{setEditingAddon(null);void refresh();}};
+  const removeAddon=async(id:string)=>{if(!canManage||!confirm("Excluir este complemento?"))return;const {error}=await supabase.from("neroxa_storefront_addons").delete().eq("id",id);if(error)setError(error.message);else void refresh();};
+  const removeAddonGroup=async(id:string)=>{if(!canManage||!confirm("Excluir este grupo e seus complementos?"))return;const {error}=await supabase.from("neroxa_storefront_addon_groups").delete().eq("id",id);if(error)setError(error.message);else void refresh();};
+  const filteredProducts=products.filter((p:Product)=>p.name.toLowerCase().includes(search.toLowerCase()));
   return <section>
     <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">Catálogo</p><h2 className="mt-1 text-2xl font-bold">Produtos e categorias</h2><p className="mt-1 text-sm text-muted-foreground">Tudo que aparece na loja é administrado aqui.</p></div>{canManage&&<Button className="rounded-full" onClick={()=>tab==="products"?beginProduct():beginCategory()}>{tab==="products"?"Novo produto":"Nova categoria"}</Button>}</div>
     <div className="mt-5 flex flex-wrap gap-2"><Button variant={tab==="products"?"default":"outline"} className="rounded-full" onClick={()=>{setTab("products");setEditing(null)}}><Boxes className="mr-2 size-4"/>Produtos ({products.length})</Button><Button variant={tab==="categories"?"default":"outline"} className="rounded-full" onClick={()=>{setTab("categories");setEditing(null)}}><Tags className="mr-2 size-4"/>Categorias ({categories.length})</Button><Button variant={tab==="addons"?"default":"outline"} className="rounded-full" onClick={()=>{setTab("addons");setEditing(null)}}><ListPlus className="mr-2 size-4"/>Complementos ({addons.length})</Button></div>
