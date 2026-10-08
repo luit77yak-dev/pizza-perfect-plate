@@ -5398,3 +5398,406 @@
   }
 }
 \n
+
+/* ==========================================================================
+ * BURGER CLUB — FINAL CINEMATIC OVERRIDE
+ * This is intentionally the last layer so legacy petrol/green storefront
+ * rules cannot leak into the Burger Club experience.
+ * ========================================================================== */
+@layer components {
+  .ppp-customer-shell.ppp-burger-theme {
+    --hc-bg: #090807 !important;
+    --hc-card: #151210 !important;
+    --hc-cream: #f7efe6 !important;
+    --hc-amber: #ffc15e !important;
+    --hc-orange: #ff5a36 !important;
+    background: #090807 !important;
+    color: #f7efe6 !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-storefront,
+  .ppp-customer-shell.ppp-burger-theme main#inicio,
+  .ppp-customer-shell.ppp-burger-theme #cardapio,
+  .ppp-customer-shell.ppp-burger-theme #sobre,
+  .ppp-customer-shell.ppp-burger-theme #contato {
+    background: #090807 !important;
+    color: #f7efe6 !important;
+  }
+
+  /* ---------- HERO: photograph first, black cinematic treatment ---------- */
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero,
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-frame,
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-grid {
+    background: #090807 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-frame,
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-grid,
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-media,
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy {
+    min-height: 78svh !important;
+    height: 78svh !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-media {
+    position: absolute !important;
+    inset: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #090807 !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-media > div:first-child {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #090807 !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-image {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    object-fit: cover !important;
+    object-position: 62% center !important;
+    transform: scale(1.02) !important;
+    filter: saturate(1.14) contrast(1.08) brightness(.82) !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-frame::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 2 !important;
+    pointer-events: none !important;
+    background:
+      linear-gradient(90deg, rgba(9,8,7,.82) 0%, rgba(9,8,7,.52) 38%, rgba(9,8,7,.10) 72%, rgba(9,8,7,.02) 100%),
+      linear-gradient(180deg, rgba(9,8,7,.50) 0%, rgba(9,8,7,.02) 35%, rgba(9,8,7,.08) 60%, rgba(9,8,7,.94) 100%) !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy {
+    position: relative !important;
+    z-index: 10 !important;
+    justify-content: flex-end !important;
+    padding: 6rem 1.25rem 2.4rem !important;
+    background: transparent !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy h1 {
+    max-width: 12ch !important;
+    margin: 0 !important;
+    font-family: var(--hc-serif) !important;
+    font-size: clamp(2.8rem, 12vw, 5.4rem) !important;
+    line-height: .91 !important;
+    letter-spacing: -.045em !important;
+    color: #fff !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy h1 em {
+    color: var(--hc-amber) !important;
+    font-style: italic !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy > p:not(.ppp-hero-status) {
+    max-width: 24rem !important;
+    margin-top: 1rem !important;
+    color: rgba(247,239,230,.88) !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy > a {
+    min-height: 3.35rem !important;
+    width: fit-content !important;
+    margin-top: 1.25rem !important;
+    padding-inline: 1.5rem !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: var(--hc-orange) !important;
+    color: #fff !important;
+    box-shadow: 0 14px 36px rgba(255,90,54,.18) !important;
+  }
+
+  /* ---------- MENU: pure black + photo-led cards ---------- */
+  .ppp-customer-shell.ppp-burger-theme #cardapio {
+    max-width: 1400px !important;
+    margin-inline: auto !important;
+    padding: 2rem 1.1rem 6rem !important;
+    background: #090807 !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-filters,
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-title {
+    background: #090807 !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-list {
+    display: grid !important;
+    gap: 1rem !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-card {
+    display: grid !important;
+    grid-template-columns: 44% minmax(0, 56%) !important;
+    width: 100% !important;
+    min-height: 12rem !important;
+    height: 12rem !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(247,239,230,.22) !important;
+    border-radius: 1.15rem !important;
+    background: #151210 !important;
+    box-shadow: none !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-image {
+    position: relative !important;
+    width: 100% !important;
+    height: 12rem !important;
+    min-height: 12rem !important;
+    overflow: hidden !important;
+    background: #11100f !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-image > img {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    filter: saturate(1.08) contrast(1.04) !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-content {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: stretch !important;
+    min-width: 0 !important;
+    height: 12rem !important;
+    padding: 1rem 1rem .9rem !important;
+    background: #151210 !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-text {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    min-width: 0 !important;
+    flex-direction: column !important;
+    padding: 0 2.8rem 0 0 !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-eyebrow {
+    order: 1 !important;
+    flex: 0 0 auto !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-content h3 {
+    order: 2 !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    font-family: var(--hc-serif) !important;
+    font-size: clamp(1.35rem, 5.8vw, 2rem) !important;
+    line-height: .98 !important;
+    letter-spacing: -.035em !important;
+    color: var(--hc-cream) !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-desc {
+    order: 3 !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    margin: .55rem 0 0 !important;
+    overflow: hidden !important;
+    color: rgba(247,239,230,.68) !important;
+    font-size: .78rem !important;
+    line-height: 1.42 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important;
+    -webkit-box-orient: vertical !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-price {
+    order: 4 !important;
+    flex: 0 0 auto !important;
+    display: block !important;
+    margin: .45rem 0 0 !important;
+    font-family: var(--hc-serif) !important;
+    font-size: 1.55rem !important;
+    line-height: 1 !important;
+    color: var(--hc-amber) !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-menu-add {
+    z-index: 4 !important;
+    right: .7rem !important;
+    bottom: .7rem !important;
+    width: 2.7rem !important;
+    height: 2.7rem !important;
+    background: var(--hc-orange) !important;
+    color: #130e0b !important;
+  }
+
+  /* ---------- ABOUT: remove the inherited green panel ---------- */
+  .ppp-customer-shell.ppp-burger-theme .hc-about-section {
+    background: #090807 !important;
+    border-top: 1px solid rgba(247,239,230,.1) !important;
+    color: var(--hc-cream) !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-about-inner {
+    background: #090807 !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-about-copy,
+  .ppp-customer-shell.ppp-burger-theme .hc-about-visual {
+    background: transparent !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-about-image {
+    border-color: rgba(247,239,230,.18) !important;
+    background: #11100f !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-trust-grid > div {
+    background: #151210 !important;
+    border-color: rgba(247,239,230,.14) !important;
+  }
+
+  /* ---------- FOOTER: Burger Club, not Pizza Club ---------- */
+  .ppp-customer-shell.ppp-burger-theme .hc-footer {
+    background: #050403 !important;
+    color: var(--hc-cream) !important;
+    border-top: 1px solid rgba(247,239,230,.12) !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-footer-top,
+  .ppp-customer-shell.ppp-burger-theme .hc-footer-grid,
+  .ppp-customer-shell.ppp-burger-theme .hc-footer-bottom {
+    background: transparent !important;
+  }
+
+  .ppp-customer-shell.ppp-burger-theme .hc-footer-grid > div {
+    background: #050403 !important;
+  }
+
+  @media (min-width: 768px) {
+    .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-frame,
+    .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-grid,
+    .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-media,
+    .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy {
+      min-height: 34rem !important;
+      height: 34rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy {
+      padding: 8rem 5vw 3.5rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme #cardapio {
+      padding: 3rem 4vw 7rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-list {
+      gap: 1rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-card {
+      min-height: 13rem !important;
+      height: 13rem !important;
+      grid-template-columns: 38% minmax(0, 62%) !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-image,
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-content {
+      height: 13rem !important;
+      min-height: 13rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-content {
+      padding: 1.35rem 1.5rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-content h3 {
+      font-size: 1.75rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-price {
+      font-size: 1.8rem !important;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-frame,
+    .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-grid,
+    .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-media,
+    .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy {
+      min-height: 78svh !important;
+      height: 78svh !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy {
+      padding: 5.25rem 1.15rem 2rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .ppp-reference-hero-copy h1 {
+      font-size: clamp(2.65rem, 12vw, 4.65rem) !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme #cardapio {
+      padding: 1.5rem .9rem 5rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-card {
+      grid-template-columns: 46% minmax(0, 54%) !important;
+      height: 13.5rem !important;
+      min-height: 13.5rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-image,
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-content {
+      height: 13.5rem !important;
+      min-height: 13.5rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-content {
+      padding: .9rem .75rem .75rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-text {
+      padding-right: 2.55rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-content h3 {
+      font-size: clamp(1.25rem, 5.5vw, 1.7rem) !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-desc {
+      font-size: .72rem !important;
+      line-height: 1.4 !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-price {
+      font-size: 1.35rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-menu-add {
+      width: 2.5rem !important;
+      height: 2.5rem !important;
+      right: .55rem !important;
+      bottom: .55rem !important;
+    }
+
+    .ppp-customer-shell.ppp-burger-theme .hc-about-section {
+      padding-inline: .9rem !important;
+    }
+  }
+}
