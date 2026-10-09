@@ -134,10 +134,13 @@ begin
      and a.group_id = v_group.id
      and a.active;
 
-    if v_selected_addon_count > v_group.max_selections then
+    if v_selected_addon_count > coalesce(v_group.max_selections, 0) then
       raise exception 'Limite de adicionais excedido';
     end if;
-    if v_selected_addon_count < case when v_group.required then greatest(1, v_group.min_selections) else v_group.min_selections end then
+    if v_selected_addon_count < case
+      when coalesce(v_group.required, false) then greatest(1, coalesce(v_group.min_selections, 0))
+      else coalesce(v_group.min_selections, 0)
+    end then
       raise exception 'Selecione os adicionais obrigatórios';
     end if;
   end loop;
@@ -176,6 +179,14 @@ begin
             and c.instance_id = p_instance_id
             and c.active
             and lower(c.name) like '%adicional%'
+        )
+        and exists (
+          select 1
+          from public.neroxa_storefront_products pizza
+          where pizza.instance_id = p_instance_id
+            and pizza.id in (p_product_id, p_second_product_id)
+            and pizza.active
+            and coalesce(pizza.metadata->>'kind', '') = 'PIZZA'
         )
       limit 1;
 
