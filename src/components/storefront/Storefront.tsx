@@ -461,7 +461,7 @@ export function Storefront() {
 
         <StorefrontAbout theme={storefrontTheme} settings={data.settings} categories={data.categories} />
 
-        <StorefrontFooter theme={storefrontTheme} settings={data.settings} />
+        <StorefrontFooter theme={storefrontTheme} settings={data.settings} organizationName={data.organization.name} />
       </main>
       </div>
 
