@@ -163,8 +163,9 @@ as $$
 declare
   v_order public.neroxa_orders%rowtype;
   v_item jsonb;
-  v_product public.neroxa_storefront_products%rowtype;
-  v_second public.neroxa_storefront_products%rowtype;
+  v_product record;
+  v_second_id uuid;
+  v_second_name text;
   v_qty integer;
   v_unit numeric(12,2);
   v_added numeric(12,2) := 0;
@@ -195,7 +196,8 @@ begin
   where id = v_order.id;
 
   for v_item in select value from jsonb_array_elements(p_items) as x(value) loop
-    v_second := null;
+    v_second_id := null;
+    v_second_name := null;
     v_qty := greatest(1, least(99, coalesce((v_item->>'quantity')::integer, 1)));
 
     select p.* into v_product
@@ -207,7 +209,7 @@ begin
     if not found then raise exception 'Produto não disponível'; end if;
 
     if nullif(v_item->>'second_product_id','') is not null then
-      select p.* into v_second
+      select p.id, p.name into v_second_id, v_second_name
       from public.neroxa_storefront_products p
       where p.id = (v_item->>'second_product_id')::uuid
         and p.instance_id = v_order.instance_id
@@ -250,7 +252,7 @@ begin
       crust_price, addons, complements, quantity, notes, unit_price, line_total
     ) values (
       v_order.id, v_product.id, v_product.name, v_product.image_url,
-      v_second.id, v_second.name,
+      v_second_id, v_second_name,
       coalesce((v_item->>'is_half')::boolean,false),
       nullif(v_item->>'size_id',''), v_size_name,
       nullif(v_item->>'crust_id',''), v_crust_name,
