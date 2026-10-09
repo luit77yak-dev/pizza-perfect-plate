@@ -108,7 +108,7 @@ export function ProductConfigurator({
     setAddonIds((current) => {
       if (current.includes(id)) return current.filter((value) => value !== id);
       if (!groupId) return [...current, id];
-      const group = availableAddonGroups.find((item) => item.id === groupId);
+      const group = addonSection.find((item) => item.id === groupId);
       if (!group) return [...current, id];
       const selectedInGroup = current.filter((value) => group.addons.some((item) => item.id === value));
       if (selectedInGroup.length >= group.max_selections) return current;
@@ -170,7 +170,27 @@ export function ProductConfigurator({
   };
 
   const stepTitle = step === 1 ? "Escolha" : step === 2 ? "Montagem" : "Finalize";
-  const addonSection = availableAddonGroups.length > 0 ? availableAddonGroups : [];
+  const addonSection = availableAddonGroups.length > 0
+    ? availableAddonGroups
+    : availableAddons.length > 0
+      ? [{
+          id: "__legacy_addons__",
+          name: "Adicionais",
+          required: false,
+          min_selections: 0,
+          max_selections: availableAddons.length,
+          active: true,
+          sort_order: 0,
+          products: [...selectedProductIds].map((product_id) => ({ product_id, sort_order: 0 })),
+          addons: availableAddons.map((item, sort_order) => ({
+            id: item.id,
+            name: item.name,
+            price_delta: "price_delta" in item ? Number(item.price_delta) : Number(item.price),
+            active: item.active,
+            sort_order,
+          })),
+        }]
+      : [];
 
   return (
     <div
