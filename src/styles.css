@@ -6653,3 +6653,159 @@
     height: 76svh !important;
   }
 }
+
+
+/* Delivery Engine storefront — final top-background and footer containment.
+   Keep the hero layers aligned and stop older global styles from painting
+   unrelated backgrounds over the active white-label theme. */
+.ppp-customer-shell.ppp-pizza-theme #inicio,
+.ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero,
+.ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-frame,
+.ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-grid {
+  position: relative !important;
+  isolation: isolate !important;
+  background: #090807 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-frame,
+.ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-grid {
+  width: 100% !important;
+  min-height: min(760px, 100svh) !important;
+  height: min(760px, 100svh) !important;
+  overflow: hidden !important;
+}
+
+.ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-media {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  background: #090807 !important;
+}
+
+.ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-media > div {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  background: #090807 !important;
+}
+
+.ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-image {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+.ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-frame::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  background:
+    linear-gradient(90deg, rgba(9,8,7,.88) 0%, rgba(9,8,7,.55) 44%, rgba(9,8,7,.12) 100%),
+    linear-gradient(180deg, rgba(9,8,7,.3) 0%, transparent 36%, rgba(9,8,7,.86) 100%) !important;
+}
+
+.ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-copy {
+  position: relative !important;
+  z-index: 2 !important;
+  display: flex !important;
+  min-height: min(760px, 100svh) !important;
+  height: min(760px, 100svh) !important;
+  justify-content: flex-end !important;
+  background: transparent !important;
+}
+
+.ppp-customer-shell.ppp-pizza-theme .pc-footer {
+  position: relative !important;
+  z-index: 1 !important;
+  width: 100% !important;
+  max-width: none !important;
+  overflow: hidden !important;
+  background: #090807 !important;
+  color: #f7efe6 !important;
+}
+
+.ppp-customer-shell.ppp-pizza-theme .pc-footer-top,
+.ppp-customer-shell.ppp-pizza-theme .pc-footer-grid,
+.ppp-customer-shell.ppp-pizza-theme .pc-footer-bottom {
+  width: 100% !important;
+  max-width: 72rem !important;
+  margin-inline: auto !important;
+  box-sizing: border-box !important;
+}
+
+.ppp-customer-shell.ppp-pizza-theme .pc-footer-grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.ppp-customer-shell.ppp-pizza-theme .pc-footer-grid > div {
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.ppp-customer-shell.ppp-pizza-theme .pc-footer-bottom > * {
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+
+@media (min-width: 768px) {
+  .ppp-customer-shell.ppp-pizza-theme .pc-footer-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-frame,
+  .ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-grid,
+  .ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-copy {
+    min-height: 82svh !important;
+    height: 82svh !important;
+  }
+
+  .ppp-customer-shell.ppp-pizza-theme .ppp-reference-hero-copy {
+    padding: 6.25rem 1rem 2rem !important;
+    justify-content: flex-end !important;
+  }
+
+  .ppp-customer-shell.ppp-pizza-theme .pc-footer {
+    padding: 3.25rem 1rem 1rem !important;
+  }
+
+  .ppp-customer-shell.ppp-pizza-theme .pc-footer-top {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  .ppp-customer-shell.ppp-pizza-theme .pc-footer-top h2 {
+    font-size: clamp(2.6rem, 12vw, 4.25rem) !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .ppp-customer-shell.ppp-pizza-theme .pc-footer-grid > div {
+    padding: 1rem 0 !important;
+  }
+
+  .ppp-customer-shell.ppp-pizza-theme .pc-footer-bottom {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: .65rem !important;
+  }
+}
