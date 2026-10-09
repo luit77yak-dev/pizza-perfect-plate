@@ -364,7 +364,8 @@ begin
     (v_order.status = 'RECEIVED' and p_status in ('CONFIRMED','CANCELLED')) or
     (v_order.status = 'CONFIRMED' and p_status in ('PREPARING','CANCELLED')) or
     (v_order.status = 'PREPARING' and p_status in ('READY','CANCELLED')) or
-    (v_order.status = 'READY' and p_status in ('DELIVERED','CANCELLED')) or
+    (v_order.status = 'READY' and p_status = 'CANCELLED') or
+    (v_order.status = 'READY' and v_order.fulfillment = 'PICKUP' and p_status = 'DELIVERED') or
     (v_order.status = 'READY' and v_order.fulfillment = 'DELIVERY' and p_status = 'OUT_FOR_DELIVERY') or
     (v_order.status = 'OUT_FOR_DELIVERY' and p_status in ('DELIVERED','CANCELLED'))
   ) then
