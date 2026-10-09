@@ -1,6 +1,9 @@
+/* Scoped important overrides precede legacy layers; other themes keep their cascade. */
+@layer forno;
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "./styles/forno.css";
 
 @custom-variant dark (&:is(.dark *));
 
