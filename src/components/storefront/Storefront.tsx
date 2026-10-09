@@ -414,7 +414,7 @@ export function Storefront() {
       <div className={isBurgerTheme ? "burger-club-page" : ""}>
       <StorefrontHeader
         organizationName={data.organization.name}
-        logoUrl={data.settings.logo_url ?? null}
+        logoUrl={data.visualConfig.overrides?.content?.logoUrl ?? data.settings.logo_url ?? null}
         itemCount={itemCount}
         selectedTrackedOrdersCount={trackedOrders.length}
         theme={storefrontTheme}
@@ -432,6 +432,7 @@ export function Storefront() {
           products={mainProducts}
           theme={storefrontTheme}
           statusLabel={status.label}
+          content={data.visualConfig.overrides?.content}
         />
 
         {!isPizzaTheme && !isBurgerTheme && <ProductTicker products={mainProducts} />}
