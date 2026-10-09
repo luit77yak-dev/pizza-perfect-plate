@@ -13,10 +13,10 @@ type StorefrontHeroProps = {
 
 export function StorefrontHero({ organizationName, settings, products, statusLabel = "Status da loja indisponível", theme, content }: StorefrontHeroProps) {
   const heroImage = content?.heroImageUrl || settings.hero_image_url || products.find((product) => Boolean(product.image_url))?.image_url;
+  const brandName = content?.brandName || organizationName;
   const title = content?.heroTitle || settings.hero_title || `Bem-vindo à ${brandName}`;
   const subtitle = content?.heroSubtitle || settings.hero_subtitle || settings.description || "Conheça nosso cardápio e faça seu pedido em poucos passos.";
   const ctaLabel = content?.heroCtaLabel || settings.hero_cta_label || "Ver o cardápio";
-  const brandName = content?.brandName || organizationName;
   void theme;
 
   return (
