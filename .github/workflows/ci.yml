@@ -27,7 +27,7 @@ jobs:
         run: npm install
 
       - name: Format refactored storefront
-        run: npx prettier --check src/components/storefront/Storefront.tsx src/features/storefront/themes/types.ts src/features/storefront/themes/resolve.ts src/features/storefront/components/StorefrontHero.tsx src/features/storefront/components/StorefrontHeader.tsx src/features/storefront/components/StorefrontMenu.tsx src/features/storefront/components/StorefrontCategoryNav.tsx src/features/storefront/components/StorefrontAbout.tsx src/features/storefront/components/StorefrontFooter.tsx src/core/delivery/services/load-public-store.ts src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx
+        run: npx prettier --write src/components/storefront/Storefront.tsx src/features/storefront/themes/types.ts src/features/storefront/themes/resolve.ts src/features/storefront/components/StorefrontHero.tsx src/features/storefront/components/StorefrontHeader.tsx src/features/storefront/components/StorefrontMenu.tsx src/features/storefront/components/StorefrontCategoryNav.tsx src/features/storefront/components/StorefrontAbout.tsx src/features/storefront/components/StorefrontFooter.tsx src/core/delivery/services/load-public-store.ts src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx
 
 
       - name: Lint refactored storefront
