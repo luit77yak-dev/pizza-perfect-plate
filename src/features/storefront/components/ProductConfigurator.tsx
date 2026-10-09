@@ -55,7 +55,6 @@ export function ProductConfigurator({
   const availableAddonGroups = (data.addonGroups ?? [])
     .filter((group) => group.active && group.products.some((item) => selectedProductIds.has(item.product_id)))
     .sort((a, b) => a.sort_order - b.sort_order);
-  const groupedAddonIds = new Set(availableAddonGroups.flatMap((group) => group.addons.map((item) => item.id)));
   const legacyAvailableAddonIds = new Set((data.productAddonLinks ?? [])
     .filter((link) => selectedProductIds.has(link.product_id))
     .map((link) => link.addon_id));
