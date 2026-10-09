@@ -60,7 +60,11 @@ export function ProductConfigurator({
     .map((link) => link.addon_id));
   const availableAddons = availableAddonGroups.length
     ? availableAddonGroups.flatMap((group) => group.addons)
-    : data.addons.filter((item) => legacyAvailableAddonIds.has(item.id));
+    : legacyAvailableAddonIds.size > 0
+      ? data.addons.filter((item) => legacyAvailableAddonIds.has(item.id))
+      : product.kind === "PIZZA"
+        ? data.addons.filter((item) => item.active)
+        : [];
   const addons = availableAddons
     .filter((item) => addonIds.includes(item.id))
     .map((item) => ({
