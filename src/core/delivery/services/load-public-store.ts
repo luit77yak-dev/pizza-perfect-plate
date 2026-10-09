@@ -1,5 +1,7 @@
 import type { Addon, Category, Crust, Organization, OrganizationSettings, Product, ProductPrice, ProductSize } from "@/lib/domain/types";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveStorefrontVisualConfig } from "@/features/storefront/themes/resolve";
+import type { StorefrontVisualConfig } from "@/features/storefront/themes/types";
 
 export type ProductAddonLink = { product_id: string; addon_id: string; sort_order: number };
 export type PublicAddon = { id: string; name: string; price_delta: number; active: boolean; sort_order: number };
@@ -9,6 +11,7 @@ export type ProductAddonGroupLink = { product_id: string; group_id: string; sort
 export type StoreData = {
   organization: Organization;
   settings: OrganizationSettings;
+  visualConfig: StorefrontVisualConfig;
   categories: Category[];
   sizes: ProductSize[];
   products: Product[];
@@ -112,6 +115,7 @@ export async function loadStore(): Promise<StoreData> {
       payment_methods: (catalog.settings?.payment_methods as OrganizationSettings["payment_methods"] | undefined) ?? fallback.payment_methods,
       social_links: (catalog.settings?.social_links as Record<string, string> | undefined) ?? fallback.social_links,
     };
+    const visualConfig = resolveStorefrontVisualConfig(settings.storefront_theme, settings);
     const deliveryZones = (catalog.delivery_zones ?? []).map((zone) => ({
       id: zone.id,
       organization_id: context.organization_id,
@@ -188,7 +192,7 @@ export async function loadStore(): Promise<StoreData> {
       }))),
     );
     return {
-      organization, settings, categories, products, sizes, prices, crusts, addons,
+      organization, settings, visualConfig, categories, products, sizes, prices, crusts, addons,
       addonGroups, productAddonGroupLinks, productAddonLinks,
       hours: [], specialHours: [], deliveryZones,
     };
