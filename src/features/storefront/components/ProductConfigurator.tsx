@@ -51,13 +51,24 @@ export function ProductConfigurator({
   const basePrice = getPrice(product, sizeId, data.prices);
   const secondBasePrice = secondProduct ? getPrice(secondProduct, sizeId, data.prices) : basePrice;
   const crust = data.crusts.find((item) => item.id === crustId);
-  const productAddonIds = (data.productAddonLinks ?? [])
-    .filter((link) => link.product_id === product.id || link.product_id === secondProduct?.id)
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map((link) => link.addon_id);
-  const availableAddonIds = new Set(productAddonIds);
-  const availableAddons = data.addons.filter((item) => availableAddonIds.has(item.id));
-  const addons = availableAddons.filter((item) => addonIds.includes(item.id));
+  const selectedProductIds = new Set([product.id, ...(secondProduct ? [secondProduct.id] : [])]);
+  const availableAddonGroups = (data.addonGroups ?? [])
+    .filter((group) => group.active && group.products.some((item) => selectedProductIds.has(item.product_id)))
+    .sort((a, b) => a.sort_order - b.sort_order);
+  const groupedAddonIds = new Set(availableAddonGroups.flatMap((group) => group.addons.map((item) => item.id)));
+  const legacyAvailableAddonIds = new Set((data.productAddonLinks ?? [])
+    .filter((link) => selectedProductIds.has(link.product_id))
+    .map((link) => link.addon_id));
+  const availableAddons = availableAddonGroups.length
+    ? availableAddonGroups.flatMap((group) => group.addons)
+    : data.addons.filter((item) => legacyAvailableAddonIds.has(item.id));
+  const addons = availableAddons
+    .filter((item) => addonIds.includes(item.id))
+    .map((item) => ({
+      id: item.id,
+      name: item.name,
+      price: "price_delta" in item ? Number(item.price_delta) : Number(item.price),
+    }));
   const halfBasePrice = secondProduct
     ? calculateProductUnitPrice({
         basePrice,
@@ -94,10 +105,16 @@ export function ProductConfigurator({
     });
   }, [step]);
 
-  const toggleAddon = (id: string) => {
-    setAddonIds((current) =>
-      current.includes(id) ? current.filter((value) => value !== id) : [...current, id],
-    );
+  const toggleAddon = (id: string, groupId?: string) => {
+    setAddonIds((current) => {
+      if (current.includes(id)) return current.filter((value) => value !== id);
+      if (!groupId) return [...current, id];
+      const group = availableAddonGroups.find((item) => item.id === groupId);
+      if (!group) return [...current, id];
+      const selectedInGroup = current.filter((value) => group.addons.some((item) => item.id === value));
+      if (selectedInGroup.length >= group.max_selections) return current;
+      return [...current, id];
+    });
   };
 
   const toggleCombo = (id: string) => {
@@ -109,7 +126,8 @@ export function ProductConfigurator({
   const addToCart = () => {
     const invalidGroup = availableAddonGroups.find((group) => {
       const selected = addonIds.filter((id) => group.addons.some((item) => item.id === id)).length;
-      return selected < group.min_selections || selected > group.max_selections;
+      const minimum = group.required ? Math.max(1, group.min_selections) : group.min_selections;
+      return selected < minimum || selected > group.max_selections;
     });
     if (invalidGroup) return;
     const mainItem: CartItem = {
