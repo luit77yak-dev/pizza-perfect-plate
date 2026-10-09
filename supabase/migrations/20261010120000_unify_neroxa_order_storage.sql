@@ -320,5 +320,3 @@ $$;
 revoke all on function public.update_admin_order_status(uuid,text,text) from public;
 grant execute on function public.update_admin_order_status(uuid,text,text) to authenticated;
 
-revoke all on function public.update_admin_order_status(uuid, public.order_status, text) from public;
-grant execute on function public.update_admin_order_status(uuid, public.order_status, text) to authenticated;
