@@ -1,3 +1,4 @@
+import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
 import { useState } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/storefront-backend/client";
@@ -54,6 +55,7 @@ export function CheckoutPanel({
     fulfillment?: FulfillmentType | undefined;
   } | null;
 }) {
+  const dialogRef = useCustomerDialog(onClose);
   const [fulfillment, setFulfillment] = useState<FulfillmentType>(
     existingOrder?.fulfillment ?? (settings.delivery_enabled ? "DELIVERY" : "PICKUP"),
   );
@@ -164,7 +166,10 @@ export function CheckoutPanel({
           appendError instanceof Error
             ? appendError.message
             : typeof appendError === "object" && appendError !== null && "message" in appendError
-              ? String((appendError as { message?: unknown }).message ?? "Não foi possível adicionar o complemento.")
+              ? String(
+                  (appendError as { message?: unknown }).message ??
+                    "Não foi possível adicionar o complemento.",
+                )
               : "Não foi possível adicionar o complemento.";
         setError(message);
       } finally {
@@ -245,14 +250,13 @@ export function CheckoutPanel({
       });
       if (createError) throw createError;
 
-      const order = (Array.isArray(created) ? created[0] : created) as { order_id?: string; order_number?: number; total?: number } | null | undefined;
+      const order = (Array.isArray(created) ? created[0] : created) as
+        { order_id?: string; order_number?: number; total?: number } | null | undefined;
       if (!order?.order_number || !order?.order_id)
         throw new Error("Não foi possível criar o pedido.");
       const createdTotal = Number(order.total);
       const fallbackTotal =
-        fulfillment === "DELIVERY"
-          ? subtotal + Number(selectedZone?.delivery_fee ?? 0)
-          : subtotal;
+        fulfillment === "DELIVERY" ? subtotal + Number(selectedZone?.delivery_fee ?? 0) : subtotal;
 
       onSuccess({
         id: String(order.order_id),
@@ -281,14 +285,27 @@ export function CheckoutPanel({
   };
 
   return (
-    <div className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md">
-      <div className="mx-auto min-h-screen max-w-4xl bg-[#06282d] px-4 pb-10 pt-0 text-[#f4eee2] sm:px-6">
+    <div
+      ref={dialogRef}
+      data-customer-dialog
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Finalizar pedido"
+      className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md"
+    >
+      <div
+        data-order-surface
+        className="mx-auto min-h-screen max-w-4xl bg-[#06282d] px-4 pb-10 pt-0 text-[#f4eee2] sm:px-6"
+      >
         <div className="sticky top-0 z-30 -mx-4 mb-2 flex items-center justify-between gap-4 border-b border-white/10 bg-[#06282d]/95 px-4 py-4 backdrop-blur-xl sm:-mx-6 sm:px-6 sm:py-5">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
               {existingOrder ? "Complementar pedido" : "Finalizar pedido"}
             </p>
-            <h1 className="mt-1 text-3xl sm:text-4xl">{existingOrder ? `Pedido #${existingOrder.number}` : "Quase lá"}</h1>
+            <h1 className="mt-1 text-3xl sm:text-4xl">
+              {existingOrder ? `Pedido #${existingOrder.number}` : "Quase lá"}
+            </h1>
           </div>
           <button
             onClick={onClose}
@@ -302,60 +319,60 @@ export function CheckoutPanel({
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
           <div className="space-y-4">
             {!existingOrder && (
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <p className="text-sm font-semibold">Como você quer receber?</p>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {settings.delivery_enabled && (
-                  <button
-                    onClick={() => setFulfillment("DELIVERY")}
-                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "DELIVERY" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
-                  >
-                    <p className="font-semibold">Entrega</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Receba no seu endereço</p>
-                  </button>
-                )}
-                {settings.pickup_enabled && (
-                  <button
-                    onClick={() => setFulfillment("PICKUP")}
-                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "PICKUP" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
-                  >
-                    <p className="font-semibold">Retirada</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Retire na loja</p>
-                  </button>
-                )}
-              </div>
-            </section>
+              <section className="rounded-3xl border bg-card p-5 shadow-soft">
+                <p className="text-sm font-semibold">Como você quer receber?</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {settings.delivery_enabled && (
+                    <button
+                      onClick={() => setFulfillment("DELIVERY")}
+                      className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "DELIVERY" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                    >
+                      <p className="font-semibold">Entrega</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Receba no seu endereço</p>
+                    </button>
+                  )}
+                  {settings.pickup_enabled && (
+                    <button
+                      onClick={() => setFulfillment("PICKUP")}
+                      className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "PICKUP" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                    >
+                      <p className="font-semibold">Retirada</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Retire na loja</p>
+                    </button>
+                  )}
+                </div>
+              </section>
             )}
 
             {!existingOrder && (
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <p className="text-sm font-semibold">Seus dados</p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <label className="text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                    Nome *
-                  </span>
-                  <input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Seu nome"
-                    className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
-                  />
-                </label>
-                <label className="text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                    Telefone *
-                  </span>
-                  <input
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="(00) 00000-0000"
-                    inputMode="tel"
-                    className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
-                  />
-                </label>
-              </div>
-            </section>
+              <section className="rounded-3xl border bg-card p-5 shadow-soft">
+                <p className="text-sm font-semibold">Seus dados</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <label className="text-sm">
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                      Nome *
+                    </span>
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Seu nome"
+                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    />
+                  </label>
+                  <label className="text-sm">
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                      Telefone *
+                    </span>
+                    <input
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="(00) 00000-0000"
+                      inputMode="tel"
+                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    />
+                  </label>
+                </div>
+              </section>
             )}
 
             {!existingOrder && fulfillment === "DELIVERY" && (
@@ -470,19 +487,19 @@ export function CheckoutPanel({
             </section>
 
             {!existingOrder && (
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <label htmlFor="checkout-notes" className="text-sm font-semibold">
-                Observações do pedido
-              </label>
-              <Textarea
-                id="checkout-notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="mt-3"
-                placeholder="Ex.: tocar a campainha, tirar cebola..."
-                maxLength={500}
-              />
-            </section>
+              <section className="rounded-3xl border bg-card p-5 shadow-soft">
+                <label htmlFor="checkout-notes" className="text-sm font-semibold">
+                  Observações do pedido
+                </label>
+                <Textarea
+                  id="checkout-notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="mt-3"
+                  placeholder="Ex.: tocar a campainha, tirar cebola..."
+                  maxLength={500}
+                />
+              </section>
             )}
           </div>
 
@@ -532,7 +549,10 @@ export function CheckoutPanel({
               </div>
             </div>
             {error && (
-              <p className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">
+              <p
+                role="alert"
+                className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive"
+              >
                 {error}
               </p>
             )}
