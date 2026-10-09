@@ -43,7 +43,7 @@ export function StorefrontHero({ organizationName, settings, products, statusLab
   }
 
   return (
-    <section className="ppp-reference-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
+    <section className="ppp-reference-hero ppp-engine-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
       <div className="ppp-reference-hero-frame relative isolate overflow-hidden">
         <div className="ppp-reference-hero-grid grid min-h-[min(760px,calc(100dvh-5.5rem))] lg:min-h-[760px] lg:grid-cols-1">
           <div className="ppp-reference-hero-copy relative z-20 flex min-w-0 flex-col justify-end p-[clamp(1.25rem,5vw,3.5rem)]">
