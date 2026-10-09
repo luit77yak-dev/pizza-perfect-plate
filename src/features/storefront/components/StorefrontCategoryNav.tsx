@@ -17,7 +17,6 @@ export function StorefrontCategoryNav({ theme, categories, products, categoryPro
   const navigation = theme.categoryNavigation ?? "tabs";
   const isAccordion = navigation === "accordion";
   const isList = navigation === "list";
-  const isHorizontal = navigation === "horizontal-scroll";
   const activeClass = "border-primary bg-primary text-primary-foreground";
   const inactiveClass = "border-border bg-card/50 text-muted-foreground hover:border-primary/50 hover:text-foreground";
   return (
