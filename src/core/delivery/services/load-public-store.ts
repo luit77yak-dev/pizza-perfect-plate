@@ -39,9 +39,25 @@ type PublicStorefrontCatalog = {
   }>;
 };
 
-function getDomain() {
+export function getStorefrontDomain() {
   if (typeof window === "undefined") throw new Error("Storefront domain is unavailable outside the browser.");
-  return window.location.hostname.replace(/\.$/, "").toLowerCase();
+  const hostname = window.location.hostname.replace(/\.$/, "").toLowerCase();
+
+  // Preview deployments use ephemeral *.vercel.app hostnames that are not
+  // registered as customer domains. Permit an explicit canonical domain only
+  // on Vercel preview hosts; the database RPC still validates that domain and
+  // returns a store only when it is active and configured.
+  if (hostname.endsWith(".vercel.app")) {
+    const requestedDomain = new URLSearchParams(window.location.search).get("storeDomain");
+    if (requestedDomain) {
+      const normalized = requestedDomain.trim().replace(/\.$/, "").toLowerCase();
+      if (/^[a-z0-9.-]+$/.test(normalized) && normalized.includes(".") && !normalized.includes("..")) {
+        return normalized;
+      }
+    }
+  }
+
+  return hostname;
 }
 
 function toProduct(row: PublicStorefrontCatalog["products"][number], organizationId: string): Product {
@@ -67,7 +83,7 @@ function defaultSettings(organizationId: string): OrganizationSettings {
 }
 
 export async function loadStore(): Promise<StoreData> {
-  const domain = getDomain();
+  const domain = getStorefrontDomain();
   try {
     const { data, error } = await supabase.rpc("get_public_storefront_catalog", { p_domain: domain });
     if (error) {
