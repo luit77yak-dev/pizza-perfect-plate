@@ -21,7 +21,6 @@ export function StorefrontHeader({
   selectedTrackedOrdersCount,
   onOpenCart,
   onOpenTracking,
-  theme,
 }: StorefrontHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
 
