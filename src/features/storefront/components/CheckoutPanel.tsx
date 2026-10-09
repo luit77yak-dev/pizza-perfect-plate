@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getStorefrontDomain } from "@/core/delivery/services/load-public-store";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/domain/money";
@@ -205,7 +206,7 @@ export function CheckoutPanel({
         // The server must resolve this registered domain to its verified tenant.
         // organization_id remains for backward compatibility and must be checked
         // against the domain-derived organization inside create_public_order.
-        storefront_domain: window.location.hostname.replace(/\.$/, "").toLowerCase(),
+        storefront_domain: getStorefrontDomain(),
         organization_id: organization.id,
         subtotal,
         customer_name: name.trim(),
