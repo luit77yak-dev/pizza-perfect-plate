@@ -195,6 +195,7 @@ begin
   where id = v_order.id;
 
   for v_item in select value from jsonb_array_elements(p_items) as x(value) loop
+    v_second := null;
     v_qty := greatest(1, least(99, coalesce((v_item->>'quantity')::integer, 1)));
 
     select p.* into v_product
@@ -344,6 +345,7 @@ set search_path = public
 as $$
 declare
   v_order public.neroxa_orders%rowtype;
+  v_previous_status public.order_status;
 begin
   select o.* into v_order
   from public.neroxa_orders o
@@ -354,12 +356,14 @@ begin
     raise exception 'Acesso não autorizado a este pedido';
   end if;
   if p_status = v_order.status then return next v_order; return; end if;
+  v_previous_status := v_order.status;
 
   if not (
     (v_order.status = 'RECEIVED' and p_status in ('CONFIRMED','CANCELLED')) or
     (v_order.status = 'CONFIRMED' and p_status in ('PREPARING','CANCELLED')) or
     (v_order.status = 'PREPARING' and p_status in ('READY','CANCELLED')) or
-    (v_order.status = 'READY' and p_status in ('OUT_FOR_DELIVERY','DELIVERED','CANCELLED')) or
+    (v_order.status = 'READY' and p_status in ('DELIVERED','CANCELLED')) or
+    (v_order.status = 'READY' and v_order.fulfillment = 'DELIVERY' and p_status = 'OUT_FOR_DELIVERY') or
     (v_order.status = 'OUT_FOR_DELIVERY' and p_status in ('DELIVERED','CANCELLED'))
   ) then
     raise exception 'Transição de status inválida: % -> %', v_order.status, p_status;
@@ -371,7 +375,7 @@ begin
   returning * into v_order;
 
   insert into public.neroxa_order_status_history(order_id,from_status,to_status,changed_by,note)
-  values(v_order.id, (select status from public.neroxa_orders where id = v_order.id and status <> p_status), p_status, auth.uid(), nullif(trim(p_note), ''));
+  values(v_order.id, v_previous_status, p_status, auth.uid(), nullif(trim(p_note), ''));
 
   return next v_order;
 end;
