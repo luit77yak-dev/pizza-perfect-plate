@@ -29,7 +29,7 @@ create table if not exists public.neroxa_orders (
   ready_at timestamptz,
   out_for_delivery_at timestamptz,
   delivered_at timestamptz,
-  cancelled_at timestamptz,
+  cancelled_at timestamptz
 );
 
 create table if not exists public.neroxa_order_items (
