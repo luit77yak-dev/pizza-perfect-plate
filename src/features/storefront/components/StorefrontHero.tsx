@@ -1,6 +1,6 @@
 import { ArrowRight, Image as ImageIcon } from "lucide-react";
 import type { OrganizationSettings, Product } from "@/lib/domain/types";
-import type { StorefrontTheme } from "@/features/storefront/themes/types";
+import type { StorefrontContentConfig, StorefrontTheme } from "@/features/storefront/themes/types";
 
 type StorefrontHeroProps = {
   organizationName: string;
@@ -8,13 +8,16 @@ type StorefrontHeroProps = {
   products: Product[];
   statusLabel?: string;
   theme: StorefrontTheme;
+  content?: StorefrontContentConfig;
 };
 
-export function StorefrontHero({ organizationName, settings, products, statusLabel = "Status da loja indisponível" }: StorefrontHeroProps) {
-  const heroImage = settings.hero_image_url || products.find((product) => Boolean(product.image_url))?.image_url;
-  const title = settings.hero_title || `Bem-vindo à ${organizationName}`;
-  const subtitle = settings.hero_subtitle || settings.description || "Conheça nosso cardápio e faça seu pedido em poucos passos.";
-  const ctaLabel = settings.hero_cta_label || "Ver o cardápio";
+export function StorefrontHero({ organizationName, settings, products, statusLabel = "Status da loja indisponível", theme, content }: StorefrontHeroProps) {
+  const heroImage = content?.heroImageUrl || settings.hero_image_url || products.find((product) => Boolean(product.image_url))?.image_url;
+  const title = content?.heroTitle || settings.hero_title || `Bem-vindo à ${brandName}`;
+  const subtitle = content?.heroSubtitle || settings.hero_subtitle || settings.description || "Conheça nosso cardápio e faça seu pedido em poucos passos.";
+  const ctaLabel = content?.heroCtaLabel || settings.hero_cta_label || "Ver o cardápio";
+  const brandName = content?.brandName || organizationName;
+  void theme;
 
   return (
     <section className="ppp-reference-hero ppp-engine-hero mx-auto max-w-none px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0">
