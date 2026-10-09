@@ -135,8 +135,94 @@ begin
      v_order_id, p.id, p.name, p.image_url,
      nullif(v_item->>'second_product_id','')::uuid, p2.name,
      coalesce((v_item->>'is_half')::boolean,false),
-     nullif(v_item->>'size_id','')::uuid, nullif(v_item->>'size_name',''),
-     nullif(v_item->>'crust_id','')::uuid, nullif(v_item->>'crust_name',''),
+     case when v_item->>'size_id' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+     coalesce((v_item->>'crust_price')::numeric,0),
+     coalesce(v_item->'addons','[]'::jsonb),
+     coalesce(v_item->'complements','[]'::jsonb),
+     v_qty, nullif(v_item->>'notes',''), v_unit, v_unit*v_qty
+   from public.neroxa_storefront_products p
+   left join public.neroxa_storefront_products p2
+     on p2.id = nullif(v_item->>'second_product_id','')::uuid
+    and p2.instance_id = v_instance
+   where p.id = nullif(v_item->>'product_id','')::uuid
+     and p.instance_id = v_instance
+     and p.active
+     and coalesce((p.metadata->>'available')::boolean,true);
+
+   if not found then raise exception 'Produto não disponível'; end if;
+   v_subtotal := v_subtotal + v_unit*v_qty;
+ end loop;
+
+ v_total := v_subtotal + v_delivery_fee;
+ update public.neroxa_orders
+ set subtotal = v_subtotal, total = v_total, updated_at = now()
+ where id = v_order_id;
+
+ insert into public.neroxa_order_status_history(order_id,to_status,note)
+ values(v_order_id,'RECEIVED','Pedido criado pelo site');
+
+ order_id := v_order_id;
+ order_number := v_number;
+ total := v_total;
+ return next;
+end;
+$function$;
+
+revoke all on function public.create_public_order(jsonb) from public;
+grant execute on function public.create_public_order(jsonb) to anon, authenticated;
+ then (v_item->>'size_id')::uuid else null end,
+     coalesce(
+       nullif(v_item->>'size_name',''),
+       (select choice->>'name'
+        from jsonb_array_elements(coalesce(p.metadata->'options','[]'::jsonb)) opt
+        cross join lateral jsonb_array_elements(coalesce(opt->'choices','[]'::jsonb)) choice
+        where opt->>'id'='tamanho' and choice->>'id'=v_item->>'size_id'
+        limit 1)
+     ),
+     case when v_item->>'crust_id' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+     coalesce((v_item->>'crust_price')::numeric,0),
+     coalesce(v_item->'addons','[]'::jsonb),
+     coalesce(v_item->'complements','[]'::jsonb),
+     v_qty, nullif(v_item->>'notes',''), v_unit, v_unit*v_qty
+   from public.neroxa_storefront_products p
+   left join public.neroxa_storefront_products p2
+     on p2.id = nullif(v_item->>'second_product_id','')::uuid
+    and p2.instance_id = v_instance
+   where p.id = nullif(v_item->>'product_id','')::uuid
+     and p.instance_id = v_instance
+     and p.active
+     and coalesce((p.metadata->>'available')::boolean,true);
+
+   if not found then raise exception 'Produto não disponível'; end if;
+   v_subtotal := v_subtotal + v_unit*v_qty;
+ end loop;
+
+ v_total := v_subtotal + v_delivery_fee;
+ update public.neroxa_orders
+ set subtotal = v_subtotal, total = v_total, updated_at = now()
+ where id = v_order_id;
+
+ insert into public.neroxa_order_status_history(order_id,to_status,note)
+ values(v_order_id,'RECEIVED','Pedido criado pelo site');
+
+ order_id := v_order_id;
+ order_number := v_number;
+ total := v_total;
+ return next;
+end;
+$function$;
+
+revoke all on function public.create_public_order(jsonb) from public;
+grant execute on function public.create_public_order(jsonb) to anon, authenticated;
+ then (v_item->>'crust_id')::uuid else null end,
+     coalesce(
+       nullif(v_item->>'crust_name',''),
+       (select choice->>'name'
+        from jsonb_array_elements(coalesce(p.metadata->'options','[]'::jsonb)) opt
+        cross join lateral jsonb_array_elements(coalesce(opt->'choices','[]'::jsonb)) choice
+        where opt->>'id'='borda' and choice->>'id'=v_item->>'crust_id'
+        limit 1)
+     ),
      coalesce((v_item->>'crust_price')::numeric,0),
      coalesce(v_item->'addons','[]'::jsonb),
      coalesce(v_item->'complements','[]'::jsonb),
