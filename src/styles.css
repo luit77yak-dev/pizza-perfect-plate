@@ -7315,3 +7315,54 @@
     gap: .65rem !important;
   }
 }
+
+
+/* Hotfix: apply the storefront layout regardless of the outer theme-shell class. */
+.ppp-engine-hero,
+.ppp-engine-hero .ppp-reference-hero-frame,
+.ppp-engine-hero .ppp-reference-hero-grid {
+  width: 100% !important; max-width: none !important; margin: 0 !important;
+  padding: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+}
+.ppp-engine-hero .ppp-reference-hero-frame { position: relative !important; height: min(780px, 94svh) !important; overflow: hidden !important; background: #090807 !important; }
+.ppp-engine-hero .ppp-reference-hero-grid { display: block !important; height: 100% !important; min-height: 0 !important; }
+.ppp-engine-hero .ppp-reference-hero-media,
+.ppp-engine-hero .ppp-reference-hero-media > div { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; min-height: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; }
+.ppp-engine-hero .ppp-reference-hero-image { filter: brightness(1.2) saturate(1.12) !important; }
+.ppp-engine-hero .ppp-reference-hero-frame::after { background: linear-gradient(90deg,rgba(9,8,7,.56),rgba(9,8,7,.12) 75%),linear-gradient(180deg,rgba(9,8,7,.05),transparent 40%,rgba(9,8,7,.5)) !important; }
+.ppp-engine-hero .ppp-reference-hero-copy { position: relative !important; z-index: 3 !important; height: 100% !important; min-height: 0 !important; padding: clamp(6rem,12vh,9rem) clamp(1.1rem,6vw,6rem) 2.5rem !important; background: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+
+.ppp-engine-footer {
+ display:block !important; position:relative !important; width:100% !important; max-width:none !important;
+ margin:0 !important; padding:clamp(2rem,5vw,4rem) clamp(1rem,5vw,5rem) 1rem !important;
+ box-sizing:border-box !important; overflow:hidden !important; border:0 !important;
+ border-top:1px solid rgba(255,255,255,.14) !important; border-radius:0 !important; box-shadow:none !important;
+ background:#11100f !important; color:#fff8ef !important;
+}
+.ppp-engine-footer * { box-sizing:border-box !important; }
+.ppp-engine-footer-top { display:flex !important; width:100% !important; max-width:78rem !important; margin:0 auto !important; padding:0 0 2rem !important; align-items:flex-end !important; justify-content:space-between !important; gap:1.5rem !important; border:0 !important; background:transparent !important; }
+.ppp-engine-footer-kicker { margin:0 0 .65rem !important; color:#ff916b !important; font-size:.72rem !important; font-weight:700 !important; letter-spacing:.18em !important; text-transform:uppercase !important; }
+.ppp-engine-footer-top h2 { margin:0 !important; padding:0 !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; background:transparent !important; color:#fff8ef !important; font-size:clamp(2.5rem,7vw,5.5rem) !important; line-height:.94 !important; letter-spacing:-.045em !important; }
+.ppp-engine-footer-top h2 em { color:#ff6a3d !important; font-style:normal !important; }
+.ppp-engine-footer-cta { display:inline-flex !important; flex:0 0 auto !important; min-height:3.25rem !important; align-items:center !important; justify-content:space-between !important; gap:1rem !important; padding:.9rem 1.25rem !important; border:0 !important; border-radius:999px !important; background:#ff6a3d !important; color:white !important; text-decoration:none !important; }
+.ppp-engine-footer-grid { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)) !important; width:100% !important; max-width:78rem !important; margin:0 auto !important; padding:1rem 0 !important; gap:0 !important; border-top:1px solid rgba(255,255,255,.14) !important; border-bottom:1px solid rgba(255,255,255,.14) !important; background:transparent !important; }
+.ppp-engine-footer-grid > div { min-width:0 !important; padding:1rem 1.25rem !important; border:0 !important; border-right:1px solid rgba(255,255,255,.12) !important; border-radius:0 !important; box-shadow:none !important; background:transparent !important; overflow-wrap:anywhere !important; }
+.ppp-engine-footer-grid > div:first-child { padding-left:0 !important; }
+.ppp-engine-footer-grid > div:last-child { padding-right:0 !important; border-right:0 !important; }
+.ppp-engine-footer-grid span { display:block !important; margin:0 0 .65rem !important; color:#ff916b !important; font-size:.7rem !important; font-weight:700 !important; letter-spacing:.15em !important; text-transform:uppercase !important; }
+.ppp-engine-footer-grid strong { display:block !important; color:#fff8ef !important; font-size:1rem !important; line-height:1.4 !important; }
+.ppp-engine-footer-grid p { margin:.5rem 0 0 !important; color:rgba(255,248,239,.7) !important; font-size:.9rem !important; line-height:1.6 !important; }
+.ppp-engine-footer-bottom { display:flex !important; width:100% !important; max-width:78rem !important; margin:0 auto !important; padding:1rem 0 0 !important; align-items:center !important; justify-content:space-between !important; gap:1rem !important; color:rgba(255,248,239,.6) !important; font-size:.8rem !important; background:transparent !important; }
+.ppp-engine-footer-bottom a { color:#fff8ef !important; text-decoration:underline !important; text-underline-offset:.2em !important; }
+@media(max-width:767px) {
+ .ppp-engine-hero .ppp-reference-hero-frame { height:82svh !important; min-height:34rem !important; }
+ .ppp-engine-hero .ppp-reference-hero-copy { padding:6rem 1.1rem 2rem !important; }
+ .ppp-engine-footer { padding:2.25rem 1.1rem 1rem !important; }
+ .ppp-engine-footer-top { align-items:flex-start !important; flex-direction:column !important; gap:1.25rem !important; padding-bottom:1.5rem !important; }
+ .ppp-engine-footer-top h2 { font-size:clamp(2.6rem,12vw,4rem) !important; }
+ .ppp-engine-footer-cta { width:100% !important; }
+ .ppp-engine-footer-grid { grid-template-columns:minmax(0,1fr) !important; padding:.25rem 0 !important; }
+ .ppp-engine-footer-grid > div,.ppp-engine-footer-grid > div:first-child,.ppp-engine-footer-grid > div:last-child { padding:1rem 0 !important; border-right:0 !important; border-bottom:1px solid rgba(255,255,255,.12) !important; }
+ .ppp-engine-footer-grid > div:last-child { border-bottom:0 !important; }
+ .ppp-engine-footer-bottom { align-items:flex-start !important; flex-direction:column !important; gap:.55rem !important; }
+}
