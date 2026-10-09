@@ -103,6 +103,11 @@ export interface StorefrontTheme {
   tokens: StorefrontDesignTokens;
   /** Default section visibility/order for this preset. */
   sections?: Partial<Record<StorefrontSectionId, StorefrontSectionConfig>>;
+  /** Optional resolved presentation toggles; defaults preserve existing storefront behavior. */
+  showSearch?: boolean;
+  showProductCounts?: boolean;
+  showFeaturedBadges?: boolean;
+  showAboutSection?: boolean;
 }
 
 export interface StorefrontVisualOverrides {
