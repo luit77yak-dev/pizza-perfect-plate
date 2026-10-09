@@ -51,17 +51,17 @@ export function StorefrontFooter({ theme, settings, organizationName }: Storefro
   }
 
   return (
-    <footer id="contato" className="pc-footer">
-      <div className="pc-footer-top">
-        <div><p className="pc-section-kicker">{organizationName}</p><h2>Vamos fazer<br /><em>seu pedido?</em></h2></div>
-        <a className="pc-footer-cta" href="#cardapio">Ver o cardápio <span>→</span></a>
+    <footer id="contato" className="ppp-engine-footer">
+      <div className="ppp-engine-footer-top">
+        <div><p className="ppp-engine-footer-kicker">{organizationName}</p><h2>Vamos fazer<br /><em>seu pedido?</em></h2></div>
+        <a className="ppp-engine-footer-cta" href="#cardapio">Ver o cardápio <span>→</span></a>
       </div>
-      <div className="pc-footer-grid">
+      <div className="ppp-engine-footer-grid">
         <div><span>Funcionamento</span><strong>Horários da loja</strong><p>Consulte a disponibilidade atualizada no atendimento</p></div>
         <div><span>Atendimento</span><strong>{serviceMode}</strong><p>{settings.whatsapp_phone || "Entre em contato com a loja"}</p></div>
         <div><span>Cardápio</span><strong>{organizationName}</strong><p>Confira os produtos e opções disponíveis no cardápio</p></div>
       </div>
-      <div className="pc-footer-bottom"><span>{organizationName}</span><span>Obrigado pela preferência.</span><a href="#inicio">Voltar ao topo ↑</a></div>
+      <div className="ppp-engine-footer-bottom"><span>{organizationName}</span><span>Obrigado pela preferência.</span><a href="#inicio">Voltar ao topo ↑</a></div>
     </footer>
   );
 }
