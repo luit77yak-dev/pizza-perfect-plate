@@ -1,7 +1,7 @@
 import type { Addon, Category, Crust, Organization, OrganizationSettings, Product, ProductPrice, ProductSize } from "@/lib/domain/types";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveStorefrontVisualConfig } from "@/features/storefront/themes/resolve";
-import type { StorefrontVisualConfig } from "@/features/storefront/themes/types";
+import type { StorefrontVisualConfig, StorefrontVisualOverrides } from "@/features/storefront/themes/types";
 
 export type ProductAddonLink = { product_id: string; addon_id: string; sort_order: number };
 export type PublicAddon = { id: string; name: string; price_delta: number; active: boolean; sort_order: number };
@@ -34,7 +34,7 @@ type PublicStorefrontCatalog = {
   };
   categories: Array<{ id: string; name: string; slug: string; description?: string | null; image_url?: string | null; sort_order: number; active: boolean }>;
   products: Array<{ id: string; category_id: string | null; name: string; slug: string; description: string | null; image_url: string | null; price: number | null; active: boolean; sort_order: number; metadata: Record<string, unknown> }>;
-  settings?: Partial<OrganizationSettings>;
+  settings?: Partial<OrganizationSettings> & { visual_overrides?: StorefrontVisualOverrides | null };
   addon_groups?: PublicAddonGroup[];
   delivery_zones?: Array<{
     id: string; name: string; neighborhoods: string[]; minimum_order: number;
@@ -115,7 +115,7 @@ export async function loadStore(): Promise<StoreData> {
       payment_methods: (catalog.settings?.payment_methods as OrganizationSettings["payment_methods"] | undefined) ?? fallback.payment_methods,
       social_links: (catalog.settings?.social_links as Record<string, string> | undefined) ?? fallback.social_links,
     };
-    const visualConfig = resolveStorefrontVisualConfig(settings.storefront_theme, settings);
+    const visualConfig = resolveStorefrontVisualConfig(settings.storefront_theme, settings, catalog.settings?.visual_overrides ?? undefined);
     const deliveryZones = (catalog.delivery_zones ?? []).map((zone) => ({
       id: zone.id,
       organization_id: context.organization_id,
