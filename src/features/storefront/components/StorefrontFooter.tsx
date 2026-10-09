@@ -51,7 +51,7 @@ export function StorefrontFooter({ theme, settings, organizationName }: Storefro
   }
 
   return (
-    <footer id="contato" className="ppp-engine-footer">
+    <footer id="contato" className="ppp-engine-footer" aria-label="Informações e contato da loja">
       <div className="ppp-engine-footer-top">
         <div><p className="ppp-engine-footer-kicker">{organizationName}</p><h2>Vamos fazer<br /><em>seu pedido?</em></h2></div>
         <a className="ppp-engine-footer-cta" href="#cardapio">Ver o cardápio <span>→</span></a>
