@@ -145,12 +145,6 @@ begin
             and c.active
             and lower(c.name) like '%adicional%'
         )
-        and exists (
-          select 1
-          from public.neroxa_storefront_product_addons pa
-          where pa.addon_id = p.id
-            and pa.product_id in (p_product_id, p_second_product_id)
-        )
       limit 1;
 
       if not found then raise exception 'Adicional não disponível para este produto'; end if;
