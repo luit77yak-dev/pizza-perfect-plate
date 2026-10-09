@@ -134,8 +134,8 @@ as $$
     ), '[]'::jsonb)
   from public.neroxa_orders o
   where o.id = p_order_id
-    and regexp_replace(o.customer_phone, '\D', '', 'g')
-      = regexp_replace(coalesce(p_customer_phone, ''), '\D', '', 'g')
+    and regexp_replace(o.customer_phone, '[^0-9]', '', 'g')
+      = regexp_replace(coalesce(p_customer_phone, ''), '[^0-9]', '', 'g')
   limit 1;
 $$;
 
@@ -181,8 +181,8 @@ begin
   select o.* into v_order
   from public.neroxa_orders o
   where o.id = p_order_id
-    and regexp_replace(o.customer_phone, '\D', '', 'g')
-      = regexp_replace(coalesce(p_customer_phone, ''), '\D', '', 'g')
+    and regexp_replace(o.customer_phone, '[^0-9]', '', 'g')
+      = regexp_replace(coalesce(p_customer_phone, ''), '[^0-9]', '', 'g')
   for update;
 
   if not found then raise exception 'Pedido não encontrado'; end if;
