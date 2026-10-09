@@ -152,13 +152,28 @@ export async function loadStore(): Promise<StoreData> {
       sort_order: index,
       active: product.active && product.available,
     }));
-    return {
-      organization, settings, categories, products, sizes, prices, crusts, addons,
-      productAddonLinks: pizzaRows.flatMap((product) => addons.map((addon) => ({
-        product_id: product.id,
+    const addonGroups: PublicAddonGroup[] = (catalog.addon_groups ?? []).map((group) => ({
+      ...group,
+      products: Array.isArray(group.products) ? group.products : [],
+      addons: Array.isArray(group.addons) ? group.addons.filter((addon) => addon.active) : [],
+    })).filter((group) => group.active);
+    const productAddonGroupLinks: ProductAddonGroupLink[] = addonGroups.flatMap((group) =>
+      group.products.map((product) => ({
+        product_id: product.product_id,
+        group_id: group.id,
+        sort_order: product.sort_order ?? group.sort_order,
+      })),
+    );
+    const productAddonLinks: ProductAddonLink[] = addonGroups.flatMap((group) =>
+      group.products.flatMap((product) => group.addons.map((addon) => ({
+        product_id: product.product_id,
         addon_id: addon.id,
         sort_order: addon.sort_order,
       }))),
+    );
+    return {
+      organization, settings, categories, products, sizes, prices, crusts, addons,
+      addonGroups, productAddonGroupLinks, productAddonLinks,
       hours: [], specialHours: [], deliveryZones,
     };
   } catch (error) {
