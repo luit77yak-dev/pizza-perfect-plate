@@ -240,7 +240,7 @@ export function Storefront() {
     });
   }, [data, mainProducts, selectedCategory, searchTerm]);
 
-  const storefrontTheme = resolveStorefrontTheme(data?.settings?.storefront_theme);
+  const storefrontTheme = data?.visualConfig.theme ?? resolveStorefrontTheme(data?.settings?.storefront_theme);
   const isBurgerTheme = storefrontTheme.id === "burger-club";
   const isPizzaTheme = storefrontTheme.id === "neroxa-classic";
   const themeTokens = storefrontTheme.tokens;
@@ -385,19 +385,11 @@ export function Storefront() {
   }
 
   const status = getStoreStatus(data.hours, data.specialHours, now);
-  const burgerFallbackImages: Record<string, string> = {
-    "Classic Burger": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=82&fm=jpg",
-    "Bacon Smash": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=1200&q=82&fm=jpg",
-    "Double Cheese": "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=1200&q=82&fm=jpg",
-    "Chicken Crispy": "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=1200&q=82&fm=jpg",
-    "Batata da Casa": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=1200&q=82&fm=jpg",
-    "Batata Cheddar & Bacon": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=1200&q=82&fm=jpg",
-  };
 
   const primary = data.settings.primary_color?.includes("%")
     ? `hsl(${data.settings.primary_color})`
     : undefined;
-  const secondary = isBurgerTheme ? "hsl(30 10% 8%)" : "hsl(145 28% 32%)";
+  const secondary = themeTokens.secondaryColor ? `hsl(${themeTokens.secondaryColor})` : "hsl(42 35% 96%)";
   const secondaryForeground = "hsl(42 35% 96%)";
 
   return (
@@ -409,6 +401,7 @@ export function Storefront() {
           ...(themeTokens.primaryColor ? { "--primary": `hsl(${themeTokens.primaryColor})` } : {}),
           "--secondary": themeTokens.secondaryColor ? `hsl(${themeTokens.secondaryColor})` : secondary,
           "--secondary-foreground": secondaryForeground,
+          ...(themeTokens.fontFamily ? { "--font-family": themeTokens.fontFamily } : {}),
         } as CSSProperties
       }
     >
@@ -456,7 +449,7 @@ export function Storefront() {
           onSearchTermChange={setSearchTerm}
           onSelectProduct={setSelectedProduct}
           onAddSimpleProduct={addSimpleProductToCart}
-          imageFallbacks={burgerFallbackImages}
+          imageFallbacks={{}}
         />
 
         <StorefrontAbout theme={storefrontTheme} settings={data.settings} categories={data.categories} />
