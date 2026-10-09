@@ -30,8 +30,6 @@ create table if not exists public.neroxa_orders (
   out_for_delivery_at timestamptz,
   delivered_at timestamptz,
   cancelled_at timestamptz,
-  unique (instance_id, order_number),
-  unique (instance_id, idempotency_key)
 );
 
 create table if not exists public.neroxa_order_items (
@@ -67,6 +65,11 @@ create table if not exists public.neroxa_order_status_history (
   created_at timestamptz not null default now()
 );
 
+create unique index if not exists neroxa_orders_instance_order_number_uidx
+  on public.neroxa_orders(instance_id, order_number);
+create unique index if not exists neroxa_orders_instance_idempotency_uidx
+  on public.neroxa_orders(instance_id, idempotency_key)
+  where idempotency_key is not null;
 create index if not exists neroxa_orders_instance_created_idx
   on public.neroxa_orders(instance_id, created_at desc);
 create index if not exists neroxa_orders_instance_status_idx
