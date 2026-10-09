@@ -31,6 +31,8 @@ declare
   v_id uuid;
   v_addon_price numeric;
   v_selected_addon_count integer;
+  v_group record;
+  v_seen_addon_ids uuid[] := '{}'::uuid[];
 begin
   select p.*, i.organization_id
     into v_product
@@ -112,9 +114,39 @@ begin
     v_crust := coalesce((v_choice->>'price')::numeric, 0);
   end if;
 
+  -- Enforce group selection rules on the server, not only in the storefront UI.
+  if jsonb_typeof(coalesce(p_addons, '[]'::jsonb)) <> 'array' then
+    raise exception 'Lista de adicionais inválida';
+  end if;
+
+  for v_group in
+    select g.id, g.required, g.min_selections, g.max_selections
+    from public.neroxa_storefront_addon_groups g
+    join public.neroxa_storefront_product_addon_groups l on l.group_id = g.id
+    where g.instance_id = p_instance_id
+      and g.active
+      and l.product_id in (p_product_id, p_second_product_id)
+  loop
+    select count(*) into v_selected_addon_count
+    from jsonb_array_elements(coalesce(p_addons, '[]'::jsonb)) selected
+    join public.neroxa_storefront_addons a
+      on a.id = nullif(selected->>'id', '')::uuid
+     and a.group_id = v_group.id
+     and a.active;
+
+    if v_selected_addon_count > v_group.max_selections then
+      raise exception 'Limite de adicionais excedido';
+    end if;
+    if v_selected_addon_count < case when v_group.required then greatest(1, v_group.min_selections) else v_group.min_selections end then
+      raise exception 'Selecione os adicionais obrigatórios';
+    end if;
+  end loop;
+
   for v_item in select * from jsonb_array_elements(coalesce(p_addons, '[]'::jsonb)) loop
     v_id := nullif(v_item->>'id', '')::uuid;
     if v_id is null then raise exception 'Adicional inválido'; end if;
+    if v_id = any(v_seen_addon_ids) then raise exception 'Adicional duplicado'; end if;
+    v_seen_addon_ids := array_append(v_seen_addon_ids, v_id);
 
     -- Preferred path: normalized addon belongs to an active group assigned to
     -- the selected product (or either half of a half-and-half pizza).
