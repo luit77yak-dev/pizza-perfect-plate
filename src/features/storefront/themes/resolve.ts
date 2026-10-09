@@ -51,6 +51,10 @@ export function resolveStorefrontVisualConfig(
     menuLayout: components.menuLayout ?? theme.menuLayout,
     categoryNavigation: components.categoryNavigation ?? theme.categoryNavigation,
     footer: components.footer ?? theme.footer,
+    showSearch: components.showSearch,
+    showProductCounts: components.showProductCounts,
+    showFeaturedBadges: components.showFeaturedBadges,
+    showAboutSection: components.showAboutSection,
     tokens,
     sections: {
       ...(theme.sections ?? {}),
