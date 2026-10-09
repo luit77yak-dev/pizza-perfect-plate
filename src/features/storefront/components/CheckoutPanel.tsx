@@ -202,6 +202,10 @@ export function CheckoutPanel({
     setSubmitting(true);
     try {
       const payload = {
+        // The server must resolve this registered domain to its verified tenant.
+        // organization_id remains for backward compatibility and must be checked
+        // against the domain-derived organization inside create_public_order.
+        storefront_domain: window.location.hostname.replace(/\.$/, "").toLowerCase(),
         organization_id: organization.id,
         subtotal,
         customer_name: name.trim(),
