@@ -135,7 +135,7 @@ begin
      v_order_id, p.id, p.name, p.image_url,
      nullif(v_item->>'second_product_id','')::uuid, p2.name,
      coalesce((v_item->>'is_half')::boolean,false),
-     case when v_item->>'size_id' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then (v_item->>'size_id')::uuid else null end,
+     case when v_item->>'size_id' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then (v_item->>'size_id')::text else null end,
      coalesce(
        nullif(v_item->>'size_name',''),
        (select choice->>'name'
@@ -144,7 +144,7 @@ begin
         where opt->>'id'='tamanho' and choice->>'id'=v_item->>'size_id'
         limit 1)
      ),
-     case when v_item->>'crust_id' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then (v_item->>'crust_id')::uuid else null end,
+     case when v_item->>'crust_id' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then (v_item->>'crust_id')::text else null end,
      coalesce(
        nullif(v_item->>'crust_name',''),
        (select choice->>'name'
