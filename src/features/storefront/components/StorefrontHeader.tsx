@@ -36,20 +36,18 @@ export function StorefrontHeader({
     <header className={`ppp-reference-header ${scrolled ? "scrolled" : ""} absolute inset-x-0 top-0 z-[100]`}>
       <div className="mx-auto flex h-[5.25rem] max-w-[1400px] items-center justify-between gap-3 px-5 sm:h-[5.75rem] sm:px-8 lg:px-12">
         <a href="#inicio" className="group flex min-w-0 items-center gap-3 text-white">
-          <span className="grid size-11 shrink-0 place-items-center rounded-full border border-[#ffc15e] text-[#ffc15e] font-display text-lg font-semibold sm:size-12">
-            {theme.id === "burger-club" ? "Hc" : "Pc"}
-          </span>
+          {logoUrl ? <img src={logoUrl} alt="" className="size-11 shrink-0 rounded-full object-cover sm:size-12" /> : <span className="grid size-11 shrink-0 place-items-center rounded-full border border-current font-display text-lg font-semibold sm:size-12" aria-hidden="true">{organizationName.trim().charAt(0).toLocaleUpperCase("pt-BR") || "L"}</span>}
           <span className="truncate font-display text-xl font-semibold tracking-[-.035em] sm:text-2xl">
-            {theme.id === "burger-club" ? "Burger Club" : theme.id === "neroxa-classic" ? "Pizza Club" : organizationName}
+            {organizationName}
           </span>
         </a>
 
         <nav className="hidden items-center gap-8 text-xs font-medium text-white/70 lg:flex">
-          {theme.id === "burger-club" ? (<><a href="#inicio" className="transition-colors hover:text-white">Início</a><a href="#cardapio" className="transition-colors hover:text-white">Cardápio</a><a href="#sobre" className="transition-colors hover:text-white">Sobre</a><a href="#contato" className="transition-colors hover:text-white">Contato</a></>) : (<><a href="#cardapio" className="transition-colors hover:text-white">Cardápio</a><a href="#sobre" className="transition-colors hover:text-white">A casa</a><a href="#contato" className="transition-colors hover:text-white">Contato</a></>)}
+          <><a href="#inicio" className="transition-colors hover:text-white">Início</a><a href="#cardapio" className="transition-colors hover:text-white">Cardápio</a><a href="#sobre" className="transition-colors hover:text-white">Sobre</a><a href="#contato" className="transition-colors hover:text-white">Contato</a></>
         </nav>
 
         <div className="relative z-[110] flex items-center gap-2">
-          {(theme.id === "neroxa-classic" || theme.id === "burger-club" || selectedTrackedOrdersCount > 0) && (
+          {(selectedTrackedOrdersCount > 0) && (
             <Button
               size="sm"
               variant="ghost"
