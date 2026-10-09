@@ -453,9 +453,9 @@ export function Storefront() {
           imageFallbacks={{}}
         />
 
-        <StorefrontAbout theme={storefrontTheme} settings={data.settings} categories={data.categories} />
+        <StorefrontAbout theme={storefrontTheme} settings={data.settings} categories={data.categories} organizationName={data.organization.name} content={data.visualConfig.overrides?.content} />
 
-        <StorefrontFooter theme={storefrontTheme} settings={data.settings} organizationName={data.organization.name} />
+        <StorefrontFooter theme={storefrontTheme} settings={data.settings} organizationName={data.organization.name} content={data.visualConfig.overrides?.content} />
       </main>
       </div>
 
