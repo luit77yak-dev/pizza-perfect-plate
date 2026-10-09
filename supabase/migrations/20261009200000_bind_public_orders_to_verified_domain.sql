@@ -1,5 +1,5 @@
 -- Bind public order creation to the verified storefront domain.
--- Development branch only: review and apply separately; this migration is not applied.
+-- Development branch only; validated in an isolated test project, not production.
 create or replace function public.create_public_order(p_order jsonb)
 returns table(order_id uuid, order_number bigint, total numeric)
 language plpgsql
@@ -55,6 +55,9 @@ begin
    raise exception 'Forma de recebimento ou pagamento inválida';
  end if;
 
+ -- Serialize per instance before checking idempotency, so concurrent retries return the same order.
+ perform pg_advisory_xact_lock(hashtext(v_instance::text));
+
  if nullif(p_order->>'idempotency_key','') is not null then
    select o.id, o.order_number, o.total
      into v_order_id, v_number, v_total
@@ -90,8 +93,7 @@ begin
    v_delivery_fee := coalesce(v_zone.delivery_fee, 0);
  end if;
 
- -- Serialize order numbering within the resolved instance.
- perform pg_advisory_xact_lock(hashtext(v_instance::text));
+ -- The per-instance lock above also protects order-number allocation.
  select coalesce(max(o.order_number),0)+1
    into v_number
  from public.neroxa_orders o
