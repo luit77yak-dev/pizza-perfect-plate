@@ -146,12 +146,12 @@ begin
     v_added := v_added + v_unit*v_qty;
   end loop;
 
-  update public.neroxa_orders
+  update public.neroxa_orders as o
   set payment_method=p_payment_method,
-      subtotal=round(coalesce(subtotal,0)+v_added,2),
-      total=round(coalesce(subtotal,0)+v_added+coalesce(delivery_fee,0),2),
+      subtotal=round(coalesce(v_order.subtotal,0)+v_added,2),
+      total=round(coalesce(v_order.subtotal,0)+v_added+coalesce(v_order.delivery_fee,0),2),
       updated_at=now()
-  where id=v_order.id returning * into v_order;
+  where o.id=v_order.id returning o.* into v_order;
 
   order_id:=v_order.id; order_number:=v_order.order_number;
   subtotal:=v_order.subtotal; total:=v_order.total;
