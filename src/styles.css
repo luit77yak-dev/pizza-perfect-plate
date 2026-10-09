@@ -7366,3 +7366,43 @@
  .ppp-engine-footer-grid > div:last-child { border-bottom:0 !important; }
  .ppp-engine-footer-bottom { align-items:flex-start !important; flex-direction:column !important; gap:.55rem !important; }
 }
+
+
+/* Burger Club variant hotfix: the active storefront uses hc-* classes, not ppp-engine-*. */
+.hc-hero { position:relative !important; display:block !important; width:100% !important; max-width:none !important; height:min(780px,94svh) !important; min-height:0 !important; margin:0 !important; padding:0 !important; overflow:hidden !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; background:#090807 !important; }
+.hc-hero-media { position:absolute !important; inset:0 !important; width:100% !important; height:100% !important; min-height:0 !important; padding:0 !important; border:0 !important; border-radius:0 !important; background:#090807 !important; }
+.hc-hero-image { width:100% !important; height:100% !important; object-fit:cover !important; filter:brightness(1.22) saturate(1.12) contrast(1.04) !important; }
+.hc-hero-overlay { position:absolute !important; inset:0 !important; background:linear-gradient(90deg,rgba(9,8,7,.5),rgba(9,8,7,.08) 80%),linear-gradient(180deg,rgba(9,8,7,.05),transparent 42%,rgba(9,8,7,.45)) !important; }
+.hc-hero-copy { position:relative !important; z-index:2 !important; display:flex !important; flex-direction:column !important; justify-content:flex-end !important; width:100% !important; height:100% !important; min-height:0 !important; max-width:none !important; margin:0 !important; padding:clamp(6rem,12vh,9rem) clamp(1.1rem,6vw,6rem) 2.5rem !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; background:transparent !important; }
+.hc-hero-copy h1 { max-width:11ch !important; color:#fff8ef !important; font-size:clamp(3rem,9vw,7.5rem) !important; line-height:.9 !important; }
+.hc-hero-copy h1 em { color:#ffb85c !important; }
+.hc-hero-copy > p:not(.hc-hero-status) { max-width:34rem !important; color:rgba(255,248,239,.86) !important; }
+.hc-hero-copy > a { display:inline-flex !important; width:fit-content !important; align-items:center !important; gap:1rem !important; padding:1rem 1.5rem !important; border:0 !important; border-radius:999px !important; background:#ff6a3d !important; color:#fff !important; text-decoration:none !important; box-shadow:none !important; }
+
+#contato.hc-footer { display:block !important; width:100% !important; max-width:none !important; margin:0 !important; padding:clamp(2rem,5vw,4rem) clamp(1rem,5vw,5rem) 1rem !important; overflow:hidden !important; box-sizing:border-box !important; border:0 !important; border-top:1px solid rgba(255,255,255,.14) !important; border-radius:0 !important; box-shadow:none !important; background:#11100f !important; color:#fff8ef !important; }
+#contato.hc-footer * { box-sizing:border-box !important; }
+#contato.hc-footer .hc-footer-top { display:flex !important; width:100% !important; max-width:78rem !important; margin:0 auto !important; padding:0 0 2rem !important; align-items:flex-end !important; justify-content:space-between !important; gap:1.5rem !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; background:transparent !important; }
+#contato.hc-footer .hc-footer-top h2 { margin:0 !important; padding:0 !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; background:transparent !important; color:#fff8ef !important; font-size:clamp(2.6rem,7vw,5.5rem) !important; line-height:.94 !important; }
+#contato.hc-footer .hc-footer-top h2 em { color:#ff6a3d !important; }
+#contato.hc-footer .hc-footer-top a { display:inline-flex !important; align-items:center !important; justify-content:space-between !important; gap:1rem !important; padding:.9rem 1.25rem !important; border:0 !important; border-radius:999px !important; background:#ff6a3d !important; color:#fff !important; text-decoration:none !important; box-shadow:none !important; }
+#contato.hc-footer .hc-footer-grid { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)) !important; width:100% !important; max-width:78rem !important; margin:0 auto !important; padding:1rem 0 !important; gap:0 !important; border-top:1px solid rgba(255,255,255,.14) !important; border-bottom:1px solid rgba(255,255,255,.14) !important; background:transparent !important; }
+#contato.hc-footer .hc-footer-grid > div { min-width:0 !important; padding:1rem 1.25rem !important; border:0 !important; border-right:1px solid rgba(255,255,255,.12) !important; border-radius:0 !important; box-shadow:none !important; background:transparent !important; overflow-wrap:anywhere !important; }
+#contato.hc-footer .hc-footer-grid > div:first-child { padding-left:0 !important; }
+#contato.hc-footer .hc-footer-grid > div:last-child { padding-right:0 !important; border-right:0 !important; }
+#contato.hc-footer .hc-footer-grid span { display:block !important; margin:0 0 .65rem !important; color:#ff916b !important; font-size:.7rem !important; font-weight:700 !important; letter-spacing:.15em !important; text-transform:uppercase !important; }
+#contato.hc-footer .hc-footer-grid strong { display:block !important; color:#fff8ef !important; font-size:1rem !important; line-height:1.4 !important; }
+#contato.hc-footer .hc-footer-grid p { margin:.5rem 0 0 !important; color:rgba(255,248,239,.7) !important; font-size:.9rem !important; line-height:1.6 !important; }
+#contato.hc-footer .hc-footer-bottom { display:flex !important; width:100% !important; max-width:78rem !important; margin:0 auto !important; padding:1rem 0 0 !important; align-items:center !important; justify-content:space-between !important; gap:1rem !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; background:transparent !important; color:rgba(255,248,239,.6) !important; font-size:.8rem !important; }
+#contato.hc-footer .hc-footer-bottom a { color:#fff8ef !important; text-decoration:underline !important; }
+@media(max-width:767px) {
+ .hc-hero { height:82svh !important; min-height:34rem !important; }
+ .hc-hero-copy { padding:6rem 1.1rem 2rem !important; }
+ #contato.hc-footer { padding:2.25rem 1.1rem 1rem !important; }
+ #contato.hc-footer .hc-footer-top { align-items:flex-start !important; flex-direction:column !important; gap:1.25rem !important; padding-bottom:1.5rem !important; }
+ #contato.hc-footer .hc-footer-top h2 { font-size:clamp(2.6rem,12vw,4rem) !important; }
+ #contato.hc-footer .hc-footer-top a { width:100% !important; }
+ #contato.hc-footer .hc-footer-grid { grid-template-columns:minmax(0,1fr) !important; padding:.25rem 0 !important; }
+ #contato.hc-footer .hc-footer-grid > div,#contato.hc-footer .hc-footer-grid > div:first-child,#contato.hc-footer .hc-footer-grid > div:last-child { padding:1rem 0 !important; border-right:0 !important; border-bottom:1px solid rgba(255,255,255,.12) !important; }
+ #contato.hc-footer .hc-footer-grid > div:last-child { border-bottom:0 !important; }
+ #contato.hc-footer .hc-footer-bottom { align-items:flex-start !important; flex-direction:column !important; gap:.55rem !important; }
+}
