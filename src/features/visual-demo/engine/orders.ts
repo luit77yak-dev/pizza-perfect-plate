@@ -66,13 +66,28 @@ export function validateService(
   state: DemoState,
 ): Partial<Record<keyof CheckoutDraft, string>> {
   const errors: Partial<Record<keyof CheckoutDraft, string>> = {};
-  if (!draft.name.trim()) errors.name = "Informe um nome de exemplo.";
-  if (draft.phone.replace(/\D/g, "").length < 10)
+  for (const key of ["name", "phone", "street", "number", "zip", "zoneId"] as const) {
+    if (typeof draft[key] !== "string") errors[key] = "Informe um valor fictício válido.";
+  }
+  if (!["Entrega", "Retirada"].includes(draft.fulfillment))
+    errors.fulfillment = "Escolha entrega ou retirada.";
+  if (Object.keys(errors).length) return errors;
+  if (
+    !draft.name.trim() ||
+    draft.name.trim().length < 2 ||
+    (draft.name.match(/[\p{L}]/gu)?.length ?? 0) < 2
+  )
+    errors.name = "Informe um nome fictício com pelo menos duas letras.";
+  if (
+    !/^[\d ()+.-]+$/.test(draft.phone) ||
+    !/^(?:\d{10,11}|55\d{10,11})$/.test(draft.phone.replace(/\D/g, ""))
+  )
     errors.phone = "Informe um telefone fictício com DDD.";
   if (draft.fulfillment === "Entrega") {
     if (!state.store.delivery) errors.fulfillment = "Entrega indisponível.";
     if (!draft.street.trim()) errors.street = "Informe a rua fictícia.";
-    if (!draft.number.trim()) errors.number = "Informe o número fictício.";
+    if (!/^(?:\d+[\p{L}\d /.-]*|s\/?n|sem n[uú]mero)$/iu.test(draft.number.trim()))
+      errors.number = "Informe um número fictício ou escreva sem número.";
     if (!state.zones.some((z) => z.id === draft.zoneId))
       errors.zoneId = "Escolha uma região atendida.";
     if (draft.zip && !/^\d{5}-?\d{3}$/.test(draft.zip))
@@ -96,6 +111,8 @@ export function cartDetails(i: CartItem & { demoDetails?: string[] }): string[] 
 }
 export type CheckoutSnapshot = ReturnType<typeof cartAmounts> & {
   generation: string;
+  requestId: string;
+  service: CheckoutDraft;
   fulfillment: CheckoutDraft["fulfillment"];
   zoneId: string | null;
 };
@@ -111,6 +128,8 @@ export function checkoutSnapshot(
   return {
     ...cartAmounts(items, fee),
     generation: state.generation,
+    requestId: items[0]?.lineId ?? "",
+    service: { ...draft },
     fulfillment: draft.fulfillment,
     zoneId: draft.fulfillment === "Entrega" ? draft.zoneId : null,
   };

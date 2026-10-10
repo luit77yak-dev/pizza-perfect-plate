@@ -5,6 +5,7 @@ import {
   stateSchema,
   STORAGE_KEY,
   LEGACY_STORAGE_KEY,
+  PREVIOUS_STORAGE_KEY,
 } from "./model";
 import type { DemoState } from "./model";
 
@@ -21,7 +22,8 @@ function load() {
   if (memoryOnly && snapshot.ready) return;
   try {
     const current = window.localStorage.getItem(STORAGE_KEY);
-    const r = recoverState(current ?? window.localStorage.getItem(LEGACY_STORAGE_KEY));
+    const previous = current === null ? window.localStorage.getItem(PREVIOUS_STORAGE_KEY) : null;
+    const r = recoverState(current ?? previous ?? window.localStorage.getItem(LEGACY_STORAGE_KEY));
     let migrationWarning = "";
     if (r.migrated) {
       try {
@@ -38,7 +40,7 @@ function load() {
       warning: r.recovered
         ? "Dados locais inválidos ou versão incompatível: demonstração restaurada."
         : r.migrated
-          ? "Dados demonstrativos V2 importados; a cópia original foi preservada." +
+          ? `Dados demonstrativos ${previous ? "V2.1" : "V2"} importados; a cópia original foi preservada.` +
             migrationWarning
           : "",
     };
@@ -59,23 +61,45 @@ function storageChanged(event: StorageEvent) {
     return;
   memoryOnly = false;
   load();
+  if (!snapshot.warning) {
+    snapshot = {
+      ...snapshot,
+      warning:
+        "Atualização recebida de outra aba. Evite edições simultâneas: o armazenamento local não é transacional.",
+    };
+    emit();
+  }
 }
-export function updateDemo(updater: (s: DemoState) => DemoState): DemoState {
+function mutateDemo(updater: (s: DemoState) => DemoState, restoring = false): DemoState {
   if (typeof window === "undefined" || !snapshot.ready)
     throw Error("Demonstração ainda não está pronta.");
   let base = snapshot.data;
+  let raw: string | null = null;
   try {
-    const raw = memoryOnly ? null : window.localStorage.getItem(STORAGE_KEY);
-    if (raw) base = recoverState(raw).state;
+    raw = memoryOnly ? null : window.localStorage.getItem(STORAGE_KEY);
   } catch {
-    /* memory fallback */
+    memoryOnly = true;
   }
-  const next = stateSchema.parse({ ...updater(base), version: 3, revision: crypto.randomUUID() });
-  const raw = JSON.stringify(next);
-  if (raw.length > 2200000) throw Error("Limite local atingido. Remova imagens ou produtos.");
+  if (raw) {
+    const recovered = recoverState(raw);
+    if (
+      !restoring &&
+      (recovered.recovered || recovered.state.generation !== snapshot.data.generation)
+    ) {
+      load();
+      throw Error(
+        "Dados locais inválidos ou demonstração restaurada em outra aba. Revise antes de salvar.",
+      );
+    }
+    base = recovered.state;
+  }
+  const next = stateSchema.parse({ ...updater(base), version: 4, revision: crypto.randomUUID() });
+  const serialized = JSON.stringify(next);
+  if (serialized.length > 2200000)
+    throw Error("Limite local atingido. Remova imagens ou produtos.");
   let warning = "";
   try {
-    window.localStorage.setItem(STORAGE_KEY, raw);
+    window.localStorage.setItem(STORAGE_KEY, serialized);
   } catch {
     memoryOnly = true;
     warning = "Não foi possível salvar: alterações somente nesta aba.";
@@ -84,8 +108,11 @@ export function updateDemo(updater: (s: DemoState) => DemoState): DemoState {
   emit();
   return next;
 }
+export function updateDemo(updater: (s: DemoState) => DemoState): DemoState {
+  return mutateDemo(updater);
+}
 export function resetDemo() {
-  return updateDemo(() => ({ ...createInitialState(), generation: crypto.randomUUID() }));
+  return mutateDemo(() => ({ ...createInitialState(), generation: crypto.randomUUID() }), true);
 }
 const subscribe = (listener: () => void) => {
   listeners.add(listener);

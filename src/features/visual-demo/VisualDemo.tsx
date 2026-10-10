@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Pizza, Plus } from "lucide-react";
 import { StorefrontHeader } from "@/components/storefront/StorefrontHeader";
 import { StorefrontHero } from "@/components/storefront/StorefrontHero";
 import { DemoConfigurator } from "./DemoConfigurator";
 import { FornoCheckout } from "./experience/FornoCheckout";
 import { FornoTracking } from "./experience/FornoTracking";
-import { exampleDraft } from "./engine/orders";
+import { exampleDraft, cartDetails, cartAmounts } from "./engine/orders";
 import type { Selection } from "./data/model";
 import { useDemoData } from "./data/store";
 import { demoCatalog, demoStyle } from "./data/catalog-adapter";
@@ -17,7 +17,6 @@ import {
   submitDemoOrder,
 } from "./data/model";
 import { CartPanel } from "@/features/cart/components/CartPanel";
-import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem } from "@/lib/domain/types";
 
@@ -28,6 +27,9 @@ export function VisualDemo() {
   const [confirmation, setConfirmation] = useState("");
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [trackingOpen, setTrackingOpen] = useState(false);
+  const [trackedId, setTrackedId] = useState<number | undefined>();
+  const [editOrigin, setEditOrigin] = useState<"cart" | "checkout">("cart");
+  const submitting = useRef(false);
   const [draft, setDraft] = useState(() => exampleDraft());
   const [editing, setEditing] = useState<CartItem | null>(null);
   const [selections, setSelections] = useState<
@@ -185,7 +187,8 @@ export function VisualDemo() {
             setProduct(null);
             if (editing) {
               setEditing(null);
-              setCheckoutOpen(true);
+              if (editOrigin === "checkout") setCheckoutOpen(true);
+              else setCartOpen(true);
             }
           }}
           onAdd={(selection, quantity, notes) => {
@@ -202,8 +205,9 @@ export function VisualDemo() {
             setSelections((current) => ({ ...current, [added.lineId]: { selection, notes } }));
             if (editing) {
               setEditing(null);
-              setCheckoutOpen(true);
-            }
+              if (editOrigin === "checkout") setCheckoutOpen(true);
+              else setCartOpen(true);
+            } else setCartOpen(true);
             setToken(catalogToken(state));
             setProduct(null);
           }}
@@ -212,18 +216,29 @@ export function VisualDemo() {
       {cartOpen && (
         <CartPanel
           items={items}
-          subtotal={calculateCartSubtotal(items)}
+          subtotal={cartAmounts(items, 0).subtotal}
+          itemDetails={cartDetails}
+          onContinueShopping={() => setCartOpen(false)}
+          onEdit={(item) => {
+            setEditOrigin("cart");
+            setEditing(item);
+            setProduct(item.productId);
+            setCartOpen(false);
+          }}
           onClose={() => setCartOpen(false)}
           onUpdate={(id, quantity) =>
             setItems((current) =>
               current.map((item) =>
-                item.lineId === id ? { ...item, quantity: Math.max(1, quantity) } : item,
+                item.lineId === id
+                  ? { ...item, quantity: Math.min(99, Math.max(1, quantity)) }
+                  : item,
               ),
             )
           }
           onRemove={(id) => setItems((current) => current.filter((item) => item.lineId !== id))}
           onClear={() => {
             setItems([]);
+            setSelections({});
             setToken(null);
           }}
           storeOpen={
@@ -248,7 +263,13 @@ export function VisualDemo() {
           personalize novamente.
         </p>
       )}
-      {trackingOpen && <FornoTracking state={state} onClose={() => setTrackingOpen(false)} />}
+      {trackingOpen && (
+        <FornoTracking
+          state={state}
+          initialOrderId={trackedId}
+          onClose={() => setTrackingOpen(false)}
+        />
+      )}
       {checkoutOpen && (
         <FornoCheckout
           state={state}
@@ -262,29 +283,38 @@ export function VisualDemo() {
             setCartOpen(true);
           }}
           onEdit={(item) => {
+            setEditOrigin("checkout");
             setEditing(item);
             setProduct(item.productId);
             setCheckoutOpen(false);
           }}
           onRemove={(id) => setItems((current) => current.filter((i) => i.lineId !== id))}
           onConfirm={(snapshot) => {
-            const next = update((s) =>
-              submitDemoOrder(
-                s,
-                items,
-                token ?? "",
-                draft.fulfillment,
-                draft.zoneId || null,
-                snapshot,
-              ),
-            );
-            setConfirmation(`Pedido #${next.orders[0]!.id} simulado — nenhum pedido foi enviado.`);
-            setItems([]);
-            setSelections({});
-            setToken(null);
-            setDraft(exampleDraft());
-            setCheckoutOpen(false);
-            setTrackingOpen(true);
+            if (submitting.current) return;
+            submitting.current = true;
+            try {
+              const next = update((s) =>
+                submitDemoOrder(
+                  s,
+                  items,
+                  token ?? "",
+                  draft.fulfillment,
+                  draft.zoneId || null,
+                  snapshot,
+                ),
+              );
+              const created = next.orders.find((o) => o.requestId === snapshot.requestId)!;
+              setTrackedId(created.id);
+              setConfirmation(`Pedido #${created.id} simulado — nenhum pedido foi enviado.`);
+              setItems([]);
+              setSelections({});
+              setToken(null);
+              setDraft(exampleDraft());
+              setCheckoutOpen(false);
+              setTrackingOpen(true);
+            } finally {
+              submitting.current = false;
+            }
           }}
         />
       )}

@@ -17,6 +17,9 @@ export function CartPanel({
   pickupEnabled,
   deliveryEnabled,
   onCheckout,
+  onEdit,
+  itemDetails,
+  onContinueShopping,
 }: {
   items: CartItem[];
   subtotal: number;
@@ -30,6 +33,9 @@ export function CartPanel({
   pickupEnabled: boolean;
   deliveryEnabled: boolean;
   onCheckout: () => void;
+  onEdit?: (item: CartItem) => void;
+  itemDetails?: (item: CartItem) => string[];
+  onContinueShopping?: () => void;
 }) {
   const dialogRef = useCustomerDialog(onClose);
   return (
@@ -99,14 +105,17 @@ export function CartPanel({
                             {item.secondProductName ? ` + ${item.secondProductName}` : ""}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {[
-                              item.sizeName,
-                              item.crustName,
-                              item.addons.length ? `${item.addons.length} adicional(is)` : null,
-                              (item.complements ?? []).length
-                                ? `${(item.complements ?? []).length} complemento(s)`
-                                : null,
-                            ]
+                            {(itemDetails
+                              ? itemDetails(item)
+                              : [
+                                  item.sizeName,
+                                  item.crustName,
+                                  item.addons.length ? `${item.addons.length} adicional(is)` : null,
+                                  (item.complements ?? []).length
+                                    ? `${(item.complements ?? []).length} complemento(s)`
+                                    : null,
+                                ]
+                            )
                               .filter(Boolean)
                               .join(" ")}
                           </p>
@@ -119,6 +128,14 @@ export function CartPanel({
                           <X className="size-4" />
                         </button>
                       </div>
+                      {onEdit && (
+                        <button
+                          onClick={() => onEdit(item)}
+                          aria-label={`Modificar ${item.productName}`}
+                        >
+                          Modificar item
+                        </button>
+                      )}
                       <div className="mt-3 flex items-center justify-between">
                         <div className="flex items-center rounded-full border">
                           <button
@@ -189,6 +206,11 @@ export function CartPanel({
           </Button>
           {!storeOpen && (
             <p className="mt-2 text-center text-xs font-medium text-primary">{storeStatusLabel}</p>
+          )}
+          {onContinueShopping && (
+            <button onClick={onContinueShopping} className="mt-3 w-full text-center text-sm">
+              Continuar comprando
+            </button>
           )}
           {items.length > 0 && (
             <button

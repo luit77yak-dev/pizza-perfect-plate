@@ -171,10 +171,31 @@ try {
   };
   async function startCheckout() {
     await shop.getByRole("button", { name: "Personalizar Margherita", exact: true }).click();
+    check(
+      "single required choice selected automatically",
+      await shop.getByLabel(/Média/).isChecked(),
+    );
     await shop.getByLabel(/Média/).check();
     await shop.getByLabel("Observação fictícia", { exact: true }).fill("SECRET_NOTE_SENTINEL");
     await shop.getByRole("button", { name: "Adicionar ao carrinho", exact: true }).click();
+    check(
+      "successful add opens bag",
+      await shop.getByRole("dialog", { name: "Carrinho", exact: true }).isVisible(),
+    );
+    await shop.getByRole("button", { name: "Aumentar", exact: true }).click();
+    await shop.getByRole("button", { name: "Diminuir", exact: true }).click();
+    await shop.getByRole("button", { name: "Modificar Margherita", exact: true }).click();
+    await shop.getByRole("button", { name: "Adicionar ao carrinho", exact: true }).click();
+    check(
+      "bag edit returns to bag without duplicate",
+      (await shop.getByRole("button", { name: "Modificar Margherita", exact: true }).count()) === 1,
+    );
+    await shop.getByRole("button", { name: "Continuar comprando", exact: true }).click();
     await shop.getByRole("button", { name: "Abrir carrinho", exact: true }).click();
+    check(
+      "continue shopping preserves bag",
+      await shop.getByRole("button", { name: "Modificar Margherita", exact: true }).isVisible(),
+    );
     await shop.getByRole("button", { name: "Continuar para checkout", exact: true }).click();
   }
   const dialog = () => shop.getByRole("dialog", { name: "Checkout simulado" });
@@ -215,10 +236,19 @@ try {
   await dialog().getByLabel("Nome fictício", { exact: false }).fill("");
   await dialog().getByLabel("Telefone fictício", { exact: false }).fill("1");
   await dialog().getByLabel("Rua fictícia", { exact: false }).fill("");
+  await dialog().getByLabel("Número fictício", { exact: false }).fill("");
+  await dialog().getByLabel("Bairro", { exact: true }).selectOption("demo-centro");
   await dialog().getByRole("button", { name: "Revisar confirmação", exact: true }).click();
   check(
     "accessible required field validation",
     (await dialog().locator('[aria-invalid="true"]').count()) >= 4,
+  );
+  await shop.waitForFunction(() => document.activeElement?.getAttribute("aria-invalid") === "true");
+  check(
+    "neighborhood alone does not confirm and focuses first error",
+    await dialog()
+      .getByLabel("Nome fictício", { exact: false })
+      .evaluate((el) => el === document.activeElement),
   );
   await dialog().getByRole("button", { name: "Usar dados de exemplo", exact: true }).click();
   await dialog().getByLabel("Nome fictício", { exact: false }).fill("PRIVATE_NAME_SENTINEL");
@@ -275,7 +305,10 @@ try {
   }
   await dialog()
     .getByRole("button", { name: "Confirmar somente na demonstração", exact: true })
-    .click();
+    .evaluate((el) => {
+      el.click();
+      el.click();
+    });
   await tracking()
     .getByRole("status")
     .getByRole("heading", { name: "Pedido recebido", exact: true })
@@ -286,7 +319,11 @@ try {
     "tracking total matches confirmation snapshot",
     (await tracking().locator(".forno-amounts").textContent()).includes("87,00"),
   );
-  const stored = await shop.evaluate(() => localStorage.getItem("neroxa:visual-demo:forno:v3"));
+  const stored = await shop.evaluate(() => localStorage.getItem("neroxa:visual-demo:forno:v4"));
+  check(
+    "rapid repeated confirmation creates one order",
+    JSON.parse(stored).orders.filter((o) => o.name === "Visitante fictício").length === 1,
+  );
   check(
     "no freely entered personal data or notes persisted",
     !/PRIVATE_|SECRET_NOTE_SENTINEL|11999998888/.test(stored),
@@ -458,7 +495,6 @@ try {
   await mpage.getByRole("button", { name: "Personalizar Água", exact: true }).click();
   await mpage.getByLabel(/600 ml/).check();
   await mpage.getByRole("button", { name: "Adicionar ao carrinho", exact: true }).click();
-  await mpage.getByRole("button", { name: "Abrir carrinho", exact: true }).click();
   await mpage.getByRole("button", { name: "Continuar para checkout", exact: true }).click();
   await mpage.getByRole("button", { name: "Continuar", exact: true }).click();
   await mpage.getByRole("button", { name: "Revisar confirmação", exact: true }).click();
@@ -472,10 +508,11 @@ try {
   check("storage denied keeps checkout and tracking in memory", true);
   await memory.close();
   const legacySeed = await shop.evaluate(() => {
-    const s = JSON.parse(localStorage.getItem("neroxa:visual-demo:forno:v3"));
+    const s = JSON.parse(localStorage.getItem("neroxa:visual-demo:forno:v4"));
     s.version = 2;
     for (const o of s.orders) {
       delete o.customerProfile;
+      delete o.requestId;
       for (const i of o.items) {
         delete i.image;
         delete i.details;
@@ -500,7 +537,7 @@ try {
     await legacyPage.evaluate(
       (original) =>
         localStorage.getItem("neroxa:visual-demo:forno:v2") === original &&
-        JSON.parse(localStorage.getItem("neroxa:visual-demo:forno:v3")).version === 3,
+        JSON.parse(localStorage.getItem("neroxa:visual-demo:forno:v4")).version === 4,
       legacySeed,
     ),
   );
@@ -508,7 +545,7 @@ try {
     "migration preserves catalog and orders",
     await legacyPage.evaluate((original) => {
       const before = JSON.parse(original),
-        after = JSON.parse(localStorage.getItem("neroxa:visual-demo:forno:v3"));
+        after = JSON.parse(localStorage.getItem("neroxa:visual-demo:forno:v4"));
       return (
         JSON.stringify(before.products) === JSON.stringify(after.products) &&
         JSON.stringify(before.orders) === JSON.stringify(after.orders)
@@ -526,6 +563,54 @@ try {
     !(await legacyPage.textContent("body")).includes("Aba V2 antiga"),
   );
   await migration.close();
+  const v3 = await browser.newContext({ viewport: { width: 390, height: 780 } });
+  await v3.route("**/*", (r) =>
+    new URL(r.request().url()).origin === origin ? r.continue() : r.abort(),
+  );
+  const v3seed = JSON.stringify({ ...JSON.parse(legacySeed), version: 3 });
+  await v3.addInitScript((raw) => localStorage.setItem("neroxa:visual-demo:forno:v3", raw), v3seed);
+  const v3page = await v3.newPage();
+  await v3page.goto(origin + "/visual-demo/");
+  await v3page.getByText(/Dados demonstrativos V2.1 importados/).waitFor();
+  check(
+    "V3 migration preserves original and confirmed orders",
+    await v3page.evaluate((raw) => {
+      const next = JSON.parse(localStorage.getItem("neroxa:visual-demo:forno:v4"));
+      return (
+        localStorage.getItem("neroxa:visual-demo:forno:v3") === raw &&
+        JSON.stringify(next.orders) === JSON.stringify(JSON.parse(raw).orders)
+      );
+    }, v3seed),
+  );
+  await v3page.evaluate(() => {
+    const old = JSON.parse(localStorage.getItem("neroxa:visual-demo:forno:v3"));
+    old.store.name = "Aba V3 antiga";
+    localStorage.setItem("neroxa:visual-demo:forno:v3", JSON.stringify(old));
+  });
+  await v3page.reload();
+  check(
+    "old V3 tabs cannot overwrite V4",
+    !(await v3page.textContent("body")).includes("Aba V3 antiga"),
+  );
+  await v3.close();
+  const corrupt = await browser.newContext({ viewport: { width: 390, height: 780 } });
+  await corrupt.route("**/*", (r) =>
+    new URL(r.request().url()).origin === origin ? r.continue() : r.abort(),
+  );
+  const corruptPage = await corrupt.newPage();
+  await corruptPage.goto(origin + "/visual-demo/painel");
+  await corruptPage.evaluate(() => localStorage.setItem("neroxa:visual-demo:forno:v4", "invalid"));
+  await corruptPage.reload();
+  await corruptPage.getByText(/Dados locais inválidos/).waitFor();
+  await corruptPage.getByRole("button", { name: "Restaurar demonstração", exact: true }).click();
+  await corruptPage.getByRole("button", { name: "Confirmar restauração", exact: true }).click();
+  check(
+    "explicit restore recovers corrupt V4 storage",
+    await corruptPage.evaluate(
+      () => JSON.parse(localStorage.getItem("neroxa:visual-demo:forno:v4")).version === 4,
+    ),
+  );
+  await corrupt.close();
   const native = await browser.newContext({ viewport: { width: 390, height: 780 } });
   await native.route("**/*", (r) =>
     new URL(r.request().url()).origin === origin ? r.continue() : r.abort(),

@@ -21,6 +21,7 @@ const model = data(
     .replace('"../engine/orders"', JSON.stringify(orders)),
 );
 const m = await import(model);
+const engine = await import(orders);
 let checks = 0;
 function ok(name, fn) {
   fn();
@@ -251,7 +252,14 @@ ok("reset generation invalidates cart", () => {
 ok("checkout only local unpaid synthetic order", () => {
   const s = initial(),
     item = m.makeCartItem(s, "demo-margherita", selection, 2, "");
-  const result = m.submitDemoOrder(s, [item], m.catalogToken(s), "Entrega", "demo-centro");
+  const result = m.submitDemoOrder(
+    s,
+    [item],
+    m.catalogToken(s),
+    "Entrega",
+    "demo-centro",
+    engine.checkoutSnapshot(s, [item], engine.exampleDraft("Entrega", "demo-centro")),
+  );
   assert.equal(result.orders[0].name, "Visitante fictício");
   assert.equal(result.orders[0].fee, 6);
   assert.equal(result.orders[0].paidAmount, 0);

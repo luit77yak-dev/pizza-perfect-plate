@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
 import { formatCurrency } from "@/lib/domain/money";
 import type { DemoState, Selection } from "./data/model";
-import { groupsFor, quote, optionAvailable, isAvailable } from "./data/model";
+import { groupsFor, quote, optionAvailable, isAvailable, initialDemoSelection } from "./data/model";
 export function DemoConfigurator({
   state,
   productId,
@@ -22,7 +22,9 @@ export function DemoConfigurator({
   onAdd: (selection: Selection, quantity: number, notes: string) => void;
 }) {
   const ref = useCustomerDialog(onClose);
-  const [selection, setSelection] = useState<Selection>(initialSelection),
+  const [selection, setSelection] = useState<Selection>(() =>
+      initialDemoSelection(state, productId, initialSelection),
+    ),
     [quantity, setQuantity] = useState(initialQuantity),
     [notes, setNotes] = useState(initialNotes),
     [error, setError] = useState("");

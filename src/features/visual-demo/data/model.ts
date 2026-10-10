@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { cartDetails, cartAmounts, exampleCustomer } from "../engine/orders";
+import {
+  cartDetails,
+  cartAmounts,
+  exampleCustomer,
+  validateService,
+  orderAmounts,
+} from "../engine/orders";
 import type { CheckoutSnapshot } from "../engine/orders";
 import { calculateHalfPizzaBasePrice } from "@/lib/domain/pricing";
 import type { CartItem } from "@/lib/domain/types";
@@ -134,6 +140,7 @@ const orderSchema = z
     paidAmount: z.number().finite().min(0).max(1000000),
     fulfillment: z.enum(["Entrega", "Retirada"]),
     neighborhood: z.string().max(100),
+    requestId: z.string().min(1).max(100).optional(),
     customerProfile: z.enum(["DELIVERY_EXAMPLE", "PICKUP_EXAMPLE"]).optional(),
     fee: money,
     items: z.array(itemSchema).min(1).max(100),
@@ -149,7 +156,7 @@ const orderSchema = z
   );
 export const stateSchema = z
   .object({
-    version: z.literal(3),
+    version: z.literal(4),
     generation: id,
     revision: z.string().max(100),
     store: storeSchema,
@@ -250,7 +257,8 @@ export type DemoOption = z.infer<typeof optionSchema>;
 export type DemoOrder = DemoState["orders"][number];
 export type Selection = Record<string, string[]>;
 export const LEGACY_STORAGE_KEY = "neroxa:visual-demo:forno:v2";
-export const STORAGE_KEY = "neroxa:visual-demo:forno:v3";
+export const PREVIOUS_STORAGE_KEY = "neroxa:visual-demo:forno:v3";
+export const STORAGE_KEY = "neroxa:visual-demo:forno:v4";
 const round = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 export function createInitialState(): DemoState {
   const product = (
@@ -306,7 +314,7 @@ export function createInitialState(): DemoState {
     categoryIds: ["demo-pizzas"],
   });
   return stateSchema.parse({
-    version: 3,
+    version: 4,
     generation: "initial",
     revision: "initial",
     store: {
@@ -426,9 +434,9 @@ export function recoverState(raw: string | null): {
   try {
     if (raw.length > 2200000) throw Error("size");
     const value = JSON.parse(raw);
-    if (value?.version === 2)
+    if (value?.version === 2 || value?.version === 3)
       return {
-        state: stateSchema.parse({ ...value, version: 3 }),
+        state: stateSchema.parse({ ...value, version: 4 }),
         recovered: false,
         migrated: true,
       };
@@ -463,6 +471,22 @@ export function optionAvailable(s: DemoState, g: DemoGroup, o: DemoOption): bool
         v.options.some((t) => t.id === o.variantId && t.active),
     )
   );
+}
+/** Only fill an empty, required, single-choice group with exactly one available option. */
+export function initialDemoSelection(
+  s: DemoState,
+  productId: string,
+  previous: Selection = {},
+): Selection {
+  const p = s.products.find((p) => p.id === productId);
+  const selection = { ...previous };
+  if (!p || !isAvailable(s, p)) return selection;
+  for (const g of groupsFor(s, p)) {
+    const available = g.options.filter((o) => optionAvailable(s, g, o));
+    if (g.min === 1 && g.max === 1 && !selection[g.id]?.length && available.length === 1)
+      selection[g.id] = [available[0]!.id];
+  }
+  return selection;
 }
 export function quote(
   s: DemoState,
@@ -633,6 +657,28 @@ export function submitDemoOrder(
 ): DemoState {
   if (!s.store.open || !items.length || catalogToken(s) !== token)
     throw Error("Revise o carrinho: a loja ou o catálogo mudou.");
+  if (!expected?.service || !expected.requestId || expected.requestId.length > 100)
+    throw Error("Revise os dados de atendimento e a confirmação.");
+  const serviceErrors = validateService(expected.service, s);
+  if (Object.keys(serviceErrors).length) throw Error(Object.values(serviceErrors)[0]);
+  if (
+    expected.service.fulfillment !== fulfillment ||
+    (fulfillment === "Entrega" && expected.service.zoneId !== zoneId) ||
+    expected.generation !== s.generation ||
+    expected.requestId !== items[0]?.lineId
+  )
+    throw Error("Dados de atendimento ou demonstração alterados. Revise a confirmação.");
+  const existing = s.orders.find((o) => o.requestId === expected.requestId);
+  if (existing) {
+    if (
+      existing.fulfillment !== fulfillment ||
+      orderAmounts(existing.items, existing.fee).total !== expected.total ||
+      JSON.stringify(existing.items.map((i) => [i.name, i.quantity, i.price])) !==
+        JSON.stringify(items.map((i) => [i.productName, i.quantity, i.unitPrice]))
+    )
+      throw Error("Esta confirmação já foi usada para outro conteúdo. Revise o pedido recente.");
+    return s;
+  }
   if (
     (fulfillment === "Entrega" && !s.store.delivery) ||
     (fulfillment === "Retirada" && !s.store.pickup)
@@ -668,6 +714,7 @@ export function submitDemoOrder(
   const id = Math.max(1044, ...s.orders.map((o) => o.id)) + 1;
   const order: DemoOrder = {
     id,
+    requestId: expected.requestId,
     name: exampleCustomer.name,
     customerProfile: fulfillment === "Entrega" ? "DELIVERY_EXAMPLE" : "PICKUP_EXAMPLE",
     time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),

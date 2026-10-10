@@ -188,7 +188,7 @@ export function FornoCheckout({
                 {draft.fulfillment === "Entrega" ? (
                   <>
                     {field("zip", "CEP fictício (opcional)")}
-                    {field("number", "Número fictício", true)}
+                    {field("number", "Número fictício (ou sem número)", true)}
                     {field("street", "Rua fictícia", true)}
                     <label className="forno-checkout-wide">
                       <span>Bairro ou região *</span>

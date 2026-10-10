@@ -203,7 +203,6 @@ try {
   await shop.getByRole("button", { name: "Personalizar Pizza V2", exact: true }).click();
   await shop.getByLabel(/Média · 6 fatias/).check();
   await shop.getByRole("button", { name: "Adicionar ao carrinho", exact: true }).click();
-  await shop.getByRole("button", { name: "Abrir carrinho", exact: true }).click();
   check(
     "cart snapshot uses updated price",
     await shop.getByRole("dialog").getByText(/82,00/).first().isVisible(),
@@ -258,6 +257,10 @@ try {
   await shop.getByLabel(/Média · 6 fatias/).check();
   const add = shop.getByRole("button", { name: "Adicionar ao carrinho", exact: true });
   check("required minimum prevents add", await add.isDisabled());
+  check(
+    "failed selection does not open bag",
+    (await shop.getByRole("dialog", { name: "Carrinho", exact: true }).count()) === 0,
+  );
   await shop.getByLabel(/Molho pago/).check();
   check("required option enables add", await add.isEnabled());
   await shop.getByLabel(/Molho gratuito/).check();
@@ -269,6 +272,7 @@ try {
     await shop.getByRole("dialog").getByText(/43,50/).isVisible(),
   );
   await add.click();
+  await shop.getByRole("button", { name: "Continuar comprando", exact: true }).click();
   await admin.getByRole("button", { name: "Editar grupo Molhos V2", exact: true }).click();
   await admin.getByRole("button", { name: "Editar opção Molho pago", exact: true }).click();
   await admin.getByLabel("Preço / acréscimo da opção (R$)", { exact: true }).fill("4");
@@ -425,7 +429,6 @@ try {
     await shop.getByRole("dialog").getByText(/7,00/).isVisible(),
   );
   await shop.getByRole("button", { name: "Adicionar ao carrinho", exact: true }).click();
-  await shop.getByRole("button", { name: "Abrir carrinho", exact: true }).click();
   await shop.getByRole("button", { name: "Continuar para checkout", exact: true }).click();
   await shop.getByRole("button", { name: "Continuar", exact: true }).click();
   await shop.getByRole("button", { name: /Entrega Endereço de exemplo/ }).click();
@@ -500,6 +503,7 @@ try {
   await shop.getByRole("button", { name: "Personalizar Margherita", exact: true }).click();
   await shop.getByLabel(/Média · 6 fatias/).check();
   await shop.getByRole("button", { name: "Adicionar ao carrinho", exact: true }).click();
+  await shop.keyboard.press("Escape");
   await admin.getByRole("button", { name: "Restaurar demonstração", exact: true }).click();
   await admin.getByRole("button", { name: "Confirmar restauração", exact: true }).click();
   await shop.getByText("Contato fictício: (00) 00000-0000", { exact: true }).waitFor();
@@ -559,7 +563,7 @@ try {
       new URL(r.request().url()).origin === origin ? r.continue() : r.abort(),
     );
     await c.addInitScript(
-      (raw) => localStorage.setItem("neroxa:visual-demo:forno:v3", raw),
+      (raw) => localStorage.setItem("neroxa:visual-demo:forno:v4", raw),
       payload,
     );
     const p = await c.newPage();

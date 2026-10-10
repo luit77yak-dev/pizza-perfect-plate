@@ -36,9 +36,20 @@ const wording: Record<OrderStatus, [string, string]> = {
     "A simulação foi encerrada pelo painel. Nenhuma cobrança ocorreu.",
   ],
 };
-export function FornoTracking({ state, onClose }: { state: DemoState; onClose: () => void }) {
+export function FornoTracking({
+  state,
+  onClose,
+  initialOrderId,
+}: {
+  state: DemoState;
+  onClose: () => void;
+  initialOrderId?: number | undefined;
+}) {
   const orders = state.orders.filter((o) => o.name === exampleCustomer.name);
-  const [selection, setSelection] = useState({ id: orders[0]?.id, generation: state.generation });
+  const [selection, setSelection] = useState({
+    id: initialOrderId ?? orders[0]?.id,
+    generation: state.generation,
+  });
   const order =
     selection.generation === state.generation
       ? orders.find((o) => o.id === selection.id)
