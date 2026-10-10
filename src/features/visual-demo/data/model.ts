@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { cartDetails, cartAmounts, exampleCustomer } from "../engine/orders";
+import type { CheckoutSnapshot } from "../engine/orders";
 import { calculateHalfPizzaBasePrice } from "@/lib/domain/pricing";
 import type { CartItem } from "@/lib/domain/types";
 
@@ -110,6 +112,8 @@ const itemSchema = z
     quantity: z.number().int().min(1).max(99),
     price: money,
     added: z.boolean().optional(),
+    details: z.array(z.string().max(1000)).max(1000).optional(),
+    image: imageSchema.optional(),
   })
   .strict();
 const orderSchema = z
@@ -124,11 +128,13 @@ const orderSchema = z
       "READY",
       "OUT_FOR_DELIVERY",
       "DELIVERED",
+      "CANCELLED",
     ]),
     payment: z.enum(["PAID", "PENDING"]),
     paidAmount: z.number().finite().min(0).max(1000000),
     fulfillment: z.enum(["Entrega", "Retirada"]),
     neighborhood: z.string().max(100),
+    customerProfile: z.enum(["DELIVERY_EXAMPLE", "PICKUP_EXAMPLE"]).optional(),
     fee: money,
     items: z.array(itemSchema).min(1).max(100),
     updated: z.boolean(),
@@ -143,7 +149,7 @@ const orderSchema = z
   );
 export const stateSchema = z
   .object({
-    version: z.literal(2),
+    version: z.literal(3),
     generation: id,
     revision: z.string().max(100),
     store: storeSchema,
@@ -243,7 +249,8 @@ export type DemoGroup = z.infer<typeof groupSchema>;
 export type DemoOption = z.infer<typeof optionSchema>;
 export type DemoOrder = DemoState["orders"][number];
 export type Selection = Record<string, string[]>;
-export const STORAGE_KEY = "neroxa:visual-demo:forno:v2";
+export const LEGACY_STORAGE_KEY = "neroxa:visual-demo:forno:v2";
+export const STORAGE_KEY = "neroxa:visual-demo:forno:v3";
 const round = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 export function createInitialState(): DemoState {
   const product = (
@@ -299,7 +306,7 @@ export function createInitialState(): DemoState {
     categoryIds: ["demo-pizzas"],
   });
   return stateSchema.parse({
-    version: 2,
+    version: 3,
     generation: "initial",
     revision: "initial",
     store: {
@@ -410,11 +417,22 @@ export function createInitialState(): DemoState {
     notifications: [],
   });
 }
-export function recoverState(raw: string | null): { state: DemoState; recovered: boolean } {
+export function recoverState(raw: string | null): {
+  state: DemoState;
+  recovered: boolean;
+  migrated?: boolean;
+} {
   if (raw === null) return { state: createInitialState(), recovered: false };
   try {
     if (raw.length > 2200000) throw Error("size");
-    return { state: stateSchema.parse(JSON.parse(raw)), recovered: false };
+    const value = JSON.parse(raw);
+    if (value?.version === 2)
+      return {
+        state: stateSchema.parse({ ...value, version: 3 }),
+        recovered: false,
+        migrated: true,
+      };
+    return { state: stateSchema.parse(value), recovered: false };
   } catch {
     return { state: createInitialState(), recovered: true };
   }
@@ -478,6 +496,7 @@ export function quote(
         const drink = s.products.find((v) => v.id === o.productId)!;
         const volume = s.groups.flatMap((g) => g.options).find((v) => v.id === o.variantId);
         extras += drink.price + (volume?.price ?? 0);
+        labels.push([drink.name, volume?.name].filter(Boolean).join(" · "));
       } else extras += o.price;
     }
   }
@@ -521,7 +540,7 @@ export function makeCartItem(
   selection: Selection,
   quantity: number,
   notes: string,
-): CartItem {
+): CartItem & { demoDetails: string[] } {
   const q = quote(s, productId, selection, quantity);
   const chosen = groupsFor(s, q.product).flatMap((g) =>
     (selection[g.id] ?? []).map((id) => ({
@@ -535,6 +554,7 @@ export function makeCartItem(
   const second = s.products.find((p) => p.id === flavor?.productId);
   return {
     lineId: crypto.randomUUID(),
+    demoDetails: q.labels,
     productId,
     productName: q.product.name,
     imageUrl: q.product.image || null,
@@ -609,6 +629,7 @@ export function submitDemoOrder(
   token: string,
   fulfillment: "Entrega" | "Retirada",
   zoneId: string | null,
+  expected?: CheckoutSnapshot,
 ): DemoState {
   if (!s.store.open || !items.length || catalogToken(s) !== token)
     throw Error("Revise o carrinho: a loja ou o catálogo mudou.");
@@ -633,10 +654,22 @@ export function submitDemoOrder(
     )
   )
     throw Error("Carrinho demonstrativo inválido.");
+  const amounts = cartAmounts(items, fulfillment === "Entrega" ? zone!.fee : 0);
+  if (
+    expected &&
+    (expected.generation !== s.generation ||
+      expected.fulfillment !== fulfillment ||
+      expected.zoneId !== (fulfillment === "Entrega" ? zoneId : null) ||
+      expected.total !== amounts.total ||
+      expected.fee !== amounts.fee ||
+      expected.subtotal !== amounts.subtotal)
+  )
+    throw Error("Os valores ou a demonstração mudaram. Revise a confirmação.");
   const id = Math.max(1044, ...s.orders.map((o) => o.id)) + 1;
   const order: DemoOrder = {
     id,
-    name: "Visitante fictício",
+    name: exampleCustomer.name,
+    customerProfile: fulfillment === "Entrega" ? "DELIVERY_EXAMPLE" : "PICKUP_EXAMPLE",
     time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
     status: "RECEIVED",
     payment: "PENDING",
@@ -645,7 +678,9 @@ export function submitDemoOrder(
     neighborhood: fulfillment === "Entrega" ? zone!.name : "—",
     fee: fulfillment === "Entrega" ? zone!.fee : 0,
     items: items.map((i) => ({
-      name: [i.productName, i.notes].filter(Boolean).join(" · ").slice(0, 1000),
+      name: i.productName,
+      details: cartDetails(i),
+      image: i.imageUrl ?? "",
       quantity: i.quantity,
       price: i.unitPrice,
     })),
@@ -683,7 +718,7 @@ export function appendDemoItem(
   item: DemoOrder["items"][number],
 ): DemoState {
   const order = s.orders.find((o) => o.id === id);
-  if (!order || ["OUT_FOR_DELIVERY", "DELIVERED"].includes(order.status))
+  if (!order || ["OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"].includes(order.status))
     throw Error("Alteração bloqueada: o pedido já saiu para entrega ou foi entregue.");
   if (order.items.length >= 100) throw Error("Limite demonstrativo de itens atingido.");
   return {

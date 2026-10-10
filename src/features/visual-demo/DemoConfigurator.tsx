@@ -9,16 +9,22 @@ export function DemoConfigurator({
   productId,
   onClose,
   onAdd,
+  initialSelection = {},
+  initialQuantity = 1,
+  initialNotes = "",
 }: {
+  initialSelection?: Selection | undefined;
+  initialQuantity?: number | undefined;
+  initialNotes?: string | undefined;
   state: DemoState;
   productId: string;
   onClose: () => void;
   onAdd: (selection: Selection, quantity: number, notes: string) => void;
 }) {
   const ref = useCustomerDialog(onClose);
-  const [selection, setSelection] = useState<Selection>({}),
-    [quantity, setQuantity] = useState(1),
-    [notes, setNotes] = useState(""),
+  const [selection, setSelection] = useState<Selection>(initialSelection),
+    [quantity, setQuantity] = useState(initialQuantity),
+    [notes, setNotes] = useState(initialNotes),
     [error, setError] = useState("");
   const product = state.products.find((p) => p.id === productId),
     groups = product ? groupsFor(state, product) : [];

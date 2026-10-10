@@ -1,9 +1,12 @@
-import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
 import { useState } from "react";
 import { Pizza, Plus } from "lucide-react";
 import { StorefrontHeader } from "@/components/storefront/StorefrontHeader";
 import { StorefrontHero } from "@/components/storefront/StorefrontHero";
 import { DemoConfigurator } from "./DemoConfigurator";
+import { FornoCheckout } from "./experience/FornoCheckout";
+import { FornoTracking } from "./experience/FornoTracking";
+import { exampleDraft } from "./engine/orders";
+import type { Selection } from "./data/model";
 import { useDemoData } from "./data/store";
 import { demoCatalog, demoStyle } from "./data/catalog-adapter";
 import {
@@ -25,8 +28,11 @@ export function VisualDemo() {
   const [confirmation, setConfirmation] = useState("");
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [trackingOpen, setTrackingOpen] = useState(false);
-  const [fulfillment, setFulfillment] = useState<"Entrega" | "Retirada">("Retirada");
-  const [zoneId, setZoneId] = useState("");
+  const [draft, setDraft] = useState(() => exampleDraft());
+  const [editing, setEditing] = useState<CartItem | null>(null);
+  const [selections, setSelections] = useState<
+    Record<string, { selection: Selection; notes: string }>
+  >({});
   const stale = itemsChanged();
   function itemsChanged() {
     return token !== null && token !== catalogToken(state);
@@ -169,15 +175,35 @@ export function VisualDemo() {
       </footer>
       {product && (
         <DemoConfigurator
+          key={editing?.lineId ?? product}
           productId={product}
           state={state}
-          onClose={() => setProduct(null)}
+          initialSelection={editing ? selections[editing.lineId]?.selection : undefined}
+          initialQuantity={editing?.quantity}
+          initialNotes={editing ? selections[editing.lineId]?.notes : undefined}
+          onClose={() => {
+            setProduct(null);
+            if (editing) {
+              setEditing(null);
+              setCheckoutOpen(true);
+            }
+          }}
           onAdd={(selection, quantity, notes) => {
             if (!state.store.open) throw Error("Loja fechada.");
             if (stale && items.length)
               throw Error("O catálogo mudou. Limpe o carrinho antes de adicionar.");
             const added = makeCartItem(state, product, selection, quantity, notes);
-            setItems((current) => [...current, added]);
+            if (editing) added.lineId = editing.lineId;
+            setItems((current) =>
+              editing
+                ? current.map((i) => (i.lineId === editing.lineId ? added : i))
+                : [...current, added],
+            );
+            setSelections((current) => ({ ...current, [added.lineId]: { selection, notes } }));
+            if (editing) {
+              setEditing(null);
+              setCheckoutOpen(true);
+            }
             setToken(catalogToken(state));
             setProduct(null);
           }}
@@ -211,7 +237,7 @@ export function VisualDemo() {
           deliveryEnabled={state.store.delivery}
           onCheckout={() => {
             setCartOpen(false);
-            setFulfillment(state.store.pickup ? "Retirada" : "Entrega");
+            setDraft((d) => ({ ...d, fulfillment: state.store.pickup ? "Retirada" : "Entrega" }));
             setCheckoutOpen(true);
           }}
         />
@@ -222,122 +248,46 @@ export function VisualDemo() {
           personalize novamente.
         </p>
       )}
-      {trackingOpen && (
-        <DemoCheckout label="Acompanhamento fictício" onClose={() => setTrackingOpen(false)}>
-          <h2>Acompanhamento fictício</h2>
-          {state.orders
-            .filter((o) => o.name === "Visitante fictício")
-            .map((o) => (
-              <article key={o.id}>
-                <h3>Pedido #{o.id}</h3>
-                <p>
-                  {o.status} · {o.fulfillment} ·{" "}
-                  {formatCurrency(o.items.reduce((n, i) => n + i.price * i.quantity, o.fee))}
-                </p>
-                <p>
-                  Pagamento pendente, sem cobrança. Status controlado pelo painel demonstrativo.
-                </p>
-              </article>
-            ))}
-          {!state.orders.some((o) => o.name === "Visitante fictício") && (
-            <p>Nenhum pedido fictício criado neste navegador.</p>
-          )}
-          <button onClick={() => setTrackingOpen(false)}>Fechar acompanhamento</button>
-        </DemoCheckout>
-      )}
+      {trackingOpen && <FornoTracking state={state} onClose={() => setTrackingOpen(false)} />}
       {checkoutOpen && (
-        <DemoCheckout onClose={() => setCheckoutOpen(false)}>
-          <h2>Confirmar pedido fictício</h2>
-          <p>Sem pagamento, PIX ou envio ao estabelecimento.</p>
-          <label>
-            Modalidade
-            <select
-              aria-label="Modalidade"
-              value={fulfillment}
-              onChange={(e) => setFulfillment(e.target.value as "Entrega" | "Retirada")}
-            >
-              <option value="Retirada" disabled={!state.store.pickup}>
-                Retirada
-              </option>
-              <option value="Entrega" disabled={!state.store.delivery}>
-                Entrega
-              </option>
-            </select>
-          </label>
-          {fulfillment === "Entrega" && (
-            <label>
-              Bairro
-              <select
-                aria-label="Bairro"
-                value={zoneId}
-                onChange={(e) => setZoneId(e.target.value)}
-              >
-                <option value="">Selecione</option>
-                {state.zones.map((z) => (
-                  <option key={z.id} value={z.id}>
-                    {z.name} · {formatCurrency(z.fee)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-          <p>
-            Total fictício:{" "}
-            {formatCurrency(
-              calculateCartSubtotal(items) +
-                (fulfillment === "Entrega"
-                  ? (state.zones.find((z) => z.id === zoneId)?.fee ?? 0)
-                  : 0),
-            )}
-          </p>
-          <button
-            disabled={!ready || stale || !state.store.open || !items.length}
-            onClick={() => {
-              try {
-                const next = update((s) =>
-                  submitDemoOrder(s, items, token ?? "", fulfillment, zoneId || null),
-                );
-                setConfirmation(
-                  `Pedido #${next.orders[0]!.id} simulado — nenhum pedido foi enviado. Veja o acompanhamento no painel demonstrativo.`,
-                );
-                setItems([]);
-                setToken(null);
-                setCheckoutOpen(false);
-              } catch (e) {
-                setConfirmation(e instanceof Error ? e.message : "Revise o pedido fictício.");
-              }
-            }}
-          >
-            Confirmar somente na demonstração
-          </button>
-          <button onClick={() => setCheckoutOpen(false)}>Cancelar</button>
-        </DemoCheckout>
+        <FornoCheckout
+          state={state}
+          items={items}
+          draft={draft}
+          setDraft={setDraft}
+          stale={stale}
+          onClose={() => setCheckoutOpen(false)}
+          onCart={() => {
+            setCheckoutOpen(false);
+            setCartOpen(true);
+          }}
+          onEdit={(item) => {
+            setEditing(item);
+            setProduct(item.productId);
+            setCheckoutOpen(false);
+          }}
+          onRemove={(id) => setItems((current) => current.filter((i) => i.lineId !== id))}
+          onConfirm={(snapshot) => {
+            const next = update((s) =>
+              submitDemoOrder(
+                s,
+                items,
+                token ?? "",
+                draft.fulfillment,
+                draft.zoneId || null,
+                snapshot,
+              ),
+            );
+            setConfirmation(`Pedido #${next.orders[0]!.id} simulado — nenhum pedido foi enviado.`);
+            setItems([]);
+            setSelections({});
+            setToken(null);
+            setDraft(exampleDraft());
+            setCheckoutOpen(false);
+            setTrackingOpen(true);
+          }}
+        />
       )}
-    </div>
-  );
-}
-
-function DemoCheckout({
-  children,
-  onClose,
-  label = "Checkout simulado",
-}: {
-  children: React.ReactNode;
-  onClose: () => void;
-  label?: string;
-}) {
-  const ref = useCustomerDialog(onClose);
-  return (
-    <div
-      className="demo-checkout"
-      ref={ref}
-      data-customer-dialog
-      tabIndex={-1}
-      role="dialog"
-      aria-modal="true"
-      aria-label={label}
-    >
-      <div>{children}</div>
     </div>
   );
 }

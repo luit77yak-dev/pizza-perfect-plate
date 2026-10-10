@@ -13,10 +13,12 @@ const money = data(compile("../src/lib/domain/money.ts"));
 const pricing = data(
   compile("../src/lib/domain/pricing.ts").replace('"./money"', JSON.stringify(money)),
 );
+const orders = data(compile("../src/features/visual-demo/engine/orders.ts"));
 const model = data(
   compile("../src/features/visual-demo/data/model.ts")
     .replace('"zod"', JSON.stringify(pathToFileURL(require.resolve("zod")).href))
-    .replace('"@/lib/domain/pricing"', JSON.stringify(pricing)),
+    .replace('"@/lib/domain/pricing"', JSON.stringify(pricing))
+    .replace('"../engine/orders"', JSON.stringify(orders)),
 );
 const m = await import(model);
 let checks = 0;

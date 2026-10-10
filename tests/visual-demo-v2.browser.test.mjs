@@ -227,6 +227,9 @@ try {
   await shop.keyboard.press("Escape");
   await admin.getByRole("button", { name: "Ativar produto Pizza V2", exact: true }).click();
   await admin.getByRole("button", { name: "Excluir produto Pizza V2", exact: true }).click();
+  await shop
+    .getByRole("button", { name: "Personalizar Pizza V2", exact: true })
+    .waitFor({ state: "detached" });
   check(
     "deleted product no longer selectable",
     (await shop.getByRole("button", { name: "Personalizar Pizza V2", exact: true }).count()) === 0,
@@ -424,17 +427,20 @@ try {
   await shop.getByRole("button", { name: "Adicionar ao carrinho", exact: true }).click();
   await shop.getByRole("button", { name: "Abrir carrinho", exact: true }).click();
   await shop.getByRole("button", { name: "Continuar para checkout", exact: true }).click();
-  await shop.getByLabel("Modalidade", { exact: true }).selectOption("Entrega");
+  await shop.getByRole("button", { name: "Continuar", exact: true }).click();
+  await shop.getByRole("button", { name: /Entrega Endereço de exemplo/ }).click();
   await shop.getByLabel("Bairro", { exact: true }).selectOption("demo-centro");
   check(
     "checkout uses current local delivery fee",
     await shop.getByRole("dialog", { name: "Checkout simulado" }).getByText(/11,25/).isVisible(),
   );
+  await shop.getByRole("button", { name: "Revisar confirmação", exact: true }).click();
   await shop
     .getByRole("button", { name: "Confirmar somente na demonstração", exact: true })
     .click();
   await shop.getByText(/Pedido #1045 simulado/).waitFor();
   check("checkout confirmation explicitly simulated", true);
+  await shop.getByRole("button", { name: "Fechar acompanhamento", exact: true }).click();
   await nav("Pedidos");
   await admin.getByRole("button", { name: /Pedido #1045 de Visitante fictício/ }).waitFor();
   check("simulated checkout appears in admin", true);
@@ -447,7 +453,8 @@ try {
   await shop.getByRole("button", { name: "Acompanhar pedido", exact: true }).click();
   await shop
     .getByRole("dialog", { name: "Acompanhamento fictício" })
-    .getByText(/CONFIRMED/)
+    .getByRole("status")
+    .getByRole("heading", { name: "Pedido confirmado", exact: true })
     .waitFor();
   check("tracking follows local panel status", true);
   await shop.keyboard.press("Escape");
@@ -552,7 +559,7 @@ try {
       new URL(r.request().url()).origin === origin ? r.continue() : r.abort(),
     );
     await c.addInitScript(
-      (raw) => localStorage.setItem("neroxa:visual-demo:forno:v2", raw),
+      (raw) => localStorage.setItem("neroxa:visual-demo:forno:v3", raw),
       payload,
     );
     const p = await c.newPage();

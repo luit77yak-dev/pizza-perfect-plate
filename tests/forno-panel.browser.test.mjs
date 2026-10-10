@@ -131,6 +131,7 @@ try {
         constructor() {
           window.audioProbe.contexts++;
           this.currentTime = 0;
+          this.state = "running";
           this.destination = {};
         }
         resume() {
@@ -142,12 +143,17 @@ try {
           return Promise.resolve();
         }
         createGain() {
-          return { gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} }, connect() {} };
+          return {
+            gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} },
+            connect() {},
+            disconnect() {},
+          };
         }
         createOscillator() {
           return {
             frequency: {},
             connect() {},
+            disconnect() {},
             start() {
               window.audioProbe.started++;
             },
@@ -261,14 +267,15 @@ try {
     check("sound defaults off " + width, await page.evaluate(() => audioProbe.contexts === 0));
     await page.getByRole("button", { name: "Ativar som", exact: true }).click();
     await page.getByRole("button", { name: "Simular item adicional" }).click();
+    await page.getByRole("button", { name: "Testar som", exact: true }).click();
     check(
-      "optional audio starts/resumes/closes " + width,
+      "audio test starts and reuses context " + width,
       await page.evaluate(
         () =>
           audioProbe.contexts === 1 &&
           audioProbe.started === 1 &&
-          audioProbe.resumed === 1 &&
-          audioProbe.closed === 1,
+          audioProbe.resumed === 2 &&
+          audioProbe.closed === 0,
       ),
     );
     check(
@@ -339,7 +346,7 @@ try {
     await order(1043)
       .getByRole("button", { name: /Pedido #1043 de/ })
       .click();
-    for (const label of ["Confirmado", "Em preparo", "Pronto", "Entregue"])
+    for (const label of ["Confirmado", "Em preparo", "Pronto para retirada", "Retirado"])
       await order(1043)
         .getByRole("button", { name: "Avançar para: " + label, exact: true })
         .click();

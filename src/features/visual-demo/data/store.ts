@@ -1,5 +1,11 @@
 import { useEffect, useSyncExternalStore } from "react";
-import { createInitialState, recoverState, stateSchema, STORAGE_KEY } from "./model";
+import {
+  createInitialState,
+  recoverState,
+  stateSchema,
+  STORAGE_KEY,
+  LEGACY_STORAGE_KEY,
+} from "./model";
 import type { DemoState } from "./model";
 
 const initial = createInitialState();
@@ -14,14 +20,27 @@ function emit() {
 function load() {
   if (memoryOnly && snapshot.ready) return;
   try {
-    const r = recoverState(window.localStorage.getItem(STORAGE_KEY));
+    const current = window.localStorage.getItem(STORAGE_KEY);
+    const r = recoverState(current ?? window.localStorage.getItem(LEGACY_STORAGE_KEY));
+    let migrationWarning = "";
+    if (r.migrated) {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(r.state));
+      } catch {
+        memoryOnly = true;
+        migrationWarning = " Migração mantida somente nesta aba: armazenamento indisponível.";
+      }
+    }
     r.state.notifications = r.state.notifications.filter((n) => Date.now() - n.created < 86400000);
     snapshot = {
       data: r.state,
       ready: true,
       warning: r.recovered
         ? "Dados locais inválidos ou versão incompatível: demonstração restaurada."
-        : "",
+        : r.migrated
+          ? "Dados demonstrativos V2 importados; a cópia original foi preservada." +
+            migrationWarning
+          : "",
     };
   } catch {
     snapshot = {
@@ -51,7 +70,7 @@ export function updateDemo(updater: (s: DemoState) => DemoState): DemoState {
   } catch {
     /* memory fallback */
   }
-  const next = stateSchema.parse({ ...updater(base), version: 2, revision: crypto.randomUUID() });
+  const next = stateSchema.parse({ ...updater(base), version: 3, revision: crypto.randomUUID() });
   const raw = JSON.stringify(next);
   if (raw.length > 2200000) throw Error("Limite local atingido. Remova imagens ou produtos.");
   let warning = "";

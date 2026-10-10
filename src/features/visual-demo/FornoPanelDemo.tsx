@@ -26,6 +26,13 @@ import { notifyState, appendDemoItem } from "./data/model";
 import type { DemoOrder } from "./data/model";
 import { demoStyle } from "./data/catalog-adapter";
 import { DemoCatalogManager, DemoStoreEditor } from "./DemoManagement";
+import {
+  statusLabels as labels,
+  nextOrderStatus as nextStatus,
+  orderAmounts,
+  changeOrderStatus,
+} from "./engine/orders";
+import { useDemoAudio } from "./engine/use-demo-audio";
 type Status = DemoOrder["status"];
 type Section =
   | "overview"
@@ -37,14 +44,6 @@ type Section =
   | "appearance"
   | "payments";
 
-const labels: Record<Status, string> = {
-  RECEIVED: "Recebido",
-  CONFIRMED: "Confirmado",
-  PREPARING: "Em preparo",
-  READY: "Pronto",
-  OUT_FOR_DELIVERY: "Saiu para entrega",
-  DELIVERED: "Entregue",
-};
 const nav: { key: Section; label: string; icon: typeof Store }[] = [
   { key: "overview", label: "Visão geral", icon: BarChart3 },
   { key: "orders", label: "Pedidos", icon: ShoppingBag },
@@ -57,16 +56,7 @@ const nav: { key: Section; label: string; icon: typeof Store }[] = [
 ];
 const money = (amount: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(amount);
-const total = (order: DemoOrder) =>
-  order.items.reduce((sum, item) => sum + item.quantity * item.price, order.fee);
-const nextStatus = (order: DemoOrder): Status | null => {
-  const flow: Status[] =
-    order.fulfillment === "Entrega"
-      ? ["RECEIVED", "CONFIRMED", "PREPARING", "READY", "OUT_FOR_DELIVERY", "DELIVERED"]
-      : ["RECEIVED", "CONFIRMED", "PREPARING", "READY", "DELIVERED"];
-  const index = flow.indexOf(order.status);
-  return index < 0 ? null : (flow[index + 1] ?? null);
-};
+const total = (order: DemoOrder) => orderAmounts(order.items, order.fee).total;
 export function FornoPanelDemo() {
   const [section, setSection] = useState<Section>("overview");
   const { data: state, ready, warning, update, reset } = useDemoData();
@@ -83,7 +73,8 @@ export function FornoPanelDemo() {
   const [expanded, setExpanded] = useState<number | null>(1042);
   const alerts = state.notifications;
   const unreadNotices = alerts.filter((n) => !n.read).length;
-  const [soundEnabled, setSoundEnabled] = useState(false);
+  const audio = useDemoAudio(orders, state.generation, ready);
+  const soundEnabled = audio.enabled;
   const [mobileMenu, setMobileMenu] = useState(false);
   const [filter, setFilter] = useState<Status | "ALL">("ALL");
   const [isMobile, setIsMobile] = useState(false);
@@ -118,31 +109,8 @@ export function FornoPanelDemo() {
 
   function notify(message: string) {
     update((s) => notifyState(s, message, message));
-    // Audio only after an explicit user gesture enabling it. Visual alerts always persist.
-    if (soundEnabled && typeof window !== "undefined") {
-      try {
-        const AudioContextClass = window.AudioContext;
-        const ctx = new AudioContextClass();
-        void ctx.resume().catch(() => {});
-        const oscillator = ctx.createOscillator();
-        const gain = ctx.createGain();
-        oscillator.type = "sine";
-        oscillator.frequency.value = 660;
-        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.035, ctx.currentTime + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.23);
-        oscillator.connect(gain);
-        gain.connect(ctx.destination);
-        oscillator.start();
-        oscillator.stop(ctx.currentTime + 0.24);
-        oscillator.onended = () => {
-          void ctx.close();
-        };
-      } catch {
-        /* Browsers may restrict audio; visible alerts remain available. */
-      }
-    }
   }
+
   function simulateUpdate() {
     try {
       update((s) => appendDemoItem(s, 1042, { name: "Sobremesa da casa", quantity: 1, price: 15 }));
@@ -158,10 +126,20 @@ export function FornoPanelDemo() {
   function advance(order: DemoOrder) {
     const next = nextStatus(order);
     if (!next) return;
-    setOrders((current) =>
-      current.map((o) => (o.id === order.id ? { ...o, status: nextStatus(o) ?? o.status } : o)),
-    );
-    notify(`Pedido #${order.id}: ${labels[next]}.`);
+    try {
+      update((s) => changeOrderStatus(s, order.id, next));
+      notify(`Pedido #${order.id}: ${labels[next]}.`);
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "Pedido alterado em outra aba. Revise o estado.");
+    }
+  }
+  function cancel(order: DemoOrder) {
+    try {
+      update((s) => changeOrderStatus(s, order.id, "CANCELLED"));
+      notify(`Pedido #${order.id}: cancelado somente na demonstração.`);
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "Pedido alterado em outra aba. Revise o estado.");
+    }
   }
   function acknowledge(id: number) {
     setOrders((current) =>
@@ -297,7 +275,7 @@ export function FornoPanelDemo() {
                 title="Alternar som de notificações"
                 aria-label={soundEnabled ? "Desativar som" : "Ativar som"}
                 aria-pressed={soundEnabled}
-                onClick={() => setSoundEnabled((v) => !v)}
+                onClick={() => void audio.toggle()}
               >
                 {soundEnabled ? <Volume2 size={19} /> : <VolumeX size={19} />}
               </button>
@@ -315,6 +293,16 @@ export function FornoPanelDemo() {
             </div>
           </header>
           <div className="forno-content">
+            <div className="forno-audio-control">
+              <button
+                className="forno-secondary-button"
+                disabled={!soundEnabled}
+                onClick={() => void audio.test()}
+              >
+                Testar som
+              </button>
+              <p role="status">{audio.message}</p>
+            </div>
             {warning && (
               <p role="status" className="forno-help">
                 {warning}
@@ -408,7 +396,9 @@ export function FornoPanelDemo() {
                   </article>
                   <article>
                     <span>PEDIDOS ATIVOS</span>
-                    <strong>{orders.filter((o) => o.status !== "DELIVERED").length}</strong>
+                    <strong>
+                      {orders.filter((o) => !["DELIVERED", "CANCELLED"].includes(o.status)).length}
+                    </strong>
                     <small>Em atendimento</small>
                   </article>
                   <article>
@@ -431,7 +421,7 @@ export function FornoPanelDemo() {
                     Ver todos →
                   </button>
                 </div>
-                {renderOrders(orders, expanded, setExpanded, advance, acknowledge)}
+                {renderOrders(orders, expanded, setExpanded, advance, acknowledge, cancel)}
               </>
             )}
             {section === "orders" && (
@@ -459,6 +449,7 @@ export function FornoPanelDemo() {
                       ["READY", "Prontos"],
                       ["OUT_FOR_DELIVERY", "Em entrega"],
                       ["DELIVERED", "Entregues"],
+                      ["CANCELLED", "Cancelados"],
                     ] as const
                   ).map(([key, label]) => (
                     <button
@@ -477,6 +468,7 @@ export function FornoPanelDemo() {
                   setExpanded,
                   advance,
                   acknowledge,
+                  cancel,
                 )}
               </>
             )}
@@ -521,6 +513,7 @@ export function FornoPanelDemo() {
                               setExpanded,
                               advance,
                               acknowledge,
+                              cancel,
                             )}
                           </>
                         )}
@@ -748,6 +741,7 @@ function renderOrders(
   setExpanded: (id: number | null) => void,
   advance: (order: DemoOrder) => void,
   acknowledge: (id: number) => void,
+  cancel: (order: DemoOrder) => void,
 ) {
   return (
     <div className="forno-order-list">
@@ -793,6 +787,7 @@ function renderOrders(
                     <div key={index}>
                       <span>
                         <b>{item.quantity}×</b> {item.name}
+                        {item.details?.length ? ` · ${item.details.join(" · ")}` : ""}
                         {unread && item.added && <em> NOVO</em>}
                       </span>
                       <strong>{money(item.quantity * item.price)}</strong>
@@ -809,7 +804,21 @@ function renderOrders(
                     {order.payment === "PAID" ? "Aprovado (simulado)" : "Pendente (simulado)"}
                   </strong>
                 </div>
+                <div className="forno-info-row">
+                  <span>Subtotal</span>
+                  <strong>{money(orderAmounts(order.items, order.fee).subtotal)}</strong>
+                </div>
+                {order.customerProfile && (
+                  <p className="forno-help">
+                    Perfil fictício predefinido · sem dados digitados persistidos
+                  </p>
+                )}
                 <div className="forno-order-actions">
+                  {!["DELIVERED", "CANCELLED", "OUT_FOR_DELIVERY"].includes(order.status) && (
+                    <button className="forno-secondary-button" onClick={() => cancel(order)}>
+                      Cancelar pedido demonstrativo
+                    </button>
+                  )}
                   {unread && (
                     <button className="forno-primary-button" onClick={() => acknowledge(order.id)}>
                       <Check size={16} /> Confirmar ciência
@@ -817,7 +826,12 @@ function renderOrders(
                   )}
                   {next && (
                     <button className="forno-secondary-button" onClick={() => advance(order)}>
-                      Avançar para: {labels[next]}
+                      Avançar para:{" "}
+                      {order.fulfillment === "Retirada" && next === "READY"
+                        ? "Pronto para retirada"
+                        : order.fulfillment === "Retirada" && next === "DELIVERED"
+                          ? "Retirado"
+                          : labels[next]}
                     </button>
                   )}
                 </div>
