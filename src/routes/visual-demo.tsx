@@ -1,8 +1,7 @@
 import "@/features/visual-demo/visual-demo.css";
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, Outlet } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { isVisualDemoAllowed } from "@/features/visual-demo/access";
-import { VisualDemo } from "@/features/visual-demo/VisualDemo";
 
 const checkAccess = createServerFn({ method: "GET" }).handler(() =>
   isVisualDemoAllowed(process.env),
@@ -18,5 +17,5 @@ export const Route = createFileRoute("/visual-demo")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: VisualDemo,
+  component: Outlet,
 });

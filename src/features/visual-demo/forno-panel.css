@@ -1,1 +1,888 @@
-.forno-panel{--fp-bg:#141716;--fp-card:#202423;--fp-border:#383c38;--fp-text:#eee6d9;--fp-muted:#adafa7;--fp-accent:#d5a06d;background:var(--fp-bg);color:var(--fp-text);min-height:100dvh;font-family:inherit}.forno-panel *{box-sizing:border-box}.forno-panel button{cursor:pointer}.forno-panel button:focus-visible{outline:2px solid var(--fp-accent);outline-offset:3px}.forno-demo-banner{background:#bd8756;color:#171715;text-align:center;font-size:10px;font-weight:800;letter-spacing:.11em;padding:10px 12px}.forno-layout{display:flex;min-height:calc(100dvh - 35px)}.forno-sidebar{width:254px;flex:none;background:#1b1e1c;border-right:1px solid var(--fp-border);padding:26px 17px;display:flex;flex-direction:column;gap:24px}.forno-brand{display:flex;align-items:center;gap:12px;padding:5px 8px 22px;border-bottom:1px solid var(--fp-border)}.forno-brand-symbol{font-size:32px;color:var(--fp-accent)}.forno-brand strong{display:block;font-family:Georgia,serif;font-size:16px;letter-spacing:.08em;white-space:nowrap}.forno-brand small{display:block;color:var(--fp-muted);font-size:9px;letter-spacing:.15em;margin-top:5px}.forno-side-caption,.forno-eyebrow{font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--fp-accent)}.forno-side-caption{padding-left:15px}.forno-sidebar nav{display:grid;gap:5px}.forno-sidebar nav button{display:flex;align-items:center;gap:13px;text-align:left;border:0;border-radius:10px;background:transparent;color:#c5c8bf;padding:13px 14px;font-size:13px;width:100%}.forno-sidebar nav button.active{background:#34342d;color:#f2c18b}.forno-sidebar nav button:hover{background:#2d312c}.forno-nav-badge{margin-left:auto;background:#bd8756;color:#171715;border-radius:99px;padding:2px 6px}.forno-side-bottom{margin-top:auto;border-top:1px solid var(--fp-border);padding:18px 10px;color:#d8dfd1;font-size:13px}.forno-side-bottom small{display:block;color:var(--fp-muted);margin:6px 0 0 17px}.forno-online-dot{display:inline-block;width:8px;height:8px;background:#91bb86;border-radius:50%;margin-right:7px}.forno-main{flex:1;min-width:0}.forno-topbar{min-height:94px;border-bottom:1px solid var(--fp-border);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:19px clamp(18px,4vw,52px)}.forno-topbar h1{font-family:Georgia,serif;font-size:27px;font-weight:400;margin:5px 0 0}.forno-top-actions{display:flex;align-items:center;gap:12px}.forno-top-actions button,.forno-mobile-toggle,.forno-menu-close{border:1px solid var(--fp-border);background:var(--fp-card);color:var(--fp-text);width:38px;height:38px;border-radius:10px;display:grid;place-items:center;position:relative}.forno-avatar{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#7a6049;color:#fff;font-size:12px;font-weight:800}.forno-notification-dot{position:absolute;right:4px;top:3px;width:7px;height:7px;border-radius:50%;background:#e6a363}.forno-content{max-width:1420px;margin:auto;padding:32px clamp(18px,4vw,52px)}.forno-intro{background:linear-gradient(110deg,#35332a,#232a25);border:1px solid #575043;border-radius:16px;padding:30px;margin-bottom:26px}.forno-intro h2{font:normal clamp(24px,3vw,38px) Georgia,serif;margin:10px 0}.forno-intro p,.forno-help,.forno-detail-card p{color:var(--fp-muted);font-size:13px;line-height:1.7}.forno-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:30px}.forno-stats article{padding:20px;border-radius:13px;border:1px solid var(--fp-border);background:var(--fp-card);min-width:0}.forno-stats article span{display:block;font-size:10px;color:var(--fp-muted);letter-spacing:.1em;line-height:1.5}.forno-stats article strong{display:block;font:normal 27px Georgia,serif;margin:14px 0 7px;overflow-wrap:anywhere}.forno-stats article small{color:#9b9f97;font-size:11px}.forno-section-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:24px 0 18px;flex-wrap:wrap}.forno-section-heading h2{font:normal 26px Georgia,serif;margin:7px 0 0}.forno-text-button{color:var(--fp-accent);background:transparent;border:0;font-size:13px}.forno-order-list{display:grid;gap:11px}.forno-order{background:var(--fp-card);border:1px solid var(--fp-border);border-radius:13px;overflow:hidden}.forno-order-updated{border-color:#d5a06d;box-shadow:0 0 0 1px #d5a06d40}.forno-order-head{background:transparent;border:0;color:var(--fp-text);width:100%;display:flex;align-items:center;gap:18px;padding:19px;text-align:left}.forno-order-number{font:normal 20px Georgia,serif;min-width:70px}.forno-order-number small,.forno-order-customer small{display:block;color:var(--fp-muted);font:normal 11px sans-serif;margin-top:6px}.forno-order-customer{flex:1;min-width:0;font-size:13px}.forno-order-customer strong{display:block;overflow-wrap:anywhere}.forno-status{font-size:10px;white-space:nowrap;border-radius:99px;padding:7px 10px;background:#49412e;color:#f0d19d}.forno-status.status-delivered{background:#2c4638;color:#b6ddbd}.forno-status.status-received{background:#354554;color:#b7d3e7}.forno-order-price{font-size:13px;white-space:nowrap}.forno-order-detail{border-top:1px solid var(--fp-border);padding:19px}.forno-order-items{display:grid;gap:12px;margin-bottom:17px}.forno-order-items>div,.forno-info-row{display:flex;align-items:center;justify-content:space-between;gap:14px;font-size:13px}.forno-order-items b{color:var(--fp-accent)}.forno-order-items em{font-style:normal;font-size:10px;color:#e8b477;margin-left:8px}.forno-info-row{border-top:1px solid var(--fp-border);padding:13px 0;color:var(--fp-muted)}.forno-info-row strong{color:var(--fp-text)}.forno-order-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.forno-primary-button,.forno-secondary-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:9px;padding:11px 15px;font-size:12px;font-weight:700;min-height:40px}.forno-primary-button{border:1px solid #d9a673;background:#d5a06d;color:#181916}.forno-secondary-button{border:1px solid #625b4e;background:#38352f;color:#eee6d9}.forno-update-badge{display:flex;align-items:center;gap:8px;padding:10px 19px;color:#e4b07b;background:#4b3a2a;font-size:11px;font-weight:700;letter-spacing:.06em}.forno-alerts{display:grid;gap:8px;margin-bottom:16px}.forno-alerts>div{display:flex;align-items:center;gap:10px;background:#44382c;border:1px solid #765b3e;padding:12px;border-radius:9px;color:#f5d3a5;font-size:12px}.forno-filters{display:flex;overflow-x:auto;gap:9px;margin:19px 0;padding-bottom:7px}.forno-filters button{flex:none;border:1px solid var(--fp-border);background:var(--fp-card);color:var(--fp-muted);border-radius:99px;padding:9px 13px;font-size:12px}.forno-filters button.selected{background:#bd8756;color:#181916}.forno-tag{border:1px solid #69533e;color:#e3b484;border-radius:99px;padding:8px 12px;font-size:11px}.forno-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.forno-product,.forno-detail-card{background:var(--fp-card);border:1px solid var(--fp-border);border-radius:13px;padding:22px}.forno-product-icon{background:#30362e;border-radius:10px;display:grid;place-items:center;height:110px;color:#d5a06d}.forno-product h3,.forno-detail-card h3{font:normal 22px Georgia,serif}.forno-product p{font-size:12px;color:var(--fp-muted)}.forno-product strong{color:#e6b582}.forno-table{border:1px solid var(--fp-border);border-radius:13px;overflow:hidden}.forno-table>div{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--fp-card);padding:20px;border-bottom:1px solid var(--fp-border);font-size:13px}.forno-table>div:last-child{border-bottom:0}.forno-table>div span{color:var(--fp-muted)}.forno-table>div strong{display:flex;align-items:center;gap:7px}.forno-swatches{display:flex;gap:12px;margin:22px 0}.forno-swatches span{width:56px;height:56px;border:2px solid #7c766a;border-radius:12px}.forno-footer{margin:42px 0 0;border-top:1px solid var(--fp-border);padding:25px 0;color:#8c9088;font-size:10px;letter-spacing:.14em}.forno-footer span{color:var(--fp-accent)}.forno-mobile-toggle,.forno-menu-close,.forno-overlay{display:none}.forno-empty{padding:25px;border:1px dashed var(--fp-border);border-radius:10px;color:var(--fp-muted)}@media(max-width:1100px){.forno-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:800px){.forno-sidebar{position:fixed;top:0;bottom:0;left:0;z-index:100;transform:translateX(-105%);transition:transform .2s ease;box-shadow:15px 0 50px #0008}.forno-sidebar.is-open{transform:translateX(0)}.forno-menu-close,.forno-mobile-toggle{display:grid}.forno-menu-close{margin-left:auto}.forno-overlay{display:block;position:fixed;inset:0;background:#0009;border:0;z-index:90}.forno-topbar{min-height:78px}.forno-topbar h1{font-size:23px}.forno-content{padding-top:20px}}@media(max-width:550px){.forno-stats{gap:9px}.forno-stats article{padding:14px}.forno-stats article strong{font-size:22px}.forno-stats article span{font-size:9px}.forno-top-actions{gap:6px}.forno-avatar{display:none}.forno-intro{padding:22px}.forno-order-head{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:10px;padding:15px}.forno-order-customer{grid-column:2/4}.forno-status{grid-column:1/3;width:max-content}.forno-order-price{grid-column:3}.forno-order-head>svg{grid-column:3;grid-row:1}.forno-grid{grid-template-columns:1fr}.forno-table>div{flex-wrap:wrap}.forno-section-heading h2{font-size:23px}.forno-demo-banner{font-size:9px;line-height:1.5}}@media(prefers-reduced-motion:reduce){.forno-sidebar{transition:none}}
+.forno-panel {
+  --fp-bg: #101914;
+  --fp-card: #18231b;
+  --fp-border: #383c38;
+  --fp-text: #f3ecdc;
+  --fp-muted: #adafa7;
+  --fp-accent: #dfbd6f;
+  background: var(--fp-bg);
+  color: var(--fp-text);
+  min-height: 100dvh;
+  font-family: inherit;
+}
+.forno-panel * {
+  box-sizing: border-box;
+}
+.forno-panel button {
+  cursor: pointer;
+}
+.forno-panel button:focus-visible {
+  outline: 2px solid var(--fp-accent);
+  outline-offset: 3px;
+}
+.forno-panel .forno-demo-banner {
+  background: #dfbd6f;
+  color: #171715;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  padding: 10px 12px;
+}
+.forno-panel .forno-layout {
+  display: flex;
+  min-height: calc(100dvh - 35px);
+}
+.forno-panel .forno-sidebar {
+  width: 254px;
+  flex: none;
+  background: #0b100d;
+  border-right: 1px solid var(--fp-border);
+  padding: 26px 17px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.forno-panel .forno-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 8px 22px;
+  border-bottom: 1px solid var(--fp-border);
+}
+.forno-panel .forno-brand-symbol {
+  font-size: 32px;
+  color: var(--fp-accent);
+}
+.forno-panel .forno-brand strong {
+  display: block;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 16px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.forno-panel .forno-brand small {
+  display: block;
+  color: var(--fp-muted);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  margin-top: 5px;
+}
+.forno-panel .forno-side-caption,
+.forno-panel .forno-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--fp-accent);
+}
+.forno-panel .forno-side-caption {
+  padding-left: 15px;
+}
+.forno-panel .forno-sidebar nav {
+  display: grid;
+  gap: 5px;
+}
+.forno-panel .forno-sidebar nav button {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-align: left;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #bac0b6;
+  padding: 13px 14px;
+  font-size: 13px;
+  width: 100%;
+}
+.forno-panel .forno-sidebar nav button.active {
+  background: #34342d;
+  color: #dfbd6f;
+}
+.forno-panel .forno-sidebar nav button:hover {
+  background: #2d312c;
+}
+.forno-panel .forno-nav-badge {
+  margin-left: auto;
+  background: #dfbd6f;
+  color: #171715;
+  border-radius: 99px;
+  padding: 2px 6px;
+}
+.forno-panel .forno-side-bottom {
+  margin-top: auto;
+  border-top: 1px solid var(--fp-border);
+  padding: 18px 10px;
+  color: #d8dfd1;
+  font-size: 13px;
+}
+.forno-panel .forno-side-bottom small {
+  display: block;
+  color: var(--fp-muted);
+  margin: 6px 0 0 17px;
+}
+.forno-panel .forno-online-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #91bb86;
+  border-radius: 50%;
+  margin-right: 7px;
+}
+.forno-panel .forno-main {
+  flex: 1;
+  min-width: 0;
+}
+.forno-panel .forno-topbar {
+  min-height: 94px;
+  border-bottom: 1px solid var(--fp-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 19px clamp(18px, 4vw, 52px);
+}
+.forno-panel .forno-topbar h1 {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 27px;
+  font-weight: 400;
+  margin: 5px 0 0;
+}
+.forno-panel .forno-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.forno-panel .forno-top-actions button,
+.forno-panel .forno-mobile-toggle,
+.forno-panel .forno-menu-close {
+  border: 1px solid var(--fp-border);
+  background: var(--fp-card);
+  color: var(--fp-text);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+.forno-panel .forno-avatar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #7a6049;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+.forno-panel .forno-notification-dot {
+  position: absolute;
+  right: 4px;
+  top: 3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e6a363;
+}
+.forno-panel .forno-content {
+  max-width: 1420px;
+  margin: auto;
+  padding: 32px clamp(18px, 4vw, 52px);
+}
+.forno-panel .forno-intro {
+  background: linear-gradient(110deg, #35332a, #232a25);
+  border: 1px solid #575043;
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 26px;
+}
+.forno-panel .forno-intro h2 {
+  font:
+    normal clamp(24px, 3vw, 38px) Georgia,
+    serif;
+  margin: 10px 0;
+}
+.forno-panel .forno-intro p,
+.forno-panel .forno-help,
+.forno-panel .forno-detail-card p {
+  color: var(--fp-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.forno-panel .forno-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 30px;
+}
+.forno-panel .forno-stats article {
+  padding: 20px;
+  border-radius: 13px;
+  border: 1px solid var(--fp-border);
+  background: var(--fp-card);
+  min-width: 0;
+}
+.forno-panel .forno-stats article span {
+  display: block;
+  font-size: 10px;
+  color: var(--fp-muted);
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+}
+.forno-panel .forno-stats article strong {
+  display: block;
+  font:
+    normal 27px Georgia,
+    serif;
+  margin: 14px 0 7px;
+  overflow-wrap: anywhere;
+}
+.forno-panel .forno-stats article small {
+  color: #9b9f97;
+  font-size: 11px;
+}
+.forno-panel .forno-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin: 24px 0 18px;
+  flex-wrap: wrap;
+}
+.forno-panel .forno-section-heading h2 {
+  font:
+    normal 26px Georgia,
+    serif;
+  margin: 7px 0 0;
+}
+.forno-panel .forno-text-button {
+  color: var(--fp-accent);
+  background: transparent;
+  border: 0;
+  font-size: 13px;
+}
+.forno-panel .forno-order-list {
+  display: grid;
+  gap: 11px;
+}
+.forno-panel .forno-order {
+  background: var(--fp-card);
+  border: 1px solid var(--fp-border);
+  border-radius: 13px;
+  overflow: hidden;
+}
+.forno-panel .forno-order-updated {
+  border-color: #dfbd6f;
+  box-shadow: 0 0 0 1px #dfbd6f40;
+}
+.forno-panel .forno-order-head {
+  background: transparent;
+  border: 0;
+  color: var(--fp-text);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 19px;
+  text-align: left;
+}
+.forno-panel .forno-order-number {
+  font:
+    normal 20px Georgia,
+    serif;
+  min-width: 70px;
+}
+.forno-panel .forno-order-number small,
+.forno-panel .forno-order-customer small {
+  display: block;
+  color: var(--fp-muted);
+  font: normal 11px sans-serif;
+  margin-top: 6px;
+}
+.forno-panel .forno-order-customer {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+}
+.forno-panel .forno-order-customer strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.forno-panel .forno-status {
+  font-size: 10px;
+  white-space: nowrap;
+  border-radius: 99px;
+  padding: 7px 10px;
+  background: #49412e;
+  color: #f0d19d;
+}
+.forno-panel .forno-status.status-delivered {
+  background: #2c4638;
+  color: #b6ddbd;
+}
+.forno-panel .forno-status.status-received {
+  background: #354554;
+  color: #b7d3e7;
+}
+.forno-panel .forno-order-price {
+  font-size: 13px;
+  white-space: nowrap;
+}
+.forno-panel .forno-order-detail {
+  border-top: 1px solid var(--fp-border);
+  padding: 19px;
+}
+.forno-panel .forno-order-items {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 17px;
+}
+.forno-panel .forno-order-items > div,
+.forno-panel .forno-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 13px;
+}
+.forno-panel .forno-order-items b {
+  color: var(--fp-accent);
+}
+.forno-panel .forno-order-items em {
+  font-style: normal;
+  font-size: 10px;
+  color: #e8b477;
+  margin-left: 8px;
+}
+.forno-panel .forno-info-row {
+  border-top: 1px solid var(--fp-border);
+  padding: 13px 0;
+  color: var(--fp-muted);
+}
+.forno-panel .forno-info-row strong {
+  color: var(--fp-text);
+}
+.forno-panel .forno-order-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.forno-panel .forno-primary-button,
+.forno-panel .forno-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 9px;
+  padding: 11px 15px;
+  font-size: 12px;
+  font-weight: 700;
+  min-height: 40px;
+}
+.forno-panel .forno-primary-button {
+  border: 1px solid #dfbd6f;
+  background: #dfbd6f;
+  color: #181916;
+}
+.forno-panel .forno-secondary-button {
+  border: 1px solid #625b4e;
+  background: #38352f;
+  color: #f3ecdc;
+}
+.forno-panel .forno-update-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 19px;
+  color: #e4b07b;
+  background: #4b3a2a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.forno-panel .forno-alerts {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.forno-panel .forno-alerts > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #44382c;
+  border: 1px solid #765b3e;
+  padding: 12px;
+  border-radius: 9px;
+  color: #f5d3a5;
+  font-size: 12px;
+}
+.forno-panel .forno-filters {
+  display: flex;
+  overflow-x: auto;
+  gap: 9px;
+  margin: 19px 0;
+  padding-bottom: 7px;
+}
+.forno-panel .forno-filters button {
+  flex: none;
+  border: 1px solid var(--fp-border);
+  background: var(--fp-card);
+  color: var(--fp-muted);
+  border-radius: 99px;
+  padding: 9px 13px;
+  font-size: 12px;
+}
+.forno-panel .forno-filters button.selected {
+  background: #dfbd6f;
+  color: #181916;
+}
+.forno-panel .forno-tag {
+  border: 1px solid #69533e;
+  color: #e3b484;
+  border-radius: 99px;
+  padding: 8px 12px;
+  font-size: 11px;
+}
+.forno-panel .forno-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+.forno-panel .forno-product,
+.forno-panel .forno-detail-card {
+  background: var(--fp-card);
+  border: 1px solid var(--fp-border);
+  border-radius: 13px;
+  padding: 22px;
+}
+.forno-panel .forno-product-icon {
+  background: #30362e;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  height: 110px;
+  color: #dfbd6f;
+}
+.forno-panel .forno-product h3,
+.forno-panel .forno-detail-card h3 {
+  font:
+    normal 22px Georgia,
+    serif;
+}
+.forno-panel .forno-product p {
+  font-size: 12px;
+  color: var(--fp-muted);
+}
+.forno-panel .forno-product strong {
+  color: #dfbd6f;
+}
+.forno-panel .forno-table {
+  border: 1px solid var(--fp-border);
+  border-radius: 13px;
+  overflow: hidden;
+}
+.forno-panel .forno-table > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: var(--fp-card);
+  padding: 20px;
+  border-bottom: 1px solid var(--fp-border);
+  font-size: 13px;
+}
+.forno-panel .forno-table > div:last-child {
+  border-bottom: 0;
+}
+.forno-panel .forno-table > div span {
+  color: var(--fp-muted);
+}
+.forno-panel .forno-table > div strong {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.forno-panel .forno-swatches {
+  display: flex;
+  gap: 12px;
+  margin: 22px 0;
+}
+.forno-panel .forno-swatches span {
+  width: 56px;
+  height: 56px;
+  border: 2px solid #7c766a;
+  border-radius: 12px;
+}
+.forno-panel .forno-footer {
+  margin: 42px 0 0;
+  border-top: 1px solid var(--fp-border);
+  padding: 25px 0;
+  color: #8c9088;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+}
+.forno-panel .forno-footer span {
+  color: var(--fp-accent);
+}
+.forno-panel .forno-mobile-toggle,
+.forno-panel .forno-menu-close,
+.forno-panel .forno-overlay {
+  display: none;
+}
+.forno-panel .forno-empty {
+  padding: 25px;
+  border: 1px dashed var(--fp-border);
+  border-radius: 10px;
+  color: var(--fp-muted);
+}
+@media (max-width: 1100px) {
+  .forno-panel .forno-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 800px) {
+  .forno-panel .forno-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    transform: translateX(-105%);
+    transition: transform 0.2s ease;
+    box-shadow: 15px 0 50px #0008;
+  }
+  .forno-panel .forno-sidebar.is-open {
+    transform: translateX(0);
+  }
+  .forno-panel .forno-menu-close,
+  .forno-panel .forno-mobile-toggle {
+    display: grid;
+  }
+  .forno-panel .forno-menu-close {
+    margin-left: auto;
+  }
+  .forno-panel .forno-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: #0009;
+    border: 0;
+    z-index: 90;
+  }
+  .forno-panel .forno-topbar {
+    min-height: 78px;
+  }
+  .forno-panel .forno-topbar h1 {
+    font-size: 23px;
+  }
+  .forno-panel .forno-content {
+    padding-top: 20px;
+  }
+}
+@media (max-width: 550px) {
+  .forno-panel .forno-stats {
+    gap: 9px;
+  }
+  .forno-panel .forno-stats article {
+    padding: 14px;
+  }
+  .forno-panel .forno-stats article strong {
+    font-size: 22px;
+  }
+  .forno-panel .forno-stats article span {
+    font-size: 9px;
+  }
+  .forno-panel .forno-top-actions {
+    gap: 6px;
+  }
+  .forno-panel .forno-avatar {
+    display: none;
+  }
+  .forno-panel .forno-intro {
+    padding: 22px;
+  }
+  .forno-panel .forno-order-head {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 15px;
+  }
+  .forno-panel .forno-order-customer {
+    grid-column: 2/4;
+  }
+  .forno-panel .forno-status {
+    grid-column: 1/3;
+    width: max-content;
+  }
+  .forno-panel .forno-order-price {
+    grid-column: 3;
+  }
+  .forno-panel .forno-order-head > svg {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .forno-panel .forno-grid {
+    grid-template-columns: 1fr;
+  }
+  .forno-panel .forno-table > div {
+    flex-wrap: wrap;
+  }
+  .forno-panel .forno-section-heading h2 {
+    font-size: 23px;
+  }
+  .forno-panel .forno-demo-banner {
+    font-size: 9px;
+    line-height: 1.5;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .forno-panel .forno-sidebar {
+    transition: none;
+  }
+}
+
+/* Same Forno materials as the public menu; no selectors escape this demo. */
+.forno-panel .forno-demo-banner {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+.forno-panel .forno-sidebar nav button,
+.forno-panel .forno-top-actions button,
+.forno-panel .forno-mobile-toggle,
+.forno-panel .forno-menu-close,
+.forno-panel .forno-filters button,
+.forno-panel .forno-primary-button,
+.forno-panel .forno-secondary-button,
+.forno-panel .forno-text-button {
+  min-height: 44px;
+}
+.forno-panel .forno-top-actions button,
+.forno-panel .forno-mobile-toggle,
+.forno-panel .forno-menu-close {
+  width: 44px;
+  flex-shrink: 0;
+}
+.forno-panel .forno-sidebar nav button {
+  font-size: 14px;
+}
+.forno-panel .forno-sidebar {
+  overflow-y: auto;
+}
+.forno-panel .forno-brand {
+  flex-wrap: wrap;
+}
+.forno-panel .forno-brand strong {
+  white-space: normal;
+}
+.forno-panel .forno-order-customer strong {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 18px;
+  font-weight: 400;
+}
+.forno-panel .forno-order-items > div > span,
+.forno-panel .forno-table > div > *,
+.forno-panel .forno-info-row > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.forno-panel .forno-order-items > div > strong {
+  flex-shrink: 0;
+}
+.forno-panel .forno-filters {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.forno-panel .forno-filters button:focus-visible {
+  outline-offset: 2px;
+}
+.forno-panel .forno-alerts {
+  overflow-wrap: anywhere;
+}
+.forno-panel .forno-alerts svg {
+  flex-shrink: 0;
+}
+.forno-panel .forno-order-detail {
+  scroll-margin-top: 90px;
+}
+.forno-panel .forno-zone-form {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid var(--fp-border);
+  background: var(--fp-card);
+  border-radius: 16px;
+}
+.forno-panel .forno-zone-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+.forno-panel .forno-zone-form input {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--fp-border);
+  border-radius: 8px;
+  background: var(--fp-bg);
+  color: var(--fp-text);
+}
+.forno-panel .forno-zone-form input:focus-visible {
+  outline: 2px solid var(--fp-accent);
+  outline-offset: 2px;
+}
+.forno-panel .forno-zone-form [role="alert"] {
+  grid-column: 1/-1;
+  color: #f5d3a5;
+}
+.forno-panel .forno-zone-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.forno-panel .forno-footer {
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 800px) {
+  .forno-panel .forno-sidebar {
+    width: min(300px, calc(100vw - 20px));
+    z-index: 60;
+    padding: 18px 14px;
+  }
+  .forno-panel .forno-overlay {
+    z-index: 50;
+  }
+  .forno-panel .forno-brand {
+    gap: 8px;
+  }
+  .forno-panel .forno-brand > div {
+    flex: 1;
+    min-width: 0;
+  }
+  .forno-panel .forno-brand-symbol {
+    font-size: 24px;
+  }
+  .forno-panel .forno-brand strong {
+    font-size: 14px;
+  }
+}
+@media (max-width: 550px) {
+  .forno-panel .forno-topbar {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    padding: 16px;
+  }
+  .forno-panel .forno-topbar > div {
+    min-width: 0;
+  }
+  .forno-panel .forno-topbar h1 {
+    font-size: 26px;
+    overflow-wrap: anywhere;
+  }
+  .forno-panel .forno-topbar .forno-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+  }
+  .forno-panel .forno-top-actions {
+    grid-column: 1/-1;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .forno-panel .forno-content {
+    padding: 20px 16px;
+  }
+  .forno-panel .forno-intro {
+    padding: 20px;
+  }
+  .forno-panel .forno-order-number {
+    min-width: 0;
+  }
+  .forno-panel .forno-order-customer {
+    grid-column: 1/-1;
+  }
+  .forno-panel .forno-order-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .forno-panel .forno-status {
+    max-width: 100%;
+    white-space: normal;
+  }
+  .forno-panel .forno-tag {
+    max-width: 100%;
+    line-height: 1.5;
+  }
+  .forno-panel .forno-zone-form {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+  .forno-panel .forno-zone-actions {
+    width: 100%;
+  }
+  .forno-panel .forno-zone-actions > button {
+    flex: 1;
+  }
+  .forno-panel .forno-swatches {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
+
+/* Neutralize legacy global header rules only inside this isolated panel. */
+@layer forno {
+  .forno-panel .forno-topbar {
+    position: relative !important;
+    inset: auto !important;
+    display: flex !important;
+    background: var(--fp-bg) !important;
+    color: var(--fp-text) !important;
+    box-shadow: none !important;
+  }
+  .forno-panel .forno-topbar > div:not(.forno-top-actions) {
+    display: block !important;
+    background: transparent !important;
+    padding: 0 !important;
+    width: auto !important;
+    min-width: 0;
+  }
+  .forno-panel .forno-topbar h1 {
+    color: var(--fp-text) !important;
+    text-align: left !important;
+    line-height: 1.3 !important;
+    margin: 5px 0 0 !important;
+  }
+  .forno-panel .forno-topbar .forno-top-actions {
+    display: flex !important;
+    width: auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+  @media (max-width: 550px) {
+    .forno-panel .forno-topbar {
+      display: grid !important;
+    }
+    .forno-panel .forno-topbar .forno-top-actions {
+      width: 100% !important;
+    }
+  }
+}
+@media (max-width: 800px) {
+  .forno-panel .forno-sidebar {
+    visibility: hidden;
+    box-shadow: none;
+  }
+  .forno-panel .forno-sidebar.is-open {
+    visibility: visible;
+    box-shadow: 15px 0 50px #0008;
+  }
+}
