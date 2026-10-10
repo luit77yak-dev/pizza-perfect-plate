@@ -1,0 +1,332 @@
+/* Only the isolated demonstration; real storefront and admin stay unchanged. */
+.forno-panel .demo-editor,
+.forno-panel .demo-list article,
+.forno-panel .demo-notifications,
+.forno-panel .demo-option-editor {
+  background: var(--fp-card);
+  border: 1px solid var(--fp-border);
+  border-radius: 16px;
+  padding: 20px;
+  margin: 16px 0;
+  min-width: 0;
+}
+.forno-panel .demo-editor {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.forno-panel .demo-editor > h3,
+.forno-panel .demo-editor > h4,
+.forno-panel .demo-editor > fieldset,
+.forno-panel .demo-editor > .demo-actions,
+.forno-panel .demo-editor > .forno-help,
+.forno-panel .demo-editor > .demo-image-field {
+  grid-column: 1/-1;
+}
+.forno-panel .demo-editor label,
+.forno-panel .demo-search {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.forno-panel .demo-editor label:has(input[type="checkbox"]) {
+  flex-direction: row;
+  align-items: center;
+}
+.forno-panel .demo-editor input:not([type="checkbox"]),
+.forno-panel .demo-editor select,
+.forno-panel .demo-editor textarea,
+.forno-panel .demo-search input {
+  background: var(--fp-bg);
+  color: var(--fp-text);
+  border: 1px solid var(--fp-border);
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 44px;
+  max-width: 100%;
+  width: 100%;
+}
+.forno-panel .demo-editor input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  accent-color: var(--fp-accent);
+}
+.forno-panel .demo-editor fieldset {
+  min-width: 0;
+  border: 1px solid var(--fp-border);
+  border-radius: 10px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+.forno-panel .demo-editor legend {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.forno-panel .demo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.forno-panel .demo-actions > * {
+  min-height: 44px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+.forno-panel .demo-option-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.forno-panel .demo-hours {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  border-bottom: 1px solid var(--fp-border);
+  padding: 8px 0;
+}
+.forno-panel .demo-thumbnail,
+.forno-panel .demo-image-field img {
+  width: 100px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.forno-panel .demo-appearance-preview {
+  background: var(--fp-bg);
+  color: var(--fp-text);
+  padding: 24px;
+  border: 1px solid var(--fp-accent);
+  border-radius: 16px;
+}
+.forno-panel .demo-appearance-preview span {
+  display: inline-block;
+  padding: 12px;
+  background: var(--fp-accent);
+  color: var(--fp-bg);
+  border-radius: 8px;
+}
+.forno-panel .demo-appearance-preview img {
+  max-width: 100px;
+}
+.forno-panel .demo-notifications article {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--fp-border);
+  overflow-wrap: anywhere;
+}
+.forno-panel .demo-reset {
+  margin-top: 30px;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator,
+.ppp-customer-shell.ppp-visual-demo .demo-checkout {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  background: #000b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator > [data-order-surface],
+.ppp-customer-shell.ppp-visual-demo .demo-checkout > div {
+  background: var(--forno-bg);
+  color: var(--forno-cream);
+  border: 1px solid var(--forno-border);
+  border-radius: 22px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator header {
+  position: relative !important;
+  background: var(--forno-surface) !important;
+  color: var(--forno-cream) !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px;
+  border-bottom: 1px solid var(--forno-border);
+  flex: none;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator header > div {
+  display: block !important;
+  width: auto !important;
+  background: transparent !important;
+  padding: 0 !important;
+  min-width: 0;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator h2 {
+  font-size: 24px;
+  color: var(--forno-cream);
+  overflow-wrap: anywhere;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator-body {
+  overflow: auto;
+  min-height: 0;
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator fieldset {
+  min-width: 0;
+  border: 1px solid var(--forno-border);
+  border-radius: 12px;
+  padding: 10px;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator legend {
+  font-size: 13px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-config-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  min-height: 48px;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-config-option span {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-config-option small {
+  display: block;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-config-option input {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-config-option img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator label:not(.demo-config-option),
+.ppp-customer-shell.ppp-visual-demo .demo-checkout label {
+  display: grid;
+  gap: 8px;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator input[type="number"],
+.ppp-customer-shell.ppp-visual-demo .demo-configurator textarea,
+.ppp-customer-shell.ppp-visual-demo .demo-checkout select {
+  background: var(--forno-surface);
+  border: 1px solid var(--forno-border);
+  padding: 10px;
+  min-height: 44px;
+  border-radius: 8px;
+  width: 100%;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator button,
+.ppp-customer-shell.ppp-visual-demo .demo-checkout button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--forno-border);
+  border-radius: 8px;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--forno-surface);
+  flex: none;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-configurator footer button,
+.ppp-customer-shell.ppp-visual-demo .demo-checkout button {
+  background: var(--forno-gold);
+  color: var(--forno-deep);
+  font-weight: 700;
+}
+.ppp-customer-shell.ppp-visual-demo .demo-checkout > div {
+  padding: 24px;
+  gap: 16px;
+}
+.ppp-customer-shell.ppp-visual-demo button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (max-width: 430px) {
+  .forno-panel .demo-editor {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 14px;
+  }
+  .forno-panel .forno-topbar {
+    grid-template-columns: 44px minmax(0, 1fr) auto !important;
+    padding: 12px !important;
+    gap: 8px !important;
+  }
+  .forno-panel .forno-topbar > .forno-top-actions {
+    grid-column: auto !important;
+    gap: 4px !important;
+    width: auto !important;
+  }
+  .forno-panel .forno-topbar .forno-top-actions button {
+    width: 44px;
+    min-width: 44px;
+    padding: 8px;
+  }
+  .forno-panel .forno-topbar .forno-avatar,
+  .forno-panel .forno-topbar .forno-eyebrow {
+    display: none;
+  }
+  .forno-panel .forno-topbar h1 {
+    font-size: 21px;
+    margin: 0 !important;
+  }
+  .forno-panel .forno-demo-banner {
+    font-size: 9px;
+    letter-spacing: 0.03em;
+    padding: 7px 10px;
+  }
+  .forno-panel .forno-filters {
+    gap: 6px;
+  }
+  .forno-panel .forno-content {
+    padding-top: 18px;
+  }
+  .ppp-customer-shell.ppp-visual-demo .demo-configurator,
+  .ppp-customer-shell.ppp-visual-demo .demo-checkout {
+    padding: 8px;
+  }
+  .ppp-customer-shell.ppp-visual-demo .demo-configurator footer {
+    padding: 12px;
+    gap: 8px;
+  }
+}
+
+.forno-panel .forno-primary-button {
+  color: var(--fp-bg);
+}
+
+.ppp-customer-shell.ppp-visual-demo .demo-store-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  margin-bottom: 16px;
+  border-radius: 12px;
+}
+
+.forno-panel .forno-brand strong,
+.forno-panel .forno-product h3,
+.forno-panel .forno-product p,
+.forno-panel .demo-list strong {
+  overflow-wrap: anywhere;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-product-content h3,
+.ppp-customer-shell.ppp-visual-demo .forno-hero-copy p,
+.ppp-customer-shell.ppp-visual-demo .visual-demo-menu li {
+  overflow-wrap: anywhere;
+}

@@ -21,21 +21,12 @@ import {
 
 import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
 
-type Status = "RECEIVED" | "CONFIRMED" | "PREPARING" | "READY" | "OUT_FOR_DELIVERY" | "DELIVERED";
-type Payment = "PAID" | "PENDING";
-type DemoOrder = {
-  id: number;
-  name: string;
-  time: string;
-  status: Status;
-  payment: Payment;
-  paidAmount: number;
-  fulfillment: "Entrega" | "Retirada";
-  neighborhood: string;
-  fee: number;
-  items: { name: string; quantity: number; price: number; added?: boolean }[];
-  updated: boolean;
-};
+import { useDemoData } from "./data/store";
+import { notifyState, appendDemoItem } from "./data/model";
+import type { DemoOrder } from "./data/model";
+import { demoStyle } from "./data/catalog-adapter";
+import { DemoCatalogManager, DemoStoreEditor } from "./DemoManagement";
+type Status = DemoOrder["status"];
 type Section =
   | "overview"
   | "orders"
@@ -46,50 +37,6 @@ type Section =
   | "appearance"
   | "payments";
 
-const initialOrders: DemoOrder[] = [
-  {
-    id: 1042,
-    name: "Mariana Costa",
-    time: "19:42",
-    status: "PREPARING",
-    payment: "PAID",
-    paidAmount: 63.9,
-    fulfillment: "Entrega",
-    neighborhood: "Centro",
-    fee: 6,
-    items: [
-      { name: "Pizza Margherita", quantity: 1, price: 49.9 },
-      { name: "Refrigerante", quantity: 1, price: 8 },
-    ],
-    updated: false,
-  },
-  {
-    id: 1043,
-    name: "Rafael Lima",
-    time: "19:49",
-    status: "RECEIVED",
-    payment: "PENDING",
-    paidAmount: 0,
-    fulfillment: "Retirada",
-    neighborhood: "—",
-    fee: 0,
-    items: [{ name: "Pizza Quatro Queijos", quantity: 2, price: 56 }],
-    updated: false,
-  },
-  {
-    id: 1044,
-    name: "Beatriz Alves",
-    time: "19:54",
-    status: "CONFIRMED",
-    payment: "PAID",
-    paidAmount: 61,
-    fulfillment: "Entrega",
-    neighborhood: "Jardim América",
-    fee: 9,
-    items: [{ name: "Pizza Calabresa", quantity: 1, price: 52 }],
-    updated: false,
-  },
-];
 const labels: Record<Status, string> = {
   RECEIVED: "Recebido",
   CONFIRMED: "Confirmado",
@@ -120,22 +67,27 @@ const nextStatus = (order: DemoOrder): Status | null => {
   const index = flow.indexOf(order.status);
   return index < 0 ? null : (flow[index + 1] ?? null);
 };
-const initialZones = [
-  { id: "demo-centro", name: "Centro", fee: 6, eta: "20–30 min" },
-  { id: "demo-jardim", name: "Jardim América", fee: 9, eta: "30–40 min" },
-  { id: "demo-sul", name: "Setor Sul", fee: 12, eta: "40–50 min" },
-];
-
 export function FornoPanelDemo() {
   const [section, setSection] = useState<Section>("overview");
-  const [orders, setOrders] = useState(initialOrders);
+  const { data: state, ready, warning, update, reset } = useDemoData();
+  const orders = state.orders,
+    zones = state.zones;
+  const setOrders = (fn: (orders: DemoOrder[]) => DemoOrder[]) =>
+    update((s) => ({ ...s, orders: fn(s.orders) }));
+  const setZones = (fn: (zones: typeof state.zones) => typeof state.zones) =>
+    update((s) => ({ ...s, zones: fn(s.zones) }));
+  const [noticesOpen, setNoticesOpen] = useState(false);
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [customerName, setCustomerName] = useState<string | null>(null);
+  const [resetOpen, setResetOpen] = useState(false);
   const [expanded, setExpanded] = useState<number | null>(1042);
-  const [alerts, setAlerts] = useState<string[]>([]);
+  const alerts = state.notifications;
+  const unreadNotices = alerts.filter((n) => !n.read).length;
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [filter, setFilter] = useState<Status | "ALL">("ALL");
   const [isMobile, setIsMobile] = useState(false);
-  const [zones, setZones] = useState(initialZones);
+
   const [editingZone, setEditingZone] = useState<string | null>(null);
   const [zoneName, setZoneName] = useState("");
   const [zoneFee, setZoneFee] = useState("");
@@ -165,7 +117,7 @@ export function FornoPanelDemo() {
   const pendingAmount = orders.reduce((n, o) => n + Math.max(0, total(o) - o.paidAmount), 0);
 
   function notify(message: string) {
-    setAlerts((current) => [message, ...current].slice(0, 4));
+    update((s) => notifyState(s, message, message));
     // Audio only after an explicit user gesture enabling it. Visual alerts always persist.
     if (soundEnabled && typeof window !== "undefined") {
       try {
@@ -192,26 +144,12 @@ export function FornoPanelDemo() {
     }
   }
   function simulateUpdate() {
-    const target = orders.find((o) => o.id === 1042);
-    if (!target || target.status === "OUT_FOR_DELIVERY" || target.status === "DELIVERED") {
-      notify("Alteração bloqueada: o pedido #1042 já saiu para entrega ou foi entregue.");
+    try {
+      update((s) => appendDemoItem(s, 1042, { name: "Sobremesa da casa", quantity: 1, price: 15 }));
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "Alteração bloqueada.");
       return;
     }
-    setOrders((current) =>
-      current.map((o) =>
-        o.id === 1042
-          ? {
-              ...o,
-              items: [
-                ...o.items,
-                { name: "Sobremesa da casa", quantity: 1, price: 15, added: true },
-              ],
-              payment: "PENDING",
-              updated: true,
-            }
-          : o,
-      ),
-    );
     setFilter("ALL");
     setSection("orders");
     setExpanded(1042);
@@ -262,6 +200,10 @@ export function FornoPanelDemo() {
       setZoneError("Este bairro já existe na demonstração.");
       return;
     }
+    if (!editingZone && zones.length >= 50) {
+      setZoneError("Limite demonstrativo de 50 bairros atingido.");
+      return;
+    }
     const rounded = Math.round((fee + Number.EPSILON) * 100) / 100;
     setZones((current) =>
       editingZone
@@ -278,7 +220,7 @@ export function FornoPanelDemo() {
   const title = nav.find((item) => item.key === section)?.label ?? "Visão geral";
 
   return (
-    <div className="forno-panel">
+    <div className="forno-panel" style={demoStyle(state)}>
       <div className="forno-demo-banner" role="note">
         AMBIENTE DE DEMONSTRAÇÃO · Dados fictícios · Sem pedidos ou cobranças reais
       </div>
@@ -297,7 +239,7 @@ export function FornoPanelDemo() {
           <div className="forno-brand">
             <span className="forno-brand-symbol">✦</span>
             <div>
-              <strong>FORNO DI PIETRA</strong>
+              <strong>{state.store.name}</strong>
               <small>GESTÃO DO ESTABELECIMENTO</small>
             </div>
             <button
@@ -324,7 +266,8 @@ export function FornoPanelDemo() {
             ))}
           </nav>
           <div className="forno-side-bottom">
-            <span className="forno-online-dot" /> Loja aberta <small>Modo fictício</small>
+            <span className="forno-online-dot" />{" "}
+            {state.store.open ? "Loja aberta" : "Loja fechada"} <small>Modo fictício</small>
           </div>
         </aside>
         {mobileMenu && (
@@ -360,30 +303,100 @@ export function FornoPanelDemo() {
               </button>
               <button
                 title="Ver avisos"
-                aria-label={`Ver avisos: ${alerts.length}`}
-                onClick={() => navigate("orders")}
+                aria-label={`Ver avisos: ${unreadNotices}`}
+                aria-expanded={noticesOpen}
+                aria-controls="demo-notifications"
+                onClick={() => setNoticesOpen((v) => !v)}
               >
                 <Bell size={19} />
-                {unread > 0 && <span className="forno-notification-dot" />}
+                {unreadNotices > 0 && <b className="forno-nav-badge">{unreadNotices}</b>}
               </button>
               <span className="forno-avatar">FP</span>
             </div>
           </header>
           <div className="forno-content">
-            {alerts.length > 0 && (
-              <div className="forno-alerts" role="status" aria-live="polite">
-                {alerts.map((alert, i) => (
-                  <div key={i}>
-                    <Bell size={16} />
-                    <span>{alert}</span>
-                  </div>
+            {warning && (
+              <p role="status" className="forno-help">
+                {warning}
+              </p>
+            )}
+            {!ready && <p role="status">Carregando dados locais…</p>}
+            {noticesOpen && (
+              <section
+                id="demo-notifications"
+                className="demo-notifications"
+                aria-label="Central de notificações"
+              >
+                <div className="forno-section-heading">
+                  <h2>Notificações · {unreadNotices} não lidas</h2>
+                  <button className="forno-secondary-button" onClick={() => setNoticesOpen(false)}>
+                    Fechar avisos
+                  </button>
+                </div>
+                <div className="demo-actions">
+                  <button
+                    className="forno-secondary-button"
+                    onClick={() =>
+                      update((s) => ({
+                        ...s,
+                        notifications: s.notifications.map((n) => ({ ...n, read: true })),
+                      }))
+                    }
+                  >
+                    Marcar todas como lidas
+                  </button>
+                  <button
+                    className="forno-secondary-button"
+                    onClick={() => update((s) => ({ ...s, notifications: [] }))}
+                  >
+                    Limpar notificações
+                  </button>
+                </div>
+                {alerts.length === 0 && <p>Nenhuma notificação.</p>}
+                {alerts.map((n) => (
+                  <article key={n.id}>
+                    <p>{n.message}</p>
+                    <small>{n.read ? "Lida" : "Não lida"}</small>
+                    <div className="demo-actions">
+                      {!n.read && (
+                        <button
+                          className="forno-secondary-button"
+                          aria-label={`Marcar como lida: ${n.message}`}
+                          onClick={() =>
+                            update((s) => ({
+                              ...s,
+                              notifications: s.notifications.map((v) =>
+                                v.id === n.id ? { ...v, read: true } : v,
+                              ),
+                            }))
+                          }
+                        >
+                          Marcar como lida
+                        </button>
+                      )}
+                      <button
+                        className="forno-secondary-button"
+                        aria-label={`Dispensar: ${n.message}`}
+                        onClick={() =>
+                          update((s) => ({
+                            ...s,
+                            notifications: s.notifications.filter((v) => v.id !== n.id),
+                          }))
+                        }
+                      >
+                        Dispensar
+                      </button>
+                    </div>
+                  </article>
                 ))}
-              </div>
+              </section>
             )}
             {section === "overview" && (
               <>
                 <div className="forno-intro">
-                  <span className="forno-eyebrow">BEM-VINDO AO FORNO DI PIETRA</span>
+                  <span className="forno-eyebrow">
+                    BEM-VINDO · {state.store.name.toLocaleUpperCase("pt-BR")}
+                  </span>
                   <h2>Sua operação, em boas mãos.</h2>
                   <p>Uma visão elegante e prática de tudo o que acontece na sua cozinha.</p>
                 </div>
@@ -467,52 +480,59 @@ export function FornoPanelDemo() {
                 )}
               </>
             )}
-            {section === "catalog" && (
-              <>
-                <div className="forno-section-heading">
-                  <div>
-                    <span className="forno-eyebrow">CARDÁPIO</span>
-                    <h2>Sabores da casa</h2>
-                  </div>
-                  <span className="forno-tag">Somente visualização</span>
-                </div>
-                <div className="forno-grid">
-                  {[
-                    ["Margherita", "49,90", "Clássica com manjericão fresco"],
-                    ["Quatro Queijos", "56,00", "Uma combinação cremosa"],
-                    ["Calabresa", "52,00", "Tradicional e irresistível"],
-                    ["Refrigerante", "8,00", "Bebida gelada"],
-                  ].map(([name, price, desc]) => (
-                    <article className="forno-product" key={name}>
-                      <div className="forno-product-icon">
-                        <Pizza size={32} />
-                      </div>
-                      <h3>{name}</h3>
-                      <p>{desc}</p>
-                      <strong>R$ {price}</strong>
-                    </article>
-                  ))}
-                </div>
-              </>
+            {section === "catalog" && ready && (
+              <DemoCatalogManager state={state} update={update} notify={notify} />
             )}
             {section === "customers" && (
-              <>
+              <section>
                 <div className="forno-section-heading">
-                  <div>
-                    <span className="forno-eyebrow">RELACIONAMENTO</span>
-                    <h2>Clientes recentes</h2>
-                  </div>
+                  <h2>Clientes fictícios</h2>
                 </div>
-                <div className="forno-table">
-                  {orders.map((o) => (
-                    <div key={o.id}>
-                      <strong>{o.name}</strong>
-                      <span>Pedido #{o.id}</span>
-                      <span>{money(total(o))}</span>
-                    </div>
-                  ))}
+                <label className="demo-search">
+                  Pesquisar cliente
+                  <input
+                    value={customerSearch}
+                    onChange={(e) => setCustomerSearch(e.target.value)}
+                    placeholder="Nome fictício"
+                  />
+                </label>
+                <div className="demo-list">
+                  {[...new Set(orders.map((o) => o.name))]
+                    .filter((name) =>
+                      name
+                        .toLocaleLowerCase("pt-BR")
+                        .includes(customerSearch.toLocaleLowerCase("pt-BR")),
+                    )
+                    .map((name) => (
+                      <article key={name}>
+                        <button
+                          className="forno-secondary-button"
+                          aria-expanded={customerName === name}
+                          onClick={() => setCustomerName((c) => (c === name ? null : name))}
+                        >
+                          {name}
+                        </button>
+                        {customerName === name && (
+                          <>
+                            <p>Cliente fictício · nenhum dado privado consultado.</p>
+                            {renderOrders(
+                              orders.filter((o) => o.name === name),
+                              expanded,
+                              setExpanded,
+                              advance,
+                              acknowledge,
+                            )}
+                          </>
+                        )}
+                      </article>
+                    ))}
                 </div>
-              </>
+                {![...new Set(orders.map((o) => o.name))].some((name) =>
+                  name
+                    .toLocaleLowerCase("pt-BR")
+                    .includes(customerSearch.toLocaleLowerCase("pt-BR")),
+                ) && <p className="forno-empty">Nenhum cliente fictício encontrado.</p>}
+              </section>
             )}
             {section === "delivery" && (
               <>
@@ -525,7 +545,7 @@ export function FornoPanelDemo() {
                 </div>
                 <p className="forno-help">
                   O proprietário define bairros atendidos e taxas fixas. As alterações abaixo são
-                  locais, descartadas ao recarregar e não mudam pedidos existentes.
+                  salvas neste navegador, compartilhadas com a loja e não mudam pedidos existentes.
                 </p>
                 <form
                   className="forno-zone-form"
@@ -661,59 +681,56 @@ export function FornoPanelDemo() {
                 </div>
               </>
             )}
-            {section === "store" && (
-              <>
-                <div className="forno-section-heading">
-                  <div>
-                    <span className="forno-eyebrow">ESTABELECIMENTO</span>
-                    <h2>Minha loja</h2>
-                  </div>
-                  <span className="forno-tag">Prévia</span>
-                </div>
-                <div className="forno-detail-card">
-                  <h3>Forno di Pietra</h3>
-                  <p>Pizzaria artesanal · Identidade premium</p>
-                  <div className="forno-info-row">
-                    <span>Atendimento</span>
-                    <strong>18h às 23h (fictício)</strong>
-                  </div>
-                  <div className="forno-info-row">
-                    <span>Modalidades</span>
-                    <strong>Entrega e retirada</strong>
-                  </div>
-                  <div className="forno-info-row">
-                    <span>Regiões</span>
-                    <strong>{zones.length} bairros de exemplo</strong>
-                  </div>
-                </div>
-              </>
+            {section === "store" && ready && (
+              <DemoStoreEditor key="store" state={state} update={update} notify={notify} />
             )}
-            {section === "appearance" && (
-              <>
-                <div className="forno-section-heading">
-                  <div>
-                    <span className="forno-eyebrow">IDENTIDADE VISUAL</span>
-                    <h2>A essência da marca</h2>
-                  </div>
-                </div>
-                <div className="forno-detail-card">
-                  <h3>Forno di Pietra · Tema premium</h3>
-                  <p>
-                    O cardápio e o painel compartilham a mesma linguagem: verde profundo, creme,
-                    dourado e tipografia refinada.
-                  </p>
-                  <div className="forno-swatches">
-                    <span style={{ background: "#101914" }} />
-                    <span style={{ background: "#f3ecdc" }} />
-                    <span style={{ background: "#dfbd6f" }} />
-                    <span style={{ background: "#18231b" }} />
-                  </div>
-                  <p>
-                    Em uma futura versão, outros estabelecimentos poderão usar identidades visuais
-                    totalmente diferentes sem duplicar o Delivery Engine.
-                  </p>
-                </div>
-              </>
+            {section === "appearance" && ready && (
+              <DemoStoreEditor
+                key="appearance"
+                state={state}
+                update={update}
+                notify={notify}
+                appearance
+              />
+            )}
+            <div className="demo-actions demo-reset">
+              <a
+                href="/visual-demo/"
+                target="_blank"
+                rel="noreferrer"
+                className="forno-secondary-button"
+              >
+                Abrir cardápio demonstrativo
+              </a>
+              <button
+                className="forno-secondary-button"
+                disabled={!ready}
+                onClick={() => setResetOpen(true)}
+              >
+                Restaurar demonstração
+              </button>
+            </div>
+            {resetOpen && (
+              <div className="forno-detail-card" role="group" aria-label="Confirmar restauração">
+                <p>
+                  Restaurar produtos, loja, pedidos e notificações fictícios neste navegador? Os
+                  carrinhos abertos precisarão ser refeitos.
+                </p>
+                <button
+                  className="forno-primary-button"
+                  onClick={() => {
+                    reset();
+                    setResetOpen(false);
+                    setSection("overview");
+                    setExpanded(1042);
+                  }}
+                >
+                  Confirmar restauração
+                </button>
+                <button className="forno-secondary-button" onClick={() => setResetOpen(false)}>
+                  Cancelar restauração
+                </button>
+              </div>
             )}
             <footer className="forno-footer">
               NEROXA DELIVERY <span>·</span> FORNO DI PIETRA <span>·</span> DEMONSTRAÇÃO ISOLADA

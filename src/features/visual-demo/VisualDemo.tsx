@@ -1,105 +1,184 @@
+import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
 import { useState } from "react";
 import { Pizza, Plus } from "lucide-react";
 import { StorefrontHeader } from "@/components/storefront/StorefrontHeader";
 import { StorefrontHero } from "@/components/storefront/StorefrontHero";
-import { ProductConfigurator } from "@/features/storefront/components/ProductConfigurator";
+import { DemoConfigurator } from "./DemoConfigurator";
+import { useDemoData } from "./data/store";
+import { demoCatalog, demoStyle } from "./data/catalog-adapter";
+import {
+  isAvailable,
+  makeCartItem,
+  minimumPrice,
+  catalogToken,
+  submitDemoOrder,
+} from "./data/model";
 import { CartPanel } from "@/features/cart/components/CartPanel";
 import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
-import type { CartItem, Product } from "@/lib/domain/types";
-import { createDemoCatalog } from "./catalog";
+import type { CartItem } from "@/lib/domain/types";
 
 export function VisualDemo() {
-  const [data] = useState(createDemoCatalog);
+  const { data: state, ready, warning, update } = useDemoData();
+  const data = demoCatalog(state);
+  const [token, setToken] = useState<string | null>(null);
+  const [confirmation, setConfirmation] = useState("");
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [trackingOpen, setTrackingOpen] = useState(false);
+  const [fulfillment, setFulfillment] = useState<"Entrega" | "Retirada">("Retirada");
+  const [zoneId, setZoneId] = useState("");
+  const stale = itemsChanged();
+  function itemsChanged() {
+    return token !== null && token !== catalogToken(state);
+  }
   const [items, setItems] = useState<CartItem[]>([]);
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<string | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   return (
-    <div className="ppp-customer-shell ppp-forno-theme ppp-visual-demo">
+    <div className="ppp-customer-shell ppp-forno-theme ppp-visual-demo" style={demoStyle(state)}>
       <div className="visual-demo-notice" role="note">
         DEMONSTRAÇÃO — Nenhum pedido será enviado. Utilize apenas dados fictícios.
       </div>
       <StorefrontHeader
-        organizationName="Forno di Pietra"
-        logoUrl={null}
+        organizationName={state.store.name}
+        logoUrl={state.store.logo || null}
         itemCount={items.reduce((n, item) => n + item.quantity, 0)}
-        selectedTrackedOrdersCount={0}
+        selectedTrackedOrdersCount={
+          state.orders.filter((o) => o.name === "Visitante fictício").length
+        }
         onOpenCart={() => setCartOpen(true)}
-        onOpenTracking={() => {}}
+        onOpenTracking={() => setTrackingOpen(true)}
         isFornoTheme
       />
       <StorefrontHero
-        organizationName="Forno di Pietra"
+        organizationName={state.store.name}
         settings={data.settings}
         products={data.products}
-        statusLabel="Horário fictício: 18h às 23h"
+        statusLabel={state.store.open ? "Aberta · simulação local" : "Fechada · simulação local"}
         isFornoTheme
       />
+      {warning && (
+        <p role="status" className="visual-demo-menu">
+          {warning}
+        </p>
+      )}
+      {confirmation && (
+        <p role="status" className="visual-demo-menu">
+          {confirmation}
+        </p>
+      )}
       <main id="cardapio" className="visual-demo-menu">
+        {state.store.logo && (
+          <img
+            className="demo-store-logo"
+            src={state.store.logo}
+            alt={`Logo demonstrativo de ${state.store.name}`}
+          />
+        )}
         <h2>Cardápio de demonstração</h2>
         <p>Preços fictícios. Personalize sua pizza e experimente o carrinho local.</p>
-        {data.categories.map((category) => (
-          <section key={category.id} aria-label={category.name}>
-            <h3>{category.name}</h3>
-            <div className="grid gap-5 sm:grid-cols-2">
-              {data.products
-                .filter((item) => item.category_id === category.id)
-                .map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className="ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft"
-                    onClick={() => setProduct(item)}
-                    aria-label={`Personalizar ${item.name}`}
-                  >
-                    <div
-                      data-without-image
-                      className="ppp-product-card-image relative aspect-[1.32] overflow-hidden bg-card"
+        {data.categories
+          .filter((c) => c.active)
+          .sort((a, b) => a.sort_order - b.sort_order)
+          .map((category) => (
+            <section key={category.id} aria-label={category.name}>
+              <h3>{category.name}</h3>
+              <div className="grid gap-5 sm:grid-cols-2">
+                {data.products
+                  .filter(
+                    (item) =>
+                      item.category_id === category.id &&
+                      state.products.some((p) => p.id === item.id && isAvailable(state, p)),
+                  )
+                  .sort((a, b) => a.sort_order - b.sort_order)
+                  .map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className="ppp-product-card group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft"
+                      disabled={!ready || !state.store.open}
+                      onClick={() => setProduct(item.id)}
+                      aria-label={`Personalizar ${item.name}`}
                     >
-                      <div className="forno-product-placeholder">
-                        <Pizza aria-hidden="true" strokeWidth={1.2} />
+                      <div
+                        data-without-image={!item.image_url || undefined}
+                        className="ppp-product-card-image relative aspect-[1.32] overflow-hidden bg-card"
+                      >
+                        {item.image_url ? (
+                          <img src={item.image_url} alt="" className="size-full object-cover" />
+                        ) : (
+                          <div className="forno-product-placeholder">
+                            <Pizza aria-hidden="true" strokeWidth={1.2} />
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <div className="forno-product-content p-4 sm:p-5">
-                      <h3 className="mb-2 font-display">{item.name}</h3>
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0 pr-1">
-                          <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
-                            {category.name}
-                          </p>
-                          <p className="mt-2 text-sm leading-5 text-muted-foreground">
-                            {item.description}
-                          </p>
+                      <div className="forno-product-content p-4 sm:p-5">
+                        <h3 className="mb-2 font-display">{item.name}</h3>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 pr-1">
+                            <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+                              {category.name}
+                            </p>
+                            <p className="mt-2 text-sm leading-5 text-muted-foreground">
+                              {item.description}
+                            </p>
+                          </div>
+                          <span className="forno-product-price shrink-0 rounded-lg bg-primary/10 px-3 py-2 font-display text-sm font-semibold text-accent">
+                            {formatCurrency(
+                              minimumPrice(
+                                state,
+                                state.products.find((p) => p.id === item.id)!,
+                              ),
+                            )}
+                          </span>
                         </div>
-                        <span className="forno-product-price shrink-0 rounded-lg bg-primary/10 px-3 py-2 font-display text-sm font-semibold text-accent">
-                          {formatCurrency(item.base_price)}
-                        </span>
+                        <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-[.08em]">
+                          <span>Personalizar</span>
+                          <Plus aria-hidden="true" size={20} />
+                        </div>
                       </div>
-                      <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-[.08em]">
-                        <span>Personalizar</span>
-                        <Plus aria-hidden="true" size={20} />
-                      </div>
-                    </div>
-                  </button>
-                ))}
-            </div>
-          </section>
-        ))}
+                    </button>
+                  ))}
+              </div>
+            </section>
+          ))}
       </main>
       <footer id="contato" className="visual-demo-menu">
         <h2 id="sobre">Uma casa fictícia, uma experiência real de navegação.</h2>
         <p>
-          Sem entrega, cobrança ou dados de estabelecimentos reais. O carrinho é apagado ao
-          recarregar esta página.
+          Sem cobrança ou dados reais. Configurações são salvas somente neste navegador. O carrinho
+          é local à aba e apagado ao recarregar.
         </p>
+        <p>{state.store.contact}</p>
+        <p>{state.store.address}</p>
+        <ul>
+          {state.store.hours.map((h) => (
+            <li key={h.weekday}>
+              {["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][h.weekday]}:{" "}
+              {h.closed ? "Fechado" : `${h.opens}–${h.closes}`} · fictício
+            </li>
+          ))}
+        </ul>
+        <ul>
+          {state.zones.map((z) => (
+            <li key={z.id}>
+              {z.name}: {formatCurrency(z.fee)}
+            </li>
+          ))}
+        </ul>
       </footer>
       {product && (
-        <ProductConfigurator
-          product={product}
-          data={data}
+        <DemoConfigurator
+          productId={product}
+          state={state}
           onClose={() => setProduct(null)}
-          onAdded={(added) => {
-            setItems((current) => [...current, ...added]);
+          onAdd={(selection, quantity, notes) => {
+            if (!state.store.open) throw Error("Loja fechada.");
+            if (stale && items.length)
+              throw Error("O catálogo mudou. Limpe o carrinho antes de adicionar.");
+            const added = makeCartItem(state, product, selection, quantity, notes);
+            setItems((current) => [...current, added]);
+            setToken(catalogToken(state));
             setProduct(null);
           }}
         />
@@ -117,15 +196,148 @@ export function VisualDemo() {
             )
           }
           onRemove={(id) => setItems((current) => current.filter((item) => item.lineId !== id))}
-          onClear={() => setItems([])}
-          storeOpen={false}
-          storeStatusLabel="Demonstração — checkout indisponível"
+          onClear={() => {
+            setItems([]);
+            setToken(null);
+          }}
+          storeOpen={
+            ready && state.store.open && (state.store.pickup || state.store.delivery) && !stale
+          }
+          storeStatusLabel={
+            stale ? "Catálogo alterado — limpe e refaça o carrinho" : "Demonstração — loja fechada"
+          }
           minOrderAmount={0}
-          pickupEnabled={false}
-          deliveryEnabled={false}
-          onCheckout={() => {}}
+          pickupEnabled={state.store.pickup}
+          deliveryEnabled={state.store.delivery}
+          onCheckout={() => {
+            setCartOpen(false);
+            setFulfillment(state.store.pickup ? "Retirada" : "Entrega");
+            setCheckoutOpen(true);
+          }}
         />
       )}
+      {stale && items.length > 0 && (
+        <p role="status" className="visual-demo-menu">
+          O catálogo mudou. Os preços originais dos itens foram preservados. Limpe o carrinho e
+          personalize novamente.
+        </p>
+      )}
+      {trackingOpen && (
+        <DemoCheckout label="Acompanhamento fictício" onClose={() => setTrackingOpen(false)}>
+          <h2>Acompanhamento fictício</h2>
+          {state.orders
+            .filter((o) => o.name === "Visitante fictício")
+            .map((o) => (
+              <article key={o.id}>
+                <h3>Pedido #{o.id}</h3>
+                <p>
+                  {o.status} · {o.fulfillment} ·{" "}
+                  {formatCurrency(o.items.reduce((n, i) => n + i.price * i.quantity, o.fee))}
+                </p>
+                <p>
+                  Pagamento pendente, sem cobrança. Status controlado pelo painel demonstrativo.
+                </p>
+              </article>
+            ))}
+          {!state.orders.some((o) => o.name === "Visitante fictício") && (
+            <p>Nenhum pedido fictício criado neste navegador.</p>
+          )}
+          <button onClick={() => setTrackingOpen(false)}>Fechar acompanhamento</button>
+        </DemoCheckout>
+      )}
+      {checkoutOpen && (
+        <DemoCheckout onClose={() => setCheckoutOpen(false)}>
+          <h2>Confirmar pedido fictício</h2>
+          <p>Sem pagamento, PIX ou envio ao estabelecimento.</p>
+          <label>
+            Modalidade
+            <select
+              aria-label="Modalidade"
+              value={fulfillment}
+              onChange={(e) => setFulfillment(e.target.value as "Entrega" | "Retirada")}
+            >
+              <option value="Retirada" disabled={!state.store.pickup}>
+                Retirada
+              </option>
+              <option value="Entrega" disabled={!state.store.delivery}>
+                Entrega
+              </option>
+            </select>
+          </label>
+          {fulfillment === "Entrega" && (
+            <label>
+              Bairro
+              <select
+                aria-label="Bairro"
+                value={zoneId}
+                onChange={(e) => setZoneId(e.target.value)}
+              >
+                <option value="">Selecione</option>
+                {state.zones.map((z) => (
+                  <option key={z.id} value={z.id}>
+                    {z.name} · {formatCurrency(z.fee)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <p>
+            Total fictício:{" "}
+            {formatCurrency(
+              calculateCartSubtotal(items) +
+                (fulfillment === "Entrega"
+                  ? (state.zones.find((z) => z.id === zoneId)?.fee ?? 0)
+                  : 0),
+            )}
+          </p>
+          <button
+            disabled={!ready || stale || !state.store.open || !items.length}
+            onClick={() => {
+              try {
+                const next = update((s) =>
+                  submitDemoOrder(s, items, token ?? "", fulfillment, zoneId || null),
+                );
+                setConfirmation(
+                  `Pedido #${next.orders[0]!.id} simulado — nenhum pedido foi enviado. Veja o acompanhamento no painel demonstrativo.`,
+                );
+                setItems([]);
+                setToken(null);
+                setCheckoutOpen(false);
+              } catch (e) {
+                setConfirmation(e instanceof Error ? e.message : "Revise o pedido fictício.");
+              }
+            }}
+          >
+            Confirmar somente na demonstração
+          </button>
+          <button onClick={() => setCheckoutOpen(false)}>Cancelar</button>
+        </DemoCheckout>
+      )}
+    </div>
+  );
+}
+
+function DemoCheckout({
+  children,
+  onClose,
+  label = "Checkout simulado",
+}: {
+  children: React.ReactNode;
+  onClose: () => void;
+  label?: string;
+}) {
+  const ref = useCustomerDialog(onClose);
+  return (
+    <div
+      className="demo-checkout"
+      ref={ref}
+      data-customer-dialog
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-label={label}
+    >
+      <div>{children}</div>
     </div>
   );
 }

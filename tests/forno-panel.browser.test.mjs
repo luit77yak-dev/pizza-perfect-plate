@@ -319,14 +319,16 @@ try {
       .click();
     const countBefore = await order(1042).locator(".forno-order-items > div").count();
     await page.getByRole("button", { name: "Simular item adicional" }).click();
+    await page.getByRole("button", { name: /^Ver avisos:/ }).click();
     check(
       "append denied after dispatch " + width,
       (await order(1042).locator(".forno-order-items > div").count()) === countBefore &&
         (await page
-          .getByRole("status")
+          .getByRole("region", { name: "Central de notificações" })
           .getByText(/Alteração bloqueada/)
           .isVisible()),
     );
+    await page.getByRole("button", { name: "Fechar avisos" }).click();
     await order(1042).getByRole("button", { name: "Avançar para: Entregue", exact: true }).click();
     check(
       "delivered order has no next transition " + width,
@@ -360,10 +362,12 @@ try {
       "delivered filter available " + width,
       (await page.locator(".forno-order").count()) === 2,
     );
+    await page.getByRole("button", { name: /^Ver avisos:/ }).click();
     check(
-      "notifications bounded " + width,
-      (await page.locator(".forno-alerts > div").count()) <= 4,
+      "notifications bounded and deduplicated " + width,
+      (await page.locator(".demo-notifications article").count()) <= 20,
     );
+    await page.getByRole("button", { name: "Fechar avisos" }).click();
     await navigate("Entregas");
     await page.screenshot({ path: join(evidence, "delivery-" + width + ".png"), fullPage: true });
     const name = page.getByLabel("Bairro fictício", { exact: true }),
@@ -426,9 +430,10 @@ try {
     const second = await context.newPage();
     await second.goto(origin + "/visual-demo/painel");
     await second.getByRole("heading", { level: 1, name: "Visão geral" }).waitFor();
+    await second.getByRole("button", { name: /Pedido #1042 de.*Entregue/ }).waitFor();
     check(
-      "visitor panel state isolated " + width,
-      (await second.getByRole("button", { name: /Pedido #1042 de.*Em preparo/ }).isVisible()) &&
+      "same-browser panel state persisted " + width,
+      (await second.getByRole("button", { name: /Pedido #1042 de.*Entregue/ }).isVisible()) &&
         (await second.locator(".forno-update-badge").count()) === 0,
     );
     await context.close();

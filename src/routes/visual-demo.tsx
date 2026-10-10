@@ -1,3 +1,4 @@
+import "@/features/visual-demo/demo-v2.css";
 import "@/features/visual-demo/visual-demo.css";
 import { createFileRoute, notFound, Outlet } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
