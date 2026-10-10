@@ -1,0 +1,445 @@
+/* Reference presentation only: engine contracts contain no brand selectors. */
+.ppp-customer-shell.ppp-visual-demo .forno-purchase {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 65%);
+  color: var(--forno-cream);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-surface {
+  width: min(100%, 720px);
+  height: min(900px, 94dvh);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--forno-surface);
+  border: 1px solid var(--forno-border);
+  border-radius: 24px;
+  box-shadow: 0 30px 90px rgb(0 0 0 / 40%);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-header {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  flex: none;
+  border-bottom: 1px solid var(--forno-border);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-header h2 {
+  font-size: clamp(20px, 4.8vw, 28px);
+  line-height: 1.15;
+  margin: 4px 0 0;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-header small {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--forno-gold);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase button {
+  min-height: 44px;
+  cursor: pointer;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-header button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--forno-border);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-demo {
+  flex: none;
+  font-size: 11px;
+  padding: 8px 20px;
+  background: var(--forno-deep);
+  line-height: 1.4;
+  color: var(--forno-gold);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-steps {
+  list-style: none;
+  padding: 12px 20px;
+  margin: 0;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--forno-border);
+  flex: none;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-steps li {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--forno-cream);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-steps li > span {
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  border: 1px solid var(--forno-border);
+  border-radius: 50%;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-steps [aria-current] > span {
+  background: var(--forno-gold);
+  color: var(--forno-deep);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-intro {
+  margin: 0 0 18px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase h3 {
+  font-size: 17px;
+  margin: 0 0 6px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-items li {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 10px;
+  border-bottom: 1px solid var(--forno-border);
+  padding: 16px 0;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-items li > strong {
+  grid-column: 2;
+  color: var(--forno-gold);
+  font-size: 18px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-items img,
+.ppp-customer-shell.ppp-visual-demo .forno-item-placeholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--forno-deep);
+  display: grid;
+  place-items: center;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-items p {
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-items small {
+  font-size: 12px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-item-actions {
+  display: flex;
+  gap: 12px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-item-actions button,
+.ppp-customer-shell.ppp-visual-demo .forno-link-action {
+  color: var(--forno-gold);
+  text-decoration: underline;
+  font-size: 13px;
+  padding: 6px 0;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-amounts {
+  margin: 20px 0 0;
+  display: grid;
+  gap: 10px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-amounts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-amounts dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-amounts > div:last-child {
+  border-top: 1px solid var(--forno-border);
+  padding-top: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--forno-gold);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-service-choice {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-service-choice button {
+  display: grid;
+  gap: 5px;
+  text-align: left;
+  padding: 14px;
+  border: 1px solid var(--forno-border);
+  border-radius: 14px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-service-choice [aria-pressed="true"] {
+  border-color: var(--forno-gold);
+  background: var(--forno-deep);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-service-choice small {
+  font-size: 11px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-privacy-note {
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 12px 0;
+  margin: 6px 0;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-service-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-service-fields label {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-wide {
+  grid-column: 1/-1;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-service-fields input,
+.ppp-customer-shell.ppp-visual-demo .forno-service-fields select {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid var(--forno-border);
+  background: var(--forno-deep);
+  color: var(--forno-cream);
+  border-radius: 10px;
+  font-size: 16px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-service-fields [aria-invalid="true"] {
+  border-color: var(--forno-gold);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-pickup-info,
+.ppp-customer-shell.ppp-visual-demo .forno-confirmation-profile {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--forno-border);
+  border-radius: 14px;
+  background: var(--forno-deep);
+  line-height: 1.6;
+  font-size: 13px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-pickup-info svg,
+.ppp-customer-shell.ppp-visual-demo .forno-confirmation-profile svg {
+  flex: none;
+  color: var(--forno-gold);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-pickup-info p,
+.ppp-customer-shell.ppp-visual-demo .forno-confirmation-profile p {
+  margin: 5px 0;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-footer {
+  flex: none;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid var(--forno-border);
+  padding: 14px 20px max(14px, env(safe-area-inset-bottom));
+  background: var(--forno-deep);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-footer > div {
+  grid-column: 1/-1;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-footer strong {
+  color: var(--forno-gold);
+  font-size: 23px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-footer small {
+  font-size: 12px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-primary {
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--forno-gold);
+  color: var(--forno-deep);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-footer > .forno-purchase-primary:only-child {
+  grid-column: 1/-1;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-back {
+  padding: 8px 12px;
+  border: 1px solid var(--forno-border);
+  border-radius: 12px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-purchase-footer > div + .forno-purchase-primary {
+  grid-column: 1/-1;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-checkout-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 12px;
+  border: 1px solid var(--forno-gold);
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-tracking-picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-tracking-picker button {
+  border: 1px solid var(--forno-border);
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-tracking-picker [aria-pressed="true"] {
+  border-color: var(--forno-gold);
+  color: var(--forno-gold);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-tracking-status {
+  padding: 16px 0;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-tracking-status h3 {
+  font-size: 27px;
+  color: var(--forno-gold);
+  margin: 8px 0;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-tracking-status p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-order-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 24px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-order-timeline li {
+  display: flex;
+  gap: 14px;
+  position: relative;
+  min-height: 68px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-order-timeline li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 36px;
+  left: 17px;
+  width: 1px;
+  height: 32px;
+  background: var(--forno-border);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-timeline-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--forno-border);
+  border-radius: 50%;
+  flex: none;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-order-timeline strong {
+  font-size: 14px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-order-timeline small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-order-timeline .is-current .forno-timeline-icon {
+  background: var(--forno-gold);
+  color: var(--forno-deep);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-order-timeline .is-complete {
+  color: var(--forno-gold);
+}
+.ppp-customer-shell.ppp-visual-demo .forno-tracking-empty {
+  text-align: center;
+  padding: 32px 0;
+}
+.ppp-customer-shell.ppp-visual-demo .forno-tracking-empty svg {
+  margin: 0 auto 16px;
+  color: var(--forno-gold);
+}
+.forno-panel .forno-audio-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.forno-panel .forno-audio-control p {
+  font-size: 12px;
+  flex: 1;
+  min-width: 140px;
+  margin: 0;
+}
+.forno-panel .status-cancelled {
+  color: var(--fp-gold);
+  border: 1px solid var(--fp-border);
+}
+@media (max-width: 600px) {
+  .ppp-customer-shell.ppp-visual-demo .forno-purchase {
+    padding: 0;
+  }
+  .ppp-customer-shell.ppp-visual-demo .forno-purchase-surface {
+    width: 100%;
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+  .ppp-customer-shell.ppp-visual-demo .forno-purchase-header {
+    padding: 12px;
+  }
+  .ppp-customer-shell.ppp-visual-demo .forno-purchase-body {
+    padding: 16px;
+  }
+  .ppp-customer-shell.ppp-visual-demo .forno-checkout-steps {
+    padding: 10px 16px;
+  }
+  .ppp-customer-shell.ppp-visual-demo .forno-purchase-footer {
+    padding: 12px 16px max(12px, env(safe-area-inset-bottom));
+  }
+  .ppp-customer-shell.ppp-visual-demo .forno-purchase-demo {
+    padding: 6px 16px;
+    font-size: 10px;
+  }
+  .ppp-customer-shell.ppp-visual-demo .forno-service-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ppp-customer-shell.ppp-visual-demo .demo-configurator [data-order-surface] {
+    max-height: calc(100dvh - 16px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ppp-customer-shell.ppp-visual-demo .forno-purchase * {
+    scroll-behavior: auto;
+  }
+}
+
+/* Configurator carries its own demo label and must clear the fixed storefront notice. */
+@layer forno {
+  .ppp-customer-shell.ppp-forno-theme.ppp-visual-demo .demo-configurator {
+    z-index: 220 !important;
+  }
+}

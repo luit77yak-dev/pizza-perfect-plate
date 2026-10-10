@@ -1,0 +1,47 @@
+.ppp-customer-shell.ppp-visual-demo {
+  padding-top: 78px;
+}
+.ppp-customer-shell.ppp-visual-demo .visual-demo-notice {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 200;
+  padding: 12px 16px;
+  min-height: 64px;
+  background: #fff1d1;
+  color: #382718;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 600;
+  text-align: center;
+}
+.ppp-customer-shell.ppp-visual-demo .ppp-reference-header {
+  top: 78px;
+}
+.ppp-customer-shell.ppp-visual-demo .visual-demo-menu {
+  max-width: 1000px;
+  margin: auto;
+  padding: 28px 20px;
+}
+.ppp-customer-shell.ppp-visual-demo .visual-demo-menu h2 {
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+.ppp-customer-shell.ppp-visual-demo .visual-demo-menu > section > h3 {
+  font-size: 24px;
+  margin: 28px 0 16px;
+}
+.ppp-customer-shell.ppp-visual-demo #cardapio {
+  scroll-margin-top: 90px;
+}
+
+.ppp-customer-shell.ppp-visual-demo .ppp-cart-panel [data-order-surface] {
+  top: 78px;
+}
+.ppp-customer-shell.ppp-visual-demo .ppp-order-builder [data-order-surface] {
+  max-height: calc(100dvh - 90px);
+}
+@layer forno {
+  .ppp-customer-shell.ppp-forno-theme.ppp-visual-demo .ppp-reference-header {
+    top: 78px !important;
+  }
+}

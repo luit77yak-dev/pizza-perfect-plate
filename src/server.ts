@@ -1,4 +1,5 @@
 import "./lib/error-capture";
+import { isVisualDemoAllowed } from "./features/visual-demo/access";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
@@ -46,6 +47,16 @@ function isH3SwallowedErrorBody(body: string): boolean {
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const pathname = new URL(request.url).pathname.replace(/\/+$/, "");
+    if (
+      (pathname === "/visual-demo" || pathname.startsWith("/visual-demo/")) &&
+      !isVisualDemoAllowed(process.env)
+    ) {
+      return new Response("Not found", {
+        status: 404,
+        headers: { "cache-control": "private, no-store" },
+      });
+    }
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

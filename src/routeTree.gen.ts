@@ -16,8 +16,11 @@ import { Route as MasterClientesRouteImport } from './routes/master-clientes'
 import { Route as MasterComercialRouteImport } from './routes/master-comercial'
 import { Route as MasterFinanceiroRouteImport } from './routes/master-financeiro'
 import { Route as PainelRouteImport } from './routes/painel'
+import { Route as VisualDemoRouteImport } from './routes/visual-demo'
 import { Route as AdminPedidosRouteImport } from './routes/admin/pedidos'
 import { Route as LojaSlugRouteImport } from './routes/loja/$slug'
+import { Route as VisualDemoIndexRouteImport } from './routes/visual-demo/index'
+import { Route as VisualDemoPainelRouteImport } from './routes/visual-demo/painel'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -54,6 +57,11 @@ const PainelRoute = PainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VisualDemoRoute = VisualDemoRouteImport.update({
+  id: '/visual-demo',
+  path: '/visual-demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminPedidosRoute = AdminPedidosRouteImport.update({
   id: '/admin/pedidos',
   path: '/admin/pedidos',
@@ -64,6 +72,16 @@ const LojaSlugRoute = LojaSlugRouteImport.update({
   path: '/loja/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VisualDemoIndexRoute = VisualDemoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => VisualDemoRoute,
+} as any)
+const VisualDemoPainelRoute = VisualDemoPainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
+  getParentRoute: () => VisualDemoRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,8 +91,11 @@ export interface FileRoutesByFullPath {
   '/master-comercial': typeof MasterComercialRoute
   '/master-financeiro': typeof MasterFinanceiroRoute
   '/painel': typeof PainelRoute
+  '/visual-demo': typeof VisualDemoRouteWithChildren
   '/admin/pedidos': typeof AdminPedidosRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/visual-demo/painel': typeof VisualDemoPainelRoute
+  '/visual-demo/': typeof VisualDemoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +107,8 @@ export interface FileRoutesByTo {
   '/painel': typeof PainelRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/visual-demo/painel': typeof VisualDemoPainelRoute
+  '/visual-demo': typeof VisualDemoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -96,8 +119,11 @@ export interface FileRoutesById {
   '/master-comercial': typeof MasterComercialRoute
   '/master-financeiro': typeof MasterFinanceiroRoute
   '/painel': typeof PainelRoute
+  '/visual-demo': typeof VisualDemoRouteWithChildren
   '/admin/pedidos': typeof AdminPedidosRoute
   '/loja/$slug': typeof LojaSlugRoute
+  '/visual-demo/painel': typeof VisualDemoPainelRoute
+  '/visual-demo/': typeof VisualDemoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -109,8 +135,11 @@ export interface FileRouteTypes {
     | '/master-comercial'
     | '/master-financeiro'
     | '/painel'
+    | '/visual-demo'
     | '/admin/pedidos'
     | '/loja/$slug'
+    | '/visual-demo/painel'
+    | '/visual-demo/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +151,8 @@ export interface FileRouteTypes {
     | '/painel'
     | '/admin/pedidos'
     | '/loja/$slug'
+    | '/visual-demo/painel'
+    | '/visual-demo'
   id:
     | '__root__'
     | '/'
@@ -131,8 +162,11 @@ export interface FileRouteTypes {
     | '/master-comercial'
     | '/master-financeiro'
     | '/painel'
+    | '/visual-demo'
     | '/admin/pedidos'
     | '/loja/$slug'
+    | '/visual-demo/painel'
+    | '/visual-demo/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -143,6 +177,7 @@ export interface RootRouteChildren {
   MasterComercialRoute: typeof MasterComercialRoute
   MasterFinanceiroRoute: typeof MasterFinanceiroRoute
   PainelRoute: typeof PainelRoute
+  VisualDemoRoute: typeof VisualDemoRouteWithChildren
   AdminPedidosRoute: typeof AdminPedidosRoute
   LojaSlugRoute: typeof LojaSlugRoute
 }
@@ -198,6 +233,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PainelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/visual-demo': {
+      id: '/visual-demo'
+      path: '/visual-demo'
+      fullPath: '/visual-demo'
+      preLoaderRoute: typeof VisualDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/pedidos': {
       id: '/admin/pedidos'
       path: '/admin/pedidos'
@@ -212,8 +254,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/visual-demo/': {
+      id: '/visual-demo/'
+      path: '/'
+      fullPath: '/visual-demo/'
+      preLoaderRoute: typeof VisualDemoIndexRouteImport
+      parentRoute: typeof VisualDemoRoute
+    }
+    '/visual-demo/painel': {
+      id: '/visual-demo/painel'
+      path: '/painel'
+      fullPath: '/visual-demo/painel'
+      preLoaderRoute: typeof VisualDemoPainelRouteImport
+      parentRoute: typeof VisualDemoRoute
+    }
   }
 }
+
+interface VisualDemoRouteChildren {
+  VisualDemoPainelRoute: typeof VisualDemoPainelRoute
+  VisualDemoIndexRoute: typeof VisualDemoIndexRoute
+}
+
+const VisualDemoRouteChildren: VisualDemoRouteChildren = {
+  VisualDemoPainelRoute: VisualDemoPainelRoute,
+  VisualDemoIndexRoute: VisualDemoIndexRoute,
+}
+
+const VisualDemoRouteWithChildren = VisualDemoRoute._addFileChildren(
+  VisualDemoRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -223,6 +293,7 @@ const rootRouteChildren: RootRouteChildren = {
   MasterComercialRoute: MasterComercialRoute,
   MasterFinanceiroRoute: MasterFinanceiroRoute,
   PainelRoute: PainelRoute,
+  VisualDemoRoute: VisualDemoRouteWithChildren,
   AdminPedidosRoute: AdminPedidosRoute,
   LojaSlugRoute: LojaSlugRoute,
 }
