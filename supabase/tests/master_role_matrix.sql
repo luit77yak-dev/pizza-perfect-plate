@@ -43,4 +43,4 @@ do $test$ declare v_role text; v_id uuid; v_expected boolean; v_actual boolean; 
 end $test$;
 reset role;
 
--- The executable DML matrix is in master_role_dml_matrix.sql; CI inclusion pending.
+\i supabase/tests/master_role_dml_matrix.sql
