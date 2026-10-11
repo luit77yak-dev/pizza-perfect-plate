@@ -39,7 +39,9 @@ do $test$ begin
 end $test$;
 select set_config('request.jwt.claim.sub','cccccccc-cccc-4ccc-8ccc-cccccccccccc',false);
 do $test$ begin
- if (select count(*) from public.neroxa_storefront_products) <> 2 then raise exception 'platform admin denied: visible_rows=%, role=%', (select count(*) from public.neroxa_storefront_products), current_user; end if;
+ if not exists (select 1 from public.neroxa_storefront_products where id='55555555-5555-4555-8555-555555555555')
+ or not exists (select 1 from public.neroxa_storefront_products where id='66666666-6666-4666-8666-666666666666')
+ then raise exception 'platform admin cannot read both fixture tenants'; end if;
 end $test$;
 reset role;
 do $test$ begin
