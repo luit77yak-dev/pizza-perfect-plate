@@ -27,7 +27,9 @@ declare
 begin
  if v_domain = '' then raise exception 'Domínio da loja obrigatório'; end if;
  if coalesce(length(p_order->>'amendment_token'),0) <> 64
-    or (p_order->>'amendment_token') !~ '^[0-9a-f]{64}
+    or (p_order->>'amendment_token') !~ '^[0-9a-f]{64}' then
+   raise exception 'Credencial de alteração inválida';
+ end if;
 
  -- Resolve tenant from a verified, active domain; never trust the browser's tenant ID.
  select ctx.organization_id, ctx.instance_id
