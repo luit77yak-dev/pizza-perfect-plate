@@ -20,8 +20,8 @@ begin
   insert into public.neroxa_systems(id,slug,name,system_type) values (sys,'fixture-delivery','Fixture','DELIVERY');
   insert into public.neroxa_system_instances(id,organization_id,system_id,name,slug,system_type)
   values (inst_a,org_a,sys,'A','a','DELIVERY'),(inst_b,org_b,sys,'B','b','DELIVERY');
-  insert into public.neroxa_storefront_products(id,instance_id,organization_id,name,price,active)
-  values (prod_a,inst_a,org_a,'Pizza A',10,true),(prod_b,inst_b,org_b,'Pizza B',20,true);
+  insert into public.neroxa_storefront_products(id,instance_id,name,slug,price,active)
+  values (prod_a,inst_a,'Pizza A','pizza-a',10,true),(prod_b,inst_b,'Pizza B','pizza-b',20,true);
   insert into public.neroxa_orders(id,instance_id,organization_id,order_number,customer_name,customer_phone,fulfillment,payment_method,status)
   values (order_a,inst_a,org_a,1,'Cliente A','62999990000','PICKUP','PIX','RECEIVED'),
          (order_b,inst_b,org_b,1,'Cliente B','62999990001','PICKUP','PIX','DELIVERED');
