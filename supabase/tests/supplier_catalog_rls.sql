@@ -2,7 +2,8 @@
 create or replace function auth.uid() returns uuid language sql stable as $fn$
  select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid;
 $fn$;
-insert into auth.users(id) values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
+insert into auth.users(id) values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'),('cccccccc-cccc-4ccc-8ccc-cccccccccccc');
+insert into public.neroxa_platform_members(user_id,active) values ('cccccccc-cccc-4ccc-8ccc-cccccccccccc',true);
 insert into public.neroxa_organizations(id,legal_name,active) values
  ('11111111-1111-4111-8111-111111111111','Org A',true),
  ('22222222-2222-4222-8222-222222222222','Org B',true);
@@ -31,6 +32,10 @@ do $test$ begin
   raise exception 'cross-tenant addon link accepted';
  exception when insufficient_privilege or check_violation then null;
  end;
+end $test$;
+select set_config('request.jwt.claim.sub','cccccccc-cccc-4ccc-8ccc-cccccccccccc',false);
+do $test$ begin
+ if (select count(*) from public.neroxa_storefront_products) <> 2 then raise exception 'platform admin denied'; end if;
 end $test$;
 reset role;
 do $test$ begin
