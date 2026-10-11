@@ -46,8 +46,10 @@ begin
   end;
 
   begin
+    insert into public.neroxa_order_addition_requests(order_id,instance_id,items)
+      values (order_id,inst_id,'[{"quantity":1}]'::jsonb) returning id into request_id;
     insert into public.neroxa_order_addition_charges(request_id,order_id,amount)
-      values(gen_random_uuid(),order_id,-1);
+      values(request_id,order_id,-1);
     raise exception 'FAIL: negative charge';
   exception when check_violation then null;
        when foreign_key_violation then
