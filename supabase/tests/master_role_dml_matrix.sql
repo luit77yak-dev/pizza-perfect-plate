@@ -37,3 +37,27 @@ begin
  if v_changed<>0 then raise exception 'CROSS_ORG_PRODUCT_UPDATE_ALLOWED'; end if;
 end $test$;
 reset role;
+
+-- Same-organization isolation: an organization role alone must not silently
+-- authorize every store. This is a release-gate test, not a statement that
+-- the current Master schema already supports per-instance grants.
+reset role;
+insert into public.neroxa_system_instances(id,organization_id,name,slug,system_type,status)
+values ('99999999-9999-4999-8999-999999999999',
+'11111111-1111-4111-8111-111111111111','Second store','second-store','delivery','ACTIVE');
+insert into public.neroxa_storefront_products(id,instance_id,name,slug)
+values ('aaaaaaaa-9999-4999-8999-999999999999',
+'99999999-9999-4999-8999-999999999999','Second store product','second-store-product');
+set role authenticated;
+select set_config('request.jwt.claim.sub','b0000000-0000-4000-8000-000000000001',false);
+do $isolation$
+declare v_count integer;
+begin
+ update public.neroxa_storefront_products set name=name
+ where id='aaaaaaaa-9999-4999-8999-999999999999';
+ get diagnostics v_count = row_count;
+ if v_count<>0 then
+  raise exception 'SAME_ORG_CROSS_INSTANCE_WRITE: OWNER modified second store without instance grant';
+ end if;
+end $isolation$;
+reset role;
