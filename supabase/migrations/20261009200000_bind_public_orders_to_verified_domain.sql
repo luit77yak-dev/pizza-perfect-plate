@@ -26,6 +26,10 @@ declare
  v_neighborhood text;
 begin
  if v_domain = '' then raise exception 'Domínio da loja obrigatório'; end if;
+ if coalesce(length(p_order->>'amendment_token'),0) <> 64
+    or (p_order->>'amendment_token') !~ '^[0-9a-f]{64}' then
+   raise exception 'Credencial de alteração inválida';
+ end if;
 
  -- Resolve tenant from a verified, active domain; never trust the browser's tenant ID.
  select ctx.organization_id, ctx.instance_id
@@ -115,6 +119,9 @@ begin
    nullif(trim(p_order->>'notes'),''),
    nullif(p_order->>'idempotency_key','')::uuid
  ) returning id into v_order_id;
+
+ insert into public.neroxa_order_amendment_credentials(order_id,token_hash,expires_at)
+ values(v_order_id, sha256(convert_to(p_order->>'amendment_token','UTF8')), now() + interval '24 hours');
 
  for v_item in select * from jsonb_array_elements(p_order->'items') loop
    v_qty := greatest(1, least(99, coalesce((v_item->>'quantity')::integer,1)));

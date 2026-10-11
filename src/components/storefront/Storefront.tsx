@@ -432,7 +432,7 @@ export function Storefront() {
           products={mainProducts}
           theme={storefrontTheme}
           statusLabel={status.label}
-          content={data.visualConfig.overrides?.content}
+          {...(data.visualConfig.overrides?.content ? { content: data.visualConfig.overrides.content } : {})}
         />
 
         {!isPizzaTheme && !isBurgerTheme && <ProductTicker products={mainProducts} />}
@@ -453,9 +453,9 @@ export function Storefront() {
           imageFallbacks={{}}
         />
 
-        <StorefrontAbout theme={storefrontTheme} settings={data.settings} categories={data.categories} organizationName={data.organization.name} content={data.visualConfig.overrides?.content} />
+        <StorefrontAbout theme={storefrontTheme} settings={data.settings} categories={data.categories} organizationName={data.organization.name} {...(data.visualConfig.overrides?.content ? { content: data.visualConfig.overrides.content } : {})} />
 
-        <StorefrontFooter theme={storefrontTheme} settings={data.settings} organizationName={data.organization.name} content={data.visualConfig.overrides?.content} />
+        <StorefrontFooter theme={storefrontTheme} settings={data.settings} organizationName={data.organization.name} {...(data.visualConfig.overrides?.content ? { content: data.visualConfig.overrides.content } : {})} />
       </main>
       </div>
 

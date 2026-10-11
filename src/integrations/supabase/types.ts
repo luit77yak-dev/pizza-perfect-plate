@@ -14,6 +14,314 @@ export type Database = {
   }
   public: {
     Tables: {
+      // Staged storefront schema contract (20261011150000); review against Master before deploy.
+      neroxa_storefront_products: {
+        Row: {
+          id: string
+          instance_id: string
+          category_id: string | null
+          name: string
+          slug: string
+          description: string | null
+          image_url: string | null
+          price: number | null
+          active: boolean
+          sort_order: number
+          metadata: Json
+        }
+        Insert: {
+          id?: string
+          instance_id: string
+          category_id?: string | null
+          name: string
+          slug: string
+          description?: string | null
+          image_url?: string | null
+          price?: number | null
+          active?: boolean
+          sort_order?: number
+          metadata?: Json
+        }
+        Update: {
+          id?: string
+          instance_id?: string
+          category_id?: string | null
+          name?: string
+          slug?: string
+          description?: string | null
+          image_url?: string | null
+          price?: number | null
+          active?: boolean
+          sort_order?: number
+          metadata?: Json
+        }
+        Relationships: []
+      }
+      neroxa_storefront_categories: {
+        Row: {
+          id: string
+          instance_id: string
+          name: string
+          slug: string
+          description: string | null
+          active: boolean
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          instance_id: string
+          name: string
+          slug: string
+          description?: string | null
+          active?: boolean
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          instance_id?: string
+          name?: string
+          slug?: string
+          description?: string | null
+          active?: boolean
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      neroxa_storefront_addon_groups: {
+        Row: {
+          id: string
+          instance_id: string
+          name: string
+          required: boolean
+          min_selections: number
+          max_selections: number
+          active: boolean
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          instance_id: string
+          name: string
+          required?: boolean
+          min_selections?: number
+          max_selections?: number
+          active?: boolean
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          instance_id?: string
+          name?: string
+          required?: boolean
+          min_selections?: number
+          max_selections?: number
+          active?: boolean
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      neroxa_storefront_addons: {
+        Row: {
+          id: string
+          group_id: string
+          name: string
+          price_delta: number
+          active: boolean
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          group_id: string
+          name: string
+          price_delta?: number
+          active?: boolean
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          group_id?: string
+          name?: string
+          price_delta?: number
+          active?: boolean
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      neroxa_storefront_product_addon_groups: {
+        Row: {
+          product_id: string
+          group_id: string
+          sort_order: number
+        }
+        Insert: {
+          product_id: string
+          group_id: string
+          sort_order?: number
+        }
+        Update: {
+          product_id?: string
+          group_id?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      neroxa_storefront_delivery_zones: {
+        Row: {
+          id: string
+          organization_id: string
+          name: string
+          neighborhoods: string[]
+          minimum_order: number
+          delivery_fee: number
+          estimated_minutes: number | null
+          active: boolean
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          name: string
+          neighborhoods?: string[]
+          minimum_order?: number
+          delivery_fee?: number
+          estimated_minutes?: number | null
+          active?: boolean
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          name?: string
+          neighborhoods?: string[]
+          minimum_order?: number
+          delivery_fee?: number
+          estimated_minutes?: number | null
+          active?: boolean
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      neroxa_storefront_settings: {
+        Row: {
+          organization_id: string
+          half_pizza_pricing_rule: string
+          half_pizza_fixed_price: number | null
+          delivery_enabled: boolean
+          pickup_enabled: boolean
+          storefront_theme: string
+          visual_overrides: Json
+        }
+        Insert: {
+          organization_id: string
+          half_pizza_pricing_rule?: string
+          half_pizza_fixed_price?: number | null
+          delivery_enabled?: boolean
+          pickup_enabled?: boolean
+          storefront_theme?: string
+          visual_overrides?: Json
+        }
+        Update: {
+          organization_id?: string
+          half_pizza_pricing_rule?: string
+          half_pizza_fixed_price?: number | null
+          delivery_enabled?: boolean
+          pickup_enabled?: boolean
+          storefront_theme?: string
+          visual_overrides?: Json
+        }
+        Relationships: []
+      }
+      // Canonical Delivery Engine orders: 20261009195000_create_neroxa_order_storage.sql
+      neroxa_orders: {
+        Row: {
+          id: string
+          instance_id: string
+          organization_id: string
+          order_number: number
+          customer_name: string
+          customer_phone: string
+          fulfillment: "DELIVERY" | "PICKUP"
+          payment_method: "CASH" | "PIX" | "CARD_ON_DELIVERY" | "CARD_ON_SITE"
+          status: "RECEIVED" | "CONFIRMED" | "PREPARING" | "READY" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED"
+          subtotal: number
+          delivery_fee: number
+          total: number
+          address_street: string | null
+          address_number: string | null
+          address_neighborhood: string | null
+          address_complement: string | null
+          address_reference: string | null
+          notes: string | null
+          idempotency_key: string | null
+          created_at: string
+          updated_at: string
+          confirmed_at: string | null
+          preparing_at: string | null
+          ready_at: string | null
+          out_for_delivery_at: string | null
+          delivered_at: string | null
+          cancelled_at: string | null
+        }
+        Insert: {
+          id?: string
+          instance_id: string
+          organization_id: string
+          order_number: number
+          customer_name: string
+          customer_phone: string
+          fulfillment: "DELIVERY" | "PICKUP"
+          payment_method: "CASH" | "PIX" | "CARD_ON_DELIVERY" | "CARD_ON_SITE"
+          status?: "RECEIVED" | "CONFIRMED" | "PREPARING" | "READY" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED"
+          subtotal?: number
+          delivery_fee?: number
+          total?: number
+          address_street?: string | null
+          address_number?: string | null
+          address_neighborhood?: string | null
+          address_complement?: string | null
+          address_reference?: string | null
+          notes?: string | null
+          idempotency_key?: string | null
+          created_at?: string
+          updated_at?: string
+          confirmed_at?: string | null
+          preparing_at?: string | null
+          ready_at?: string | null
+          out_for_delivery_at?: string | null
+          delivered_at?: string | null
+          cancelled_at?: string | null
+        }
+        Update: {
+          id?: string
+          instance_id?: string
+          organization_id?: string
+          order_number?: number
+          customer_name?: string
+          customer_phone?: string
+          fulfillment?: "DELIVERY" | "PICKUP"
+          payment_method?: "CASH" | "PIX" | "CARD_ON_DELIVERY" | "CARD_ON_SITE"
+          status?: "RECEIVED" | "CONFIRMED" | "PREPARING" | "READY" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED"
+          subtotal?: number
+          delivery_fee?: number
+          total?: number
+          address_street?: string | null
+          address_number?: string | null
+          address_neighborhood?: string | null
+          address_complement?: string | null
+          address_reference?: string | null
+          notes?: string | null
+          idempotency_key?: string | null
+          created_at?: string
+          updated_at?: string
+          confirmed_at?: string | null
+          preparing_at?: string | null
+          ready_at?: string | null
+          out_for_delivery_at?: string | null
+          delivered_at?: string | null
+          cancelled_at?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -1270,6 +1578,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      // Delivery Engine RPCs are defined by versioned SQL migrations.
+      // Keep these signatures aligned with their deployed database versions.
+      get_public_storefront_catalog: { Args: { p_domain: string }; Returns: Json }
+      get_public_storefront_context: {
+        Args: { p_domain: string }
+        Returns: { instance_id: string; instance_name: string; organization_name: string } | null
+      }
+      append_authorized_order_items: {
+        Args: { p_order_id: string; p_amendment_token: string; p_items: Json; p_payment_method: string }
+        Returns: { order_id: string; order_number: number; subtotal: number; total: number }[]
+      }
+      get_admin_orders: {
+        Args: { p_instance_id: string; p_status?: string | null }
+        Returns: Array<{
+          id: string; instance_id: string; organization_id: string; order_number: number;
+          customer_name: string; customer_phone: string; fulfillment: string;
+          payment_method: string; status: string; subtotal: number; delivery_fee: number;
+          total: number; created_at: string; updated_at: string;
+        }>
+      }
+      update_admin_order_status: {
+        Args: { p_order_id: string; p_status: string; p_note?: string | null }
+        Returns: {
+          id: string; instance_id: string; organization_id: string; order_number: number;
+          customer_name: string; customer_phone: string; fulfillment: string;
+          payment_method: string; status: string; subtotal: number; delivery_fee: number;
+          total: number; created_at: string; updated_at: string;
+        }
+      }
       append_public_order_items: {
         Args: { p_customer_phone: string; p_items: Json; p_order_id: string }
         Returns: {

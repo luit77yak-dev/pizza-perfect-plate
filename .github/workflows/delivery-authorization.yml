@@ -1,0 +1,113 @@
+name: Delivery Authorization Validation
+
+on:
+  pull_request:
+    branches:
+      - fix/unify-neroxa-order-storage
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/tests/**"
+      - "src/features/storefront/components/CheckoutPanel.tsx"
+      - ".github/workflows/delivery-authorization.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: neroxa_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d neroxa_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: neroxa_ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm install
+      - name: Application build (independent diagnostic)
+        continue-on-error: true
+        run: npm run build
+      - name: TypeScript strict diagnostics
+        id: typescript
+        continue-on-error: true
+        run: npx tsc --noEmit
+      - name: Bootstrap isolated PostgreSQL roles
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          create role anon nologin;
+          create role authenticated nologin;
+          create role service_role nologin;
+          create schema auth;
+          create table auth.users(id uuid primary key);
+          create function auth.uid() returns uuid language sql stable as 'select null::uuid';
+          SQL
+      - name: Apply shared schema fixture and delivery migrations
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/fixtures/neroxa_shared_schema_baseline.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261009195000_create_neroxa_order_storage.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261009200000_bind_public_orders_to_verified_domain.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010120000_unify_neroxa_order_storage.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010130000_prepare_order_amendment_authorization.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010140000_order_addition_payment_ledger.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010150000_decide_order_addition_requests.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010160000_calculate_addition_amount.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010170000_atomic_addition_approval_charge.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010180000_internal_addition_payment_settlement.sql
+      - name: Run authorization regression cases
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/order_amendment_authorization.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/order_addition_payment_ledger.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/order_addition_decision_authorization.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/order_addition_amount.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/order_addition_payment_settlement.sql
+      - name: Real concurrent approval sessions
+        run: bash supabase/tests/order_addition_concurrent_approvals.sh
+      - name: Validate staged supplier catalog RLS in disposable PostgreSQL
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011150000_supplier_catalog_schema_and_rls.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/supplier_catalog_rls.sql
+      - name: Validate staged settings and delivery zone RLS
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011160000_supplier_settings_delivery_rls.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/supplier_settings_delivery_rls.sql
+      - name: Validate staged Master catalog compatibility
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011170000_master_catalog_compatibility_columns.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/master_catalog_compatibility.sql
+      - name: Validate restricted supplier writes until Master roles verified
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011180000_restrict_supplier_writes_until_roles_verified.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/supplier_write_roles_gate.sql
+      - name: Validate product/category cross-instance integrity
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011190000_product_category_instance_integrity.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/product_category_instance_integrity.sql
+      - name: Validate Master role matrix in isolated PostgreSQL
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/fixtures/master_roles_policy_overlay.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/master_role_matrix.sql
+      - name: Enforce TypeScript gate after database security tests
+        if: always()
+        run: |
+          if [ '${{ steps.typescript.outcome }}' != 'success' ]; then
+            echo 'TypeScript errors remain; failing CI after running database checks.'
+            exit 1
+          fi

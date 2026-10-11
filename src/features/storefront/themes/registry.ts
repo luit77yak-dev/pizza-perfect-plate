@@ -4,7 +4,7 @@ import type { StorefrontTheme } from "./types";
  * Built-in themes are frontend-only. They consume the same Delivery Engine data.
  * Add visual variants here; do not fork delivery business logic per tenant.
  */
-export const STOREFRONT_THEMES: Record<string, StorefrontTheme> = {
+export const STOREFRONT_THEMES = {
   "neroxa-classic": {
     id: "neroxa-classic",
     name: "Neroxa Classic",
@@ -41,8 +41,8 @@ export const STOREFRONT_THEMES: Record<string, StorefrontTheme> = {
     footer: "institutional",
     tokens: { cardRadius: "0.875rem", menuImageAspect: "portrait" },
   },
-};
+} satisfies Record<string, StorefrontTheme>;
 
 export function getStorefrontTheme(themeId?: string | null): StorefrontTheme {
-  return STOREFRONT_THEMES[themeId ?? ""] ?? STOREFRONT_THEMES["neroxa-classic"];
+  return (STOREFRONT_THEMES as Record<string, StorefrontTheme>)[themeId ?? ""] ?? STOREFRONT_THEMES["neroxa-classic"];
 }
