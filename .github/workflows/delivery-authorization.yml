@@ -84,6 +84,10 @@ jobs:
         run: |
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011150000_supplier_catalog_schema_and_rls.sql
           psql -v ON_ERROR_STOP=1 -f supabase/tests/supplier_catalog_rls.sql
+      - name: Validate staged settings and delivery zone RLS
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011160000_supplier_settings_delivery_rls.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/supplier_settings_delivery_rls.sql
       - name: Enforce TypeScript gate after database security tests
         if: always()
         run: |
