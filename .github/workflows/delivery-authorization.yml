@@ -67,6 +67,7 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010140000_order_addition_payment_ledger.sql
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010150000_decide_order_addition_requests.sql
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010160000_calculate_addition_amount.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010170000_atomic_addition_approval_charge.sql
       - name: Run authorization regression cases
         run: |
           psql -v ON_ERROR_STOP=1 -f supabase/tests/order_amendment_authorization.sql
