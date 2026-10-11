@@ -23,7 +23,7 @@ export type StoreData = {
   productAddonGroupLinks: ProductAddonGroupLink[];
   hours: never[];
   specialHours: never[];
-  deliveryZones: never[];
+  deliveryZones: Array<{ id: string; organization_id: string; name: string; neighborhoods: string[]; minimum_order: number; delivery_fee: number; estimated_minutes: number | null; active: boolean }>;
 };
 
 type PublicStorefrontCatalog = {
@@ -134,10 +134,10 @@ export async function loadStore(): Promise<StoreData> {
     });
     const sizeChoices = (optionRows.find((row) => row.option.id === "tamanho")?.option.choices as Array<Record<string, unknown>> | undefined) ?? [];
     const sizes: ProductSize[] = sizeChoices.map((choice, index) => ({
-      id: String(choice.id),
+      id: String(choice['id']),
       organization_id: context.organization_id,
-      name: String(choice.name ?? choice.id),
-      slices: String(choice.name ?? "").match(/(\\d+)\\s*fatias/i)?.[1] ? Number(String(choice.name).match(/(\\d+)\\s*fatias/i)?.[1]) : null,
+      name: String(choice['name'] ?? choice['id']),
+      slices: String(choice['name'] ?? "").match(/(\\d+)\\s*fatias/i)?.[1] ? Number(String(choice['name']).match(/(\\d+)\\s*fatias/i)?.[1]) : null,
       sort_order: index,
       active: true,
     }));
@@ -145,18 +145,18 @@ export async function loadStore(): Promise<StoreData> {
       const option = optionRows.find((row) => row.product.id === product.id && row.option.id === "tamanho")?.option;
       const choices = (option?.choices as Array<Record<string, unknown>> | undefined) ?? [];
       return choices.map((choice) => ({
-        id: `virtual-${product.id}-${String(choice.id)}`,
+        id: `virtual-${product.id}-${String(choice['id'])}`,
         product_id: product.id,
-        size_id: String(choice.id),
-        price: Number(product.base_price) + Number(choice.price ?? 0),
+        size_id: String(choice['id']),
+        price: Number(product.base_price) + Number(choice['price'] ?? 0),
       }));
     });
     const crustChoices = (optionRows.find((row) => row.option.id === "borda")?.option.choices as Array<Record<string, unknown>> | undefined) ?? [];
     const crusts: Crust[] = crustChoices.map((choice, index) => ({
-      id: String(choice.id),
+      id: String(choice['id']),
       organization_id: context.organization_id,
-      name: String(choice.name ?? choice.id),
-      price: Number(choice.price ?? 0),
+      name: String(choice['name'] ?? choice['id']),
+      price: Number(choice['price'] ?? 0),
       sort_order: index,
       active: true,
     }));
