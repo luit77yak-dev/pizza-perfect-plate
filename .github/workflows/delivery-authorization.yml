@@ -64,5 +64,6 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261009200000_bind_public_orders_to_verified_domain.sql
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010120000_unify_neroxa_order_storage.sql
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010130000_prepare_order_amendment_authorization.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010140000_order_addition_payment_ledger.sql
       - name: Run authorization regression cases
         run: psql -v ON_ERROR_STOP=1 -f supabase/tests/order_amendment_authorization.sql
