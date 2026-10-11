@@ -2,6 +2,10 @@
 create or replace function auth.uid() returns uuid language sql stable as $fn$
  select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid;
 $fn$;
+-- Mirror Supabase's authenticated access to auth.uid() in disposable PostgreSQL.
+-- No direct access to auth.users is granted.
+grant usage on schema auth to authenticated;
+grant execute on function auth.uid() to authenticated;
 insert into auth.users(id) values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'),('cccccccc-cccc-4ccc-8ccc-cccccccccccc');
 insert into public.neroxa_platform_members(user_id,active) values ('cccccccc-cccc-4ccc-8ccc-cccccccccccc',true);
 insert into public.neroxa_organizations(id,legal_name,active) values
