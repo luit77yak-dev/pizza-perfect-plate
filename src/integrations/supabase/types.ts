@@ -1270,6 +1270,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      // Delivery Engine RPCs are defined by versioned SQL migrations.
+      // Keep these signatures aligned with their deployed database versions.
+      get_public_storefront_catalog: { Args: { p_domain: string }; Returns: Json }
+      get_public_storefront_context: {
+        Args: { p_domain: string }
+        Returns: { instance_id: string; instance_name: string; organization_name: string } | null
+      }
+      append_authorized_order_items: {
+        Args: { p_order_id: string; p_amendment_token: string; p_items: Json; p_payment_method: string }
+        Returns: { order_id: string; order_number: number; subtotal: number; total: number }[]
+      }
+      get_admin_orders: {
+        Args: { p_instance_id: string; p_status?: string | null }
+        Returns: Array<{
+          id: string; instance_id: string; organization_id: string; order_number: number;
+          customer_name: string; customer_phone: string; fulfillment: string;
+          payment_method: string; status: string; subtotal: number; delivery_fee: number;
+          total: number; created_at: string; updated_at: string;
+        }>
+      }
+      update_admin_order_status: {
+        Args: { p_order_id: string; p_status: string; p_note?: string | null }
+        Returns: {
+          id: string; instance_id: string; organization_id: string; order_number: number;
+          customer_name: string; customer_phone: string; fulfillment: string;
+          payment_method: string; status: string; subtotal: number; delivery_fee: number;
+          total: number; created_at: string; updated_at: string;
+        }
+      }
       append_public_order_items: {
         Args: { p_customer_phone: string; p_items: Json; p_order_id: string }
         Returns: {
