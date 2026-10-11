@@ -80,6 +80,10 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f supabase/tests/order_addition_payment_settlement.sql
       - name: Real concurrent approval sessions
         run: bash supabase/tests/order_addition_concurrent_approvals.sh
+      - name: Validate staged supplier catalog RLS in disposable PostgreSQL
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011150000_supplier_catalog_schema_and_rls.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/supplier_catalog_rls.sql
       - name: Enforce TypeScript gate after database security tests
         if: always()
         run: |
