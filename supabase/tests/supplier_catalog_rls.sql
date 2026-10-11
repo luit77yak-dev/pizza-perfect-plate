@@ -35,7 +35,7 @@ do $test$ begin
 end $test$;
 select set_config('request.jwt.claim.sub','cccccccc-cccc-4ccc-8ccc-cccccccccccc',false);
 do $test$ begin
- if (select count(*) from public.neroxa_storefront_products) <> 2 then raise exception 'platform admin denied'; end if;
+ if (select count(*) from public.neroxa_storefront_products) <> 2 then raise exception 'platform admin denied: uid=%, member=%, rows=%, role=%', auth.uid(), (select count(*) from public.neroxa_platform_members where user_id=auth.uid() and active), (select count(*) from public.neroxa_storefront_products), current_user; end if;
 end $test$;
 reset role;
 do $test$ begin
