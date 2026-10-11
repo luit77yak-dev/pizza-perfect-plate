@@ -34,10 +34,16 @@ alter table public.neroxa_storefront_products
 
 create or replace function public.neroxa_can_manage_storefront_instance(p_instance_id uuid)
 returns boolean language sql stable security definer set search_path = '' as $fn$
- select auth.uid() is not null and exists (
-  select 1 from public.neroxa_system_instances i
-  join public.neroxa_organization_members m on m.organization_id=i.organization_id
-  where i.id=p_instance_id and m.user_id=auth.uid() and m.active
+ select auth.uid() is not null and (
+  exists (
+   select 1 from public.neroxa_system_instances i
+   join public.neroxa_organization_members m on m.organization_id=i.organization_id
+   where i.id=p_instance_id and m.user_id=auth.uid() and m.active
+  )
+  or (
+   exists (select 1 from public.neroxa_system_instances i where i.id=p_instance_id)
+   and exists (select 1 from public.neroxa_platform_members p where p.user_id=auth.uid() and p.active)
+  )
  );
 $fn$;
 revoke all on function public.neroxa_can_manage_storefront_instance(uuid) from public, anon;
