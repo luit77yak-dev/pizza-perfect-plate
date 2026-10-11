@@ -14,6 +14,97 @@ export type Database = {
   }
   public: {
     Tables: {
+      // Canonical Delivery Engine orders: 20261009195000_create_neroxa_order_storage.sql
+      neroxa_orders: {
+        Row: {
+          id: string
+          instance_id: string
+          organization_id: string
+          order_number: number
+          customer_name: string
+          customer_phone: string
+          fulfillment: "DELIVERY" | "PICKUP"
+          payment_method: "CASH" | "PIX" | "CARD_ON_DELIVERY" | "CARD_ON_SITE"
+          status: "RECEIVED" | "CONFIRMED" | "PREPARING" | "READY" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED"
+          subtotal: number
+          delivery_fee: number
+          total: number
+          address_street: string | null
+          address_number: string | null
+          address_neighborhood: string | null
+          address_complement: string | null
+          address_reference: string | null
+          notes: string | null
+          idempotency_key: string | null
+          created_at: string
+          updated_at: string
+          confirmed_at: string | null
+          preparing_at: string | null
+          ready_at: string | null
+          out_for_delivery_at: string | null
+          delivered_at: string | null
+          cancelled_at: string | null
+        }
+        Insert: {
+          id?: string
+          instance_id: string
+          organization_id: string
+          order_number: number
+          customer_name: string
+          customer_phone: string
+          fulfillment: "DELIVERY" | "PICKUP"
+          payment_method: "CASH" | "PIX" | "CARD_ON_DELIVERY" | "CARD_ON_SITE"
+          status?: "RECEIVED" | "CONFIRMED" | "PREPARING" | "READY" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED"
+          subtotal?: number
+          delivery_fee?: number
+          total?: number
+          address_street?: string | null
+          address_number?: string | null
+          address_neighborhood?: string | null
+          address_complement?: string | null
+          address_reference?: string | null
+          notes?: string | null
+          idempotency_key?: string | null
+          created_at?: string
+          updated_at?: string
+          confirmed_at?: string | null
+          preparing_at?: string | null
+          ready_at?: string | null
+          out_for_delivery_at?: string | null
+          delivered_at?: string | null
+          cancelled_at?: string | null
+        }
+        Update: {
+          id?: string
+          instance_id?: string
+          organization_id?: string
+          order_number?: number
+          customer_name?: string
+          customer_phone?: string
+          fulfillment?: "DELIVERY" | "PICKUP"
+          payment_method?: "CASH" | "PIX" | "CARD_ON_DELIVERY" | "CARD_ON_SITE"
+          status?: "RECEIVED" | "CONFIRMED" | "PREPARING" | "READY" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED"
+          subtotal?: number
+          delivery_fee?: number
+          total?: number
+          address_street?: string | null
+          address_number?: string | null
+          address_neighborhood?: string | null
+          address_complement?: string | null
+          address_reference?: string | null
+          notes?: string | null
+          idempotency_key?: string | null
+          created_at?: string
+          updated_at?: string
+          confirmed_at?: string | null
+          preparing_at?: string | null
+          ready_at?: string | null
+          out_for_delivery_at?: string | null
+          delivered_at?: string | null
+          cancelled_at?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
