@@ -88,6 +88,10 @@ jobs:
         run: |
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011160000_supplier_settings_delivery_rls.sql
           psql -v ON_ERROR_STOP=1 -f supabase/tests/supplier_settings_delivery_rls.sql
+      - name: Validate staged Master catalog compatibility
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011170000_master_catalog_compatibility_columns.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/master_catalog_compatibility.sql
       - name: Enforce TypeScript gate after database security tests
         if: always()
         run: |
