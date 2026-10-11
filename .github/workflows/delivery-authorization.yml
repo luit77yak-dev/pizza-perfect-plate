@@ -45,6 +45,8 @@ jobs:
         continue-on-error: true
         run: npm run build
       - name: TypeScript strict diagnostics
+        id: typescript
+        continue-on-error: true
         run: npx tsc --noEmit
       - name: Bootstrap isolated PostgreSQL roles
         run: |
@@ -78,3 +80,10 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f supabase/tests/order_addition_payment_settlement.sql
       - name: Real concurrent approval sessions
         run: bash supabase/tests/order_addition_concurrent_approvals.sh
+      - name: Enforce TypeScript gate after database security tests
+        if: always()
+        run: |
+          if [ '${{ steps.typescript.outcome }}' != 'success' ]; then
+            echo 'TypeScript errors remain; failing CI after running database checks.'
+            exit 1
+          fi
