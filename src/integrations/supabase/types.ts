@@ -14,6 +14,223 @@ export type Database = {
   }
   public: {
     Tables: {
+      // Staged storefront schema contract (20261011150000); review against Master before deploy.
+      neroxa_storefront_products: {
+        Row: {
+          id: string
+          instance_id: string
+          category_id: string | null
+          name: string
+          slug: string
+          description: string | null
+          image_url: string | null
+          price: number | null
+          active: boolean
+          sort_order: number
+          metadata: Json
+        }
+        Insert: {
+          id?: string
+          instance_id: string
+          category_id?: string | null
+          name: string
+          slug: string
+          description?: string | null
+          image_url?: string | null
+          price?: number | null
+          active?: boolean
+          sort_order?: number
+          metadata?: Json
+        }
+        Update: {
+          id?: string
+          instance_id?: string
+          category_id?: string | null
+          name?: string
+          slug?: string
+          description?: string | null
+          image_url?: string | null
+          price?: number | null
+          active?: boolean
+          sort_order?: number
+          metadata?: Json
+        }
+        Relationships: []
+      }
+      neroxa_storefront_categories: {
+        Row: {
+          id: string
+          instance_id: string
+          name: string
+          slug: string
+          description: string | null
+          active: boolean
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          instance_id: string
+          name: string
+          slug: string
+          description?: string | null
+          active?: boolean
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          instance_id?: string
+          name?: string
+          slug?: string
+          description?: string | null
+          active?: boolean
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      neroxa_storefront_addon_groups: {
+        Row: {
+          id: string
+          instance_id: string
+          name: string
+          required: boolean
+          min_selections: number
+          max_selections: number
+          active: boolean
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          instance_id: string
+          name: string
+          required?: boolean
+          min_selections?: number
+          max_selections?: number
+          active?: boolean
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          instance_id?: string
+          name?: string
+          required?: boolean
+          min_selections?: number
+          max_selections?: number
+          active?: boolean
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      neroxa_storefront_addons: {
+        Row: {
+          id: string
+          group_id: string
+          name: string
+          price_delta: number
+          active: boolean
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          group_id: string
+          name: string
+          price_delta?: number
+          active?: boolean
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          group_id?: string
+          name?: string
+          price_delta?: number
+          active?: boolean
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      neroxa_storefront_product_addon_groups: {
+        Row: {
+          product_id: string
+          group_id: string
+          sort_order: number
+        }
+        Insert: {
+          product_id: string
+          group_id: string
+          sort_order?: number
+        }
+        Update: {
+          product_id?: string
+          group_id?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      neroxa_storefront_delivery_zones: {
+        Row: {
+          id: string
+          organization_id: string
+          name: string
+          neighborhoods: string[]
+          minimum_order: number
+          delivery_fee: number
+          estimated_minutes: number | null
+          active: boolean
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          name: string
+          neighborhoods?: string[]
+          minimum_order?: number
+          delivery_fee?: number
+          estimated_minutes?: number | null
+          active?: boolean
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          name?: string
+          neighborhoods?: string[]
+          minimum_order?: number
+          delivery_fee?: number
+          estimated_minutes?: number | null
+          active?: boolean
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      neroxa_storefront_settings: {
+        Row: {
+          organization_id: string
+          half_pizza_pricing_rule: string
+          half_pizza_fixed_price: number | null
+          delivery_enabled: boolean
+          pickup_enabled: boolean
+          storefront_theme: string
+          visual_overrides: Json
+        }
+        Insert: {
+          organization_id: string
+          half_pizza_pricing_rule?: string
+          half_pizza_fixed_price?: number | null
+          delivery_enabled?: boolean
+          pickup_enabled?: boolean
+          storefront_theme?: string
+          visual_overrides?: Json
+        }
+        Update: {
+          organization_id?: string
+          half_pizza_pricing_rule?: string
+          half_pizza_fixed_price?: number | null
+          delivery_enabled?: boolean
+          pickup_enabled?: boolean
+          storefront_theme?: string
+          visual_overrides?: Json
+        }
+        Relationships: []
+      }
       // Canonical Delivery Engine orders: 20261009195000_create_neroxa_order_storage.sql
       neroxa_orders: {
         Row: {
