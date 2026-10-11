@@ -18,6 +18,7 @@ declare
   prod_b uuid:=gen_random_uuid();
   req_a uuid:=gen_random_uuid();
   req_b uuid:=gen_random_uuid();
+  req_bad uuid:=gen_random_uuid();
   state_a text;
   n integer;
 begin
@@ -41,7 +42,21 @@ begin
     values(req_a,order_a,inst_a,jsonb_build_array(jsonb_build_object('product_id',prod_a,'quantity',2))),
           (req_b,order_b,inst_b,jsonb_build_array(jsonb_build_object('product_id',prod_b,'quantity',1)));
 
+  insert into public.neroxa_order_addition_requests(id,order_id,instance_id,items)
+    values(req_bad,order_a,inst_a,jsonb_build_array(jsonb_build_object('product_id',prod_b,'quantity',1)));
+
   perform set_config('neroxa.test_user',user_a::text,true);
+  begin
+    perform public.decide_order_addition_request(req_bad,true);
+    raise exception 'FAIL: invalid item approved';
+  exception when raise_exception then
+    if sqlerrm <> 'Product unavailable in this restaurant' then raise; end if;
+  end;
+  select count(*) into n from public.neroxa_order_addition_requests
+    where id=req_bad and status='REQUESTED' and decided_at is null;
+  if n<>1 then raise exception 'FAIL: invalid approval mutated request'; end if;
+  select count(*) into n from public.neroxa_order_addition_charges where request_id=req_bad;
+  if n<>0 then raise exception 'FAIL: invalid approval created charge'; end if;
   begin
     perform public.decide_order_addition_request(req_b,true);
     raise exception 'FAIL: cross-restaurant decision accepted';
