@@ -43,3 +43,6 @@ using(public.neroxa_has_org_role(organization_id,array['OWNER','ADMIN','MANAGER'
  or public.neroxa_has_platform_role(array['SUPER_ADMIN','ADMIN']::public.neroxa_platform_role[]))
 with check(public.neroxa_has_org_role(organization_id,array['OWNER','ADMIN','MANAGER']::public.neroxa_organization_role[])
  or public.neroxa_has_platform_role(array['SUPER_ADMIN','ADMIN']::public.neroxa_platform_role[]));
+
+-- Test fixture: enable instance lookups used by row policies.
+grant select on public.neroxa_system_instances to authenticated;
