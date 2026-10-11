@@ -20,6 +20,12 @@ $$;
 drop policy if exists supplier_products_write on public.neroxa_storefront_products;
 drop policy if exists supplier_settings_write on public.neroxa_storefront_settings;
 drop policy if exists supplier_delivery_zones_write on public.neroxa_storefront_delivery_zones;
+-- The original provisional platform-member policy is too broad for SUPPORT/FINANCE.
+-- Fixture-only removal: production must reconcile all actual policy names first.
+drop policy if exists supplier_categories_write on public.neroxa_storefront_categories;
+drop policy if exists supplier_groups_write on public.neroxa_storefront_addon_groups;
+drop policy if exists supplier_addons_write on public.neroxa_storefront_addons;
+drop policy if exists supplier_links_write on public.neroxa_storefront_product_addon_groups;
 create policy master_role_products_write on public.neroxa_storefront_products for all to authenticated
 using (exists(select 1 from public.neroxa_system_instances i where i.id=instance_id and
  public.neroxa_has_org_role(i.organization_id,array['OWNER','ADMIN','MANAGER']::public.neroxa_organization_role[]))
