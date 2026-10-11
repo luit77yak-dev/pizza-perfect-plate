@@ -42,3 +42,5 @@ do $test$ declare v_role text; v_id uuid; v_expected boolean; v_actual boolean; 
  if public.neroxa_has_org_role('22222222-2222-4222-8222-222222222222') then raise exception 'cross-organization authorization'; end if;
 end $test$;
 reset role;
+
+-- The executable DML matrix is in master_role_dml_matrix.sql; CI inclusion pending.
