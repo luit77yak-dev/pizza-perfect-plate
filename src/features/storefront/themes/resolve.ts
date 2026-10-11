@@ -29,9 +29,9 @@ export function resolveStorefrontVisualConfig(
 ): StorefrontVisualConfig {
   const theme = getStorefrontTheme(themeId);
   const tenantTokens: StorefrontDesignTokens = {
-    primaryColor: settings.primary_color ?? undefined,
-    secondaryColor: settings.secondary_color ?? undefined,
-    fontFamily: settings.font_family ?? undefined,
+    ...(settings.primary_color != null ? { primaryColor: settings.primary_color } : {}),
+    ...(settings.secondary_color != null ? { secondaryColor: settings.secondary_color } : {}),
+    ...(settings.font_family != null ? { fontFamily: settings.font_family } : {}),
   };
   const tokens: StorefrontDesignTokens = {
     ...theme.tokens,
@@ -71,11 +71,11 @@ export function resolveStorefrontVisualConfig(
       tokens,
       components,
       content: {
-        logoUrl: settings.logo_url ?? undefined,
-        faviconUrl: settings.favicon_url ?? undefined,
-        heroImageUrl: settings.hero_image_url ?? undefined,
-        heroTitle: settings.hero_title ?? undefined,
-        heroSubtitle: settings.hero_subtitle ?? undefined,
+        ...(settings.logo_url != null ? { logoUrl: settings.logo_url } : {}),
+        ...(settings.favicon_url != null ? { faviconUrl: settings.favicon_url } : {}),
+        ...(settings.hero_image_url != null ? { heroImageUrl: settings.hero_image_url } : {}),
+        ...(settings.hero_title != null ? { heroTitle: settings.hero_title } : {}),
+        ...(settings.hero_subtitle != null ? { heroSubtitle: settings.hero_subtitle } : {}),
         ...(overrides?.content ?? {}),
       },
     },
