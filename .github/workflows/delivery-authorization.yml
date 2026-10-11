@@ -96,6 +96,10 @@ jobs:
         run: |
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011180000_restrict_supplier_writes_until_roles_verified.sql
           psql -v ON_ERROR_STOP=1 -f supabase/tests/supplier_write_roles_gate.sql
+      - name: Validate product/category cross-instance integrity
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011190000_product_category_instance_integrity.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/product_category_instance_integrity.sql
       - name: Enforce TypeScript gate after database security tests
         if: always()
         run: |
