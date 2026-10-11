@@ -100,6 +100,10 @@ jobs:
         run: |
           psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261011190000_product_category_instance_integrity.sql
           psql -v ON_ERROR_STOP=1 -f supabase/tests/product_category_instance_integrity.sql
+      - name: Validate Master role matrix in isolated PostgreSQL
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/fixtures/master_roles_policy_overlay.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/master_role_matrix.sql
       - name: Enforce TypeScript gate after database security tests
         if: always()
         run: |
