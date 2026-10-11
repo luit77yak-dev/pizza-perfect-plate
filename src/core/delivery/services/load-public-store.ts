@@ -129,7 +129,7 @@ export async function loadStore(): Promise<StoreData> {
     const products = catalog.products.map((product) => toProduct(product, context.organization_id));
     const pizzaRows = products.filter((product) => product.kind === "PIZZA");
     const optionRows = pizzaRows.flatMap((product) => {
-      const options = Array.isArray(product.metadata?.['options']) ? product.metadata.options : [];
+      const options = Array.isArray(product.metadata?.['options']) ? product.metadata?.['options'] : [];
       return options.map((option) => ({ product, option: option as Record<string, unknown> }));
     });
     const sizeChoices = (optionRows.find((row) => row.option['id'] === "tamanho")?.option['choices'] as Array<Record<string, unknown>> | undefined) ?? [];
@@ -143,7 +143,7 @@ export async function loadStore(): Promise<StoreData> {
     }));
     const prices: ProductPrice[] = pizzaRows.flatMap((product) => {
       const option = optionRows.find((row) => row.product.id === product.id && row.option['id'] === "tamanho")?.option;
-      const choices = (option?.choices as Array<Record<string, unknown>> | undefined) ?? [];
+      const choices = (option?.['choices'] as Array<Record<string, unknown>> | undefined) ?? [];
       return choices.map((choice) => ({
         id: `virtual-${product.id}-${String(choice['id'])}`,
         product_id: product.id,
