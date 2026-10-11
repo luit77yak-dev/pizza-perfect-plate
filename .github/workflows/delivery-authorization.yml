@@ -1,0 +1,64 @@
+name: Delivery Authorization Validation
+
+on:
+  pull_request:
+    branches:
+      - fix/unify-neroxa-order-storage
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/tests/**"
+      - "src/features/storefront/components/CheckoutPanel.tsx"
+      - ".github/workflows/delivery-authorization.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: neroxa_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d neroxa_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: neroxa_ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install and build
+        run: |
+          npm install
+          npx tsc --noEmit
+          npm run build
+      - name: Bootstrap isolated PostgreSQL roles
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          create role anon nologin;
+          create role authenticated nologin;
+          create schema auth;
+          create function auth.uid() returns uuid language sql stable as 'select null::uuid';
+          SQL
+      - name: Apply shared schema fixture and delivery migrations
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/fixtures/neroxa_shared_schema_baseline.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261009195000_create_neroxa_order_storage.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261009200000_bind_public_orders_to_verified_domain.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010120000_unify_neroxa_order_storage.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261010130000_prepare_order_amendment_authorization.sql
+      - name: Run authorization regression cases
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/order_amendment_authorization.sql
