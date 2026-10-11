@@ -70,3 +70,4 @@ jobs:
         run: |
           psql -v ON_ERROR_STOP=1 -f supabase/tests/order_amendment_authorization.sql
           psql -v ON_ERROR_STOP=1 -f supabase/tests/order_addition_payment_ledger.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/order_addition_decision_authorization.sql
