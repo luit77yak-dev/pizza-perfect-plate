@@ -86,3 +86,14 @@ alter table public.neroxa_order_status_history enable row level security;
 revoke all on public.neroxa_orders from anon, authenticated;
 revoke all on public.neroxa_order_items from anon, authenticated;
 revoke all on public.neroxa_order_status_history from anon, authenticated;
+
+-- Credentials must exist before create_public_order references them.
+create table if not exists public.neroxa_order_amendment_credentials (
+  order_id uuid primary key references public.neroxa_orders(id) on delete cascade,
+  token_hash bytea not null,
+  expires_at timestamptz not null,
+  revoked_at timestamptz,
+  created_at timestamptz not null default now()
+);
+alter table public.neroxa_order_amendment_credentials enable row level security;
+revoke all on public.neroxa_order_amendment_credentials from public, anon, authenticated;
