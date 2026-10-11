@@ -76,7 +76,7 @@ function SupplierPanel() {
       instanceId ? supabase.from("neroxa_storefront_categories").select("id, instance_id, name, slug, active, sort_order").eq("instance_id", instanceId).order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),
       instanceId ? supabase.from("neroxa_storefront_addon_groups").select("id, instance_id, name, required, min_selections, max_selections, active, sort_order").eq("instance_id", instanceId).order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),
       instanceId ? supabase.from("neroxa_storefront_addons").select("id, group_id, name, price_delta, active, sort_order").order("sort_order").order("name") : Promise.resolve({ data: [], error: null }),
-      supabase.from("neroxa_orders").select("id, order_number, customer_name, customer_phone, fulfillment, payment_method, status, total, created_at").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(50),
+      instanceId ? supabase.rpc("get_admin_orders", { p_instance_id: instanceId, p_status: null }) : Promise.resolve({ data: [], error: null }),
       supabase.from("neroxa_storefront_delivery_zones").select("id, name, neighborhoods, minimum_order, delivery_fee, estimated_minutes, active").eq("organization_id", orgId).order("sort_order").order("name"),
       supabase.from("neroxa_storefront_settings").select("*").eq("organization_id", orgId).maybeSingle(),
     ]);
