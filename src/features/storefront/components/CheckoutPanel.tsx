@@ -1,4 +1,14 @@
 import { useState } from "react";
+
+function createAmendmentToken(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function amendmentTokenKey(orderId: string): string {
+  return `neroxa:order-amendment:${orderId}`;
+}
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getStorefrontDomain } from "@/core/delivery/services/load-public-store";
@@ -137,11 +147,13 @@ export function CheckoutPanel({
             addons: [],
           })),
         ]);
+        const amendmentToken = sessionStorage.getItem(amendmentTokenKey(existingOrder.id));
+        if (!amendmentToken) throw new Error("Este pedido não possui autorização de alteração neste dispositivo.");
         const { data: appended, error: appendError } = await supabase.rpc(
-          "append_public_order_items_with_payment",
+          "append_authorized_order_items",
           {
             p_order_id: existingOrder.id,
-            p_customer_phone: existingOrder.phone,
+            p_amendment_token: amendmentToken,
             p_items: appendItems,
             p_payment_method: paymentMethod,
           },
@@ -202,6 +214,7 @@ export function CheckoutPanel({
 
     setSubmitting(true);
     try {
+      const amendmentToken = createAmendmentToken();
       const payload = {
         // The server must resolve this registered domain to its verified tenant.
         // organization_id remains for backward compatibility and must be checked
@@ -221,6 +234,7 @@ export function CheckoutPanel({
         address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
         notes: notes.trim() || null,
         idempotency_key: crypto.randomUUID(),
+        amendment_token: amendmentToken,
         items: items.flatMap((item) => [
           {
             product_id: item.productId,
@@ -259,6 +273,7 @@ export function CheckoutPanel({
           ? subtotal + Number(selectedZone?.delivery_fee ?? 0)
           : subtotal;
 
+      sessionStorage.setItem(amendmentTokenKey(String(order.order_id)), amendmentToken);
       onSuccess({
         id: String(order.order_id),
         number: Number(order.order_number),
