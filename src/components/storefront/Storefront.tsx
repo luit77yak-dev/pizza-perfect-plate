@@ -850,6 +850,7 @@ export function Storefront() {
         return (
           <TrackedOrderPanel
             order={selectedOrder}
+            allowOrderAmendments={import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] !== "true"}
             availableOrders={trackedOrders}
             onSelectOrder={setSelectedTrackedOrderId}
             onClose={() => setTrackingOpen(false)}
