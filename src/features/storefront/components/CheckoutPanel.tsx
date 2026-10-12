@@ -16,6 +16,7 @@ import type {
 
 export function CheckoutPanel({
   organization,
+  instanceId,
   settings,
   deliveryZones,
   items,
@@ -27,6 +28,7 @@ export function CheckoutPanel({
   existingOrder = null,
 }: {
   organization: Organization;
+  instanceId: string;
   settings: OrganizationSettings;
   deliveryZones: DeliveryZone[];
   items: CartItem[];
@@ -104,6 +106,12 @@ export function CheckoutPanel({
 
     if (!storeOpen) {
       setError(`A loja está fechada. ${storeStatusLabel}.`);
+      return;
+    }
+
+    // Only the domain-resolved store context may be used by this checkout.
+    if (!instanceId) {
+      setError("Não foi possível identificar esta loja. Recarregue o cardápio.");
       return;
     }
 
@@ -203,6 +211,7 @@ export function CheckoutPanel({
     try {
       const payload = {
         organization_id: organization.id,
+        instance_id: instanceId,
         subtotal,
         customer_name: name.trim(),
         customer_phone: phone.trim(),
