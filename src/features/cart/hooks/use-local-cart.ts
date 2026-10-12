@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { CartItem } from "@/lib/domain/types";
+import { storefrontLocalKey } from "@/lib/domain/store-context";
 
 type CartSnapshot = { key: string | null; items: CartItem[] };
 
@@ -16,7 +17,7 @@ function readCart(key: string): CartItem[] {
 }
 
 export function useLocalCart(instanceId: string | undefined) {
-  const key = instanceId ? `pizza-perfect-plate:cart:${instanceId}` : null;
+  const key = instanceId ? storefrontLocalKey("cart", instanceId) : null;
   const [snapshot, setSnapshot] = useState<CartSnapshot>({ key: null, items: [] });
 
   useEffect(() => {
