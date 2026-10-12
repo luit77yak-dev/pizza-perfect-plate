@@ -1,4 +1,4 @@
-import { CheckoutRateLimitError, type StoreContext } from "./checkout-gateway";
+import { CheckoutRateLimitError, type StoreContext } from "./checkout-gateway.ts";
 
 /** This is a candidate only. Never enable without staged SQL + ACL revocation. */
 export class AmendmentAuthorizationError extends Error {}
