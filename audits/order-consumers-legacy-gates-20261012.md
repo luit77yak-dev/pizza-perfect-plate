@@ -21,6 +21,12 @@ No Master, o candidato `audits/sql/legacy-order-append-no-bypass.release-gate.ca
 
 [Inventário e matriz de riscos no Master](https://github.com/luit77yak-dev/neroxa-master/blob/audit/store-isolation-candidate-20261011/audits/order-consumer-authz-matrix-20261012.md)
 
+## Evidência de CI
+
+- [Pizza Perfect Plate — CI **38309029354**](https://github.com/luit77yak-dev/pizza-perfect-plate/actions/runs/38309029354): **23/23 testes PASS**, lint, TypeScript, build e smoke HTTP local com gateway desligado. Inclui guardas estáticas do item esquecido, tracking e painel legado.
+- [Master — clone Auth/PostgREST **38308754783**](https://github.com/luit77yak-dev/neroxa-master/actions/runs/38308754783): **275/275** testes da matriz + **54/54** integração/ACL + **30/30** gateway HTTPS local habilitado. Total **359 PASS**, incluindo negação anônima/autenticada da RPC legada após revogação candidata **somente no clone**.
+- **Não existe nesta branch um endpoint autorizado por token para adicionar itens**; habilitar gateway com as RPCs antigas abertas não é um release seguro. O frontend impede uso acidental do fluxo antigo, mas não impede requisições diretas externas até a revogação futura.
+
 ## Gates antes de habilitar o gateway comercial
 
 1. Criar uma API de alteração com token aleatório por pedido, validade e revogação, restrito à instância; conferir preço/estado/idempotência no SQL e rate limiting no servidor.
