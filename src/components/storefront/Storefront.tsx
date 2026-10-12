@@ -871,6 +871,7 @@ export function Storefront() {
         <CheckoutPanel
           organization={data.organization}
           instanceId={data.instanceId}
+          storeDomain={data.storeDomain}
           settings={data.settings}
           deliveryZones={data.deliveryZones}
           items={activeComplementOrderId ? complementItems : cart.items}
