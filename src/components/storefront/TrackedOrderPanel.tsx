@@ -31,17 +31,19 @@ export function TrackedOrderPanel({
   order,
   onClose,
   onAddToOrder,
+  allowOrderAmendments = true,
   availableOrders,
   onSelectOrder,
 }: {
   order: PublicTrackedOrder;
   onClose: () => void;
   onAddToOrder: () => void;
+  allowOrderAmendments?: boolean;
   availableOrders?: PublicTrackedOrder[];
   onSelectOrder?: (orderId: string) => void;
 }) {
   const currentStatus = order.status ?? "RECEIVED";
-  const canAddMore = ["RECEIVED", "CONFIRMED", "PREPARING", "READY"].includes(currentStatus);
+  const canAddMore = allowOrderAmendments && ["RECEIVED", "CONFIRMED", "PREPARING", "READY"].includes(currentStatus);
   const items = Array.isArray(order.items)
     ? order.items.filter((item): item is CartItem => Boolean(item && typeof item === "object"))
     : [];
