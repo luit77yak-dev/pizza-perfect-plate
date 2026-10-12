@@ -26,7 +26,7 @@ jobs:
         run: npm install
 
       - name: Format refactored storefront and candidate gateway
-        run: npx prettier --write src/components/storefront/Storefront.tsx src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx src/components/storefront/TrackedOrderPanel.tsx src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts
+        run: npx prettier --write src/components/storefront/Storefront.tsx src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx src/components/storefront/TrackedOrderPanel.tsx src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts src/server/order-amendment.ts src/server/order-amendment.server.ts src/routes/api/order-amend.ts src/lib/domain/order-amendment-capability.ts
 
 
       - name: Lint refactored storefront
@@ -36,10 +36,10 @@ jobs:
         run: npx eslint src/features/cart/hooks/use-local-cart.ts src/lib/domain/store-context.ts
 
       - name: Lint gateway files
-        run: npx eslint src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts
+        run: npx eslint src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts src/server/order-amendment.ts src/server/order-amendment.server.ts src/routes/api/order-amend.ts src/lib/domain/order-amendment-capability.ts
 
       - name: Store context and gateway contract tests
-        run: node --experimental-strip-types --test tests/store-context.test.mjs tests/checkout-gateway.test.mjs tests/order-consumer-safety.test.mjs
+        run: node --experimental-strip-types --test tests/store-context.test.mjs tests/checkout-gateway.test.mjs tests/order-consumer-safety.test.mjs tests/order-amendment.test.mjs
 
       # The build regenerates the TanStack route tree for /api/checkout.
       - name: Build and regenerate route types
@@ -63,8 +63,14 @@ jobs:
               --data '{"p_order":{}}' \
               http://127.0.0.1:4173/api/checkout || true)
             if [ "$response" = "503" ]; then
-              echo "PASS: HTTP handler routes to disabled gateway (503)"
-              exit 0
+              amendment=$(curl --max-time 3 --silent --output /dev/null --write-out '%{http_code}' \
+                --header 'Content-Type: application/json' \
+                --data '{}' \
+                http://127.0.0.1:4173/api/order-amend || true)
+              if [ "$amendment" = "503" ]; then
+                echo "PASS: disabled checkout and order amendment HTTP routes return 503"
+                exit 0
+              fi
             fi
             sleep 1
           done
