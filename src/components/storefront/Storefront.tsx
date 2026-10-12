@@ -19,6 +19,7 @@ import { CheckoutPanel } from "@/features/storefront/components/CheckoutPanel";
 import { TrackedOrderPanel } from "@/components/storefront/TrackedOrderPanel";
 import { useLocalCart } from "@/features/cart/hooks/use-local-cart";
 import { storefrontLocalKey } from "@/lib/domain/store-context";
+import { readBuyerAmendmentToken } from "@/lib/domain/order-amendment-capability";
 import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
@@ -850,11 +851,22 @@ export function Storefront() {
         return (
           <TrackedOrderPanel
             order={selectedOrder}
-            allowOrderAmendments={import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] !== "true"}
+            allowOrderAmendments={
+              import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] !== "true" ||
+              (import.meta.env["VITE_NEROXA_CHECKOUT_AMENDMENTS"] === "true" &&
+                ["RECEIVED", "CONFIRMED"].includes(selectedOrder.status ?? "RECEIVED") &&
+                Boolean(readBuyerAmendmentToken(data.instanceId, selectedOrder.id)))
+            }
             availableOrders={trackedOrders}
             onSelectOrder={setSelectedTrackedOrderId}
             onClose={() => setTrackingOpen(false)}
             onAddToOrder={() => {
+              if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true" &&
+                (import.meta.env["VITE_NEROXA_CHECKOUT_AMENDMENTS"] !== "true" ||
+                 !["RECEIVED", "CONFIRMED"].includes(selectedOrder.status ?? "RECEIVED") ||
+                 !readBuyerAmendmentToken(data.instanceId, selectedOrder.id))) {
+                return;
+              }
               setTrackingOpen(false);
               setSelectedProduct(null);
               setAddingToExistingOrder(false);
