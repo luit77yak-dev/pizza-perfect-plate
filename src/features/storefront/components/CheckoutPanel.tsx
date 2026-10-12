@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/storefront-backend/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/domain/money";
+import { readBuyerAmendmentToken, rememberBuyerAmendmentToken } from "@/lib/domain/order-amendment-capability";
 import { normalizeNeighborhood } from "@/features/storefront/domain/storefront-utils";
 import type {
   CartItem,
@@ -74,6 +75,9 @@ export function CheckoutPanel({
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // A retry after a partial server failure must reuse its original key.
+  const checkoutKeyRef = useRef<string | null>(null);
+  const amendmentKeyRef = useRef<string | null>(null);
 
   const selectedZone =
     fulfillment === "DELIVERY"
@@ -118,42 +122,90 @@ export function CheckoutPanel({
     }
 
     if (existingOrder) {
-      // The historical append RPC authorizes by order ID + phone only.
-      // In protected checkout mode, never silently fall back to that RPC.
-      // Re-enable amendments only after the scoped token/ingress endpoint,
-      // direct-RPC revocation and isolation tests have been released together.
-      if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true") {
-        setError("Adicionar itens a um pedido existente estará disponível após a validação de segurança.");
-        return;
-      }
       if (items.length === 0) {
         setError("Adicione pelo menos um item.");
         return;
       }
+      const appendItems = items.flatMap((item) => [
+        {
+          product_id: item.productId,
+          second_product_id: item.secondProductId,
+          is_half: item.isHalf,
+          size_id: item.sizeId,
+          crust_id: item.crustId,
+          quantity: item.quantity,
+          notes: item.notes,
+          addons: item.addons.map((addon) => ({ id: addon.id })),
+        },
+        ...(item.complements ?? []).map((complement) => ({
+          product_id: complement.productId,
+          second_product_id: null,
+          is_half: false,
+          size_id: null,
+          crust_id: null,
+          quantity: 1,
+          notes: "Complemento do pedido: " + item.productName,
+          addons: [],
+        })),
+      ]);
+
+      // With the secure checkout enabled, never call the historic phone-only
+      // RPC: a buyer needs the private capability issued at order creation.
+      if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true") {
+        if (import.meta.env["VITE_NEROXA_CHECKOUT_AMENDMENTS"] !== "true") {
+          setError("Adicionar itens com segurança ainda não está disponível nesta loja.");
+          return;
+        }
+        const token = readBuyerAmendmentToken(instanceId, existingOrder.id);
+        if (!token) {
+          setError("A autorização deste pedido não está disponível nesta sessão.");
+          return;
+        }
+        setSubmitting(true);
+        try {
+          const requestKey = (amendmentKeyRef.current ??= crypto.randomUUID());
+          const response = await fetch("/api/order-amend", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              instance_id: instanceId,
+              order_id: existingOrder.id,
+              request_key: requestKey,
+              token,
+              items: appendItems,
+            }),
+          });
+          const reply = await response.json() as {
+            error?: string; order_id?: string; order_number?: number;
+            subtotal?: number; total?: number; payment_state?: string;
+          };
+          if (!response.ok) throw new Error(reply.error ?? "Complemento seguro indisponível.");
+          if (!reply.order_id || !reply.order_number || reply.payment_state !== "NOT_SETTLED") {
+            throw new Error("Não foi possível confirmar a inclusão do item.");
+          }
+          amendmentKeyRef.current = null;
+          onSuccess({
+            id: reply.order_id,
+            number: reply.order_number,
+            phone: existingOrder.phone,
+            items: [...(existingOrder.items ?? []), ...items],
+            subtotal: Number(reply.subtotal),
+            total: Number(reply.total),
+            fulfillment: existingOrder.fulfillment,
+          });
+        } catch (amendError) {
+          setError(amendError instanceof Error ? amendError.message : "Não foi possível adicionar o item.");
+        } finally {
+          setSubmitting(false);
+        }
+        return;
+      }
+
+      // Legacy path intentionally unchanged while rollout flags are off;
+      // direct RPC execution must be revoked in the coordinated release.
       setSubmitting(true);
       try {
-        const appendItems = items.flatMap((item) => [
-          {
-            product_id: item.productId,
-            second_product_id: item.secondProductId,
-            is_half: item.isHalf,
-            size_id: item.sizeId,
-            crust_id: item.crustId,
-            quantity: item.quantity,
-            notes: item.notes,
-            addons: item.addons.map((addon) => ({ id: addon.id })),
-          },
-          ...(item.complements ?? []).map((complement) => ({
-            product_id: complement.productId,
-            second_product_id: null,
-            is_half: false,
-            size_id: null,
-            crust_id: null,
-            quantity: 1,
-            notes: "Complemento do pedido: " + item.productName,
-            addons: [],
-          })),
-        ]);
         const { data: appended, error: appendError } = await supabase.rpc(
           "append_public_order_items_with_payment",
           {
@@ -235,7 +287,7 @@ export function CheckoutPanel({
         address_complement: fulfillment === "DELIVERY" ? complement.trim() || null : null,
         address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
         notes: notes.trim() || null,
-        idempotency_key: crypto.randomUUID(),
+        idempotency_key: (checkoutKeyRef.current ??= crypto.randomUUID()),
         items: items.flatMap((item) => [
           {
             product_id: item.productId,
@@ -270,7 +322,7 @@ export function CheckoutPanel({
           credentials: "same-origin",
           body: JSON.stringify({ p_order: payload }),
         });
-        const reply = await response.json() as { error?: string; order_id?: string; order_number?: number; total?: number };
+        const reply = await response.json() as { error?: string; order_id?: string; order_number?: number; total?: number; amendment_token?: string };
         if (!response.ok) throw new Error(reply.error ?? "Checkout seguro indisponível.");
         created = reply;
       } else {
@@ -279,7 +331,7 @@ export function CheckoutPanel({
         created = data;
       }
 
-      const order = (Array.isArray(created) ? created[0] : created) as { order_id?: string; order_number?: number; total?: number } | null | undefined;
+      const order = (Array.isArray(created) ? created[0] : created) as { order_id?: string; order_number?: number; total?: number; amendment_token?: string } | null | undefined;
       if (!order?.order_number || !order?.order_id)
         throw new Error("Não foi possível criar o pedido.");
       const createdTotal = Number(order.total);
@@ -288,6 +340,12 @@ export function CheckoutPanel({
           ? subtotal + Number(selectedZone?.delivery_fee ?? 0)
           : subtotal;
 
+      if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true" &&
+        import.meta.env["VITE_NEROXA_CHECKOUT_AMENDMENTS"] === "true" &&
+        order.amendment_token) {
+        // Capability is never stored in tracking/history localStorage.
+        rememberBuyerAmendmentToken(instanceId, String(order.order_id), order.amendment_token);
+      }
       onSuccess({
         id: String(order.order_id),
         number: Number(order.order_number),
