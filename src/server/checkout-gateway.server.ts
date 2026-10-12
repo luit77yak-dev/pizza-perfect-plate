@@ -66,7 +66,7 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
       };
     },
     reserveQuota: async (context, customerPhone): Promise<void> => {
-      const normalized = customerPhone.replace(/\\D/g, "");
+      const normalized = customerPhone.replace(/[^0-9]/g, "");
       // No raw telephone number, cookie or IP is persisted in quota tables.
       const digest = createHmac("sha256", secret)
         .update(context.instance_id + ":" + normalized)
