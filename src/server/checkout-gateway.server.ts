@@ -13,11 +13,30 @@ export function checkoutGatewayEnabled(): boolean {
   return process.env["NEROXA_CHECKOUT_GATEWAY_ENABLED"] === "true";
 }
 
+// Generated database types describe the pre-migration production contract. The
+// two RPCs below belong to the candidate schema and are verified in isolated CI.
+// Keep the untyped boundary *inside the server-only module*, never in the browser.
+type CandidateRpcClient = {
+  rpc: (
+    name: string,
+    arguments_: Record<string, unknown>,
+  ) => Promise<{ data: unknown; error: { code?: string } | null }>;
+};
+
 export async function handlePrivateCheckout(request: Request): Promise<Response> {
+  // Supabase admin proxy is created only after the feature flag is checked.
+  if (!checkoutGatewayEnabled()) {
+    return handleCheckoutRequest(request, {
+      enabled: false,
+      resolveContext: async () => null,
+      createOrder: async () => { throw new Error("Gateway disabled"); },
+    });
+  }
+  const candidate = supabaseAdmin as unknown as CandidateRpcClient;
   return handleCheckoutRequest(request, {
     enabled: checkoutGatewayEnabled(),
     resolveContext: async (domain): Promise<StoreContext | null> => {
-      const { data, error } = await supabaseAdmin.rpc("get_public_storefront_context", {
+      const { data, error } = await candidate.rpc("get_public_storefront_context", {
         p_domain: domain,
       });
       if (error) throw new Error("Store resolution unavailable");
@@ -34,7 +53,7 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
       };
     },
     createOrder: async (payload): Promise<OrderResult> => {
-      const { data, error } = await supabaseAdmin.rpc("create_public_order", {
+      const { data, error } = await candidate.rpc("create_public_order", {
         p_order: payload,
       });
       if (error) throw new Error("Order RPC rejected");
