@@ -21,7 +21,7 @@ A rota do TanStack Start é `POST /api/checkout`. O workflow do consumidor execu
 ## Evidências
 
 - **[Pizza Perfect Plate workflow 38273616553](https://github.com/luit77yak-dev/pizza-perfect-plate/actions/runs/38273616553): PASS**, 16 testes de contratos/gateway, lint, TypeScript, build e smoke HTTP local retornando 503.
-- **[Master workflow 38273435746](https://github.com/luit77yak-dev/neroxa-master/actions/runs/38273435746): PASS**, 275 verificações reais Auth/JWT/RLS e 45 verificações integradas de gateway/PostgREST/limitação, incluindo 12 requisições concorrentes (5 aceitas; 7 com 429), quotas por instância, quota global por loja 60/min e rollback automático de incremento rejeitado. O banco de teste foi removido após execução.
+- **[Master workflow 38273960408](https://github.com/luit77yak-dev/neroxa-master/actions/runs/38273960408): PASS**, 275 verificações reais Auth/JWT/RLS e 49 verificações integradas de gateway/PostgREST/limitação, incluindo 12 requisições concorrentes (5 aceitas; 7 com 429), quotas por instância, quota global por loja 60/min e rollback automático de incremento rejeitado. Também foram aceitos cinco pedidos do mesmo contato fictício pelo gateway, com a sexta tentativa recusada em HTTP 429 e nenhum pedido adicional criado. O banco de teste foi removido após execução.
 - [Relatório no Master](https://github.com/luit77yak-dev/neroxa-master/blob/audit/store-isolation-candidate-20261011/audits/checkout-durable-quotas-20261012.md)
 
 ## Gate restante
