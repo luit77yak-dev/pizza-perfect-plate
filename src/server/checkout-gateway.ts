@@ -16,9 +16,13 @@ export type OrderResult = {
   total: number;
 };
 
+export class CheckoutRateLimitError extends Error {}
+
 export type CheckoutDependencies = {
   enabled: boolean;
   resolveContext: (domain: string) => Promise<StoreContext | null>;
+  /** Enforced durably on the server; must reject on backend unavailability. */
+  reserveQuota: (context: StoreContext, customerPhone: string) => Promise<void>;
   createOrder: (payload: Record<string, unknown>) => Promise<OrderResult>;
 };
 
@@ -93,7 +97,9 @@ export async function handleCheckoutRequest(
   }
   const payload = body["p_order"];
   if (!isUuid(payload["idempotency_key"]) || !Array.isArray(payload["items"]) ||
-    payload["items"].length < 1 || payload["items"].length > 40) {
+    payload["items"].length < 1 || payload["items"].length > 40 ||
+    typeof payload["customer_phone"] !== "string" ||
+    !/^\\d{10,15}$/.test(payload["customer_phone"].replace(/\\D/g, ""))) {
     return result(400, "Itens ou chave do pedido inválidos.");
   }
 
@@ -122,6 +128,17 @@ export async function handleCheckoutRequest(
     instance_id: context.instance_id,
     store_domain: context.domain,
   };
+
+  // This quota must be persistent/atomic; local memory quotas cannot protect
+  // a serverless deployment with multiple concurrent workers.
+  try {
+    await dependencies.reserveQuota(context, payload["customer_phone"] as string);
+  } catch (error) {
+    if (error instanceof CheckoutRateLimitError) {
+      return result(429, "Muitas tentativas de pedido. Tente novamente mais tarde.");
+    }
+    return result(503, "Validação de limite temporariamente indisponível.");
+  }
 
   try {
     const created = await dependencies.createOrder(authorizedPayload);
