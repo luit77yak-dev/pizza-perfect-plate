@@ -92,6 +92,7 @@ export async function handleOrderAmendmentRequest(
     !body["items"].every((item: unknown) =>
       isRecord(item) && typeof item["product_id"] === "string" &&
       UUID_PATTERN.test(item["product_id"]) &&
+      typeof item["quantity"] === "number" &&
       Number.isInteger(item["quantity"]) &&
       (item["quantity"] as number) >= 1 && (item["quantity"] as number) <= 10)) {
     return errorResponse(400, "Itens ou autorização inválidos.");
