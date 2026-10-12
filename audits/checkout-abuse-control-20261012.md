@@ -18,6 +18,14 @@ Os dados de telefone não são gravados na tabela de quotas, mas o digest HMAC �
 
 A rota do TanStack Start é `POST /api/checkout`. O workflow do consumidor executa testes do core e um smoke HTTP no **TanStack dev server em localhost** com gate desligado, exigindo HTTP 503 sem utilizar Supabase. O `vite preview` Node falhou porque o build da aplicação tem destino Nitro/Cloudflare e não fornece o arquivo `dist/server/server.js` esperado pelo preview. Isso foi explicitamente separado da capacidade de rodar na Vercel.
 
+## Nova evidência: checkout HTTP HTTPS **habilitado** com Supabase descartável
+
+[Isolated A-B Auth Matrix — 38306941709](https://github.com/luit77yak-dev/neroxa-master/actions/runs/38306941709) **PASS** no checkout `POST /api/checkout` executado de verdade pelo TanStack em servidor de desenvolvimento **HTTPS local**: **30/30 verificações**. O mesmo workflow preservou **275/275** em Auth/isolamento e **49/49** em gateway/PostgREST real. Total: **354 verificações, zero falhas** em ambiente descartável.
+
+Com o gateway habilitado e o acesso anônimo à RPC revogado no clone, A e B (duas instâncias da mesma organização) criaram pedidos com preços server-side; a tentativa com `Origin` falsificado, domínio inexistente, `Host` incompatível e produto de outra loja foi recusada. Cinco pedidos fictícios de um contato foram aceitos e o sexto retornou **HTTP 429**; a contagem final foi +1 A, +6 B, +0 C. A rota foi usada sem dados nem credenciais de produção. [Relatório Master](https://github.com/luit77yak-dev/neroxa-master/blob/audit/store-isolation-candidate-20261011/audits/checkout-https-enabled-rehearsal-20261012.md).
+
+O TanStack omite o cabeçalho `Host` ao encaminhar `Request` em certos ambientes. O gateway agora exige `Origin` completo e, quando `Host` existe, valida-o estritamente. **Essas comparações não atestam criptograficamente a origem; o roteamento confiável do domínio pela infraestrutura ainda precisa de homologação própria.**
+
 ## Evidências
 
 - **[Pizza Perfect Plate workflow 38273616553](https://github.com/luit77yak-dev/pizza-perfect-plate/actions/runs/38273616553): PASS**, 16 testes de contratos/gateway, lint, TypeScript, build e smoke HTTP local retornando 503.
