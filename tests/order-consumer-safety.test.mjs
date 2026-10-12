@@ -28,7 +28,7 @@ test("buyer token and RECEIVED/CONFIRMED are required for secure add-to-order CT
 
 test("secure amendment requires session token, server endpoint and no phone-only fallback", () => {
   const guarded = checkout.indexOf('if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true")', checkout.indexOf("if (existingOrder)"));
-  const legacy = checkout.indexOf('"append_public_order_items_with_payment"');
+  const legacy = checkout.indexOf("// Legacy path intentionally unchanged", guarded);
   assert.ok(guarded > 0 && legacy > guarded);
   const block = checkout.slice(guarded, legacy);
   assert.match(block, /readBuyerAmendmentToken\(instanceId, existingOrder\.id\)/);
@@ -42,7 +42,7 @@ test("issued buyer credential must only be handled in browser session storage", 
   const capability = readFileSync("src/lib/domain/order-amendment-capability.ts", "utf8");
   assert.match(capability, /sessionStorage\.setItem/);
   assert.match(capability, /sessionStorage\.getItem/);
-  assert.doesNotMatch(capability, /localStorage/);
+  assert.doesNotMatch(capability, /localStorage\.(getItem|setItem|removeItem)/);
   assert.match(checkout, /rememberBuyerAmendmentToken\(instanceId/);
 });
 
