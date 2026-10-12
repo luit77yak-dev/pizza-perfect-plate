@@ -48,12 +48,12 @@ jobs:
       - name: Type-check generated routes
         run: npx tsc --noEmit
 
-      - name: Smoke real HTTP checkout route with gateway disabled
+      - name: Smoke local TanStack HTTP route with gateway disabled
         env:
           NEROXA_CHECKOUT_GATEWAY_ENABLED: "false"
         run: |
           set -euo pipefail
-          npm run preview -- --host 127.0.0.1 --port 4173 > "$RUNNER_TEMP/checkout-preview.log" 2>&1 &
+          npm run dev -- --host 127.0.0.1 --port 4173 > "$RUNNER_TEMP/checkout-dev-server.log" 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           response=""
