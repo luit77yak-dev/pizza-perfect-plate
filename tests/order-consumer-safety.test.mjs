@@ -20,7 +20,7 @@ test("protected checkout must fail closed before historical phone-only amendment
 
 test("protected storefront hides the old add-to-order action at the tracking panel", () => {
   assert.match(storefront, /allowOrderAmendments=\{import\.meta\.env\["VITE_NEROXA_CHECKOUT_GATEWAY"\] !== "true"\}/);
-  assert.match(trackingPanel, /const canAddMore = allowOrderAmendments &&/);
+  assert.match(trackingPanel, /const canAddMore\s*=\s*allowOrderAmendments\s*&&/);
   assert.match(trackingPanel, /\{canAddMore &&/);
 });
 
