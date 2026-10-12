@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { handleCheckoutRequest } from "../src/server/checkout-gateway.ts";
+import { handleCheckoutRequest, CheckoutRateLimitError } from "../src/server/checkout-gateway.ts";
 
 const org = "a0000000-0000-4000-8000-000000000001";
 const a1 = "b0000000-0000-4000-8000-000000000001";
@@ -47,6 +47,9 @@ function makeDeps(overrides = {}) {
       calls.push(["resolve", domain]);
       return { domain, instance_id: a1, organization_id: org };
     },
+    reserveQuota: async (context, phone) => {
+      calls.push(["quota", context, phone]);
+    },
     createOrder: async (p) => {
       calls.push(["create", p]);
       return { order_id: orderId, order_number: 2, total: 31.5 };
@@ -73,9 +76,10 @@ test("domain comes from routed request; payload cannot select another shop", asy
     total: 31.5,
   });
   assert.deepEqual(calls[0], ["resolve", hostname]);
-  assert.equal(calls[1][1].instance_id, a1);
-  assert.equal(calls[1][1].store_domain, hostname);
-  assert.equal(calls[1][1].organization_id, org);
+  assert.deepEqual(calls[1], ["quota", { domain: hostname, instance_id: a1, organization_id: org }, payload.customer_phone]);
+  assert.equal(calls[2][1].instance_id, a1);
+  assert.equal(calls[2][1].store_domain, hostname);
+  assert.equal(calls[2][1].organization_id, org);
   assert.equal(response.headers.get("cache-control"), "no-store");
 });
 
@@ -184,4 +188,38 @@ test("hides privileged backend errors and does not log customer data", async () 
   const response = await handleCheckoutRequest(request(), deps);
   assert.equal(response.status, 503);
   assert.doesNotMatch(await response.text(), /db secret|private context/);
+});
+
+
+test("quota rejects attempts before privileged create RPC", async () => {
+  const { calls, deps } = makeDeps({
+    reserveQuota: async (context, phone) => {
+      calls.push(["quota", context, phone]);
+      throw new CheckoutRateLimitError("quota exceeded");
+    },
+  });
+  const response = await handleCheckoutRequest(request(), deps);
+  assert.equal(response.status, 429);
+  assert.equal(calls.filter((c) => c[0] === "create").length, 0);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+});
+
+test("quota backend failure returns 503 without creating an order", async () => {
+  const { calls, deps } = makeDeps({
+    reserveQuota: async () => { throw new Error("postgres unavailable"); },
+  });
+  const response = await handleCheckoutRequest(request(), deps);
+  assert.equal(response.status, 503);
+  assert.doesNotMatch(await response.text(), /postgres unavailable/);
+  assert.equal(calls.filter((c) => c[0] === "create").length, 0);
+});
+
+test("quota identity is only checked after store identity and payload pass", async () => {
+  const { calls, deps } = makeDeps();
+  const wrong = { ...payload, instance_id: a2 };
+  assert.equal((await handleCheckoutRequest(request(wrong), deps)).status, 403);
+  assert.equal(calls.filter((c) => c[0] === "quota").length, 0);
+  const badPhone = { ...payload, customer_phone: "a" };
+  assert.equal((await handleCheckoutRequest(request(badPhone), deps)).status, 400);
+  assert.equal(calls.filter((c) => c[0] === "quota").length, 0);
 });
