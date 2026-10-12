@@ -35,11 +35,14 @@ jobs:
       - name: Lint instance-scoped store files
         run: npx eslint src/features/cart/hooks/use-local-cart.ts src/lib/domain/store-context.ts
 
+      - name: Lint gateway files
+        run: npx eslint src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts
+
       - name: Type-check
         run: npx tsc --noEmit
 
-      - name: Store context contract tests
-        run: node --experimental-strip-types --test tests/store-context.test.mjs
+      - name: Store context and gateway contract tests
+        run: node --experimental-strip-types --test tests/store-context.test.mjs tests/checkout-gateway.test.mjs
 
       - name: Build
         run: npm run build
