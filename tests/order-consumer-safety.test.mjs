@@ -18,10 +18,32 @@ test("protected checkout must fail closed before historical phone-only amendment
   assert.match(relevant, /return;/);
 });
 
-test("protected storefront hides the old add-to-order action at the tracking panel", () => {
-  assert.match(storefront, /allowOrderAmendments=\{import\.meta\.env\["VITE_NEROXA_CHECKOUT_GATEWAY"\] !== "true"\}/);
+test("buyer token and RECEIVED/CONFIRMED are required for secure add-to-order CTA", () => {
+  assert.match(storefront, /VITE_NEROXA_CHECKOUT_AMENDMENTS/);
+  assert.match(storefront, /readBuyerAmendmentToken\(data\.instanceId, selectedOrder\.id\)/);
+  assert.match(storefront, /\["RECEIVED", "CONFIRMED"\]\.includes/);
   assert.match(trackingPanel, /const canAddMore\s*=\s*allowOrderAmendments\s*&&/);
   assert.match(trackingPanel, /\{canAddMore &&/);
+});
+
+test("secure amendment requires session token, server endpoint and no phone-only fallback", () => {
+  const guarded = checkout.indexOf('if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true")', checkout.indexOf("if (existingOrder)"));
+  const legacy = checkout.indexOf('"append_public_order_items_with_payment"');
+  assert.ok(guarded > 0 && legacy > guarded);
+  const block = checkout.slice(guarded, legacy);
+  assert.match(block, /readBuyerAmendmentToken\(instanceId, existingOrder\.id\)/);
+  assert.match(block, /fetch\("\/api\/order-amend"/);
+  assert.match(block, /if \(!response\.ok\) throw new Error/);
+  assert.match(block, /return;/);
+  assert.doesNotMatch(block, /supabase\.rpc\(/);
+});
+
+test("issued buyer credential must only be handled in browser session storage", () => {
+  const capability = readFileSync("src/lib/domain/order-amendment-capability.ts", "utf8");
+  assert.match(capability, /sessionStorage\.setItem/);
+  assert.match(capability, /sessionStorage\.getItem/);
+  assert.doesNotMatch(capability, /localStorage/);
+  assert.match(checkout, /rememberBuyerAmendmentToken\(instanceId/);
 });
 
 test("public order creation in protected mode must not fall back to direct RPC", () => {
