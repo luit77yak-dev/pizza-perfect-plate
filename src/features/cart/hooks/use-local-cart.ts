@@ -55,9 +55,7 @@ export function useLocalCart(instanceId: string | undefined) {
         key,
         items: (current.key === key ? current.items : [])
           .map((item) =>
-            item.lineId === lineId
-              ? { ...item, quantity: Math.max(0, quantity) }
-              : item,
+            item.lineId === lineId ? { ...item, quantity: Math.max(0, quantity) } : item,
           )
           .filter((item) => item.quantity > 0),
       }));
@@ -70,9 +68,7 @@ export function useLocalCart(instanceId: string | undefined) {
       if (!key) return;
       setSnapshot((current) => ({
         key,
-        items: (current.key === key ? current.items : []).filter(
-          (item) => item.lineId !== lineId,
-        ),
+        items: (current.key === key ? current.items : []).filter((item) => item.lineId !== lineId),
       }));
     },
     [key],
