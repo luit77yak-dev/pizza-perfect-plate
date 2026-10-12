@@ -252,10 +252,24 @@ export function CheckoutPanel({
         ]),
       };
 
-      const { data: created, error: createError } = await supabase.rpc("create_public_order", {
-        p_order: payload,
-      });
-      if (createError) throw createError;
+      // Opt-in only while trusted ingress, credentials and the backend release gate
+      // are being validated. Gateway errors NEVER fall back to the public RPC.
+      let created: unknown;
+      if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true") {
+        const response = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ p_order: payload }),
+        });
+        const reply = await response.json() as { error?: string; order_id?: string; order_number?: number; total?: number };
+        if (!response.ok) throw new Error(reply.error ?? "Checkout seguro indisponível.");
+        created = reply;
+      } else {
+        const { data, error } = await supabase.rpc("create_public_order", { p_order: payload });
+        if (error) throw error;
+        created = data;
+      }
 
       const order = (Array.isArray(created) ? created[0] : created) as { order_id?: string; order_number?: number; total?: number } | null | undefined;
       if (!order?.order_number || !order?.order_id)
