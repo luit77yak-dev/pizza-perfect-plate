@@ -21,7 +21,9 @@ export function useLocalCart(instanceId: string | undefined) {
   const [snapshot, setSnapshot] = useState<CartSnapshot>({ key: null, items: [] });
 
   useEffect(() => {
-    setSnapshot({ key, items: key ? readCart(key) : [] });
+    setSnapshot((current) =>
+      current.key === key ? current : { key, items: key ? readCart(key) : [] },
+    );
   }, [key]);
 
   const items = snapshot.key === key ? snapshot.items : [];
