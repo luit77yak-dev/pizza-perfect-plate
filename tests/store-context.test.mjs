@@ -26,8 +26,11 @@ test("public catalog identity is passed through to checkout", () => {
   const checkout = readFileSync("src/features/storefront/components/CheckoutPanel.tsx", "utf8");
 
   assert.match(load, /instanceId: context\.instance_id/);
+  assert.match(load, /storeDomain: context\.domain/);
   assert.match(storefront, /instanceId=\{data\.instanceId\}/);
+  assert.match(storefront, /storeDomain=\{data\.storeDomain\}/);
   assert.match(checkout, /instance_id: instanceId/);
+  assert.match(checkout, /store_domain: storeDomain/);
   assert.match(storefront, /useLocalCart\(data\?\.instanceId\)/);
   assert.doesNotMatch(storefront, /tracked-orders:\$\{data\.organization\.id\}/);
 });
