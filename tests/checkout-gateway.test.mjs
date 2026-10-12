@@ -172,7 +172,7 @@ test("rejects missing idempotency and oversized bodies", async () => {
   const { calls, deps } = makeDeps();
   const noKey = { ...payload, idempotency_key: "" };
   assert.equal((await handleCheckoutRequest(request(noKey), deps)).status, 400);
-  const oversized = { ...payload, notes: "a".repeat(65_000) };
+  const oversized = { ...payload, notes: "a".repeat(70_000) };
   assert.equal((await handleCheckoutRequest(request(oversized), deps)).status, 413);
   assert.equal(calls.length, 0);
 });
