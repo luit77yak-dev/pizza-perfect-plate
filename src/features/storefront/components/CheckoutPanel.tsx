@@ -535,6 +535,8 @@ export function CheckoutPanel({
               </section>
             )}
 
+            {!(existingOrder && import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true" &&
+              import.meta.env["VITE_NEROXA_CHECKOUT_AMENDMENTS"] === "true") && (
             <section className="rounded-3xl border bg-card p-5 shadow-soft">
               <p className="text-sm font-semibold">Pagamento</p>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -560,6 +562,17 @@ export function CheckoutPanel({
                 ))}
               </div>
             </section>
+            )}
+            {existingOrder && import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true" &&
+              import.meta.env["VITE_NEROXA_CHECKOUT_AMENDMENTS"] === "true" && (
+              <section className="rounded-3xl border bg-card p-5 text-sm">
+                <p className="font-semibold">Valor adicional pendente</p>
+                <p className="mt-2 text-muted-foreground">
+                  Adicionar itens não confirma nem cobra o pagamento. Combine a diferença
+                  com o estabelecimento; ela será registrada como não liquidada.
+                </p>
+              </section>
+            )}
 
             {!existingOrder && (
             <section className="rounded-3xl border bg-card p-5 shadow-soft">
