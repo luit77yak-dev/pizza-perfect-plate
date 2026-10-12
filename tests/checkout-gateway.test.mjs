@@ -156,6 +156,26 @@ test("Host port normalization keeps strict hostname and full Origin checks", asy
   }
 });
 
+test("TanStack stripped Host works only with an exact HTTPS Origin", async () => {
+  const urlValue = "https://" + hostname + ":4173/api/checkout";
+  const origin = "https://" + hostname + ":4173";
+  const authorized = request(payload, { urlValue, host: hostname, origin });
+  authorized.headers.delete("host");
+  const { deps } = makeDeps();
+  const good = await handleCheckoutRequest(authorized, deps);
+  assert.equal(good.status, 200, "adapter may completely omit Host");
+
+  for (const invalidOrigin of ["", "http://" + hostname + ":4173", "https://b.neroxa.example:4173", "https://" + hostname]) {
+    const bad = request(payload, { urlValue, host: hostname, origin: invalidOrigin });
+    bad.headers.delete("host");
+    const { deps: blocked } = makeDeps();
+    assert.equal((await handleCheckoutRequest(bad, blocked)).status, 403);
+  }
+
+  const explicitEmpty = request(payload, { urlValue, host: "", origin });
+  assert.equal((await handleCheckoutRequest(explicitEmpty, makeDeps().deps)).status, 403);
+});
+
 test("never trusts X-Forwarded-Host to select the store", async () => {
   const { calls, deps } = makeDeps();
   const response = await handleCheckoutRequest(
