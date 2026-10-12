@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHash, createHmac, randomBytes } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
   handleCheckoutRequest,
@@ -87,6 +87,36 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
       if (!record || typeof record !== "object") throw new Error("Order RPC returned no order");
       const row = record as Record<string, unknown>;
       if (typeof row["order_id"] !== "string") throw new Error("Invalid order ID");
+      // Both checkout and amendments must be explicitly enabled at runtime.
+      // This credential is minted by the server, never accepted from the
+      // browser as a substitute for the order's authorization.
+      if (process.env["NEROXA_CHECKOUT_AMENDMENTS_ENABLED"] === "true") {
+        const token = randomBytes(32).toString("base64url");
+        const digest = createHash("sha256").update(token).digest("hex");
+        const { data: registered, error: registrationError } = await candidate.rpc(
+          "neroxa_register_order_amendment_capability",
+          {
+            p_instance_id: payload["instance_id"],
+            p_order_id: row["order_id"],
+            p_checkout_key: payload["idempotency_key"],
+            p_token_sha256: digest,
+          },
+        );
+        if (registrationError || typeof registered !== "boolean") {
+          // Fail closed. The order may already exist; client retry MUST reuse
+          // its checkout idempotency key to complete registration safely.
+          throw new Error("Amendment capability unavailable");
+        }
+        if (registered) {
+          return {
+            order_id: row["order_id"],
+            order_number: Number(row["order_number"]),
+            total: Number(row["total"]),
+            amendment_token: token,
+          };
+        }
+        // A replay cannot reissue or rotate the initial buyer capability.
+      }
       return {
         order_id: row["order_id"],
         order_number: Number(row["order_number"]),
