@@ -1,6 +1,8 @@
+import { createHmac } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
   handleCheckoutRequest,
+  CheckoutRateLimitError,
   type OrderResult,
   type StoreContext,
 } from "./checkout-gateway";
@@ -29,7 +31,18 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
     return handleCheckoutRequest(request, {
       enabled: false,
       resolveContext: async () => null,
+      reserveQuota: async () => { throw new Error("Gateway disabled"); },
       createOrder: async () => { throw new Error("Gateway disabled"); },
+    });
+  }
+  // No HMAC key, no privileged checkout. Never substitute a fixed/shared key.
+  const secret = process.env["NEROXA_CHECKOUT_RATE_LIMIT_SECRET"];
+  if (!secret || Buffer.byteLength(secret, "utf8") < 32) {
+    return handleCheckoutRequest(request, {
+      enabled: false,
+      resolveContext: async () => null,
+      reserveQuota: async () => { throw new Error("Quota secret unavailable"); },
+      createOrder: async () => { throw new Error("Quota secret unavailable"); },
     });
   }
   const candidate = supabaseAdmin as unknown as CandidateRpcClient;
@@ -51,6 +64,19 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
         instance_id: resolved["instance_id"],
         organization_id: resolved["organization_id"],
       };
+    },
+    reserveQuota: async (context, customerPhone): Promise<void> => {
+      const normalized = customerPhone.replace(/\\D/g, "");
+      // No raw telephone number, cookie or IP is persisted in quota tables.
+      const digest = createHmac("sha256", secret)
+        .update(context.instance_id + ":" + normalized)
+        .digest("hex");
+      const { data, error } = await candidate.rpc("neroxa_checkout_reserve_quota", {
+        p_instance_id: context.instance_id,
+        p_contact_fingerprint: digest,
+      });
+      if (error?.code === "PT429") throw new CheckoutRateLimitError("Quota exceeded");
+      if (error || data !== true) throw new Error("Quota service unavailable");
     },
     createOrder: async (payload): Promise<OrderResult> => {
       const { data, error } = await candidate.rpc("create_public_order", {
