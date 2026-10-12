@@ -47,7 +47,7 @@ export function Storefront() {
     enabled: mounted,
     staleTime: 60_000,
   });
-  const cart = useLocalCart();
+  const cart = useLocalCart(data?.instanceId);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -65,12 +65,12 @@ export function Storefront() {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    if (!data?.organization?.id) return;
+    if (!data?.instanceId) return;
     let cancelled = false;
 
     const loadTrackedOrders = async () => {
       try {
-        const raw = localStorage.getItem(`ppp:tracked-orders:${data.organization.id}`) ?? localStorage.getItem(`ppp:last-order:${data.organization.id}`);
+        const raw = localStorage.getItem(`ppp:tracked-orders:${data.instanceId}`) ?? localStorage.getItem(`ppp:last-order:${data.instanceId}`);
         if (!raw) {
           if (!cancelled) {
             setTrackedOrders([]);
@@ -169,12 +169,12 @@ export function Storefront() {
 
         if (activeOrders.length > 0) {
           localStorage.setItem(
-            `ppp:tracked-orders:${data.organization.id}`,
+            `ppp:tracked-orders:${data.instanceId}`,
             JSON.stringify(activeOrders),
           );
         } else {
-          localStorage.removeItem(`ppp:tracked-orders:${data.organization.id}`);
-          localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
+          localStorage.removeItem(`ppp:tracked-orders:${data.instanceId}`);
+          localStorage.removeItem(`ppp:last-order:${data.instanceId}`);
         }
       } catch {
         if (!cancelled) {
@@ -193,7 +193,7 @@ export function Storefront() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [data?.organization?.id]);
+  }, [data?.instanceId]);
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 30_000);
     return () => window.clearInterval(interval);
@@ -869,6 +869,7 @@ export function Storefront() {
       {checkoutOpen && (
         <CheckoutPanel
           organization={data.organization}
+          instanceId={data.instanceId}
           settings={data.settings}
           deliveryZones={data.deliveryZones}
           items={activeComplementOrderId ? complementItems : cart.items}
@@ -945,7 +946,7 @@ export function Storefront() {
               const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
               try {
                 localStorage.setItem(
-                  `ppp:tracked-orders:${data.organization.id}`,
+                  `ppp:tracked-orders:${data.instanceId}`,
                   JSON.stringify(next),
                 );
               } catch {
@@ -959,7 +960,7 @@ export function Storefront() {
             setTrackingOpen(true);
             try {
               localStorage.setItem(
-                `ppp:last-order:${data.organization.id}`,
+                `ppp:last-order:${data.instanceId}`,
                 JSON.stringify(order),
               );
             } catch {
