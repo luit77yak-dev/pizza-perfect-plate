@@ -62,17 +62,19 @@ export async function handleCheckoutRequest(
     return result(403, "Domínio não autorizado para pedidos.");
   }
 
-  // Host and Origin must agree with the routed URL; never use X-Forwarded-Host.
+  // TanStack Start may remove Host before forwarding the Request to routes.
+  // When Host is present, it must match the URL's hostname, and an explicit
+  // incorrect port is forbidden. When the adapter omits Host entirely, require
+  // Origin to match the full URL origin (including scheme and nondefault port).
+  // request.url itself MUST originate from a trusted routing edge in deployment:
+  // matching client-controlled headers is NOT proof of requester identity.
   const hostHeader = request.headers.get("host");
   const originHeader = request.headers.get("origin");
-  // Some server adapters normalize Host by dropping an explicitly routed
-  // non-default port (while preserving request.url and Origin). Accept that
-  // normalization ONLY for the exact same hostname; an explicit wrong port
-  // remains forbidden, and Origin still must match the full scheme + port.
-  const validHost = !!hostHeader && (
-    hostHeader.toLowerCase() === url.host.toLowerCase() ||
-    (url.port !== "" && hostHeader.toLowerCase() === url.hostname.toLowerCase())
-  );
+  const validHost =
+    !request.headers.has("host") ||
+    (!!hostHeader &&
+      (hostHeader.toLowerCase() === url.host.toLowerCase() ||
+        (url.port !== "" && hostHeader.toLowerCase() === url.hostname.toLowerCase())));
   if (!validHost ||
     !originHeader || originHeader !== url.origin ||
     (request.headers.has("sec-fetch-site") &&
