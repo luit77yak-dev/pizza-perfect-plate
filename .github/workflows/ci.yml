@@ -26,7 +26,7 @@ jobs:
         run: npm install
 
       - name: Format refactored storefront and candidate gateway
-        run: npx prettier --write src/components/storefront/Storefront.tsx src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts
+        run: npx prettier --write src/components/storefront/Storefront.tsx src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx src/components/storefront/TrackedOrderPanel.tsx src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts
 
 
       - name: Lint refactored storefront
@@ -39,7 +39,7 @@ jobs:
         run: npx eslint src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts
 
       - name: Store context and gateway contract tests
-        run: node --experimental-strip-types --test tests/store-context.test.mjs tests/checkout-gateway.test.mjs
+        run: node --experimental-strip-types --test tests/store-context.test.mjs tests/checkout-gateway.test.mjs tests/order-consumer-safety.test.mjs
 
       # The build regenerates the TanStack route tree for /api/checkout.
       - name: Build and regenerate route types
