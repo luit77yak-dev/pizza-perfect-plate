@@ -17,6 +17,7 @@ import type {
 export function CheckoutPanel({
   organization,
   instanceId,
+  storeDomain,
   settings,
   deliveryZones,
   items,
@@ -29,6 +30,7 @@ export function CheckoutPanel({
 }: {
   organization: Organization;
   instanceId: string;
+  storeDomain: string;
   settings: OrganizationSettings;
   deliveryZones: DeliveryZone[];
   items: CartItem[];
@@ -110,8 +112,8 @@ export function CheckoutPanel({
     }
 
     // Only the domain-resolved store context may be used by this checkout.
-    if (!instanceId) {
-      setError("Não foi possível identificar esta loja. Recarregue o cardápio.");
+    if (!instanceId || !storeDomain) {
+      setError("Não foi possível identificar esta loja e seu domínio. Recarregue o cardápio.");
       return;
     }
 
@@ -212,6 +214,7 @@ export function CheckoutPanel({
       const payload = {
         organization_id: organization.id,
         instance_id: instanceId,
+        store_domain: storeDomain,
         subtotal,
         customer_name: name.trim(),
         customer_phone: phone.trim(),
