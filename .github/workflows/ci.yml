@@ -32,5 +32,8 @@ jobs:
       - name: Lint refactored storefront
         run: npx eslint src/components/storefront/Storefront.tsx src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx
 
+      - name: Store context contract tests
+        run: node --experimental-strip-types --test tests/store-context.test.mjs
+
       - name: Build
         run: npm run build
