@@ -99,7 +99,7 @@ export async function handleCheckoutRequest(
   if (!isUuid(payload["idempotency_key"]) || !Array.isArray(payload["items"]) ||
     payload["items"].length < 1 || payload["items"].length > 40 ||
     typeof payload["customer_phone"] !== "string" ||
-    !/^\\d{10,15}$/.test(payload["customer_phone"].replace(/\\D/g, ""))) {
+    !/^[0-9]{10,15}$/.test(payload["customer_phone"].replace(/[^0-9]/g, ""))) {
     return result(400, "Itens ou chave do pedido inválidos.");
   }
 
