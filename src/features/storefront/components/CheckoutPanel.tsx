@@ -118,6 +118,14 @@ export function CheckoutPanel({
     }
 
     if (existingOrder) {
+      // The historical append RPC authorizes by order ID + phone only.
+      // In protected checkout mode, never silently fall back to that RPC.
+      // Re-enable amendments only after the scoped token/ingress endpoint,
+      // direct-RPC revocation and isolation tests have been released together.
+      if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true") {
+        setError("Adicionar itens a um pedido existente estará disponível após a validação de segurança.");
+        return;
+      }
       if (items.length === 0) {
         setError("Adicione pelo menos um item.");
         return;
