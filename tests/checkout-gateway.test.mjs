@@ -132,6 +132,30 @@ test("rejects forged host, Origin and Sec-Fetch-Site", async () => {
   }
 });
 
+test("Host port normalization keeps strict hostname and full Origin checks", async () => {
+  const urlValue = "https://" + hostname + ":4173/api/checkout";
+  const origin = "https://" + hostname + ":4173";
+  const { deps } = makeDeps();
+  const normalized = await handleCheckoutRequest(
+    request(payload, { urlValue, host: hostname, origin }),
+    deps,
+  );
+  assert.equal(normalized.status, 200, "runtime may normalize Host without nondefault port");
+
+  for (const bad of [
+    { urlValue, host: hostname + ":8443", origin },
+    { urlValue, host: "b.neroxa.example", origin },
+    { urlValue, host: hostname, origin: "https://" + hostname },
+  ]) {
+    const { deps: blocked } = makeDeps();
+    assert.equal(
+      (await handleCheckoutRequest(request(payload, bad), blocked)).status,
+      403,
+      "wrong host, explicit port or Origin must never be accepted",
+    );
+  }
+});
+
 test("never trusts X-Forwarded-Host to select the store", async () => {
   const { calls, deps } = makeDeps();
   const response = await handleCheckoutRequest(
