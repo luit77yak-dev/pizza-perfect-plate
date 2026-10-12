@@ -65,7 +65,15 @@ export async function handleCheckoutRequest(
   // Host and Origin must agree with the routed URL; never use X-Forwarded-Host.
   const hostHeader = request.headers.get("host");
   const originHeader = request.headers.get("origin");
-  if (!hostHeader || hostHeader.toLowerCase() !== url.host.toLowerCase() ||
+  // Some server adapters normalize Host by dropping an explicitly routed
+  // non-default port (while preserving request.url and Origin). Accept that
+  // normalization ONLY for the exact same hostname; an explicit wrong port
+  // remains forbidden, and Origin still must match the full scheme + port.
+  const validHost = !!hostHeader && (
+    hostHeader.toLowerCase() === url.host.toLowerCase() ||
+    (url.port !== "" && hostHeader.toLowerCase() === url.hostname.toLowerCase())
+  );
+  if (!validHost ||
     !originHeader || originHeader !== url.origin ||
     (request.headers.has("sec-fetch-site") &&
       !["same-origin", "none"].includes(request.headers.get("sec-fetch-site") ?? ""))) {
