@@ -1,42 +1,84 @@
 import { useCallback, useEffect, useState } from "react";
 import type { CartItem } from "@/lib/domain/types";
 
-const STORAGE_KEY = "pizza-perfect-plate:cart";
+type CartSnapshot = { key: string | null; items: CartItem[] };
 
-function readCart(): CartItem[] {
+// Never reuse the old global "pizza-perfect-plate:cart" key: it cannot
+// distinguish two storefronts sharing the same origin.
+function readCart(key: string): CartItem[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as CartItem[]) : [];
+    const parsed: unknown = JSON.parse(window.localStorage.getItem(key) ?? "[]");
+    return Array.isArray(parsed) ? (parsed as CartItem[]) : [];
   } catch {
     return [];
   }
 }
 
-export function useLocalCart() {
-  const [items, setItems] = useState<CartItem[]>(readCart);
+export function useLocalCart(instanceId: string | undefined) {
+  const key = instanceId ? `pizza-perfect-plate:cart:${instanceId}` : null;
+  const [snapshot, setSnapshot] = useState<CartSnapshot>({ key: null, items: [] });
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
+    setSnapshot({ key, items: key ? readCart(key) : [] });
+  }, [key]);
 
-  const addItem = useCallback((item: CartItem) => {
-    setItems((current) => [...current, item]);
-  }, []);
+  const items = snapshot.key === key ? snapshot.items : [];
 
-  const updateQuantity = useCallback((lineId: string, quantity: number) => {
-    setItems((current) =>
-      current
-        .map((item) => (item.lineId === lineId ? { ...item, quantity: Math.max(0, quantity) } : item))
-        .filter((item) => item.quantity > 0),
-    );
-  }, []);
+  useEffect(() => {
+    if (!key || snapshot.key !== key) return;
+    try {
+      window.localStorage.setItem(key, JSON.stringify(snapshot.items));
+    } catch {
+      // Browser storage may be disabled. The cart stays usable in memory.
+    }
+  }, [key, snapshot]);
 
-  const removeItem = useCallback((lineId: string) => {
-    setItems((current) => current.filter((item) => item.lineId !== lineId));
-  }, []);
+  const addItem = useCallback(
+    (item: CartItem) => {
+      if (!key) return;
+      setSnapshot((current) => ({
+        key,
+        items: [...(current.key === key ? current.items : []), item],
+      }));
+    },
+    [key],
+  );
 
-  const clear = useCallback(() => setItems([]), []);
+  const updateQuantity = useCallback(
+    (lineId: string, quantity: number) => {
+      if (!key) return;
+      setSnapshot((current) => ({
+        key,
+        items: (current.key === key ? current.items : [])
+          .map((item) =>
+            item.lineId === lineId
+              ? { ...item, quantity: Math.max(0, quantity) }
+              : item,
+          )
+          .filter((item) => item.quantity > 0),
+      }));
+    },
+    [key],
+  );
+
+  const removeItem = useCallback(
+    (lineId: string) => {
+      if (!key) return;
+      setSnapshot((current) => ({
+        key,
+        items: (current.key === key ? current.items : []).filter(
+          (item) => item.lineId !== lineId,
+        ),
+      }));
+    },
+    [key],
+  );
+
+  const clear = useCallback(() => {
+    if (!key) return;
+    setSnapshot({ key, items: [] });
+  }, [key]);
 
   return { items, addItem, updateQuantity, removeItem, clear };
 }
