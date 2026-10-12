@@ -47,3 +47,27 @@ jobs:
 
       - name: Type-check generated routes
         run: npx tsc --noEmit
+
+      - name: Smoke real HTTP checkout route with gateway disabled
+        env:
+          NEROXA_CHECKOUT_GATEWAY_ENABLED: "false"
+        run: |
+          set -euo pipefail
+          npm run preview -- --host 127.0.0.1 --port 4173 > "$RUNNER_TEMP/checkout-preview.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          response=""
+          for attempt in $(seq 1 35); do
+            response=$(curl --max-time 3 --silent --output /dev/null --write-out '%{http_code}' \
+              --header 'Content-Type: application/json' \
+              --data '{"p_order":{}}' \
+              http://127.0.0.1:4173/api/checkout || true)
+            if [ "$response" = "503" ]; then
+              echo "PASS: HTTP handler routes to disabled gateway (503)"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "FAIL: expected disabled gateway HTTP 503, got $response"
+          tail -50 "$RUNNER_TEMP/checkout-preview.log"
+          exit 1
