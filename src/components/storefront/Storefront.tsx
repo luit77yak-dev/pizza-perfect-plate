@@ -18,6 +18,7 @@ import { CartPanel } from "@/features/cart/components/CartPanel";
 import { CheckoutPanel } from "@/features/storefront/components/CheckoutPanel";
 import { TrackedOrderPanel } from "@/components/storefront/TrackedOrderPanel";
 import { useLocalCart } from "@/features/cart/hooks/use-local-cart";
+import { storefrontLocalKey } from "@/lib/domain/store-context";
 import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
@@ -70,7 +71,7 @@ export function Storefront() {
 
     const loadTrackedOrders = async () => {
       try {
-        const raw = localStorage.getItem(`ppp:tracked-orders:${data.instanceId}`) ?? localStorage.getItem(`ppp:last-order:${data.instanceId}`);
+        const raw = localStorage.getItem(storefrontLocalKey("tracked-orders", data.instanceId)) ?? localStorage.getItem(storefrontLocalKey("last-order", data.instanceId));
         if (!raw) {
           if (!cancelled) {
             setTrackedOrders([]);
@@ -169,12 +170,12 @@ export function Storefront() {
 
         if (activeOrders.length > 0) {
           localStorage.setItem(
-            `ppp:tracked-orders:${data.instanceId}`,
+            storefrontLocalKey("tracked-orders", data.instanceId),
             JSON.stringify(activeOrders),
           );
         } else {
-          localStorage.removeItem(`ppp:tracked-orders:${data.instanceId}`);
-          localStorage.removeItem(`ppp:last-order:${data.instanceId}`);
+          localStorage.removeItem(storefrontLocalKey("tracked-orders", data.instanceId));
+          localStorage.removeItem(storefrontLocalKey("last-order", data.instanceId));
         }
       } catch {
         if (!cancelled) {
@@ -946,7 +947,7 @@ export function Storefront() {
               const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
               try {
                 localStorage.setItem(
-                  `ppp:tracked-orders:${data.instanceId}`,
+                  storefrontLocalKey("tracked-orders", data.instanceId),
                   JSON.stringify(next),
                 );
               } catch {
@@ -960,7 +961,7 @@ export function Storefront() {
             setTrackingOpen(true);
             try {
               localStorage.setItem(
-                `ppp:last-order:${data.instanceId}`,
+                storefrontLocalKey("last-order", data.instanceId),
                 JSON.stringify(order),
               );
             } catch {
