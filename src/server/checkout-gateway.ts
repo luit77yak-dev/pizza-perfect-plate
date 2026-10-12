@@ -14,6 +14,8 @@ export type OrderResult = {
   order_id: string;
   order_number: number;
   total: number;
+  /** Returned only once after a successful service-only capability registration. */
+  amendment_token?: string;
 };
 
 export class CheckoutRateLimitError extends Error {}
@@ -156,8 +158,17 @@ export async function handleCheckoutRequest(
       Number(created.order_number) < 1 || !Number.isFinite(Number(created.total))) {
       return result(502, "Resposta inválida do checkout.");
     }
+    if (created.amendment_token !== undefined &&
+      !/^[A-Za-z0-9_-]{43}$/.test(created.amendment_token)) {
+      return result(502, "Credencial de alteração inválida.");
+    }
     return Response.json(
-      { order_id: created.order_id, order_number: Number(created.order_number), total: Number(created.total) },
+      {
+        order_id: created.order_id,
+        order_number: Number(created.order_number),
+        total: Number(created.total),
+        ...(created.amendment_token ? { amendment_token: created.amendment_token } : {}),
+      },
       { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
     );
   } catch {
