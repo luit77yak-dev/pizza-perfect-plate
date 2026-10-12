@@ -25,14 +25,43 @@ No Master, o candidato `audits/sql/legacy-order-append-no-bypass.release-gate.ca
 
 - [Pizza Perfect Plate — CI **38309029354**](https://github.com/luit77yak-dev/pizza-perfect-plate/actions/runs/38309029354): **23/23 testes PASS**, lint, TypeScript, build e smoke HTTP local com gateway desligado. Inclui guardas estáticas do item esquecido, tracking e painel legado.
 - [Master — clone Auth/PostgREST **38308754783**](https://github.com/luit77yak-dev/neroxa-master/actions/runs/38308754783): **275/275** testes da matriz + **54/54** integração/ACL + **30/30** gateway HTTPS local habilitado. Total **359 PASS**, incluindo negação anônima/autenticada da RPC legada após revogação candidata **somente no clone**.
-- **Não existe nesta branch um endpoint autorizado por token para adicionar itens**; habilitar gateway com as RPCs antigas abertas não é um release seguro. O frontend impede uso acidental do fluxo antigo, mas não impede requisições diretas externas até a revogação futura.
+- **Agora existe um endpoint candidato autorizado por token nesta branch**, mas continua desativado por padrão. Habilitar gateway com as RPCs antigas abertas **ainda não é um release seguro**: a trava do frontend não impede chamadas diretas externas até a revogação futura.
+
+## Evidência posterior: token por pedido e HTTPS local habilitado
+
+- [Neroxa Master — CI 38317636564](https://github.com/luit77yak-dev/neroxa-master/actions/runs/38317636564):
+  **419/419 verificações PASS**, zero falhas: 275 isolamento/Auth, 54 ACLs/gateway,
+  43 capacidade de comprador no PostgreSQL e 47 HTTPS TanStack com checkout e
+  `POST /api/order-amend` habilitados apenas no ambiente descartável.
+- [Pizza Perfect Plate — CI 38317138016](https://github.com/luit77yak-dev/pizza-perfect-plate/actions/runs/38317138016):
+  **33 testes PASS**, lint, TypeScript, build e smoke das rotas bloqueadas por flags.
+- Nesta PR foram adicionados `src/server/order-amendment.ts`,
+  `src/server/order-amendment.server.ts`, `src/routes/api/order-amend.ts`,
+  token entregue no primeiro checkout seguro e armazenamento apenas em
+  `sessionStorage` por instância e pedido. A UI só oferece item esquecido
+  para `RECEIVED`/`CONFIRMED` e quando a capacidade está presente.
+- No Master, `audits/sql/order-amendment-capability.candidate.sql` cria o
+  registro privado de hash de token e a operação atômica/idempotente com
+  `payment_state='NOT_SETTLED'`. O token é aleatório de 256 bits, validade
+  candidata de duas horas, com coluna de revogação e sem divulgação em URLs.
+- Um token incorreto/expirado/revogado não modifica pedido; produto ou instância
+  de outra loja são recusados; repetições simultâneas não duplicam linhas.
+  O HTTP local retornou **429 na sexta tentativa**, sem inclusão adicional.
+
+[Relatório detalhado no Master](https://github.com/luit77yak-dev/neroxa-master/blob/audit/store-isolation-candidate-20261011/audits/order-amendment-token-rehearsal-20261012.md)
+
+**Limite:** os testes são locais. A RPC legada UUID+telefone permanece disponível
+fora do clone até a revogação coordenada; falta autorização de acompanhamento,
+roteamento edge confiável, pagamento/aceite comercial, consumidores e recuperação.
+As flags `NEROXA_CHECKOUT_AMENDMENTS_ENABLED` e
+`VITE_NEROXA_CHECKOUT_AMENDMENTS` permanecem desativadas por padrão.
 
 ## Gates antes de habilitar o gateway comercial
 
-1. Criar uma API de alteração com token aleatório por pedido, validade e revogação, restrito à instância; conferir preço/estado/idempotência no SQL e rate limiting no servidor.
+1. Homologar a API candidata com token por pedido, incluindo runtime da borda, recuperação sem reemissão insegura, XSS/sessionStorage, privilégio mínimo e integração de pagamento não liquidado.
 2. Migrar acompanhamento para leitura com autorização e resposta mínima, sem expor endereço/telefone apenas com UUID+telefone.
 3. Desabilitar ou migrar o `/painel` legado de forma controlada, sem perder pedidos históricos.
 4. Homologar ACL das RPCs antigas e novas com JWTs anônimos, usuários reais e clientes de outras instâncias; executar revogação **somente em clone** antes do release planejado.
 5. Inspecionar dependências externas, pagamentos, domínios confiáveis, contingência e conciliação do catálogo histórico sem instância.
 
-**Bloqueio intencional:** no modo seguro, item esquecido ficará indisponível até o endpoint de alteração ser autorizado, implementado e testado. Não prometer essa função aos clientes antes de fechar a migração.
+**Bloqueio intencional:** item esquecido continua desativado por padrão; o endpoint candidato e seus testes não autorizam ativação comercial sem os demais gates. Não prometer essa função aos clientes antes de fechar a migração.
