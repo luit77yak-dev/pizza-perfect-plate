@@ -118,7 +118,8 @@ export async function handlePrivateOrderAmendment(request: Request): Promise<Res
       const row = Array.isArray(data) ? data[0] : data;
       if (!row || typeof row !== "object") throw new Error("No amended order");
       const typed = row as Record<string, unknown>;
-      if (typeof typed["order_id"] !== "string") throw new Error("Invalid order");
+      if (typeof typed["order_id"] !== "string" || typed["payment_state"] !== "NOT_SETTLED")
+        throw new Error("Invalid order/payment state");
       return {
         order_id: typed["order_id"],
         order_number: Number(typed["order_number"]),

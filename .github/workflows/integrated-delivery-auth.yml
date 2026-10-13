@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: luit77yak-dev/neroxa-master
-          ref: f318960781978dac3010a39145373185ec91a5ae
+          ref: 64ea531163f1fc0feec4a86e683459d0614775db
           path: master
           persist-credentials: false
       - uses: actions/setup-node@v4
