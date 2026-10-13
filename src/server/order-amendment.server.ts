@@ -1,3 +1,4 @@
+import { checkRuntimeBackend } from "../integrations/test-backend";
 import { groupedContract } from "./group-contract";
 import { sameDeliveryBackend } from "../core/delivery/backend-binding";
 import { createHmac } from "node:crypto";

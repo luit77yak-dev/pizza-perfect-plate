@@ -1,3 +1,4 @@
+import { checkRuntimeBackend } from "../integrations/test-backend";
 import { groupedContract } from "./group-contract";
 import { sameDeliveryBackend } from "../core/delivery/backend-binding";
 import { createHash, createHmac, randomBytes } from "node:crypto";
@@ -18,6 +19,7 @@ import {
  * SUPABASE_SERVICE_ROLE_KEY is read exclusively by client.server.ts.
  */
 export function checkoutGatewayEnabled(): boolean {
+  checkRuntimeBackend(true);
   return (
     process.env["NEROXA_CHECKOUT_GATEWAY_ENABLED"] === "true" &&
     (process.env["NEROXA_REQUIRE_DURABLE_CHECKOUT_INTENTS"] !== "true" ||

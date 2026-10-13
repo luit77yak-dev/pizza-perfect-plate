@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   auth-matrix:
-    if: github.ref == 'refs/heads/audit/first-complete-order-20261013'
+    if: github.ref == 'refs/heads/audit/backend-isolation-20261013'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: luit77yak-dev/neroxa-master
-          ref: 26b3c54f89f5e1a90f28c5f463b1543db99c3e0e
+          ref: ce74605aecc0dd7d45444c32667dc6937183208b
           path: master
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -74,7 +74,7 @@ jobs:
           path: master/delivery-consumer
           persist-credentials: false
       - name: Verify pinned Master commit
-        run: test "$(git rev-parse HEAD)" = "26b3c54f89f5e1a90f28c5f463b1543db99c3e0e"
+        run: test "$(git rev-parse HEAD)" = "ce74605aecc0dd7d45444c32667dc6937183208b"
       - name: Verify pinned delivery commit
         run: test "$(git -C delivery-consumer rev-parse HEAD)" = "${{ github.sha }}"
       - name: Integrate real local checkout gateway and test direct RPC revocation
@@ -97,7 +97,9 @@ jobs:
         run: node tools/ab-auth/h03_browser.mjs
       - name: Operational failures isolation and reconciliation race
         run: node tools/ab-auth/first_order_security.mjs
-      - name: Full delivery and authenticated operational panel
+      - name: Native negative backend configuration and normal build guards
+        run: node --experimental-strip-types tools/ab-auth/backend_configuration_native.mjs
+      - name: Full delivery and authenticated operational panel through normal compiled build
         run: node tools/ab-auth/first_order_browser.mjs
       - name: Sanitized evidence only
         if: always()

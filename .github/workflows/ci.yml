@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   integrated-auth:
-    if: github.ref == 'refs/heads/audit/first-complete-order-20261013'
+    if: github.ref == 'refs/heads/audit/backend-isolation-20261013'
     uses: ./.github/workflows/integrated-delivery-auth.yml
 
   validate:
@@ -49,6 +49,9 @@ jobs:
 
       - name: Lint H03 H04 contracts
         run: npx eslint src/core/delivery/availability.ts src/core/delivery/durable-checkout-intent.ts src/core/delivery/review-cart-prices.ts src/routes/api/order-recover.ts
+
+      - name: Lint backend isolation configuration
+        run: npx eslint src/core/delivery/backend-configuration.ts src/integrations/test-backend.ts src/integrations/storefront-backend/client.ts src/integrations/supabase/client.ts src/integrations/supabase/client.server.ts src/integrations/supabase/auth-middleware.ts vite.config.ts
 
       - name: Store context and gateway contract tests
         run: node --experimental-strip-types --test tests/*.test.mjs

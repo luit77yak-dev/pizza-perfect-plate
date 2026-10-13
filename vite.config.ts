@@ -1,15 +1,20 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - TanStack devtools (dev-only, first), tanstackStart, viteReact, tailwindcss, tsConfigPaths,
-//     nitro (build-only using cloudflare as a default target), VITE_* env injection, @ path alias,
-//     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { loadEnv, type ConfigEnv } from "vite";
+import { assertServerBackend, testBackend } from "./src/core/delivery/backend-configuration";
 
-export default defineConfig({
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
-  },
-});
+export default async (environment: ConfigEnv) => {
+  const config = testBackend({
+    ...loadEnv(environment.mode, process.cwd(), "VITE_"),
+    ...process.env,
+  });
+  if (environment.mode === "homologation" && !config) {
+    throw new Error("Homologation build requires explicit backend configuration");
+  }
+  if (config) assertServerBackend(config, process.env);
+  return defineConfig({
+    tanstackStart: { server: { entry: "server" } },
+    // A normal build from this config, never a replacement SDK module or alias.
+    // Other modes retain the existing platform target auto-detection.
+    ...(config ? { nitro: { preset: "node-server" } } : {}),
+  })(environment);
+};
