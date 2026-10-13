@@ -244,7 +244,10 @@ function AdminOrdersPage() {
       password,
     });
     if (authError) setError(authError.message);
-    else setSession(true);
+    else {
+      setPassword("");
+      setSession(true);
+    }
     setLoading(false);
   };
 
@@ -252,7 +255,15 @@ function AdminOrdersPage() {
     requestSequence.current++;
     setInstanceId(null);
     setRequestedInstance("");
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } finally {
+      setSession(false);
+      setLoading(false);
+      statusBusy.current = false;
+      setPassword("");
+      setDetail(null);
+    }
     setSession(false);
     setOrders([]);
     setSelected(null);

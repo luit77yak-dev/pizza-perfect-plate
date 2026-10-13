@@ -32,7 +32,7 @@ function mark(storage: CheckoutIntentStorage, instance: string, value: string | 
       "=" +
       (value === null ? "" : "pending") +
       "; Path=/; Secure; SameSite=Strict; Max-Age=" +
-      (value === null ? 0 : 86400);
+      (value === null ? 0 : 365 * 86400);
     if (value !== null && !document.cookie.split("; ").includes(name + "=pending"))
       throw Error("Marcador de recuperação indisponível. Pedido não enviado.");
   }
