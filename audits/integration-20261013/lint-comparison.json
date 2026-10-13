@@ -1,0 +1,8 @@
+{
+  "baseline_errors": 2779,
+  "baseline_warnings": 13,
+  "candidate_errors": 2535,
+  "candidate_warnings": 11,
+  "new_non_format_errors": [],
+  "removed_non_format_errors": []
+}

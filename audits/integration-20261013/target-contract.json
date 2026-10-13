@@ -1,0 +1,142 @@
+{
+  "classification": "CANDIDATE_NOT_INSTALL_AUTHORIZATION",
+  "master_commit": "229059e5702bdad3ffa96d3373d878061ab90261",
+  "delivery_base": "e8bd746bf6750057430a32baec54562cf06b09be",
+  "pr36_reference": "afb26bc61d4309d73cfdbd1bfd2f687b11dc71b4",
+  "production_allowed": false,
+  "payments_enabled": false,
+  "sql_source": "Neroxa Master audits/sql, not Delivery automatic migrations",
+  "required_configuration": {
+    "server": [
+      "SUPABASE_URL",
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "NEROXA_DELIVERY_BACKEND_URL",
+      "NEROXA_CHECKOUT_RATE_LIMIT_SECRET"
+    ],
+    "opt_in_default_off": [
+      "NEROXA_CHECKOUT_GATEWAY_ENABLED",
+      "NEROXA_CHECKOUT_AMENDMENTS_ENABLED",
+      "VITE_NEROXA_CHECKOUT_GATEWAY",
+      "VITE_NEROXA_CHECKOUT_AMENDMENTS"
+    ],
+    "browser_admin": "VITE_SUPABASE_URL must match the public storefront backend. Public URL matching is NOT authorization."
+  },
+  "contracts": {
+    "checkout": {
+      "route": "POST /api/checkout",
+      "private_rpc": "create_public_order(jsonb)",
+      "required": [
+        "idempotency_key",
+        "customer_name",
+        "customer_phone",
+        "fulfillment",
+        "items"
+      ],
+      "delivery_required": [
+        "address_street",
+        "address_number",
+        "address_neighborhood"
+      ],
+      "pricing": "SQL authoritative; caller subtotal is not trusted"
+    },
+    "append": {
+      "route": "POST /api/order-amend",
+      "private_rpc": "neroxa_append_order_items_with_capability",
+      "credential": "256-bit base64url token; SHA256 stored on server, raw token only sessionStorage",
+      "allowed_statuses": [
+        "RECEIVED",
+        "CONFIRMED"
+      ],
+      "financial_result": "NOT_SETTLED",
+      "idempotency": "request key + payload digest"
+    },
+    "admin": {
+      "transport": "authenticated primary Supabase client, no service role in browser",
+      "read": "get_admin_orders(uuid,text)",
+      "status": "update_admin_order_status(uuid,text,text)",
+      "instance": "Explicit requested instance or verified current domain; grants/roles/MFA enforced by Master SQL"
+    },
+    "tracking": {
+      "rpc": "get_public_order_status(uuid,text)",
+      "limitation": "Phone-based authorization remains unresolved, not equivalent to buyer capability"
+    }
+  },
+  "blocked_modules": [
+    "PR36 ledger/settlement",
+    "PR36 supplier panel and context RPC",
+    "GROUP_ADDONS_V1 and rich pizza contracts",
+    "Legacy /painel cutover",
+    "Historical orphan settings reconciliation"
+  ],
+  "sql_test_order_not_production_install_order": [
+    {
+      "path": "audits/sql/instance-membership-foundation.candidate.sql",
+      "sha256": "7889d4d9bdc37cf01457a8d0608e997e143f8bbfd377130b16f72539487c72d0"
+    },
+    {
+      "path": "audits/sql/storefront-instance-phase1.candidate.sql",
+      "sha256": "e4e75abc28a5c07b163a6e98f7a9c7be9fad3f8a2543c4635cfbf5d35193e462"
+    },
+    {
+      "path": "audits/sql/store-product-category-guard.candidate.sql",
+      "sha256": "385d4446003c5604f9e18a0ebbf1b5f1c92d83fd11655db6cdd9815e7547011e"
+    },
+    {
+      "path": "audits/sql/storefront-tenant-integrity.candidate.sql",
+      "sha256": "c388d0dabb8c58988ef30c30b1f084c2acabf33ff23e798d278ac8d99ff99cf1"
+    },
+    {
+      "path": "audits/sql/storefront-parent-instance-guard.candidate.sql",
+      "sha256": "ec8afaa42ec5f590c1cbb1c98ff191d652779c3b0d97adc2ff4599f7389084c5"
+    },
+    {
+      "path": "audits/sql/store-isolation-policies.candidate.sql",
+      "sha256": "848d370e950ca8998ae8e3322c41f1484bb25e667c30d2cb1e8e2e1da087735c"
+    },
+    {
+      "path": "audits/sql/storefront-instance-phase2-cutover.candidate.sql",
+      "sha256": "f06c49a835128063c95d1dae7272502a1831ff1009c3a9dc430edae7b633855a"
+    },
+    {
+      "path": "audits/sql/storefront-settings-zones-rls.candidate.sql",
+      "sha256": "959170218f352c6d7b41e7dcc011ab8e092ded44e8a5a8e8855a1c8947f52c64"
+    },
+    {
+      "path": "audits/sql/storefront-admin-rpc.candidate.sql",
+      "sha256": "0e1c6e4a806a12f5631c556040e2ee06b29c3c37c789f53e1631c5f71a9bc753"
+    },
+    {
+      "path": "audits/sql/storefront-rpcs-phase2.candidate.sql",
+      "sha256": "4d37407a16a8b962161c0aa807b444a95b033299fc1131cf1938421e4068b439"
+    },
+    {
+      "path": "audits/sql/store-isolation-prerequisites.assert.sql",
+      "sha256": "9b2e0873c49d4358ef7e138f5c6ac9a6f4d673f9fa7107cb5fbb22403daa9c55"
+    },
+    {
+      "path": "audits/sql/store-isolation-runtime-hardening.candidate.sql",
+      "sha256": "342bafbec2f94f1f03aab24731fa31700b7c20151334a2ec415564c412384c37"
+    },
+    {
+      "path": "audits/sql/admin-order-rpc-acl.release-gate.candidate.sql",
+      "sha256": "dd50db6bf42a0b2c41065110d6a88f2ee7e26bf225538718a3ac2f96020666a4"
+    },
+    {
+      "path": "audits/sql/checkout-public-rpc-revoke.release-gate.candidate.sql",
+      "sha256": "17bea495aca5d6712a89d0108ee9c84bceb9e742595648e140377397192f9da2"
+    },
+    {
+      "path": "audits/sql/checkout-durable-rate-limit.candidate.sql",
+      "sha256": "b75d348d626d6c4ea27163bf5d539ad3ae8d4d9103b54cff3a4d4deb6d5d0cbb"
+    },
+    {
+      "path": "audits/sql/legacy-order-append-no-bypass.release-gate.candidate.sql",
+      "sha256": "c22eaa44d7e7929ac97ab9417bc2164b907a9254dc194c453fa3fcdd550639ef"
+    },
+    {
+      "path": "audits/sql/order-amendment-capability.candidate.sql",
+      "sha256": "60f791be31aa94407edc71a570f994a6ea61fc1ab2610efc6ff3dfd54680ae69"
+    }
+  ],
+  "installation_warning": "This list mirrors isolated test scripts, not a production installer. The separate historical rehearsal resolves only fictitious ambiguous settings explicitly. The live orphan is preserved and blocks cutover. Public revocation timing in tests does not authorize revoking a serving API before replacing its consumers."
+}
