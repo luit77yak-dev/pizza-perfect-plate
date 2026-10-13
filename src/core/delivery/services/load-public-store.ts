@@ -4,6 +4,10 @@ import { resolveStorefrontDomain, supabase } from "@/integrations/storefront-bac
 export type ProductAddonLink = { product_id: string; addon_id: string; sort_order: number };
 
 export type StoreData = {
+  /** Store identity resolved by the public catalog RPC for this domain. */
+  instanceId: string;
+  /** Canonical verified domain returned by the storefront context RPC. */
+  storeDomain: string;
   organization: Organization;
   settings: OrganizationSettings;
   categories: Category[];
@@ -147,6 +151,8 @@ export async function loadStore(): Promise<StoreData> {
       active: product.active && product.available,
     }));
     return {
+      instanceId: context.instance_id,
+      storeDomain: context.domain,
       organization, settings, categories, products, sizes, prices, crusts, addons,
       productAddonLinks: pizzaRows.flatMap((product) => addons.map((addon) => ({
         product_id: product.id,
