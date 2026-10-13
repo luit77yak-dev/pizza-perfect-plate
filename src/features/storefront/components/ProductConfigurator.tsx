@@ -36,21 +36,23 @@ export function ProductConfigurator({
   const stepsScrollRef = useRef<HTMLDivElement | null>(null);
 
   const secondProduct = data.products.find((item) => item.id === secondProductId) ?? null;
-  const comboProducts = data.products.filter((item) => {
-    const categoryName =
-      data.categories.find((category) => category.id === item.category_id)?.name ?? "";
-    const normalizedCategory = categoryName
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLocaleLowerCase("pt-BR");
-    return (
-      item.kind === "SIMPLE" &&
-      !/adicional|adicionais/i.test(normalizedCategory) &&
-      /(bebida|bebidas|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(
-        normalizedCategory,
-      )
-    );
-  });
+  const comboProducts = data.groupCatalog
+    ? []
+    : data.products.filter((item) => {
+        const categoryName =
+          data.categories.find((category) => category.id === item.category_id)?.name ?? "";
+        const normalizedCategory = categoryName
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLocaleLowerCase("pt-BR");
+        return (
+          item.kind === "SIMPLE" &&
+          !/adicional|adicionais/i.test(normalizedCategory) &&
+          /(bebida|bebidas|doce|doces|sobremesa|sobremesas|acompanhamento|acompanhamentos)/i.test(
+            normalizedCategory,
+          )
+        );
+      });
   const selectedSize = data.sizes.find((size) => size.id === sizeId) ?? null;
   const basePrice = getPrice(product, sizeId, data.prices);
   const secondBasePrice = secondProduct ? getPrice(secondProduct, sizeId, data.prices) : basePrice;

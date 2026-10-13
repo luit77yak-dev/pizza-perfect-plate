@@ -225,7 +225,10 @@ export async function loadStore(): Promise<StoreData> {
       estimated_minutes: zone.estimated_minutes ?? null,
       active: zone.active,
     }));
-    const products = catalog.products.map((product) => toProduct(product, context.organization_id));
+    const products = catalog.products
+      .map((product) => toProduct(product, context.organization_id))
+      .filter((product) => !groupCatalog || product.kind !== "COMBO")
+      .map((product) => (groupCatalog ? { ...product, allow_half: false } : product));
     const pizzaRows = products.filter((product) => product.kind === "PIZZA");
     const optionRows = pizzaRows.flatMap((product) => {
       const options = Array.isArray(product.metadata?.["options"])
