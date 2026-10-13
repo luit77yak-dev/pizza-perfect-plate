@@ -494,7 +494,10 @@ export function Storefront() {
       }
     >
       {pendingRecovery && (
-        <section role="status" className="relative z-40 border-b bg-background px-4 py-3 text-sm">
+        <section
+          role="status"
+          className="sticky top-[5.25rem] z-40 mt-[5.25rem] border-b bg-background px-4 py-3 text-sm sm:top-[5.75rem] sm:mt-[5.75rem]"
+        >
           Existe uma tentativa pendente. Reentre os itens e dados originais para recuperar o
           resultado; não envie outro pedido.
           <Button
