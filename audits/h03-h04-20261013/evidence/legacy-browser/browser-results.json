@@ -1,0 +1,142 @@
+{
+  "classification": "PASS_COMPONENTS_MOCK_TRANSPORT",
+  "realDatabaseValidated": false,
+  "operationallyApproved": false,
+  "knownFailures": [
+    "Storefront always closed: hours absent",
+    "Uncertain intent/key lost on checkout reload; potential duplicate requires real DB test"
+  ],
+  "authValidated": false,
+  "fullStorefrontCheckoutBlocked": "hours absent from catalog",
+  "checks": [
+    {
+      "name": "store catalog renders through intercepted transport",
+      "passed": true
+    },
+    {
+      "name": "missing hours fail closed in actual storefront",
+      "passed": true
+    },
+    {
+      "name": "store no document overflow 360",
+      "passed": true
+    },
+    {
+      "name": "store no document overflow 390",
+      "passed": true
+    },
+    {
+      "name": "store no document overflow 412",
+      "passed": true
+    },
+    {
+      "name": "store no document overflow 768",
+      "passed": true
+    },
+    {
+      "name": "store no document overflow 1440",
+      "passed": true
+    },
+    {
+      "name": "product configured with paid addon",
+      "passed": true
+    },
+    {
+      "name": "cart persists reload",
+      "passed": true
+    },
+    {
+      "name": "required identity blocks transport",
+      "passed": true
+    },
+    {
+      "name": "delivery missing address blocks transport",
+      "passed": true
+    },
+    {
+      "name": "PRICE_CHANGED shown",
+      "passed": true
+    },
+    {
+      "name": "confirmation blocked until review",
+      "passed": true
+    },
+    {
+      "name": "review is explicit and never submits",
+      "passed": true
+    },
+    {
+      "name": "updated 35 displayed before consent",
+      "passed": true
+    },
+    {
+      "name": "checkout no document overflow 360",
+      "passed": true
+    },
+    {
+      "name": "checkout no document overflow 390",
+      "passed": true
+    },
+    {
+      "name": "checkout no document overflow 412",
+      "passed": true
+    },
+    {
+      "name": "checkout no document overflow 768",
+      "passed": true
+    },
+    {
+      "name": "checkout no document overflow 1440",
+      "passed": true
+    },
+    {
+      "name": "changed uncertain intent does not send another write",
+      "passed": true
+    },
+    {
+      "name": "retry preserves original key",
+      "passed": true
+    },
+    {
+      "name": "new consent replaces price-conflicted key",
+      "passed": true
+    },
+    {
+      "name": "pickup request has no address",
+      "passed": true
+    },
+    {
+      "name": "normalized identifiers preserved",
+      "passed": true
+    },
+    {
+      "name": "no JavaScript exceptions",
+      "passed": true
+    },
+    {
+      "name": "failed review cannot unlock confirmation",
+      "passed": true
+    },
+    {
+      "name": "delivery price plus changed fee displayed before consent",
+      "passed": true
+    },
+    {
+      "name": "fee review never submits",
+      "passed": true
+    },
+    {
+      "name": "keyboard can reach telephone",
+      "passed": true
+    },
+    {
+      "name": "known reload intent-loss blocker reproduced",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "blockedExternalHosts": [
+    "fonts.googleapis.com"
+  ],
+  "checkoutRequestCount": 8
+}

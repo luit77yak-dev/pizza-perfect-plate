@@ -1,0 +1,268 @@
+{
+  "classification": "INCONCLUSIVO",
+  "stage": "done",
+  "productionCompatibility": false,
+  "environment": "Disposable local PG17/Auth/PostgREST and TanStack dev-server TLS on loopback",
+  "checks": [
+    {
+      "name": "HTTP test starts with empty disposable quota counters",
+      "passed": true
+    },
+    {
+      "name": "Real local HTTPS TanStack checkout endpoint is enabled",
+      "passed": true
+    },
+    {
+      "name": "Real PostgREST context for a",
+      "passed": true
+    },
+    {
+      "name": "Real product for HTTP shop a",
+      "passed": true
+    },
+    {
+      "name": "HTTP baseline orders for a",
+      "passed": true
+    },
+    {
+      "name": "Real PostgREST context for b",
+      "passed": true
+    },
+    {
+      "name": "Real product for HTTP shop b",
+      "passed": true
+    },
+    {
+      "name": "HTTP baseline orders for b",
+      "passed": true
+    },
+    {
+      "name": "Real PostgREST context for c",
+      "passed": true
+    },
+    {
+      "name": "Real product for HTTP shop c",
+      "passed": true
+    },
+    {
+      "name": "HTTP baseline orders for c",
+      "passed": true
+    },
+    {
+      "name": "HTTP shops A and B share organization, but not instance",
+      "passed": true
+    },
+    {
+      "name": "Enabled real HTTPS POST creates shop A order",
+      "passed": true
+    },
+    {
+      "name": "Enabled real HTTPS POST creates shop B order",
+      "passed": true
+    },
+    {
+      "name": "HTTP A and B create distinct orders",
+      "passed": true
+    },
+    {
+      "name": "HTTP checkout prices are not client supplied",
+      "passed": true
+    },
+    {
+      "name": "HTTPS checkout issues a buyer-only capability to new A order",
+      "passed": true
+    },
+    {
+      "name": "HTTPS checkout issues independent buyer capability in B",
+      "passed": true
+    },
+    {
+      "name": "HTTP retry reuses idempotent order",
+      "passed": true
+    },
+    {
+      "name": "HTTPS checkout replay never reissues buyer capability",
+      "passed": true
+    },
+    {
+      "name": "HTTP route forbids cross-store order body",
+      "passed": true
+    },
+    {
+      "name": "HTTP route rejects forged Origin",
+      "passed": true
+    },
+    {
+      "name": "HTTP route rejects mismatched Host",
+      "passed": true
+    },
+    {
+      "name": "HTTP route refuses unregistered host",
+      "passed": true
+    },
+    {
+      "name": "Five HTTP orders from one B contact succeed",
+      "passed": true
+    },
+    {
+      "name": "Sixth real HTTPS order denied by persistent quota",
+      "passed": true
+    },
+    {
+      "name": "HTTP gateway refuses other shop product in SQL",
+      "passed": true
+    },
+    {
+      "name": "HTTPS before-addition item count A",
+      "passed": true
+    },
+    {
+      "name": "HTTP token-authorized item forgotten appends in store A",
+      "passed": true
+    },
+    {
+      "name": "HTTPS amendment price server-owned",
+      "passed": true
+    },
+    {
+      "name": "HTTP idempotent amendment replay does not add twice",
+      "passed": true
+    },
+    {
+      "name": "HTTP replays added exactly one item",
+      "passed": true
+    },
+    {
+      "name": "HTTP amendment denies wrong buyer secret",
+      "passed": true
+    },
+    {
+      "name": "HTTP amendment denies cross-store host even with correct token",
+      "passed": true
+    },
+    {
+      "name": "HTTP amendment rejects foreign product at PostgreSQL",
+      "passed": true
+    },
+    {
+      "name": "HTTP amendment rejects cross-site Origin",
+      "passed": true
+    },
+    {
+      "name": "HTTP before-addition item count B",
+      "passed": true
+    },
+    {
+      "name": "Buyer token allows five HTTPS amendments with durable quota",
+      "passed": true
+    },
+    {
+      "name": "Sixth buyer amendment receives HTTP 429",
+      "passed": true
+    },
+    {
+      "name": "Rate-limited buyer cannot add sixth extra line",
+      "passed": true
+    },
+    {
+      "name": "Public PostgREST direct-token amendment bypass forbidden",
+      "passed": true
+    },
+    {
+      "name": "Final HTTP order count query a",
+      "passed": true
+    },
+    {
+      "name": "Final HTTP order count query b",
+      "passed": true
+    },
+    {
+      "name": "Final HTTP order count query c",
+      "passed": true
+    },
+    {
+      "name": "HTTP creates one net order in A",
+      "passed": true
+    },
+    {
+      "name": "HTTP creates six net orders in B",
+      "passed": true
+    },
+    {
+      "name": "HTTP causes no C orders",
+      "passed": true
+    },
+    {
+      "name": "Local HTTP group contract process ready",
+      "passed": true
+    },
+    {
+      "name": "Enabled group contract cannot downgrade to legacy HTTP",
+      "passed": true
+    },
+    {
+      "name": "HTTP group catalog advertises version",
+      "passed": true
+    },
+    {
+      "name": "HTTP rich fixture product/group available",
+      "passed": true
+    },
+    {
+      "name": "Actual HTTPS grouped stale price returns transactional 409",
+      "passed": true
+    },
+    {
+      "name": "Actual HTTPS grouped checkout correct price/token",
+      "passed": true
+    },
+    {
+      "name": "Actual HTTPS grouped retry same order",
+      "passed": true
+    },
+    {
+      "name": "Actual HTTPS grouped append price NOT_SETTLED",
+      "passed": true
+    },
+    {
+      "name": "Actual HTTPS grouped append replay original receipt",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "This tests the actual TanStack HTTP route and server adapter locally, not Vercel runtime/edge.",
+    "Local TLS and --resolve simulate valid domains; they do not prove trusted public DNS or edge routing.",
+    "The gateway uses a disposable local service_role key; least-privilege runtime credentials remain pending.",
+    "Edge IP rate limits, abusive anonymous traffic and production deployment/rollback are not certified."
+  ],
+  "httpProbe": {
+    "observedStatusCodes": [
+      0,
+      400
+    ],
+    "observedRejectionCategories": [],
+    "devProcessExited": false,
+    "markers": {
+      "viteReady": true,
+      "viteLocalUrl": false,
+      "moduleNotFound": false,
+      "addressInUse": false,
+      "viteConfigError": false,
+      "viteHostBlocked": false,
+      "sourceTransformError": false,
+      "proxyError": false
+    }
+  },
+  "summary": {
+    "gatewayEnabled": true,
+    "actualHttpRoute": true,
+    "tls": "ephemeral self-signed on loopback",
+    "directRpcBeforeHttp": "revoked in isolated stack by preceding integration",
+    "localOrdersCreated": 8,
+    "groupedCheckoutAndAppend": true,
+    "sixContactAttemptsDenied": true,
+    "buyerTokenIssuedOnlyOnNewOrder": true,
+    "buyerAmendmentEndpointTested": true,
+    "amendmentRateLimitVerified": true
+  }
+}

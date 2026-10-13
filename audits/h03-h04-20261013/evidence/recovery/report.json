@@ -1,0 +1,193 @@
+{
+  "stage": "done",
+  "status": "PASS",
+  "productionTouched": false,
+  "checks": [
+    {
+      "name": "historical relations",
+      "passed": true,
+      "detail": "expected 34"
+    },
+    {
+      "name": "three historical instances",
+      "passed": true,
+      "detail": "expected 3"
+    },
+    {
+      "name": "two historical settings",
+      "passed": true,
+      "detail": "expected 2"
+    },
+    {
+      "name": "three historical zones",
+      "passed": true,
+      "detail": "expected 3"
+    },
+    {
+      "name": "B1 settings automatically mapped",
+      "passed": true,
+      "detail": "unique instance backfill"
+    },
+    {
+      "name": "B1 zone automatically mapped",
+      "passed": true,
+      "detail": "unique instance backfill"
+    },
+    {
+      "name": "A settings deliberately unresolved",
+      "passed": true,
+      "detail": "ambiguous settings must remain null"
+    },
+    {
+      "name": "A zones deliberately unresolved",
+      "passed": true,
+      "detail": "ambiguous zones must remain null"
+    },
+    {
+      "name": "phase2 rejects ambiguity",
+      "passed": true,
+      "detail": "expected explicit unresolved-row exception; received ERROR:  Unresolved instance_id rows: manual reconciliation required\nCONTEXT:  PL/pgSQL function inline_code_block line 5 at RAISE\n"
+    },
+    {
+      "name": "phase2 atomic rollback preserved PK",
+      "passed": true,
+      "detail": "legacy PK should remain"
+    },
+    {
+      "name": "phase2 preserves fixture counts",
+      "passed": true,
+      "detail": "no rows lost"
+    },
+    {
+      "name": "phase2 leaves instance nullable",
+      "passed": true,
+      "detail": "NOT NULL cutover must not happen"
+    },
+    {
+      "name": "A1 settings explicitly mapped",
+      "passed": true,
+      "detail": "expected original settings assigned A1"
+    },
+    {
+      "name": "A1 zones explicitly mapped",
+      "passed": true,
+      "detail": "both original zones assigned A1"
+    },
+    {
+      "name": "A2 zones not duplicated",
+      "passed": true,
+      "detail": "no automatic zone copy"
+    },
+    {
+      "name": "all existing settings mapped",
+      "passed": true,
+      "detail": "no unresolved settings"
+    },
+    {
+      "name": "all existing zones mapped",
+      "passed": true,
+      "detail": "no unresolved zones"
+    },
+    {
+      "name": "no zone lost",
+      "passed": true,
+      "detail": "zones unchanged"
+    },
+    {
+      "name": "all legacy fields preserved before cutover",
+      "passed": true,
+      "detail": "all original settings and zones, ignoring only new instance_id"
+    },
+    {
+      "name": "settings PK moved to instance",
+      "passed": true,
+      "detail": "expected instance-scoped PK"
+    },
+    {
+      "name": "settings instance required",
+      "passed": true,
+      "detail": "expected NOT NULL"
+    },
+    {
+      "name": "zones instance required",
+      "passed": true,
+      "detail": "expected NOT NULL"
+    },
+    {
+      "name": "all legacy fields preserved after cutover",
+      "passed": true,
+      "detail": "no field loss or modification"
+    },
+    {
+      "name": "settings preserved through cutover",
+      "passed": true,
+      "detail": "no lost settings"
+    },
+    {
+      "name": "two independent settings in same organization",
+      "passed": true,
+      "detail": "expected A1 and A2 settings"
+    },
+    {
+      "name": "A2 independent settings",
+      "passed": true,
+      "detail": "A2 settings created"
+    },
+    {
+      "name": "B1 retained",
+      "passed": true,
+      "detail": "B1 settings unchanged"
+    },
+    {
+      "name": "zones remain with A1 and B1",
+      "passed": true,
+      "detail": "no zones duplicated"
+    },
+    {
+      "name": "A1 post-cutover settings",
+      "passed": true,
+      "detail": "A1 kept its independent configuration"
+    },
+    {
+      "name": "A2 post-cutover settings",
+      "passed": true,
+      "detail": "A2 kept its independent configuration"
+    },
+    {
+      "name": "B1 settings unaffected by A writes",
+      "passed": true,
+      "detail": "third shop unchanged"
+    },
+    {
+      "name": "A2 synthetic zone isolated",
+      "passed": true,
+      "detail": "only A2 receives the new zone"
+    },
+    {
+      "name": "post-cutover orders from two shops",
+      "passed": true,
+      "detail": "distinct order identities and prices"
+    },
+    {
+      "name": "post-cutover order items and status history",
+      "passed": true,
+      "detail": "two synthetic orders, items, and history rows"
+    },
+    {
+      "name": "post-cutover order organization matches instance",
+      "passed": true,
+      "detail": "zero tenant mismatch"
+    },
+    {
+      "name": "unsafe legacy organization PK would collide",
+      "passed": true,
+      "detail": "direct key downgrade would lose one store's settings"
+    }
+  ],
+  "postCutover": {
+    "syntheticOrders": 2,
+    "syntheticItems": 2,
+    "syntheticHistory": 2,
+    "syntheticNewZones": 1
+  }
+}

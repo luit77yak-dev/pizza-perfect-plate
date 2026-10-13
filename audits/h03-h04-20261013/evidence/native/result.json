@@ -1,0 +1,2067 @@
+{
+  "classification": "INCONCLUSIVO",
+  "stage": "matrix",
+  "source": "Full historical Master catalog 2026-10-09, no customer rows",
+  "productionCompatibility": false,
+  "tests": [
+    {
+      "name": "Auth sign-in and JWT identity",
+      "actor": "opA",
+      "passed": true
+    },
+    {
+      "name": "Auth sign-in and JWT identity",
+      "actor": "opB",
+      "passed": true
+    },
+    {
+      "name": "Auth sign-in and JWT identity",
+      "actor": "opC",
+      "passed": true
+    },
+    {
+      "name": "Auth sign-in and JWT identity",
+      "actor": "orgAdmin",
+      "passed": true
+    },
+    {
+      "name": "Auth sign-in and JWT identity",
+      "actor": "platform",
+      "passed": true
+    },
+    {
+      "name": "Auth sign-in and JWT identity",
+      "actor": "outsider",
+      "passed": true
+    },
+    {
+      "name": "JWT effective PostgreSQL identity",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "JWT effective PostgreSQL identity",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "JWT effective PostgreSQL identity",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "JWT effective PostgreSQL identity",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "JWT effective PostgreSQL identity",
+      "actor": "platform",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "JWT effective PostgreSQL identity",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT C",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign C UPDATE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign C DELETE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT C",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign C UPDATE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign C DELETE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT C",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders foreign C UPDATE",
+      "actor": "opA",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_orders foreign C DELETE",
+      "actor": "opA",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT C",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign C UPDATE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign C DELETE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT C",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign C UPDATE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign C DELETE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT C",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign C UPDATE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign C DELETE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT C",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign C UPDATE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign C DELETE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT C",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders foreign C UPDATE",
+      "actor": "opB",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_orders foreign C DELETE",
+      "actor": "opB",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT C",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign C UPDATE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign C DELETE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT C",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign C UPDATE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign C DELETE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT C",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT C",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT C",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT C",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT C",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT C",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign C UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign C DELETE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT C",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign C UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign C DELETE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT C",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders foreign C UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_orders foreign C DELETE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT C",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign C UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign C DELETE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT C",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign C UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign C DELETE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT C",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign C UPDATE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign C DELETE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT C",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign C UPDATE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign C DELETE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT C",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders foreign C UPDATE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_orders foreign C DELETE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT C",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign C UPDATE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign C DELETE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT C",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign C UPDATE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign C DELETE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT C",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign C UPDATE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign C DELETE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT C",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign C UPDATE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign C DELETE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT C",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders foreign C UPDATE",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_orders foreign C DELETE",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT C",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign C UPDATE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign C DELETE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT C",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign C UPDATE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign C DELETE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products C cannot read A",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories C cannot read A",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders C cannot read A",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings C cannot read A",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones C cannot read A",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "C operator cannot use A admin RPC",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "A operator cannot use C admin RPC",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "C operator own admin orders",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT A",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT B",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT A",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT B",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT A",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT B",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT A",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT B",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT A",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT B",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT A",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT B",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT A",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT B",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT A",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT B",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT A",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT B",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT A",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT B",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT A",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT B",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT A",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT B",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT A",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT B",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT A",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT B",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT A",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT B",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT A",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT B",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT A",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT B",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT A",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT B",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT A",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT B",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT A",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT B",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT A",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products SELECT B",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT A",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories SELECT B",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT A",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders SELECT B",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT A",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings SELECT B",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT A",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones SELECT B",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign UPDATE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign DELETE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign UPDATE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign DELETE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders foreign UPDATE",
+      "actor": "opA",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_orders foreign DELETE",
+      "actor": "opA",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_settings foreign UPDATE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign DELETE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign UPDATE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign DELETE",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "foreign product INSERT",
+      "actor": "opA",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "23514"
+    },
+    {
+      "name": "foreign admin RPC",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "foreign status RPC",
+      "actor": "opA",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "self grant rejected",
+      "actor": "opA",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_products foreign UPDATE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign DELETE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign UPDATE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign DELETE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders foreign UPDATE",
+      "actor": "opB",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_orders foreign DELETE",
+      "actor": "opB",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_settings foreign UPDATE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign DELETE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign UPDATE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign DELETE",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "foreign product INSERT",
+      "actor": "opB",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "23514"
+    },
+    {
+      "name": "foreign admin RPC",
+      "actor": "opB",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "foreign status RPC",
+      "actor": "opB",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "self grant rejected",
+      "actor": "opB",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_products foreign UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign DELETE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign DELETE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders foreign UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_orders foreign DELETE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_settings foreign UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign DELETE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign DELETE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "foreign product INSERT",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "23514"
+    },
+    {
+      "name": "foreign admin RPC",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "foreign status RPC",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "self grant rejected",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_products foreign UPDATE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign DELETE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign UPDATE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign DELETE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders foreign UPDATE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_orders foreign DELETE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_settings foreign UPDATE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign DELETE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign UPDATE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign DELETE",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "foreign product INSERT",
+      "actor": "outsider",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "23514"
+    },
+    {
+      "name": "foreign admin RPC",
+      "actor": "outsider",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "foreign status RPC",
+      "actor": "outsider",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "self grant rejected",
+      "actor": "outsider",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_products foreign UPDATE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_products foreign DELETE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign UPDATE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_categories foreign DELETE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_orders foreign UPDATE",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_orders foreign DELETE",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_storefront_settings foreign UPDATE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_settings foreign DELETE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign UPDATE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_storefront_delivery_zones foreign DELETE",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "foreign product INSERT",
+      "actor": "anon",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "23514"
+    },
+    {
+      "name": "foreign admin RPC",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "foreign status RPC",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "self grant rejected",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "org admin scoped own product INSERT",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 201,
+      "sqlstate": null
+    },
+    {
+      "name": "org admin own settings UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "org admin own zone UPDATE",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "operator cannot write own catalog",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "cross-store category rejected",
+      "actor": "orgAdmin",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "23514"
+    },
+    {
+      "name": "own order admin read",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "own order status RPC",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "own direct order mutation rejected",
+      "actor": "opA",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "neroxa_order_items own read",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_order_items foreign read",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_order_status_history own read",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_order_status_history foreign read",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "public catalog a",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "public catalog b",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "public catalog C isolated",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "cross-organization status RPC denied",
+      "actor": "opA",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "C operator own order status RPC",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_order_items C own read",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_order_items A cannot read C",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_order_status_history C own read",
+      "actor": "opC",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "neroxa_order_status_history A cannot read C",
+      "actor": "opA",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "C checkout calculates server price",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "C checkout idempotent retry",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "C checkout rejects A product",
+      "actor": "anon",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "P0001"
+    },
+    {
+      "name": "C checkout rejects organization mismatch",
+      "actor": "anon",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "P0001"
+    },
+    {
+      "name": "C append forgotten item recalculates total",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "C append rejects A product",
+      "actor": "anon",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "P0001"
+    },
+    {
+      "name": "checkout rejects missing catalog domain",
+      "actor": "anon",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "22023"
+    },
+    {
+      "name": "checkout rejects unknown catalog domain",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "checkout rejects other instance domain in same organization",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "checkout rejects domain from another organization",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "checkout accepts second store in same organization",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "checkout rejects forged first-store domain for second store",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "public checkout server price",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "public checkout rejects foreign product",
+      "actor": "anon",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "P0001"
+    },
+    {
+      "name": "public checkout rejects organization mismatch",
+      "actor": "anon",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "P0001"
+    },
+    {
+      "name": "wrong domain cannot replay idempotent order",
+      "actor": "anon",
+      "passed": true,
+      "http": 401,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "public idempotent retry",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "public tracking rejects wrong contact",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "public append valid own product",
+      "actor": "anon",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "public append rejects foreign product",
+      "actor": "anon",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "P0001"
+    },
+    {
+      "name": "public append rejects wrong contact",
+      "actor": "anon",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "P0001"
+    },
+    {
+      "name": "platform AAL1 settings denied",
+      "actor": "platform",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "Auth TOTP challenge and real AAL2 JWT",
+      "actor": "platform",
+      "passed": true
+    },
+    {
+      "name": "AAL2 effective PostgreSQL identity",
+      "actor": "platform",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "platform AAL2 instance read",
+      "actor": "platform",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "platform AAL2 instance read",
+      "actor": "platform",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "platform AAL2 order RPC",
+      "actor": "platform",
+      "passed": true,
+      "http": 200,
+      "sqlstate": null
+    },
+    {
+      "name": "platform AAL2 product tenant reassignment denied",
+      "actor": "platform",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "23514"
+    },
+    {
+      "name": "platform AAL2 category reassignment denied",
+      "actor": "platform",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "23514"
+    },
+    {
+      "name": "platform AAL2 order tenant reassignment denied",
+      "actor": "platform",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    },
+    {
+      "name": "platform AAL2 settings reassignment denied",
+      "actor": "platform",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "23514"
+    },
+    {
+      "name": "platform AAL2 zone reassignment denied",
+      "actor": "platform",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "23514"
+    },
+    {
+      "name": "platform AAL2 parent org reassignment denied",
+      "actor": "platform",
+      "passed": true,
+      "http": 400,
+      "sqlstate": "23514"
+    },
+    {
+      "name": "platform AAL1 membership grant rejected",
+      "actor": "platform",
+      "passed": true,
+      "http": 403,
+      "sqlstate": "42501"
+    }
+  ],
+  "migrations": [
+    {
+      "file": "instance-membership-foundation.candidate.sql",
+      "sha256": "7889d4d9bdc37cf01457a8d0608e997e143f8bbfd377130b16f72539487c72d0",
+      "applied": true
+    },
+    {
+      "file": "storefront-instance-phase1.candidate.sql",
+      "sha256": "e4e75abc28a5c07b163a6e98f7a9c7be9fad3f8a2543c4635cfbf5d35193e462",
+      "applied": true
+    },
+    {
+      "file": "store-product-category-guard.candidate.sql",
+      "sha256": "385d4446003c5604f9e18a0ebbf1b5f1c92d83fd11655db6cdd9815e7547011e",
+      "applied": true
+    },
+    {
+      "file": "storefront-tenant-integrity.candidate.sql",
+      "sha256": "c388d0dabb8c58988ef30c30b1f084c2acabf33ff23e798d278ac8d99ff99cf1",
+      "applied": true
+    },
+    {
+      "file": "storefront-parent-instance-guard.candidate.sql",
+      "sha256": "ec8afaa42ec5f590c1cbb1c98ff191d652779c3b0d97adc2ff4599f7389084c5",
+      "applied": true
+    },
+    {
+      "file": "store-isolation-policies.candidate.sql",
+      "sha256": "848d370e950ca8998ae8e3322c41f1484bb25e667c30d2cb1e8e2e1da087735c",
+      "applied": true
+    },
+    {
+      "file": "storefront-instance-phase2-cutover.candidate.sql",
+      "sha256": "f06c49a835128063c95d1dae7272502a1831ff1009c3a9dc430edae7b633855a",
+      "applied": true
+    },
+    {
+      "file": "storefront-settings-zones-rls.candidate.sql",
+      "sha256": "959170218f352c6d7b41e7dcc011ab8e092ded44e8a5a8e8855a1c8947f52c64",
+      "applied": true
+    },
+    {
+      "file": "storefront-admin-rpc.candidate.sql",
+      "sha256": "0e1c6e4a806a12f5631c556040e2ee06b29c3c37c789f53e1631c5f71a9bc753",
+      "applied": true
+    },
+    {
+      "file": "storefront-rpcs-phase2.candidate.sql",
+      "sha256": "4d37407a16a8b962161c0aa807b444a95b033299fc1131cf1938421e4068b439",
+      "applied": true
+    },
+    {
+      "file": "store-isolation-prerequisites.assert.sql",
+      "sha256": "9b2e0873c49d4358ef7e138f5c6ac9a6f4d673f9fa7107cb5fbb22403daa9c55",
+      "applied": true
+    },
+    {
+      "file": "store-isolation-runtime-hardening.candidate.sql",
+      "sha256": "342bafbec2f94f1f03aab24731fa31700b7c20151334a2ec415564c412384c37",
+      "applied": true
+    },
+    {
+      "file": "admin-order-rpc-acl.release-gate.candidate.sql",
+      "sha256": "dd50db6bf42a0b2c41065110d6a88f2ee7e26bf225538718a3ac2f96020666a4",
+      "applied": true
+    }
+  ],
+  "limitations": [
+    "Historical catalog is not current production schema proof.",
+    "Managed supabase_admin default privileges are recorded, not modified.",
+    "Supabase Auth/PostgREST version and runtime differ from production; no production credentials used."
+  ],
+  "versions": {
+    "cli": "2.120.0",
+    "postgres": "PostgreSQL 17.11 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit",
+    "node": "v22.23.3",
+    "images": [
+      {
+        "name": "supabase_rest_neroxa-ab-38432605009",
+        "image": "postgrest/postgrest:v16.4"
+      },
+      {
+        "name": "supabase_auth_neroxa-ab-38432605009",
+        "image": "supabase/gotrue:v2.197.0"
+      },
+      {
+        "name": "supabase_kong_neroxa-ab-38432605009",
+        "image": "kong:2.8.1"
+      },
+      {
+        "name": "supabase_db_neroxa-ab-38432605009",
+        "image": "supabase/postgres:17.11.0.004"
+      }
+    ]
+  },
+  "baseline": {
+    "relations": 34,
+    "functions": 50,
+    "policies": 99
+  },
+  "currentMigration": "store-isolation-prerequisites.assert.sql",
+  "identities": [
+    {
+      "alias": "opA",
+      "authUserId": "942c9329-bbcb-4e34-aa2b-f3d73b650bc2",
+      "organizationRole": "OPERATOR",
+      "instanceScope": "A",
+      "platformRole": null
+    },
+    {
+      "alias": "opB",
+      "authUserId": "c0a935b6-3d13-4133-959b-928bc2a1fa85",
+      "organizationRole": "OPERATOR",
+      "instanceScope": "B",
+      "platformRole": null
+    },
+    {
+      "alias": "opC",
+      "authUserId": "ed358de5-6e98-40ab-8b93-cd01d1c26597",
+      "organizationRole": null,
+      "instanceScope": null,
+      "platformRole": null
+    },
+    {
+      "alias": "orgAdmin",
+      "authUserId": "1a62d41a-55f9-493f-b827-4f883b0a4d3f",
+      "organizationRole": "ADMIN",
+      "instanceScope": "A",
+      "platformRole": null
+    },
+    {
+      "alias": "platform",
+      "authUserId": "50077471-75c2-47a5-88f9-8417db1de384",
+      "organizationRole": null,
+      "instanceScope": null,
+      "platformRole": "ADMIN"
+    },
+    {
+      "alias": "outsider",
+      "authUserId": "27b5e3f4-a5c5-435e-a477-1a7082ecd959",
+      "organizationRole": null,
+      "instanceScope": null,
+      "platformRole": null
+    }
+  ],
+  "successes": 275,
+  "failures": 0,
+  "note": "Real Auth/JWT/PostgREST matrix on historical full catalog. Production release remains unapproved even if this matrix passes."
+}

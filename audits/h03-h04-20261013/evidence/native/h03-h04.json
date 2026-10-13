@@ -1,0 +1,168 @@
+{
+  "classification": "PASS_NATIVE",
+  "checks": [
+    {
+      "name": "availability catalog scoped a",
+      "passed": true
+    },
+    {
+      "name": "availability catalog scoped b",
+      "passed": true
+    },
+    {
+      "name": "availability catalog scoped c",
+      "passed": true
+    },
+    {
+      "name": "IANA local noon open",
+      "passed": true
+    },
+    {
+      "name": "outside hours closed",
+      "passed": true
+    },
+    {
+      "name": "special holiday overrides weekly",
+      "passed": true
+    },
+    {
+      "name": "special windows replace weekly",
+      "passed": true
+    },
+    {
+      "name": "special window open in timezone",
+      "passed": true
+    },
+    {
+      "name": "A hours never change B or C",
+      "passed": true
+    },
+    {
+      "name": "overnight previous day timezone",
+      "passed": true
+    },
+    {
+      "name": "current holiday blocks previous overnight",
+      "passed": true
+    },
+    {
+      "name": "closed denies authoritative checkout",
+      "passed": true
+    },
+    {
+      "name": "closed creates no rows",
+      "passed": true
+    },
+    {
+      "name": "confirmed real order",
+      "passed": true
+    },
+    {
+      "name": "lost response and double click recover same order",
+      "passed": true
+    },
+    {
+      "name": "changed original payload rejected",
+      "passed": true
+    },
+    {
+      "name": "already confirmed replay survives closing",
+      "passed": true
+    },
+    {
+      "name": "fixture buyer capability registered privately",
+      "passed": true
+    },
+    {
+      "name": "closed store rejects valid private append capability",
+      "passed": true
+    },
+    {
+      "name": "closed append preserves historical items",
+      "passed": true
+    },
+    {
+      "name": "private recovery exact proof returns own snapshot",
+      "passed": true
+    },
+    {
+      "name": "recovery key alone cannot reveal data",
+      "passed": true
+    },
+    {
+      "name": "recovery cross instance denied",
+      "passed": true
+    },
+    {
+      "name": "anon cannot invoke recovery RPC",
+      "passed": true
+    },
+    {
+      "name": "expired proof denies lookup",
+      "passed": true
+    },
+    {
+      "name": "expired proof cannot create replacement",
+      "passed": true
+    },
+    {
+      "name": "cross shop normalized product denied b.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "cross shop normalized product denied c.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "authenticated owner can update A availability",
+      "passed": true
+    },
+    {
+      "name": "owner cannot mutate sibling availability",
+      "passed": true
+    },
+    {
+      "name": "anon lacks availability writes",
+      "passed": true
+    },
+    {
+      "name": "private clock helper not publicly executable",
+      "passed": true
+    },
+    {
+      "name": "absent availability never opens",
+      "passed": true
+    },
+    {
+      "name": "existing shop with absent configuration publishes closed",
+      "passed": true
+    },
+    {
+      "name": "client open flag cannot bypass missing server configuration",
+      "passed": true
+    },
+    {
+      "name": "existing configuration without windows stays closed",
+      "passed": true
+    },
+    {
+      "name": "real recovery read budget accepts 30 bounded reads",
+      "passed": true
+    },
+    {
+      "name": "real recovery read budget denies 31st read",
+      "passed": true
+    },
+    {
+      "name": "recovery reads never consume checkout quota",
+      "passed": true
+    },
+    {
+      "name": "anon cannot reserve privileged read quota",
+      "passed": true
+    }
+  ],
+  "passed": 40,
+  "failed": 0,
+  "productionApproved": false
+}

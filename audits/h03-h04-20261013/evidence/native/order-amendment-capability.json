@@ -1,0 +1,194 @@
+{
+  "classification": "INCONCLUSIVO",
+  "stage": "done",
+  "productionCompatibility": false,
+  "checks": [
+    {
+      "label": "Anonymous capability registration EXECUTE disabled",
+      "passed": true
+    },
+    {
+      "label": "Authenticated capability registration EXECUTE disabled",
+      "passed": true
+    },
+    {
+      "label": "Anonymous secured append EXECUTE disabled",
+      "passed": true
+    },
+    {
+      "label": "Authenticated secured append EXECUTE disabled",
+      "passed": true
+    },
+    {
+      "label": "Server role secured append EXECUTE granted",
+      "passed": true
+    },
+    {
+      "label": "Live local test store a",
+      "passed": true
+    },
+    {
+      "label": "Live local test product a",
+      "passed": true
+    },
+    {
+      "label": "Live local test store b",
+      "passed": true
+    },
+    {
+      "label": "Live local test product b",
+      "passed": true
+    },
+    {
+      "label": "Live local test store c",
+      "passed": true
+    },
+    {
+      "label": "Live local test product c",
+      "passed": true
+    },
+    {
+      "label": "Fixtures A/B share organization, not store",
+      "passed": true
+    },
+    {
+      "label": "Fixture C belongs to other organization",
+      "passed": true
+    },
+    {
+      "label": "Server create synthetic order a",
+      "passed": true
+    },
+    {
+      "label": "Server create synthetic order b",
+      "passed": true
+    },
+    {
+      "label": "A capability registered once by server",
+      "passed": true
+    },
+    {
+      "label": "Duplicate registration cannot rotate existing capability",
+      "passed": true
+    },
+    {
+      "label": "B capability registered independently",
+      "passed": true
+    },
+    {
+      "label": "Cannot register other-instance order",
+      "passed": true
+    },
+    {
+      "label": "Checkout idempotency key required for registration",
+      "passed": true
+    },
+    {
+      "label": "Anon cannot invoke secured append even with token",
+      "passed": true
+    },
+    {
+      "label": "Authenticated cannot invoke secured append even with token",
+      "passed": true
+    },
+    {
+      "label": "Incorrect bearer token refused",
+      "passed": true
+    },
+    {
+      "label": "Cross-instance even with correct token refused",
+      "passed": true
+    },
+    {
+      "label": "Cross-shop product cannot be added",
+      "passed": true
+    },
+    {
+      "label": "Zero quantity fails instead of silently changing to 1",
+      "passed": true
+    },
+    {
+      "label": "Empty item list rejected",
+      "passed": true
+    },
+    {
+      "label": "Denied amendments leave order lines unchanged",
+      "passed": true
+    },
+    {
+      "label": "Token-authorized addition accepted",
+      "passed": true
+    },
+    {
+      "label": "Server computes addition amount, ignoring claimed browser price",
+      "passed": true
+    },
+    {
+      "label": "Amendment reports not-settled payment",
+      "passed": true
+    },
+    {
+      "label": "Amendment does not change order payment_method",
+      "passed": true
+    },
+    {
+      "label": "Replay identical idempotency key returns same prior total",
+      "passed": true
+    },
+    {
+      "label": "Reusing key for different amendment rejected",
+      "passed": true
+    },
+    {
+      "label": "No duplicate line from replay or conflicting key",
+      "passed": true
+    },
+    {
+      "label": "Concurrent idempotent addition accepted by all callers",
+      "passed": true
+    },
+    {
+      "label": "Concurrent idempotent replay inserts exactly one additional item",
+      "passed": true
+    },
+    {
+      "label": "Expired token refused",
+      "passed": true
+    },
+    {
+      "label": "Revoked token refused",
+      "passed": true
+    },
+    {
+      "label": "CONFIRMED order still accepts token-authorized additions",
+      "passed": true
+    },
+    {
+      "label": "PREPARING order requires supplier approval workflow",
+      "passed": true
+    },
+    {
+      "label": "READY order cannot append automatically",
+      "passed": true
+    },
+    {
+      "label": "Separate organization C had no new orders or changes",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Service-only capability RPCs are exercised against real but disposable Auth/PostgREST/PG.",
+    "This test does not prove UI, checkout token delivery, TanStack /api/order-amend, Vercel edge or historical order recovery.",
+    "The buyer-token feature is opt-in and MUST NOT activate before revoking phone-only public mutations.",
+    "Payment state is NOT_SETTLED; there is no captured payment or supplier approval workflow in this candidate."
+  ],
+  "summary": {
+    "checksPassed": 43,
+    "checksFailed": 0,
+    "capabilityStored": "SHA256 only",
+    "concurrentReplayWorkers": 6,
+    "buyerPhoneNotAnAuthorizationFactor": true,
+    "paymentCaptureTested": false,
+    "deployed": false
+  }
+}

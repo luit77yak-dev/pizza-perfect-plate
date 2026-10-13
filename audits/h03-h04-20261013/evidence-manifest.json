@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-13",
+  "branch": "audit/h03-h04-20261013",
+  "masterTestCommit": "e338e4ee4ee8ce7e4532799025d3f723f3a4ebf5",
+  "deliveryTestCommit": "6f5b37e997948106772be5dd00242dfd77290a28",
+  "restoreTestCommit": "b1fe64936ff9b3965ddd6bbef11376d345c4c156",
+  "integratedRun": 38432605009,
+  "restoreRun": 38431446701,
+  "productionApproved": false,
+  "sql": [
+    {
+      "repository": "neroxa-master",
+      "path": "audits/sql/store-availability.candidate.sql",
+      "sha256": "45da99d6ef1d4f0afadd65473b5c2ed7360f1e5766ec3af7aa6e61fdfbcb9daf"
+    },
+    {
+      "repository": "neroxa-master",
+      "path": "audits/sql/checkout-recovery.candidate.sql",
+      "sha256": "acc820704864db99ade9c27352c6462163fdfb0fef5076b816c9963c06ca9022"
+    },
+    {
+      "repository": "neroxa-master",
+      "path": "audits/sql/store-availability-capability.candidate.sql",
+      "sha256": "cc0bb4ae8932550652a31dc2ca1e1751be5fa8bc449d487984ce9ad537edc499"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "evidence/legacy-browser/browser-results.json",
+      "sha256": "1d7f64b8e613f8d1e0dfe11330e4aacfa5b82eb16bfb608ed46038b46fa8dbd8"
+    },
+    {
+      "path": "evidence/legacy-browser/screenshots/checkout-1440.png",
+      "sha256": "f9cd14d918a5adc58484360bf70f0caa634d5092e0125f2d6e47ed985da4211c"
+    },
+    {
+      "path": "evidence/legacy-browser/screenshots/checkout-360.png",
+      "sha256": "829b1bd859c37c2047704d55c93866e8ae1ab55b9a2d4ddde3cda52640b81ce0"
+    },
+    {
+      "path": "evidence/legacy-browser/screenshots/checkout-390.png",
+      "sha256": "bcd31f8131fedfb39d45fc34172f904c11583d84218d94d300dcea8d2228c3e8"
+    },
+    {
+      "path": "evidence/legacy-browser/screenshots/checkout-412.png",
+      "sha256": "662bdb6622dbe3ea38be6285d57cfbe050fa4874f5b9a58d1c3a4d98a5f309e3"
+    },
+    {
+      "path": "evidence/legacy-browser/screenshots/checkout-768.png",
+      "sha256": "e250488e38e7ee1627ac9e8c3e49d0c8eb81219790f18ed4447603c5f714d4c9"
+    },
+    {
+      "path": "evidence/legacy-browser/screenshots/delivery-fee-review-390.png",
+      "sha256": "75b4d0495003ecf15e97967bee5da7fb92ed53b6724ce79c9df5168811cc8a16"
+    },
+    {
+      "path": "evidence/legacy-browser/screenshots/store-1440.png",
+      "sha256": "c90678710d187ea146cd8cfd12d8a8c886a764d0c9fa3a60d59508c724783101"
+    },
+    {
+      "path": "evidence/legacy-browser/screenshots/store-360.png",
+      "sha256": "cee81043c546eb2ea39f63357439b0079353aefdafaadd96689e7b113f1c6e72"
+    },
+    {
+      "path": "evidence/legacy-browser/screenshots/store-390.png",
+      "sha256": "2c84cddc0c46ce6a3d9ae4efe70521855f9127df604912a544efa073b465fd83"
+    },
+    {
+      "path": "evidence/legacy-browser/screenshots/store-412.png",
+      "sha256": "394a0972ec77459b3563a1a2d7aff60d52c5df9f62aee48f9ec9081a903d75e6"
+    },
+    {
+      "path": "evidence/legacy-browser/screenshots/store-768.png",
+      "sha256": "74a6c690ad836e02dd685b741d28e9bf9e57a80126fb982d8e133252b184bf7f"
+    },
+    {
+      "path": "evidence/native/browser/tracking-1440.png",
+      "sha256": "2d03fbde1d4b231d4bf4b2cb8c1a218f04e2ff87fa79376085c140754ef84bda"
+    },
+    {
+      "path": "evidence/native/browser/tracking-360.png",
+      "sha256": "410c1ad4ba46ae9613399a2df4db7a2b06e9f7ca3c0b99ef256c7e8a10b560e2"
+    },
+    {
+      "path": "evidence/native/browser/tracking-390.png",
+      "sha256": "c2cd06fb4e6ffe165efcf79455996bbcbd5085ac3d3af2adb5ec629f16c5fba8"
+    },
+    {
+      "path": "evidence/native/browser/tracking-412.png",
+      "sha256": "5c4dbed3109ed22c58e3a71a3da55211d4451b0c6602b9ca09a07e50378f9492"
+    },
+    {
+      "path": "evidence/native/browser/tracking-768.png",
+      "sha256": "e3a90acc5bf283e9d4104ee7671fed4db69ee5ffc31564e233e119a441b62ab7"
+    },
+    {
+      "path": "evidence/native/checkout-gateway-integrated.json",
+      "sha256": "bc7a007794c16214b539bc7d40bbfd103c8e45c6318d27a9437ab6626dff388a"
+    },
+    {
+      "path": "evidence/native/checkout-http-enabled.json",
+      "sha256": "4cf629ca7809f97820ae0f0ff088c7ca1d97b982273654b8ee8f01c52c8e37f2"
+    },
+    {
+      "path": "evidence/native/group-addons.json",
+      "sha256": "1a36b94a13384e99742eaf6408d08f9140fa9a3dab306278e6f4fb808b8b7791"
+    },
+    {
+      "path": "evidence/native/h03-browser.json",
+      "sha256": "0bb0d41fbdc0899b1a0edbe486539526d4c8d314ee289277512884aecd865697"
+    },
+    {
+      "path": "evidence/native/h03-h04.json",
+      "sha256": "8b092b6df1896af7eacab61329ced207c7ebce95dd0d77380953b9994bf1886a"
+    },
+    {
+      "path": "evidence/native/order-amendment-capability.json",
+      "sha256": "15ab1c50a1edf55b2c684ef45e291ad4b41c9d91e6bb89ca7efde7a106b566dc"
+    },
+    {
+      "path": "evidence/native/result.json",
+      "sha256": "0eb51c4eb4c476eae33e4e55bb9937ad3a32f2de4b22779b6350cf5ab9340c80"
+    },
+    {
+      "path": "evidence/recovery/report.json",
+      "sha256": "41b3b47e79aad5c57ae65ae45eb49d40dc4d37bb3e309ddc43b19ffe0c803d67"
+    },
+    {
+      "path": "evidence/recovery/restore-report.json",
+      "sha256": "b8960a9e0cb8c4a2777b477f1cbd166971dff504811c83f0fdb2b1a2db0eb616"
+    }
+  ]
+}
