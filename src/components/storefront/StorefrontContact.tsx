@@ -2,31 +2,47 @@ import type { OrganizationSettings } from "@/lib/domain/types";
 
 type StorefrontContactProps = {
   settings: OrganizationSettings;
+  availabilityLabel?: string;
   isPizzaTheme?: boolean;
   isBurgerTheme?: boolean;
 };
 
-export function StorefrontContact({ settings, isPizzaTheme = false, isBurgerTheme = false }: StorefrontContactProps) {
+export function StorefrontContact({
+  settings,
+  availabilityLabel,
+  isPizzaTheme = false,
+  isBurgerTheme = false,
+}: StorefrontContactProps) {
   if (isBurgerTheme) {
     return (
       <footer id="contato" className="hc-footer">
         <div className="hc-footer-top">
           <div>
             <p className="hc-section-kicker">Contato</p>
-            <h2>Burger <em>Club.</em></h2>
+            <h2>
+              Burger <em>Club.</em>
+            </h2>
           </div>
-          <a href="#cardapio">Ver o cardápio <span>→</span></a>
+          <a href="#cardapio">
+            Ver o cardápio <span>→</span>
+          </a>
         </div>
         <div className="hc-footer-grid">
           <div>
             <span>Atendimento</span>
-            <strong>{settings.delivery_enabled && settings.pickup_enabled ? "Salão e delivery" : settings.delivery_enabled ? "Delivery" : "Retirada"}</strong>
+            <strong>
+              {settings.delivery_enabled && settings.pickup_enabled
+                ? "Salão e delivery"
+                : settings.delivery_enabled
+                  ? "Delivery"
+                  : "Retirada"}
+            </strong>
             <p>{settings.whatsapp_phone || "Consulte a loja"}</p>
           </div>
           <div>
             <span>Horários</span>
-            <strong>Todos os dias</strong>
-            <p>Consulte os horários da casa</p>
+            <strong>{availabilityLabel ? "Disponibilidade atual" : "Todos os dias"}</strong>
+            <p>{availabilityLabel ?? "Consulte os horários da casa"}</p>
           </div>
           <div>
             <span>Cardápio</span>
@@ -50,9 +66,35 @@ export function StorefrontContact({ settings, isPizzaTheme = false, isBurgerThem
           <p className="text-xs font-semibold uppercase tracking-[.2em] text-accent">Contato</p>
           <h2 className="mt-3 text-[clamp(3.5rem,12vw,8rem)] leading-[.82]">Pizza Club</h2>
           <div className="mt-10 grid gap-3 sm:grid-cols-3">
-            <a href="#cardapio" className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4 transition-colors hover:border-primary hover:bg-secondary-foreground/10"><span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">Cardápio</span><span className="mt-1 block font-semibold">Ver as pizzas</span></a>
-            <div className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4"><span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">Atendimento</span><span className="mt-1 block font-semibold">{settings.delivery_enabled && settings.pickup_enabled ? "Salão e delivery" : settings.delivery_enabled ? "Delivery" : "Retirada"}</span></div>
-            <div className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4"><span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">WhatsApp</span><span className="mt-1 block font-semibold">{settings.whatsapp_phone || "Consulte a loja"}</span></div>
+            <a
+              href="#cardapio"
+              className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4 transition-colors hover:border-primary hover:bg-secondary-foreground/10"
+            >
+              <span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">
+                Cardápio
+              </span>
+              <span className="mt-1 block font-semibold">Ver as pizzas</span>
+            </a>
+            <div className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4">
+              <span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">
+                Atendimento
+              </span>
+              <span className="mt-1 block font-semibold">
+                {settings.delivery_enabled && settings.pickup_enabled
+                  ? "Salão e delivery"
+                  : settings.delivery_enabled
+                    ? "Delivery"
+                    : "Retirada"}
+              </span>
+            </div>
+            <div className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4">
+              <span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">
+                WhatsApp
+              </span>
+              <span className="mt-1 block font-semibold">
+                {settings.whatsapp_phone || "Consulte a loja"}
+              </span>
+            </div>
           </div>
         </div>
       </section>
@@ -64,20 +106,32 @@ export function StorefrontContact({ settings, isPizzaTheme = false, isBurgerThem
       <div className="pc-footer-top">
         <div>
           <p className="pc-section-kicker">Pizza Club</p>
-          <h2>Mais uma<br /><em>fatia?</em></h2>
+          <h2>
+            Mais uma
+            <br />
+            <em>fatia?</em>
+          </h2>
         </div>
-        <a className="pc-footer-cta" href="#cardapio">Ver as pizzas <span>→</span></a>
+        <a className="pc-footer-cta" href="#cardapio">
+          Ver as pizzas <span>→</span>
+        </a>
       </div>
 
       <div className="pc-footer-grid">
         <div>
           <span>Horários</span>
-          <strong>Terça a domingo</strong>
-          <p>18h às 0h</p>
+          <strong>{availabilityLabel ? "Disponibilidade atual" : "Terça a domingo"}</strong>
+          <p>{availabilityLabel ?? "18h às 0h"}</p>
         </div>
         <div>
           <span>Atendimento</span>
-          <strong>{settings.delivery_enabled && settings.pickup_enabled ? "Salão e delivery" : settings.delivery_enabled ? "Delivery" : "Retirada"}</strong>
+          <strong>
+            {settings.delivery_enabled && settings.pickup_enabled
+              ? "Salão e delivery"
+              : settings.delivery_enabled
+                ? "Delivery"
+                : "Retirada"}
+          </strong>
           <p>{settings.whatsapp_phone ? settings.whatsapp_phone : "Fale com a casa"}</p>
         </div>
         <div>

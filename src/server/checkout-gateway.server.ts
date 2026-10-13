@@ -6,6 +6,9 @@ import {
   handleCheckoutRequest,
   CheckoutRateLimitError,
   CheckoutPriceChangedError,
+  CheckoutStoreClosedError,
+  CheckoutRecoveryDeniedError,
+  CheckoutRecoveryExpiredError,
   type OrderResult,
   type StoreContext,
 } from "./checkout-gateway";
@@ -17,6 +20,8 @@ import {
 export function checkoutGatewayEnabled(): boolean {
   return (
     process.env["NEROXA_CHECKOUT_GATEWAY_ENABLED"] === "true" &&
+    (process.env["NEROXA_REQUIRE_DURABLE_CHECKOUT_INTENTS"] !== "true" ||
+      process.env["NEROXA_GROUP_ADDONS_V1_ENABLED"] === "true") &&
     sameDeliveryBackend(process.env["SUPABASE_URL"], process.env["NEROXA_DELIVERY_BACKEND_URL"])
   );
 }
@@ -31,7 +36,20 @@ type CandidateRpcClient = {
   ) => Promise<{ data: unknown; error: { code?: string } | null }>;
 };
 
-export async function handlePrivateCheckout(request: Request): Promise<Response> {
+export async function handlePrivateCheckout(
+  request: Request,
+  recoverOnly = false,
+): Promise<Response> {
+  if (
+    recoverOnly &&
+    (process.env["NEROXA_CHECKOUT_RECOVERY_ENABLED"] !== "true" ||
+      process.env["NEROXA_REQUIRE_DURABLE_CHECKOUT_INTENTS"] !== "true" ||
+      process.env["NEROXA_GROUP_ADDONS_V1_ENABLED"] !== "true")
+  )
+    return Response.json(
+      { error: "Recuperação segura indisponível." },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
+    );
   // Supabase admin proxy is created only after the feature flag is checked.
   if (!checkoutGatewayEnabled()) {
     return handleCheckoutRequest(request, {
@@ -62,6 +80,7 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
   const candidate = supabaseAdmin as unknown as CandidateRpcClient;
   return handleCheckoutRequest(request, {
     enabled: checkoutGatewayEnabled(),
+    requiresDurableIntent: process.env["NEROXA_REQUIRE_DURABLE_CHECKOUT_INTENTS"] === "true",
     resolveContext: async (domain): Promise<StoreContext | null> => {
       const { data, error } = await candidate.rpc("get_public_storefront_context", {
         p_domain: domain,
@@ -96,6 +115,28 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
       if (error || data !== true) throw new Error("Quota service unavailable");
     },
     createOrder: async (payload): Promise<OrderResult> => {
+      const recover = async (): Promise<Record<string, unknown>> => {
+        const r = await candidate.rpc("neroxa_recover_group_order", {
+          p_instance_id: payload["instance_id"],
+          p_checkout_key: payload["idempotency_key"],
+          p_order: payload,
+        });
+        if (r.error?.code === "PT410") throw new CheckoutRecoveryExpiredError();
+        if (r.error?.code === "42501") throw new CheckoutRecoveryDeniedError();
+        if (r.error || !r.data || typeof r.data !== "object")
+          throw new Error("Recovery unavailable");
+        return r.data as Record<string, unknown>;
+      };
+      if (recoverOnly) {
+        const snapshot = await recover();
+        return {
+          order_id: String(snapshot["order_id"]),
+          order_number: Number(snapshot["order_number"]),
+          total: Number(snapshot["total"]),
+          snapshot,
+        };
+      }
+
       if (
         groupedContract(payload["items"], process.env["NEROXA_GROUP_ADDONS_V1_ENABLED"] === "true")
       ) {
@@ -113,12 +154,18 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
       const { data, error } = await candidate.rpc("create_public_order", {
         p_order: payload,
       });
+      if (error?.code === "PT410") throw new CheckoutRecoveryExpiredError();
+      if (error?.code === "PT423") throw new CheckoutStoreClosedError("Store closed");
       if (error?.code === "PT409") throw new CheckoutPriceChangedError("Price changed");
       if (error) throw new Error("Order RPC rejected");
       const record = Array.isArray(data) ? data[0] : data;
       if (!record || typeof record !== "object") throw new Error("Order RPC returned no order");
       const row = record as Record<string, unknown>;
       if (typeof row["order_id"] !== "string") throw new Error("Invalid order ID");
+      const snapshot =
+        process.env["NEROXA_REQUIRE_DURABLE_CHECKOUT_INTENTS"] === "true"
+          ? await recover()
+          : undefined;
       // Both checkout and amendments must be explicitly enabled at runtime.
       // This credential is minted by the server, never accepted from the
       // browser as a substitute for the order's authorization.
@@ -145,6 +192,7 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
             order_number: Number(row["order_number"]),
             total: Number(row["total"]),
             amendment_token: token,
+            ...(snapshot ? { snapshot } : {}),
           };
         }
         // A replay cannot reissue or rotate the initial buyer capability.
@@ -153,6 +201,7 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
         order_id: row["order_id"],
         order_number: Number(row["order_number"]),
         total: Number(row["total"]),
+        ...(snapshot ? { snapshot } : {}),
       };
     },
   });

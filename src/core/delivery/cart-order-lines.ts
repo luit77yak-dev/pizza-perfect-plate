@@ -14,8 +14,43 @@ type LegacyLine = {
 export type CartOrderLine =
   LegacyLine | (ReturnType<typeof groupOrderLine> & { notes: string | null });
 /** One serializer for checkout and private append. Never infer an addon's entity type. */
-export function cartOrderLines(items: CartItem[], catalog: PublicCatalog | null = null) {
+export function cartOrderLines(
+  items: CartItem[],
+  catalog: PublicCatalog | null = null,
+  recover = false,
+) {
   return items.flatMap<CartOrderLine>((item) => {
+    if (recover) {
+      const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (
+        item.selectionContract !== "GROUP_ADDONS_V1" ||
+        !uuid.test(item.productId) ||
+        !Array.isArray(item.groupAddonIds) ||
+        item.groupAddonIds.some((id) => typeof id !== "string" || !uuid.test(id)) ||
+        new Set(item.groupAddonIds).size !== item.groupAddonIds.length ||
+        !Number.isInteger(item.quantity) ||
+        item.quantity < 1 ||
+        item.quantity > 10 ||
+        !Number.isFinite(item.unitPrice) ||
+        item.unitPrice < 0 ||
+        item.isHalf ||
+        item.secondProductId ||
+        item.complements?.length
+      )
+        throw new Error("Snapshot original inválido; solicite reconciliação segura.");
+      return [
+        {
+          selection_contract: "GROUP_ADDONS_V1",
+          product_id: item.productId,
+          group_addon_ids: item.groupAddonIds,
+          quantity: item.quantity,
+          size_id: item.sizeId,
+          crust_id: item.crustId,
+          expected_unit_price: item.unitPrice,
+          notes: item.notes,
+        },
+      ];
+    }
     if (catalog || item.selectionContract === "GROUP_ADDONS_V1") {
       if (!catalog || item.selectionContract !== "GROUP_ADDONS_V1")
         throw new Error("Revise os itens antigos da sacola antes de usar o catálogo avançado.");

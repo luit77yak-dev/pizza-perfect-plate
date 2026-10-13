@@ -1,3 +1,4 @@
+import { parseAvailability, type InstanceAvailability } from "../availability";
 import { createPublicCatalogOperations, type PublicCatalog } from "./public-catalog";
 import type {
   Addon,
@@ -17,6 +18,7 @@ export type StoreData = {
   /** Store identity resolved by the public catalog RPC for this domain. */
   instanceId: string;
   groupCatalog: PublicCatalog | null;
+  availability: InstanceAvailability | null;
   /** Canonical verified domain returned by the storefront context RPC. */
   storeDomain: string;
   organization: Organization;
@@ -44,6 +46,7 @@ export type StoreData = {
 
 type PublicStorefrontCatalog = {
   selection_contract?: string;
+  availability?: unknown;
   context: {
     domain: string;
     instance_id: string;
@@ -321,6 +324,7 @@ export async function loadStore(): Promise<StoreData> {
               sort_order: addon.sort_order,
             })),
           ),
+      availability: parseAvailability(catalog.availability, context.instance_id),
       hours: [],
       specialHours: [],
       deliveryZones,

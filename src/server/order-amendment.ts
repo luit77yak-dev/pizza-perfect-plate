@@ -2,6 +2,7 @@ import { GroupContractError } from "./group-contract.ts";
 import { readBoundedJson, RequestBodyTooLarge } from "./bounded-json.ts";
 import {
   CheckoutPriceChangedError,
+  CheckoutStoreClosedError,
   CheckoutRateLimitError,
   type StoreContext,
 } from "./checkout-gateway.ts";
@@ -183,6 +184,11 @@ export async function handleOrderAmendmentRequest(
   } catch (e) {
     if (e instanceof GroupContractError)
       return errorResponse(400, "Contrato de itens incompatível com o modo habilitado.");
+    if (e instanceof CheckoutStoreClosedError)
+      return Response.json(
+        { code: "STORE_CLOSED", error: "A loja não está disponível para novos itens." },
+        { status: 423, headers: { "Cache-Control": "no-store" } },
+      );
     if (e instanceof CheckoutPriceChangedError)
       return Response.json(
         { error: "O preço mudou. Atualize o catálogo e revise os itens.", code: "PRICE_CHANGED" },

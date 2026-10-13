@@ -17,6 +17,9 @@ import { Route as MasterComercialRouteImport } from './routes/master-comercial'
 import { Route as MasterFinanceiroRouteImport } from './routes/master-financeiro'
 import { Route as PainelRouteImport } from './routes/painel'
 import { Route as AdminPedidosRouteImport } from './routes/admin/pedidos'
+import { Route as ApiCheckoutRouteImport } from './routes/api/checkout'
+import { Route as ApiOrderAmendRouteImport } from './routes/api/order-amend'
+import { Route as ApiOrderRecoverRouteImport } from './routes/api/order-recover'
 import { Route as LojaSlugRouteImport } from './routes/loja/$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -59,6 +62,21 @@ const AdminPedidosRoute = AdminPedidosRouteImport.update({
   path: '/admin/pedidos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCheckoutRoute = ApiCheckoutRouteImport.update({
+  id: '/api/checkout',
+  path: '/api/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOrderAmendRoute = ApiOrderAmendRouteImport.update({
+  id: '/api/order-amend',
+  path: '/api/order-amend',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOrderRecoverRoute = ApiOrderRecoverRouteImport.update({
+  id: '/api/order-recover',
+  path: '/api/order-recover',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LojaSlugRoute = LojaSlugRouteImport.update({
   id: '/loja/$slug',
   path: '/loja/$slug',
@@ -74,6 +92,9 @@ export interface FileRoutesByFullPath {
   '/master-financeiro': typeof MasterFinanceiroRoute
   '/painel': typeof PainelRoute
   '/admin/pedidos': typeof AdminPedidosRoute
+  '/api/checkout': typeof ApiCheckoutRoute
+  '/api/order-amend': typeof ApiOrderAmendRoute
+  '/api/order-recover': typeof ApiOrderRecoverRoute
   '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +106,9 @@ export interface FileRoutesByTo {
   '/master-financeiro': typeof MasterFinanceiroRoute
   '/painel': typeof PainelRoute
   '/admin/pedidos': typeof AdminPedidosRoute
+  '/api/checkout': typeof ApiCheckoutRoute
+  '/api/order-amend': typeof ApiOrderAmendRoute
+  '/api/order-recover': typeof ApiOrderRecoverRoute
   '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRoutesById {
@@ -97,6 +121,9 @@ export interface FileRoutesById {
   '/master-financeiro': typeof MasterFinanceiroRoute
   '/painel': typeof PainelRoute
   '/admin/pedidos': typeof AdminPedidosRoute
+  '/api/checkout': typeof ApiCheckoutRoute
+  '/api/order-amend': typeof ApiOrderAmendRoute
+  '/api/order-recover': typeof ApiOrderRecoverRoute
   '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +137,9 @@ export interface FileRouteTypes {
     | '/master-financeiro'
     | '/painel'
     | '/admin/pedidos'
+    | '/api/checkout'
+    | '/api/order-amend'
+    | '/api/order-recover'
     | '/loja/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +151,9 @@ export interface FileRouteTypes {
     | '/master-financeiro'
     | '/painel'
     | '/admin/pedidos'
+    | '/api/checkout'
+    | '/api/order-amend'
+    | '/api/order-recover'
     | '/loja/$slug'
   id:
     | '__root__'
@@ -132,6 +165,9 @@ export interface FileRouteTypes {
     | '/master-financeiro'
     | '/painel'
     | '/admin/pedidos'
+    | '/api/checkout'
+    | '/api/order-amend'
+    | '/api/order-recover'
     | '/loja/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +180,9 @@ export interface RootRouteChildren {
   MasterFinanceiroRoute: typeof MasterFinanceiroRoute
   PainelRoute: typeof PainelRoute
   AdminPedidosRoute: typeof AdminPedidosRoute
+  ApiCheckoutRoute: typeof ApiCheckoutRoute
+  ApiOrderAmendRoute: typeof ApiOrderAmendRoute
+  ApiOrderRecoverRoute: typeof ApiOrderRecoverRoute
   LojaSlugRoute: typeof LojaSlugRoute
 }
 
@@ -205,6 +244,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPedidosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/checkout': {
+      id: '/api/checkout'
+      path: '/api/checkout'
+      fullPath: '/api/checkout'
+      preLoaderRoute: typeof ApiCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/order-amend': {
+      id: '/api/order-amend'
+      path: '/api/order-amend'
+      fullPath: '/api/order-amend'
+      preLoaderRoute: typeof ApiOrderAmendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/order-recover': {
+      id: '/api/order-recover'
+      path: '/api/order-recover'
+      fullPath: '/api/order-recover'
+      preLoaderRoute: typeof ApiOrderRecoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/loja/$slug': {
       id: '/loja/$slug'
       path: '/loja/$slug'
@@ -224,6 +284,9 @@ const rootRouteChildren: RootRouteChildren = {
   MasterFinanceiroRoute: MasterFinanceiroRoute,
   PainelRoute: PainelRoute,
   AdminPedidosRoute: AdminPedidosRoute,
+  ApiCheckoutRoute: ApiCheckoutRoute,
+  ApiOrderAmendRoute: ApiOrderAmendRoute,
+  ApiOrderRecoverRoute: ApiOrderRecoverRoute,
   LojaSlugRoute: LojaSlugRoute,
 }
 export const routeTree = rootRouteImport

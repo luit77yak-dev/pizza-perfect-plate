@@ -17,15 +17,20 @@ export type OrderResult = {
   order_id: string;
   order_number: number;
   total: number;
+  snapshot?: Record<string, unknown>;
   /** Returned only once after a successful service-only capability registration. */
   amendment_token?: string;
 };
 
 export class CheckoutPriceChangedError extends Error {}
+export class CheckoutStoreClosedError extends Error {}
+export class CheckoutRecoveryDeniedError extends Error {}
+export class CheckoutRecoveryExpiredError extends Error {}
 export class CheckoutRateLimitError extends Error {}
 
 export type CheckoutDependencies = {
   enabled: boolean;
+  requiresDurableIntent?: boolean;
   resolveContext: (domain: string) => Promise<StoreContext | null>;
   /** Enforced durably on the server; must reject on backend unavailability. */
   reserveQuota: (context: StoreContext, customerPhone: string) => Promise<void>;
@@ -161,6 +166,19 @@ export async function handleCheckoutRequest(
     return result(403, "Pedido incompatível com a loja.");
   }
 
+  if (
+    dependencies.requiresDurableIntent &&
+    !payload["items"].every(
+      (item: unknown) => isRecord(item) && item["selection_contract"] === "GROUP_ADDONS_V1",
+    )
+  )
+    return result(400, "Recuperação requer contrato normalizado.");
+  if (
+    dependencies.requiresDurableIntent &&
+    (typeof payload["client_cart_reference"] !== "string" ||
+      !/^[0-9a-f]{64}$/.test(payload["client_cart_reference"]))
+  )
+    return result(400, "Referência durável de carrinho obrigatória.");
   const authorizedPayload: Record<string, unknown> = {
     ...payload,
     organization_id: context.organization_id,
@@ -201,11 +219,30 @@ export async function handleCheckoutRequest(
         order_id: created.order_id,
         order_number: Number(created.order_number),
         total: Number(created.total),
+        ...(created.snapshot ? { snapshot: created.snapshot } : {}),
         ...(created.amendment_token ? { amendment_token: created.amendment_token } : {}),
       },
       { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
     );
   } catch (error) {
+    if (error instanceof CheckoutRecoveryDeniedError)
+      return Response.json(
+        { code: "RECOVERY_DENIED", error: "Não foi possível comprovar a tentativa original." },
+        { status: 403, headers: { "Cache-Control": "no-store" } },
+      );
+    if (error instanceof CheckoutRecoveryExpiredError)
+      return Response.json(
+        {
+          code: "RECOVERY_EXPIRED",
+          error: "Tentativa expirada. Solicite reconciliação por operador autorizado.",
+        },
+        { status: 410, headers: { "Cache-Control": "no-store" } },
+      );
+    if (error instanceof CheckoutStoreClosedError)
+      return Response.json(
+        { code: "STORE_CLOSED", error: "A loja não está disponível para novos pedidos." },
+        { status: 423, headers: { "Cache-Control": "no-store" } },
+      );
     if (error instanceof GroupContractError)
       return result(400, "Contrato de itens incompatível com o modo habilitado.");
     if (error instanceof CheckoutPriceChangedError)

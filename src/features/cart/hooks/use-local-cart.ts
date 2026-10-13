@@ -86,5 +86,25 @@ export function useLocalCart(instanceId: string | undefined) {
     [key],
   );
 
-  return { items, addItem, updateQuantity, removeItem, clear, replaceItems };
+  const clearPurchased = useCallback(
+    (purchased: CartItem[]) => {
+      if (!key) return;
+      setSnapshot((current) =>
+        current.key !== key
+          ? current
+          : {
+              key,
+              items: current.items.filter(
+                (item) =>
+                  !purchased.some(
+                    (old) =>
+                      old.lineId === item.lineId && JSON.stringify(old) === JSON.stringify(item),
+                  ),
+              ),
+            },
+      );
+    },
+    [key],
+  );
+  return { items, addItem, updateQuantity, removeItem, clear, replaceItems, clearPurchased };
 }

@@ -4,6 +4,7 @@ import { createHmac } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
   CheckoutPriceChangedError,
+  CheckoutStoreClosedError,
   CheckoutRateLimitError,
   type StoreContext,
 } from "./checkout-gateway";
@@ -103,6 +104,7 @@ export async function handlePrivateOrderAmendment(request: Request): Promise<Res
         p_request_key: details.requestKey,
         p_items: details.items,
       });
+      if (error?.code === "PT423") throw new CheckoutStoreClosedError();
       if (error?.code === "PT409") throw new CheckoutPriceChangedError("Price changed");
       if (error?.code === "42501") throw new AmendmentAuthorizationError("Forbidden");
       if (error?.code === "22023") throw new AmendmentConflictError("Order rejected");

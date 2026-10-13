@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   auth-matrix:
-    if: github.ref == 'refs/heads/audit/group-addons-integration-20261013'
+    if: github.ref == 'refs/heads/audit/h03-h04-20261013'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: luit77yak-dev/neroxa-master
-          ref: 703ef87cb498be67b02d3257fcf1f91d4098b893
+          ref: 0f9dccc762e0e2b638748526d79ec53fc5bb4cae
           path: master
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -74,7 +74,7 @@ jobs:
           path: master/delivery-consumer
           persist-credentials: false
       - name: Verify pinned Master commit
-        run: test "$(git rev-parse HEAD)" = "703ef87cb498be67b02d3257fcf1f91d4098b893"
+        run: test "$(git rev-parse HEAD)" = "0f9dccc762e0e2b638748526d79ec53fc5bb4cae"
       - name: Verify pinned delivery commit
         run: test "$(git -C delivery-consumer rev-parse HEAD)" = "${{ github.sha }}"
       - name: Integrate real local checkout gateway and test direct RPC revocation
@@ -85,6 +85,16 @@ jobs:
         run: node --experimental-strip-types tools/ab-auth/group_addons.mjs
       - name: Exercise enabled TanStack HTTPS checkout on disposable Supabase
         run: node tools/ab-auth/checkout_http_enabled.mjs
+      - name: H03 H04 native database and authorization checks
+        run: node tools/ab-auth/h03_h04.mjs
+      - name: Prepare isolated browser without application dependencies
+        run: |
+          npm install --prefix "$RUNNER_TEMP/neroxa-browser" --ignore-scripts --no-audit --no-fund playwright@1.58.2
+          echo "BROWSER_MODULE=$RUNNER_TEMP/neroxa-browser/node_modules/playwright" >> "$GITHUB_ENV"
+          echo "CHROME_BIN=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          echo "127.0.0.1 a.ab.invalid b.ab.invalid c.ab.invalid" | sudo tee -a /etc/hosts >/dev/null
+      - name: First complete order through Chromium and native Supabase
+        run: node tools/ab-auth/h03_browser.mjs
       - name: Sanitized evidence only
         if: always()
         uses: actions/upload-artifact@v4

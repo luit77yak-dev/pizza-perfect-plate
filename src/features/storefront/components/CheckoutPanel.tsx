@@ -1,3 +1,8 @@
+import {
+  cartReference,
+  durableIntentState,
+  withDurableCheckoutIntent,
+} from "@/core/delivery/durable-checkout-intent";
 import { cartOrderLines } from "@/core/delivery/cart-order-lines";
 import type { PublicCatalog } from "@/core/delivery/services/public-catalog";
 import { bindRequestIntent } from "@/core/delivery/request-intent";
@@ -49,6 +54,8 @@ export function CheckoutPanel({
   onClose: () => void;
   onReviewPrices?: () => Promise<void>;
   onSuccess: (order: {
+    recoveryPayload?: Record<string, unknown>;
+    snapshot?: Record<string, unknown>;
     id: string;
     number: number;
     phone: string;
@@ -123,11 +130,21 @@ export function CheckoutPanel({
     ? settings.payment_methods
     : (["PIX"] as PaymentMethod[]);
 
+  const recoveryEnabled = import.meta.env["VITE_NEROXA_DURABLE_CHECKOUT_INTENTS"] === "true";
+  const recovering =
+    recoveryEnabled &&
+    (() => {
+      try {
+        return durableIntentState(window.localStorage, instanceId) !== null;
+      } catch {
+        return true;
+      }
+    })();
   const submitOrder = async () => {
     if (priceReviewRequired || reviewingPrices || submitting) return;
     setError(null);
 
-    if (!storeOpen) {
+    if (!storeOpen && !recovering) {
       setError(`A loja está fechada. ${storeStatusLabel}.`);
       return;
     }
@@ -312,38 +329,74 @@ export function CheckoutPanel({
         address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
         notes: notes.trim() || null,
         idempotency_key: (checkoutKeyRef.current ??= crypto.randomUUID()),
-        items: cartOrderLines(items, groupCatalog),
+        items: cartOrderLines(items, groupCatalog, recovering),
+        ...(import.meta.env["VITE_NEROXA_DURABLE_CHECKOUT_INTENTS"] === "true"
+          ? { client_cart_reference: await cartReference(items.map((item) => item.lineId)) }
+          : {}),
       };
 
       const detailsError = validateCustomerDetails(payload);
       if (detailsError) throw new Error(detailsError);
-      checkoutIntentRef.current = bindRequestIntent(checkoutIntentRef.current, payload);
+      if (!recoveryEnabled)
+        checkoutIntentRef.current = bindRequestIntent(checkoutIntentRef.current, payload);
 
       // Opt-in only while trusted ingress, credentials and the backend release gate
       // are being validated. Gateway errors NEVER fall back to the public RPC.
       let created: unknown;
+      let recoveryPayload: Record<string, unknown> | undefined;
       if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true") {
-        const response = await fetch("/api/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({ p_order: payload }),
-        });
-        const reply = (await response.json()) as {
-          error?: string;
-          code?: string;
-          order_id?: string;
-          order_number?: number;
-          total?: number;
-          amendment_token?: string;
+        const send = async (
+          requestPayload: Record<string, unknown>,
+          resolve: (rolledBack?: boolean) => void,
+        ) => {
+          const response = await fetch("/api/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({ p_order: requestPayload }),
+          });
+          const reply = (await response.json()) as {
+            error?: string;
+            code?: string;
+            order_id?: string;
+            order_number?: number;
+            total?: number;
+            amendment_token?: string;
+            snapshot?: Record<string, unknown>;
+          };
+          if (response.status === 409 && reply.code === "PRICE_CHANGED") {
+            resolve(true);
+            setPriceReviewRequired(true);
+            checkoutKeyRef.current = null;
+            checkoutIntentRef.current = null;
+          }
+          if (!response.ok) throw new Error(reply.error ?? "Checkout seguro indisponível.");
+          if (!reply.order_id || !reply.order_number || !Number.isFinite(Number(reply.total)))
+            throw new Error("Resposta incerta do checkout; recupere a mesma tentativa.");
+          if (recoveryEnabled && (!reply.snapshot || reply.snapshot["instance_id"] !== instanceId))
+            throw new Error(
+              "Resposta incerta: backend não confirmou o contrato de recuperação desta loja.",
+            );
+          recoveryPayload = requestPayload;
+          resolve();
+          return reply;
         };
-        if (response.status === 409 && reply.code === "PRICE_CHANGED") {
-          setPriceReviewRequired(true);
-          checkoutKeyRef.current = null;
-          checkoutIntentRef.current = null;
-        }
-        if (!response.ok) throw new Error(reply.error ?? "Checkout seguro indisponível.");
-        created = reply;
+        if (import.meta.env["VITE_NEROXA_DURABLE_CHECKOUT_INTENTS"] === "true") {
+          if (!groupCatalog || !navigator.locks)
+            throw new Error("Recuperação segura indisponível; pedido não enviado.");
+          let storage: Storage;
+          try {
+            storage = window.localStorage;
+          } catch {
+            throw new Error(
+              "Armazenamento indisponível. Nenhum pedido foi enviado; solicite reconciliação segura antes de repetir uma tentativa incerta.",
+            );
+          }
+          created = await withDurableCheckoutIntent(instanceId, payload, send, {
+            storage,
+            locks: navigator.locks,
+          });
+        } else created = await send(payload, () => {});
       } else {
         const { data, error } = await supabase.rpc("create_public_order", { p_order: payload });
         if (error) throw error;
@@ -351,7 +404,13 @@ export function CheckoutPanel({
       }
 
       const order = (Array.isArray(created) ? created[0] : created) as
-        | { order_id?: string; order_number?: number; total?: number; amendment_token?: string }
+        | {
+            order_id?: string;
+            order_number?: number;
+            total?: number;
+            amendment_token?: string;
+            snapshot?: Record<string, unknown>;
+          }
         | null
         | undefined;
       if (!order?.order_number || !order?.order_id)
@@ -369,6 +428,9 @@ export function CheckoutPanel({
         rememberBuyerAmendmentToken(instanceId, String(order.order_id), order.amendment_token);
       }
       onSuccess({
+        ...(recoveryEnabled && recoveryPayload
+          ? { recoveryPayload, ...(order.snapshot ? { snapshot: order.snapshot } : {}) }
+          : {}),
         id: String(order.order_id),
         number: Number(order.order_number),
         phone: phone.trim(),
@@ -711,18 +773,20 @@ export function CheckoutPanel({
                 reviewingPrices ||
                 priceReviewRequired ||
                 items.length === 0 ||
-                !storeOpen
+                (!storeOpen && !recovering)
               }
               onClick={submitOrder}
               className="mt-5 h-12 w-full rounded-full"
             >
-              {!storeOpen
+              {!storeOpen && !recovering
                 ? "Loja fechada"
                 : submitting
                   ? "Enviando pedido..."
-                  : existingOrder
-                    ? `Confirmar complemento ${formatCurrency(subtotal)}`
-                    : `Enviar pedido ${formatCurrency(total)}`}
+                  : recovering && !existingOrder
+                    ? `Recuperar tentativa ${formatCurrency(total)}`
+                    : existingOrder
+                      ? `Confirmar complemento ${formatCurrency(subtotal)}`
+                      : `Enviar pedido ${formatCurrency(total)}`}
             </Button>
             <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
               {existingOrder

@@ -1,5 +1,6 @@
+import { durableIntentState } from "@/core/delivery/durable-checkout-intent";
 import { reviewCartPrices } from "@/core/delivery/review-cart-prices";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { supabase } from "@/integrations/storefront-backend/client";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ChevronRight, Pizza, Plus, ShoppingBag, Store, X } from "lucide-react";
@@ -27,6 +28,7 @@ import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
 
 import { getPrice, getStoreStatus } from "@/features/storefront/domain/storefront-utils";
 export type TrackedOrder = {
+  recoveryPayload?: Record<string, unknown> | undefined;
   id: string;
   number: number;
   phone: string;
@@ -37,6 +39,27 @@ export type TrackedOrder = {
   status?: OrderStatus | undefined;
 };
 
+async function recoverSnapshot(payload: Record<string, unknown> | undefined) {
+  if (!payload) throw new Error("Tentativa original não disponível nesta sessão.");
+  const response = await fetch("/api/order-recover", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify({ p_order: payload }),
+  });
+  const reply: unknown = await response.json();
+  if (!response.ok || !reply || typeof reply !== "object" || !("snapshot" in reply))
+    throw new Error("Recuperação não autorizada ou indisponível.");
+  const snapshot = (reply as { snapshot: unknown }).snapshot;
+  if (
+    !snapshot ||
+    typeof snapshot !== "object" ||
+    Array.isArray(snapshot) ||
+    (snapshot as Record<string, unknown>)["instance_id"] !== payload["instance_id"]
+  )
+    throw new Error("Resposta de recuperação incompatível com a loja.");
+  return snapshot as Record<string, unknown>;
+}
 export function Storefront() {
   const [mounted, setMounted] = useState(false);
 
@@ -49,6 +72,7 @@ export function Storefront() {
     queryFn: () => loadStore(),
     enabled: mounted,
     staleTime: 60_000,
+    refetchInterval: 30_000,
   });
   const cart = useLocalCart(data?.instanceId);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -67,15 +91,47 @@ export function Storefront() {
   const [complementOrderId, setComplementOrderId] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
 
+  const durableRecovery = import.meta.env["VITE_NEROXA_DURABLE_CHECKOUT_INTENTS"] === "true";
+  const liveTracking = useRef<{ instanceId: string | null; orders: TrackedOrder[] }>({
+    instanceId: null,
+    orders: [],
+  });
+  const [pendingRecovery, setPendingRecovery] = useState(false);
+  useEffect(() => {
+    if (liveTracking.current.instanceId !== (data?.instanceId ?? null)) {
+      liveTracking.current = { instanceId: data?.instanceId ?? null, orders: [] };
+      setTrackedOrders([]);
+    } else liveTracking.current.orders = trackedOrders;
+  }, [data?.instanceId, trackedOrders]);
+  useEffect(() => {
+    if (!durableRecovery || !data?.instanceId) return;
+    const instance = data.instanceId;
+    const inspect = () => {
+      try {
+        const state = durableIntentState(localStorage, instance);
+        setPendingRecovery(state === "PENDING" || state === "BLOCKED");
+      } catch {
+        setPendingRecovery(true);
+      }
+    };
+    inspect();
+    const timer = window.setInterval(inspect, 1000);
+    return () => window.clearInterval(timer);
+  }, [durableRecovery, data?.instanceId]);
   useEffect(() => {
     if (!data?.instanceId) return;
     let cancelled = false;
 
     const loadTrackedOrders = async () => {
       try {
-        const raw =
-          localStorage.getItem(storefrontLocalKey("tracked-orders", data.instanceId)) ??
-          localStorage.getItem(storefrontLocalKey("last-order", data.instanceId));
+        const raw = durableRecovery
+          ? JSON.stringify(
+              liveTracking.current.instanceId === data.instanceId
+                ? liveTracking.current.orders
+                : [],
+            )
+          : (localStorage.getItem(storefrontLocalKey("tracked-orders", data.instanceId)) ??
+            localStorage.getItem(storefrontLocalKey("last-order", data.instanceId)));
         if (!raw) {
           if (!cancelled) {
             setTrackedOrders([]);
@@ -118,10 +174,13 @@ export function Storefront() {
 
         const results = await Promise.all(
           storedActiveOrders.map(async (stored) => {
-            const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
-              p_order_id: stored.id,
-              p_customer_phone: stored.phone,
-            });
+            const recovery = durableRecovery ? await recoverSnapshot(stored.recoveryPayload) : null;
+            const { data: tracking, error } = recovery
+              ? { data: recovery, error: null }
+              : await supabase.rpc("get_public_order_status", {
+                  p_order_id: stored.id,
+                  p_customer_phone: stored.phone,
+                });
             const current = (Array.isArray(tracking) ? tracking[0] : tracking) as
               | {
                   order_number?: unknown;
@@ -170,12 +229,12 @@ export function Storefront() {
             : (activeOrders[0]?.id ?? null),
         );
 
-        if (activeOrders.length > 0) {
+        if (!durableRecovery && activeOrders.length > 0) {
           localStorage.setItem(
             storefrontLocalKey("tracked-orders", data.instanceId),
             JSON.stringify(activeOrders),
           );
-        } else {
+        } else if (!durableRecovery) {
           localStorage.removeItem(storefrontLocalKey("tracked-orders", data.instanceId));
           localStorage.removeItem(storefrontLocalKey("last-order", data.instanceId));
         }
@@ -196,7 +255,7 @@ export function Storefront() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [data?.instanceId]);
+  }, [data?.instanceId, durableRecovery]);
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 30_000);
     return () => window.clearInterval(interval);
@@ -397,7 +456,12 @@ export function Storefront() {
     );
   }
 
-  const status = getStoreStatus(data.hours, data.specialHours, now);
+  const status = data.availability
+    ? {
+        open: data.availability?.configured === true && data.availability.open === true,
+        label: data.availability?.open === true ? "Aberta agora" : "Fechada agora",
+      }
+    : getStoreStatus(data.hours, data.specialHours, now);
   const burgerFallbackImages: Record<string, string> = {
     "Classic Burger":
       "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=82&fm=jpg",
@@ -429,6 +493,22 @@ export function Storefront() {
         } as CSSProperties
       }
     >
+      {pendingRecovery && (
+        <section role="status" className="relative z-40 border-b bg-background px-4 py-3 text-sm">
+          Existe uma tentativa pendente. Reentre os itens e dados originais para recuperar o
+          resultado; não envie outro pedido.
+          <Button
+            disabled={cart.items.length === 0}
+            className="ml-2"
+            onClick={() => {
+              setCartOpen(false);
+              setCheckoutOpen(true);
+            }}
+          >
+            Recuperar tentativa
+          </Button>
+        </section>
+      )}
       {!isPizzaTheme && !isBurgerTheme && (
         <StorefrontTicker organizationName={data.organization.name} statusLabel={status.label} />
       )}
@@ -683,6 +763,13 @@ export function Storefront() {
           />
 
           <StorefrontContact
+            {...(data.availability || data.groupCatalog
+              ? {
+                  availabilityLabel: data.availability?.configured
+                    ? `${status.label} · ${data.availability.timezone}`
+                    : "Horários não configurados; loja fechada",
+                }
+              : {})}
             settings={data.settings}
             isPizzaTheme={isPizzaTheme}
             isBurgerTheme={isBurgerTheme}
@@ -1098,7 +1185,7 @@ export function Storefront() {
           storeOpen={status.open}
           storeStatusLabel={status.label}
           onSuccess={async (order) => {
-            if (!activeComplementOrderId) cart.clear();
+            if (!activeComplementOrderId) cart.clearPurchased(order.items ?? []);
             setComplementItems([]);
             setSelectedComplementIds([]);
             setComplementOrderId(null);
@@ -1114,10 +1201,18 @@ export function Storefront() {
               fulfillment?: unknown;
             } | null;
             try {
-              const { data: tracking } = await supabase.rpc("get_public_order_status", {
-                p_order_id: order.id,
-                p_customer_phone: order.phone,
-              });
+              const original =
+                order.recoveryPayload ??
+                liveTracking.current.orders.find((item) => item.id === order.id)?.recoveryPayload;
+              const recovery = durableRecovery
+                ? (order.snapshot ?? (await recoverSnapshot(original)))
+                : null;
+              const { data: tracking } = recovery
+                ? { data: recovery }
+                : await supabase.rpc("get_public_order_status", {
+                    p_order_id: order.id,
+                    p_customer_phone: order.phone,
+                  });
               const current = Array.isArray(tracking) ? tracking[0] : tracking;
               if (current && typeof current === "object") {
                 snapshot = current as NonNullable<typeof snapshot>;
@@ -1133,6 +1228,9 @@ export function Storefront() {
                 : undefined;
               const snapshotStatus = snapshot?.status as OrderStatus | undefined;
               const nextOrder: TrackedOrder = {
+                ...(durableRecovery
+                  ? { recoveryPayload: order.recoveryPayload ?? previous?.recoveryPayload }
+                  : {}),
                 ...(previous ?? {}),
                 ...order,
                 number:
@@ -1166,10 +1264,11 @@ export function Storefront() {
               };
               const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
               try {
-                localStorage.setItem(
-                  storefrontLocalKey("tracked-orders", data.instanceId),
-                  JSON.stringify(next),
-                );
+                if (!durableRecovery)
+                  localStorage.setItem(
+                    storefrontLocalKey("tracked-orders", data.instanceId),
+                    JSON.stringify(next),
+                  );
               } catch {
                 // Ignore storage failures; tracking still works for the current session.
               }
@@ -1180,10 +1279,11 @@ export function Storefront() {
             setCheckoutOpen(false);
             setTrackingOpen(true);
             try {
-              localStorage.setItem(
-                storefrontLocalKey("last-order", data.instanceId),
-                JSON.stringify(order),
-              );
+              if (!durableRecovery)
+                localStorage.setItem(
+                  storefrontLocalKey("last-order", data.instanceId),
+                  JSON.stringify(order),
+                );
             } catch {
               // Ignore storage failures.
             }
