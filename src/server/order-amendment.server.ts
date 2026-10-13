@@ -1,3 +1,4 @@
+import { groupedContract } from "./group-contract";
 import { sameDeliveryBackend } from "../core/delivery/backend-binding";
 import { createHmac } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -81,18 +82,9 @@ export async function handlePrivateOrderAmendment(request: Request): Promise<Res
       if (error || data !== true) throw new Error("Quota RPC unavailable");
     },
     appendItems: async (context, details): Promise<AmendmentResult> => {
-      const groupedItems = details.items;
       if (
-        Array.isArray(groupedItems) &&
-        groupedItems.some(
-          (i: unknown) =>
-            i !== null &&
-            typeof i === "object" &&
-            (i as Record<string, unknown>)["selection_contract"] === "GROUP_ADDONS_V1",
-        )
+        groupedContract(details.items, process.env["NEROXA_GROUP_ADDONS_V1_ENABLED"] === "true")
       ) {
-        if (process.env["NEROXA_GROUP_ADDONS_V1_ENABLED"] !== "true")
-          throw new Error("Grouped orders disabled");
         const advertised = await candidate.rpc("get_public_storefront_catalog", {
           p_domain: context.domain,
         });

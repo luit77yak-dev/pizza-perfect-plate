@@ -1,3 +1,4 @@
+import { GroupContractError } from "./group-contract.ts";
 import { readBoundedJson, RequestBodyTooLarge } from "./bounded-json.ts";
 import {
   CheckoutPriceChangedError,
@@ -180,6 +181,8 @@ export async function handleOrderAmendmentRequest(
       { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
     );
   } catch (e) {
+    if (e instanceof GroupContractError)
+      return errorResponse(400, "Contrato de itens incompatível com o modo habilitado.");
     if (e instanceof CheckoutPriceChangedError)
       return Response.json(
         { error: "O preço mudou. Atualize o catálogo e revise os itens.", code: "PRICE_CHANGED" },

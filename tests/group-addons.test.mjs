@@ -168,3 +168,14 @@ test("options projection uses only the selected product and excludes inactive ch
     "other-size",
   );
 });
+
+import { groupedContract } from "../src/server/group-contract.ts";
+test("private mode determines the protocol; caller cannot remove marker or mix formats", () => {
+  assert.equal(groupedContract([{ selection_contract: "GROUP_ADDONS_V1" }], true), true);
+  assert.equal(groupedContract([{ product_id: "legacy" }], false), false);
+  assert.throws(() => groupedContract([{ product_id: "legacy" }], true));
+  assert.throws(() => groupedContract([{ selection_contract: "GROUP_ADDONS_V1" }], false));
+  assert.throws(() =>
+    groupedContract([{ selection_contract: "GROUP_ADDONS_V1" }, { product_id: "legacy" }], true),
+  );
+});

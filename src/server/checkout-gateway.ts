@@ -1,3 +1,4 @@
+import { GroupContractError } from "./group-contract.ts";
 import { validateCustomerDetails } from "../core/delivery/customer-details.ts";
 import { readBoundedJson, RequestBodyTooLarge } from "./bounded-json.ts";
 /**
@@ -205,6 +206,8 @@ export async function handleCheckoutRequest(
       { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
     );
   } catch (error) {
+    if (error instanceof GroupContractError)
+      return result(400, "Contrato de itens incompatível com o modo habilitado.");
     if (error instanceof CheckoutPriceChangedError)
       return Response.json(
         {

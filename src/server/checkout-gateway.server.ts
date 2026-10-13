@@ -1,3 +1,4 @@
+import { groupedContract } from "./group-contract";
 import { sameDeliveryBackend } from "../core/delivery/backend-binding";
 import { createHash, createHmac, randomBytes } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -95,18 +96,9 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
       if (error || data !== true) throw new Error("Quota service unavailable");
     },
     createOrder: async (payload): Promise<OrderResult> => {
-      const groupedItems = payload["items"];
       if (
-        Array.isArray(groupedItems) &&
-        groupedItems.some(
-          (i: unknown) =>
-            i !== null &&
-            typeof i === "object" &&
-            (i as Record<string, unknown>)["selection_contract"] === "GROUP_ADDONS_V1",
-        )
+        groupedContract(payload["items"], process.env["NEROXA_GROUP_ADDONS_V1_ENABLED"] === "true")
       ) {
-        if (process.env["NEROXA_GROUP_ADDONS_V1_ENABLED"] !== "true")
-          throw new Error("Grouped orders disabled");
         const advertised = await candidate.rpc("get_public_storefront_catalog", {
           p_domain: payload["store_domain"],
         });
