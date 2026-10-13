@@ -35,7 +35,7 @@ if (local.API_URL && !["localhost", "127.0.0.1"].includes(new URL(local.API_URL)
   throw Error("Local only");
 fs.writeFileSync(
   root + "/vite.homologation.config.ts",
-  `import {defineConfig} from '@lovable.dev/vite-tanstack-config';import {readFileSync} from 'node:fs';export default defineConfig({tanstackStart:{server:{entry:'server'}},vite:{resolve:{alias:{'@/integrations/storefront-backend/client':'${root}/tests/homologation/client.fixture.ts'}},server:{host:'127.0.0.1',port:4173,strictPort:true,allowedHosts:['a.ab.invalid','b.ab.invalid','c.ab.invalid'],https:{key:readFileSync('${work}/key.pem'),cert:readFileSync('${work}/cert.pem')}}}});`,
+  `import {defineConfig} from '@lovable.dev/vite-tanstack-config';import {readFileSync} from 'node:fs';export default defineConfig({tanstackStart:{server:{entry:'server'}},vite:{resolve:{alias:[{find:'@/integrations/storefront-backend/client',replacement:'${root}/tests/homologation/client.fixture.ts'}]},server:{host:'127.0.0.1',port:4173,strictPort:true,allowedHosts:['a.ab.invalid','b.ab.invalid','c.ab.invalid'],https:{key:readFileSync('${work}/key.pem'),cert:readFileSync('${work}/cert.pem')}}}});`,
 );
 const env = {
   ...process.env,
