@@ -1,3 +1,4 @@
+import { readBoundedJson, RequestBodyTooLarge } from "./bounded-json.ts";
 import { CheckoutRateLimitError, type StoreContext } from "./checkout-gateway.ts";
 
 /** This is a candidate only. Never enable without staged SQL + ACL revocation. */
@@ -17,12 +18,15 @@ export type AmendmentDependencies = {
   enabled: boolean;
   resolveContext: (domain: string) => Promise<StoreContext | null>;
   reserveQuota: (context: StoreContext, token: string) => Promise<void>;
-  appendItems: (context: StoreContext, request: {
-    orderId: string;
-    token: string;
-    requestKey: string;
-    items: Array<Record<string, unknown>>;
-  }) => Promise<AmendmentResult>;
+  appendItems: (
+    context: StoreContext,
+    request: {
+      orderId: string;
+      token: string;
+      requestKey: string;
+      items: Array<Record<string, unknown>>;
+    },
+  ) => Promise<AmendmentResult>;
 };
 
 const MAX_AMENDMENT_BYTES = 32 * 1024;
@@ -48,21 +52,32 @@ export async function handleOrderAmendmentRequest(
 
   const url = new URL(request.url);
   if (
-    url.protocol !== "https:" || !url.hostname || url.hostname === "localhost" ||
-    url.hostname === "127.0.0.1" || url.hostname.endsWith(".vercel.app") ||
-    url.hostname.endsWith(".lovable.app") || url.hostname.endsWith(".lovableproject.com")
-  ) return errorResponse(403, "Domínio não autorizado para pedidos.");
+    url.protocol !== "https:" ||
+    !url.hostname ||
+    url.hostname === "localhost" ||
+    url.hostname === "127.0.0.1" ||
+    url.hostname.endsWith(".vercel.app") ||
+    url.hostname.endsWith(".lovable.app") ||
+    url.hostname.endsWith(".lovableproject.com")
+  )
+    return errorResponse(403, "Domínio não autorizado para pedidos.");
 
   // request.url MUST be vouched for by the deployment edge. Host/Origin cannot
   // authenticate a nonbrowser caller; they only reject obvious inconsistencies.
   const host = request.headers.get("host");
   const origin = request.headers.get("origin");
-  const validHost = !request.headers.has("host") ||
-    (!!host && (host.toLowerCase() === url.host.toLowerCase() ||
-      (url.port !== "" && host.toLowerCase() === url.hostname.toLowerCase())));
-  if (!validHost || !origin || origin !== url.origin ||
+  const validHost =
+    !request.headers.has("host") ||
+    (!!host &&
+      (host.toLowerCase() === url.host.toLowerCase() ||
+        (url.port !== "" && host.toLowerCase() === url.hostname.toLowerCase())));
+  if (
+    !validHost ||
+    !origin ||
+    origin !== url.origin ||
     (request.headers.has("sec-fetch-site") &&
-      !["same-origin", "none"].includes(request.headers.get("sec-fetch-site") ?? ""))) {
+      !["same-origin", "none"].includes(request.headers.get("sec-fetch-site") ?? ""))
+  ) {
     return errorResponse(403, "Origem inválida.");
   }
 
@@ -75,26 +90,35 @@ export async function handleOrderAmendmentRequest(
   }
   let body: unknown;
   try {
-    const raw = await request.text();
-    if (new TextEncoder().encode(raw).length > MAX_AMENDMENT_BYTES) {
+    body = await readBoundedJson(request, MAX_AMENDMENT_BYTES);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLarge)
       return errorResponse(413, "Solicitação muito grande.");
-    }
-    body = JSON.parse(raw);
-  } catch {
     return errorResponse(400, "JSON inválido.");
   }
 
-  if (!isRecord(body) ||
-    typeof body["order_id"] !== "string" || !UUID_PATTERN.test(body["order_id"]) ||
-    typeof body["request_key"] !== "string" || !UUID_PATTERN.test(body["request_key"]) ||
-    typeof body["token"] !== "string" || !TOKEN_PATTERN.test(body["token"]) ||
-    !Array.isArray(body["items"]) || body["items"].length < 1 || body["items"].length > 25 ||
-    !body["items"].every((item: unknown) =>
-      isRecord(item) && typeof item["product_id"] === "string" &&
-      UUID_PATTERN.test(item["product_id"]) &&
-      typeof item["quantity"] === "number" &&
-      Number.isInteger(item["quantity"]) &&
-      (item["quantity"] as number) >= 1 && (item["quantity"] as number) <= 10)) {
+  if (
+    !isRecord(body) ||
+    typeof body["order_id"] !== "string" ||
+    !UUID_PATTERN.test(body["order_id"]) ||
+    typeof body["request_key"] !== "string" ||
+    !UUID_PATTERN.test(body["request_key"]) ||
+    typeof body["token"] !== "string" ||
+    !TOKEN_PATTERN.test(body["token"]) ||
+    !Array.isArray(body["items"]) ||
+    body["items"].length < 1 ||
+    body["items"].length > 25 ||
+    !body["items"].every(
+      (item: unknown) =>
+        isRecord(item) &&
+        typeof item["product_id"] === "string" &&
+        UUID_PATTERN.test(item["product_id"]) &&
+        typeof item["quantity"] === "number" &&
+        Number.isInteger(item["quantity"]) &&
+        (item["quantity"] as number) >= 1 &&
+        (item["quantity"] as number) <= 10,
+    )
+  ) {
     return errorResponse(400, "Itens ou autorização inválidos.");
   }
 
@@ -104,9 +128,13 @@ export async function handleOrderAmendmentRequest(
   } catch {
     return errorResponse(503, "Não foi possível validar a loja.");
   }
-  if (!context || context.domain.toLowerCase() !== url.hostname.toLowerCase() ||
-    !UUID_PATTERN.test(context.instance_id) || !UUID_PATTERN.test(context.organization_id) ||
-    (body["instance_id"] !== undefined && body["instance_id"] !== context.instance_id)) {
+  if (
+    !context ||
+    context.domain.toLowerCase() !== url.hostname.toLowerCase() ||
+    !UUID_PATTERN.test(context.instance_id) ||
+    !UUID_PATTERN.test(context.organization_id) ||
+    (body["instance_id"] !== undefined && body["instance_id"] !== context.instance_id)
+  ) {
     return errorResponse(403, "Loja não autorizada.");
   }
 
@@ -126,18 +154,25 @@ export async function handleOrderAmendmentRequest(
       requestKey: body["request_key"],
       items: body["items"],
     });
-    if (!UUID_PATTERN.test(amended.order_id) ||
+    if (
+      !UUID_PATTERN.test(amended.order_id) ||
       !Number.isSafeInteger(Number(amended.order_number)) ||
       ![amended.subtotal, amended.total, amended.added_amount].every(
-        x => Number.isFinite(Number(x)) && Number(x) >= 0,
-      ) || amended.payment_state !== "NOT_SETTLED") {
+        (x) => Number.isFinite(Number(x)) && Number(x) >= 0,
+      ) ||
+      amended.payment_state !== "NOT_SETTLED"
+    ) {
       return errorResponse(502, "Resposta inválida da alteração.");
     }
     return Response.json(
-      { order_id: amended.order_id, order_number: Number(amended.order_number),
-        subtotal: Number(amended.subtotal), total: Number(amended.total),
+      {
+        order_id: amended.order_id,
+        order_number: Number(amended.order_number),
+        subtotal: Number(amended.subtotal),
+        total: Number(amended.total),
         added_amount: Number(amended.added_amount),
-        payment_state: "NOT_SETTLED" },
+        payment_state: "NOT_SETTLED",
+      },
       { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
     );
   } catch (e) {

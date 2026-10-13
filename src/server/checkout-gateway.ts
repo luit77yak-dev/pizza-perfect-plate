@@ -1,3 +1,4 @@
+import { readBoundedJson, RequestBodyTooLarge } from "./bounded-json.ts";
 /**
  * Candidate same-origin checkout ingress (pure HTTP logic; no secrets).
  * Enabled only through an explicit server environment gate.
@@ -42,8 +43,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isUuid(value: unknown): value is string {
-  return typeof value === "string" &&
-    /^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value);
+  return (
+    typeof value === "string" &&
+    /^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value)
+  );
 }
 
 /**
@@ -58,9 +61,15 @@ export async function handleCheckoutRequest(
 
   const url = new URL(request.url);
   // No localhost / Lovable / Vercel preview fallback for privileged checkout.
-  if (url.protocol !== "https:" || !url.hostname || url.hostname === "localhost" ||
-    url.hostname.endsWith(".vercel.app") || url.hostname.endsWith(".lovable.app") ||
-    url.hostname.endsWith(".lovableproject.com") || url.hostname === "127.0.0.1") {
+  if (
+    url.protocol !== "https:" ||
+    !url.hostname ||
+    url.hostname === "localhost" ||
+    url.hostname.endsWith(".vercel.app") ||
+    url.hostname.endsWith(".lovable.app") ||
+    url.hostname.endsWith(".lovableproject.com") ||
+    url.hostname === "127.0.0.1"
+  ) {
     return result(403, "Domínio não autorizado para pedidos.");
   }
 
@@ -77,10 +86,13 @@ export async function handleCheckoutRequest(
     (!!hostHeader &&
       (hostHeader.toLowerCase() === url.host.toLowerCase() ||
         (url.port !== "" && hostHeader.toLowerCase() === url.hostname.toLowerCase())));
-  if (!validHost ||
-    !originHeader || originHeader !== url.origin ||
+  if (
+    !validHost ||
+    !originHeader ||
+    originHeader !== url.origin ||
     (request.headers.has("sec-fetch-site") &&
-      !["same-origin", "none"].includes(request.headers.get("sec-fetch-site") ?? ""))) {
+      !["same-origin", "none"].includes(request.headers.get("sec-fetch-site") ?? ""))
+  ) {
     return result(403, "Origem da solicitação inválida.");
   }
 
@@ -95,12 +107,9 @@ export async function handleCheckoutRequest(
 
   let body: unknown;
   try {
-    const raw = await request.text();
-    if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) {
-      return result(413, "Pedido muito grande.");
-    }
-    body = JSON.parse(raw);
-  } catch {
+    body = await readBoundedJson(request, MAX_BODY_BYTES);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLarge) return result(413, "Solicitação muito grande.");
     return result(400, "JSON inválido.");
   }
 
@@ -108,10 +117,14 @@ export async function handleCheckoutRequest(
     return result(400, "Dados do pedido inválidos.");
   }
   const payload = body["p_order"];
-  if (!isUuid(payload["idempotency_key"]) || !Array.isArray(payload["items"]) ||
-    payload["items"].length < 1 || payload["items"].length > 40 ||
+  if (
+    !isUuid(payload["idempotency_key"]) ||
+    !Array.isArray(payload["items"]) ||
+    payload["items"].length < 1 ||
+    payload["items"].length > 40 ||
     typeof payload["customer_phone"] !== "string" ||
-    !/^[0-9]{10,15}$/.test(payload["customer_phone"].replace(/[^0-9]/g, ""))) {
+    !/^[0-9]{10,15}$/.test(payload["customer_phone"].replace(/[^0-9]/g, ""))
+  ) {
     return result(400, "Itens ou chave do pedido inválidos.");
   }
 
@@ -121,16 +134,23 @@ export async function handleCheckoutRequest(
   } catch {
     return result(503, "Não foi possível conferir a loja.");
   }
-  if (!context || context.domain.toLowerCase() !== url.hostname.toLowerCase() ||
-    !isUuid(context.instance_id) || !isUuid(context.organization_id)) {
+  if (
+    !context ||
+    context.domain.toLowerCase() !== url.hostname.toLowerCase() ||
+    !isUuid(context.instance_id) ||
+    !isUuid(context.organization_id)
+  ) {
     return result(404, "Loja não encontrada.");
   }
   // Legacy body values are checked for discrepancies, then overwritten.
-  if ((payload["instance_id"] !== undefined && payload["instance_id"] !== context.instance_id) ||
-    (payload["organization_id"] !== undefined && payload["organization_id"] !== context.organization_id) ||
+  if (
+    (payload["instance_id"] !== undefined && payload["instance_id"] !== context.instance_id) ||
+    (payload["organization_id"] !== undefined &&
+      payload["organization_id"] !== context.organization_id) ||
     (payload["store_domain"] !== undefined &&
       (typeof payload["store_domain"] !== "string" ||
-       payload["store_domain"].toLowerCase() !== context.domain.toLowerCase()))) {
+        payload["store_domain"].toLowerCase() !== context.domain.toLowerCase()))
+  ) {
     return result(403, "Pedido incompatível com a loja.");
   }
 
@@ -154,12 +174,18 @@ export async function handleCheckoutRequest(
 
   try {
     const created = await dependencies.createOrder(authorizedPayload);
-    if (!isUuid(created.order_id) || !Number.isSafeInteger(Number(created.order_number)) ||
-      Number(created.order_number) < 1 || !Number.isFinite(Number(created.total))) {
+    if (
+      !isUuid(created.order_id) ||
+      !Number.isSafeInteger(Number(created.order_number)) ||
+      Number(created.order_number) < 1 ||
+      !Number.isFinite(Number(created.total))
+    ) {
       return result(502, "Resposta inválida do checkout.");
     }
-    if (created.amendment_token !== undefined &&
-      !/^[A-Za-z0-9_-]{43}$/.test(created.amendment_token)) {
+    if (
+      created.amendment_token !== undefined &&
+      !/^[A-Za-z0-9_-]{43}$/.test(created.amendment_token)
+    ) {
       return result(502, "Credencial de alteração inválida.");
     }
     return Response.json(
