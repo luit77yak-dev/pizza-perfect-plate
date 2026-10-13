@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   auth-matrix:
-    if: github.ref == 'refs/heads/audit/delivery-engine-integration-20261013'
+    if: github.ref == 'refs/heads/audit/group-addons-integration-20261013'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: luit77yak-dev/neroxa-master
-          ref: 229059e5702bdad3ffa96d3373d878061ab90261
+          ref: 358ea94b59368b2b8a0995f6a980334c817fa20f
           path: master
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -91,6 +91,8 @@ jobs:
           PYCODE
       - name: Exercise enabled TanStack HTTPS checkout on disposable Supabase
         run: node tools/ab-auth/checkout_http_enabled.mjs
+      - name: Test GROUP_ADDONS_V1 with real Auth and PostgREST
+        run: node tools/ab-auth/group_addons.mjs
       - name: Sanitized evidence only
         if: always()
         uses: actions/upload-artifact@v4

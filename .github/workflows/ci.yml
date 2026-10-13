@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   integrated-auth:
-    if: github.ref == 'refs/heads/audit/delivery-engine-integration-20261013'
+    if: github.ref == 'refs/heads/audit/group-addons-integration-20261013'
     uses: ./.github/workflows/integrated-delivery-auth.yml
 
   validate:
@@ -48,7 +48,7 @@ jobs:
         run: npx eslint src/core/delivery/content.ts src/components/storefront/TrackedOrderPanel.tsx src/features/storefront/services/load-store.ts src/core/delivery/request-intent.ts src/core/delivery/contracts.ts src/core/delivery/services/store-rules.ts src/core/delivery/customer-details.ts src/core/delivery/backend-binding.ts src/features/storefront/domain/storefront-utils.ts src/lib/domain/types.ts src/integrations/storefront-backend/client.ts
 
       - name: Store context and gateway contract tests
-        run: node --experimental-strip-types --test tests/store-context.test.mjs tests/checkout-gateway.test.mjs tests/order-consumer-safety.test.mjs tests/order-amendment.test.mjs tests/bounded-json.test.mjs tests/engine-integration.test.mjs
+        run: node --experimental-strip-types --test tests/store-context.test.mjs tests/checkout-gateway.test.mjs tests/order-consumer-safety.test.mjs tests/order-amendment.test.mjs tests/bounded-json.test.mjs tests/engine-integration.test.mjs tests/group-addons.test.mjs
 
       # The build regenerates the TanStack route tree for /api/checkout.
       - name: Build and regenerate route types

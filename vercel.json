@@ -3,7 +3,8 @@
   "framework": "tanstack-start",
   "git": {
     "deploymentEnabled": {
-      "audit/delivery-engine-integration-20261013": false
+      "audit/delivery-engine-integration-20261013": false,
+      "audit/group-addons-integration-20261013": false
     }
   }
 }
