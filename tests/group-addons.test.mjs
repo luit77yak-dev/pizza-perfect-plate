@@ -179,3 +179,12 @@ test("private mode determines the protocol; caller cannot remove marker or mix f
     groupedContract([{ selection_contract: "GROUP_ADDONS_V1" }, { product_id: "legacy" }], true),
   );
 });
+
+import { readFileSync } from "node:fs";
+test("native integration workflow pins an existing immutable-format Master commit without placeholders", () => {
+  const workflow = readFileSync(".github/workflows/integrated-delivery-auth.yml", "utf8");
+  assert.doesNotMatch(workflow, /PLACEHOLDER/);
+  const master = workflow.match(/repository: luit77yak-dev\/neroxa-master\s+ref: ([a-f0-9]{40})\s/);
+  assert.ok(master, "Master ref must be a complete SHA");
+  assert.equal(master[1], "703ef87cb498be67b02d3257fcf1f91d4098b893");
+});
