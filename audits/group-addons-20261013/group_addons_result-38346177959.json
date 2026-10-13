@@ -1,0 +1,268 @@
+{
+  "classification": "PASS_ISOLATED",
+  "productionApproved": false,
+  "checks": [
+    {
+      "name": "resolve a",
+      "passed": true
+    },
+    {
+      "name": "resolve b",
+      "passed": true
+    },
+    {
+      "name": "resolve c",
+      "passed": true
+    },
+    {
+      "name": "server cents ignore forged subtotal",
+      "passed": true
+    },
+    {
+      "name": "retry same key preserves single order",
+      "passed": true
+    },
+    {
+      "name": "changed payload same key rejected",
+      "passed": true
+    },
+    {
+      "name": "concurrent same key one order",
+      "passed": true
+    },
+    {
+      "name": "required group absent",
+      "passed": true
+    },
+    {
+      "name": "duplicate addon",
+      "passed": true
+    },
+    {
+      "name": "addon other same-org shop",
+      "passed": true
+    },
+    {
+      "name": "addon other organization",
+      "passed": true
+    },
+    {
+      "name": "product other shop",
+      "passed": true
+    },
+    {
+      "name": "group not linked product",
+      "passed": true
+    },
+    {
+      "name": "invalid size",
+      "passed": true
+    },
+    {
+      "name": "required size missing",
+      "passed": true
+    },
+    {
+      "name": "negative quantity",
+      "passed": true
+    },
+    {
+      "name": "quantity over limit",
+      "passed": true
+    },
+    {
+      "name": "half pizza pending",
+      "passed": true
+    },
+    {
+      "name": "legacy identifiers mixed",
+      "passed": true
+    },
+    {
+      "name": "missing acknowledgement",
+      "passed": true
+    },
+    {
+      "name": "unknown contract",
+      "passed": true
+    },
+    {
+      "name": "forged price never accepted",
+      "passed": true
+    },
+    {
+      "name": "inactive product rejected",
+      "passed": true
+    },
+    {
+      "name": "inactive addon rejected",
+      "passed": true
+    },
+    {
+      "name": "maximum selections enforced",
+      "passed": true
+    },
+    {
+      "name": "negative base price rejected",
+      "passed": true
+    },
+    {
+      "name": "fractional cents require explicit pricing decision",
+      "passed": true
+    },
+    {
+      "name": "optional group empty valid",
+      "passed": true
+    },
+    {
+      "name": "free addon has zero delta",
+      "passed": true
+    },
+    {
+      "name": "forged final total rejected",
+      "passed": true
+    },
+    {
+      "name": "text crust delta calculated authoritatively",
+      "passed": true
+    },
+    {
+      "name": "crust name/delta snapshot retained",
+      "passed": true
+    },
+    {
+      "name": "invalid crust denied",
+      "passed": true
+    },
+    {
+      "name": "inactive required group denied",
+      "passed": true
+    },
+    {
+      "name": "undefined combo contract denied in SQL",
+      "passed": true
+    },
+    {
+      "name": "optional flag does not bypass positive minimum",
+      "passed": true
+    },
+    {
+      "name": "delivery zone fee is server authoritative",
+      "passed": true
+    },
+    {
+      "name": "zone from sibling shop cannot reduce fee",
+      "passed": true
+    },
+    {
+      "name": "changed delivery fee requires new total consent",
+      "passed": true
+    },
+    {
+      "name": "required option cannot downgrade into legacy checkout",
+      "passed": true
+    },
+    {
+      "name": "required option without groups still enforced",
+      "passed": true
+    },
+    {
+      "name": "unlinked sized SKU valid with explicit choice",
+      "passed": true
+    },
+    {
+      "name": "text size snapshot, authoritative name/price",
+      "passed": true
+    },
+    {
+      "name": "snapshot unaffected by catalog mutation",
+      "passed": true
+    },
+    {
+      "name": "stale cart price conflict before order",
+      "passed": true
+    },
+    {
+      "name": "retry after catalog mutation returns old confirmed order",
+      "passed": true
+    },
+    {
+      "name": "explicit updated price accepted",
+      "passed": true
+    },
+    {
+      "name": "register private capability",
+      "passed": true
+    },
+    {
+      "name": "append same pricing NOT_SETTLED",
+      "passed": true
+    },
+    {
+      "name": "append idempotency same receipt",
+      "passed": true
+    },
+    {
+      "name": "append other shop addon rejected",
+      "passed": true
+    },
+    {
+      "name": "append wrong instance rejected",
+      "passed": true
+    },
+    {
+      "name": "anon cannot append capability",
+      "passed": true
+    },
+    {
+      "name": "legacy service append cannot bypass grouped pricing",
+      "passed": true
+    },
+    {
+      "name": "required option cannot downgrade through private append",
+      "passed": true
+    },
+    {
+      "name": "tracking exposes immutable snapshot",
+      "passed": true
+    },
+    {
+      "name": "independent shop normalized checkout b.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "independent shop normalized checkout c.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "authenticated A sees own grouped order",
+      "passed": true
+    },
+    {
+      "name": "authenticated A reads no orders from sibling B",
+      "passed": true
+    },
+    {
+      "name": "authenticated A cannot change sibling B",
+      "passed": true
+    },
+    {
+      "name": "authenticated A reads no orders from organization C",
+      "passed": true
+    },
+    {
+      "name": "authenticated A cannot change organization C",
+      "passed": true
+    },
+    {
+      "name": "new helper PUBLIC EXECUTE revoked",
+      "passed": true
+    },
+    {
+      "name": "legacy snapshots remain unknown",
+      "passed": true
+    }
+  ],
+  "passed": 65,
+  "failed": 0
+}

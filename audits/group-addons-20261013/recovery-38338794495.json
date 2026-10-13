@@ -1,0 +1,925 @@
+{
+  "stage": "done",
+  "status": "PASS",
+  "productionTouched": false,
+  "checks": [
+    {
+      "name": "PostgreSQL 17 client/server compatibility",
+      "passed": true
+    },
+    {
+      "name": "historical rehearsal report passed",
+      "passed": true
+    },
+    {
+      "name": "Auth issued identity 0",
+      "passed": true
+    },
+    {
+      "name": "Auth issued identity 1",
+      "passed": true
+    },
+    {
+      "name": "Auth issued identity 2",
+      "passed": true
+    },
+    {
+      "name": "Auth issued identity 3",
+      "passed": true
+    },
+    {
+      "name": "security candidate instance-membership-foundation",
+      "passed": true
+    },
+    {
+      "name": "security candidate store-product-category-guard",
+      "passed": true
+    },
+    {
+      "name": "security candidate storefront-tenant-integrity",
+      "passed": true
+    },
+    {
+      "name": "security candidate storefront-parent-instance-guard",
+      "passed": true
+    },
+    {
+      "name": "security candidate store-isolation-policies",
+      "passed": true
+    },
+    {
+      "name": "security candidate storefront-settings-zones-rls",
+      "passed": true
+    },
+    {
+      "name": "security candidate storefront-admin-rpc",
+      "passed": true
+    },
+    {
+      "name": "security candidate storefront-rpcs-phase2",
+      "passed": true
+    },
+    {
+      "name": "security candidate store-isolation-runtime-hardening",
+      "passed": true
+    },
+    {
+      "name": "admin RPC anon execution explicitly revoked",
+      "passed": true
+    },
+    {
+      "name": "normalized fixture snapshot present before backup",
+      "passed": true
+    },
+    {
+      "name": "operational source authorized JWT reads before failure",
+      "passed": true
+    },
+    {
+      "name": "operational source freezes authorized RPC writes",
+      "passed": true
+    },
+    {
+      "name": "operational source denied write is atomic",
+      "passed": true
+    },
+    {
+      "name": "source local Auth schema exists",
+      "passed": true
+    },
+    {
+      "name": "valid archive SHA-256",
+      "passed": true
+    },
+    {
+      "name": "nonempty local logical archive",
+      "passed": true
+    },
+    {
+      "name": "safe restore database name",
+      "passed": true
+    },
+    {
+      "name": "target public schema exists",
+      "passed": true
+    },
+    {
+      "name": "unambiguous archive public schema metadata",
+      "passed": true
+    },
+    {
+      "name": "native disposable restore executor is superuser",
+      "passed": true
+    },
+    {
+      "name": "extension ACL companion hash unchanged",
+      "passed": true
+    },
+    {
+      "name": "extension bootstrap ACL supplement restored",
+      "passed": true
+    },
+    {
+      "name": "archive hash unchanged after restore",
+      "passed": true
+    },
+    {
+      "name": "Supabase Auth schema restored",
+      "passed": true
+    },
+    {
+      "name": "structural fingerprint category count",
+      "passed": true
+    },
+    {
+      "name": "restored schemas fingerprint",
+      "passed": true
+    },
+    {
+      "name": "restored relations fingerprint",
+      "passed": true
+    },
+    {
+      "name": "restored columns fingerprint",
+      "passed": true
+    },
+    {
+      "name": "restored policies fingerprint",
+      "passed": true
+    },
+    {
+      "name": "restored triggers fingerprint",
+      "passed": true
+    },
+    {
+      "name": "restored constraints fingerprint",
+      "passed": true
+    },
+    {
+      "name": "restored indexes fingerprint",
+      "passed": true
+    },
+    {
+      "name": "restored functions fingerprint",
+      "passed": true
+    },
+    {
+      "name": "restored extensions fingerprint",
+      "passed": true
+    },
+    {
+      "name": "restored table-grants fingerprint",
+      "passed": true
+    },
+    {
+      "name": "restored fixture checksum",
+      "passed": true
+    },
+    {
+      "name": "restored settings PK by instance",
+      "passed": true
+    },
+    {
+      "name": "all dumped table data and sequence values",
+      "passed": true
+    },
+    {
+      "name": "complete function properties, defaults, column ACL and roles",
+      "passed": true
+    },
+    {
+      "name": "all restored foreign keys have zero orphans",
+      "passed": true
+    },
+    {
+      "name": "restored GoTrue health",
+      "passed": true
+    },
+    {
+      "name": "restored Auth emits valid identity 0",
+      "passed": true
+    },
+    {
+      "name": "restored Auth emits valid identity 1",
+      "passed": true
+    },
+    {
+      "name": "restored Auth emits valid identity 2",
+      "passed": true
+    },
+    {
+      "name": "restored Auth emits valid identity 3",
+      "passed": true
+    },
+    {
+      "name": "operational restored target remains frozen",
+      "passed": true
+    },
+    {
+      "name": "operational restored frozen write leaves no changes",
+      "passed": true
+    },
+    {
+      "name": "operational source remains frozen",
+      "passed": true
+    },
+    {
+      "name": "operational target explicitly resumed",
+      "passed": true
+    },
+    {
+      "name": "restored PostgREST verifies real Auth JWT",
+      "passed": true
+    },
+    {
+      "name": "restored JWT role and uid 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 0 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 0 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 0 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 0 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 0 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 0 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 0 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 0 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 0 shop 1",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 0/1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 0 shop 1",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 0/1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 0/1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 0 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 0 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 0 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 0 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 0 shop 2",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 0/2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 0 shop 2",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 0/2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 0/2",
+      "passed": true
+    },
+    {
+      "name": "restored JWT role and uid 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 1 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 1 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 1 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 1 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 1 shop 0",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 1/0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 1 shop 0",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 1/0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 1/0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 1 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 1 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 1 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 1 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 1 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 1 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 1 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 1 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 1 shop 2",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 1/2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 1 shop 2",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 1/2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 1/2",
+      "passed": true
+    },
+    {
+      "name": "restored JWT role and uid 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 2 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 2 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 2 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 2 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 2 shop 0",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 2/0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 2 shop 0",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 2/0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 2/0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 2 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 2 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 2 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 2 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 2 shop 1",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 2/1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 2 shop 1",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 2/1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 2/1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 2 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 2 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 2 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 2 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored JWT role and uid 3",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 3 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 3 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 3 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 3 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 3 shop 0",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 3/0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 3 shop 0",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 3/0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 3/0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 3 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 3 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 3 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 3 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 3 shop 1",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 3/1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 3 shop 1",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 3/1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 3/1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 3 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 3 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 3 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 3 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 3 shop 2",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 3/2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 3 shop 2",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 3/2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 3/2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 4 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 4 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 4 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 4 shop 0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 4 shop 0",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 4/0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 4 shop 0",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 4/0",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 4/0",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 4 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 4 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 4 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 4 shop 1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 4 shop 1",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 4/1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 4 shop 1",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 4/1",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 4/1",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_settings actor 4 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_delivery_zones actor 4 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_storefront_products actor 4 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored neroxa_orders actor 4 shop 2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign PATCH actor 4 shop 2",
+      "passed": true
+    },
+    {
+      "name": "foreign PATCH leaves data unchanged 4/2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign DELETE actor 4 shop 2",
+      "passed": true
+    },
+    {
+      "name": "foreign DELETE leaves data unchanged 4/2",
+      "passed": true
+    },
+    {
+      "name": "restored foreign status RPC 4/2",
+      "passed": true
+    },
+    {
+      "name": "restored authorized status and history 0",
+      "passed": true
+    },
+    {
+      "name": "restored authorized status and history 1",
+      "passed": true
+    },
+    {
+      "name": "restored authorized status and history 2",
+      "passed": true
+    },
+    {
+      "name": "operational roll-forward creates server-priced order",
+      "passed": true
+    },
+    {
+      "name": "operational roll-forward retry is idempotent",
+      "passed": true
+    },
+    {
+      "name": "operational roll-forward order hidden from sibling shop",
+      "passed": true
+    },
+    {
+      "name": "operational roll-forward order visible to authorized operator",
+      "passed": true
+    },
+    {
+      "name": "operational roll-forward status and audit work",
+      "passed": true
+    },
+    {
+      "name": "operational roll-forward has zero FK orphans",
+      "passed": true
+    },
+    {
+      "name": "operational independent settings retained after resume",
+      "passed": true
+    },
+    {
+      "name": "source data unchanged by target HTTP tests",
+      "passed": true
+    },
+    {
+      "name": "restore database removed",
+      "passed": true
+    }
+  ],
+  "versions": {
+    "postgres": "PostgreSQL 17.11 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit",
+    "pgDump": "pg_dump (PostgreSQL) 17.11",
+    "pgRestore": "pg_restore (PostgreSQL) 17.11",
+    "node": "v22.23.3"
+  },
+  "globalRoles": "shared disposable cluster, not restored by pg_dump",
+  "extensionAclSha256": "e9c78b15ec2ee802c44bcf852d2b6415aae5d5c8bc5a27bfd186aae9f76bdb6c",
+  "dumpSha256": "1109bb6ac78c90d3a66e489164e7b15970a90281c2851e9464da417b4e3141b8",
+  "dumpScope": "complete local disposable Supabase database (Auth, public, dependencies, owners, ACLs)",
+  "dumpFormat": "PostgreSQL custom archive, container-local",
+  "publicSchemaBootstrap": "template0",
+  "restoreExecutor": "supabase_admin via local container socket; no role grants modified",
+  "schemaDetails": {
+    "source": [
+      {
+        "name": "_realtime",
+        "owner": "postgres",
+        "acl": null
+      },
+      {
+        "name": "auth",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin,supabase_auth_admin=UC/supabase_admin,dashboard_user=UC/supabase_admin,postgres=U/supabase_admin}"
+      },
+      {
+        "name": "extensions",
+        "owner": "postgres",
+        "acl": "{postgres=UC/postgres,anon=U/postgres,authenticated=U/postgres,service_role=U/postgres,dashboard_user=UC/postgres}"
+      },
+      {
+        "name": "graphql",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin}"
+      },
+      {
+        "name": "graphql_public",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin}"
+      },
+      {
+        "name": "neroxa_private",
+        "owner": "postgres",
+        "acl": "{postgres=UC/postgres,authenticated=U/postgres}"
+      },
+      {
+        "name": "private",
+        "owner": "postgres",
+        "acl": null
+      },
+      {
+        "name": "public",
+        "owner": "pg_database_owner",
+        "acl": "{pg_database_owner=UC/pg_database_owner,postgres=U/pg_database_owner,=U/pg_database_owner,anon=U/pg_database_owner,authenticated=U/pg_database_owner,service_role=U/pg_database_owner}"
+      },
+      {
+        "name": "realtime",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,anon=U/supabase_admin,service_role=U/supabase_admin,supabase_realtime_admin=UC/supabase_admin,authenticated=U/supabase_admin}"
+      },
+      {
+        "name": "storage",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin,supabase_storage_admin=U*C*/supabase_admin,dashboard_user=UC/supabase_admin}"
+      },
+      {
+        "name": "supabase_functions",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,postgres=U/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin,supabase_functions_admin=UC/supabase_admin}"
+      },
+      {
+        "name": "vault",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,service_role=U/supabase_admin}"
+      }
+    ],
+    "restored": [
+      {
+        "name": "_realtime",
+        "owner": "postgres",
+        "acl": null
+      },
+      {
+        "name": "auth",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin,supabase_auth_admin=UC/supabase_admin,dashboard_user=UC/supabase_admin,postgres=U/supabase_admin}"
+      },
+      {
+        "name": "extensions",
+        "owner": "postgres",
+        "acl": "{postgres=UC/postgres,anon=U/postgres,authenticated=U/postgres,service_role=U/postgres,dashboard_user=UC/postgres}"
+      },
+      {
+        "name": "graphql",
+        "owner": "supabase_admin",
+        "acl": "{postgres=U*/supabase_admin,supabase_admin=UC/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin}"
+      },
+      {
+        "name": "graphql_public",
+        "owner": "supabase_admin",
+        "acl": "{postgres=U*/supabase_admin,supabase_admin=UC/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin}"
+      },
+      {
+        "name": "neroxa_private",
+        "owner": "postgres",
+        "acl": "{postgres=UC/postgres,authenticated=U/postgres}"
+      },
+      {
+        "name": "private",
+        "owner": "postgres",
+        "acl": null
+      },
+      {
+        "name": "public",
+        "owner": "pg_database_owner",
+        "acl": "{pg_database_owner=UC/pg_database_owner,=U/pg_database_owner,postgres=U/pg_database_owner,anon=U/pg_database_owner,authenticated=U/pg_database_owner,service_role=U/pg_database_owner}"
+      },
+      {
+        "name": "realtime",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,anon=U/supabase_admin,service_role=U/supabase_admin,supabase_realtime_admin=UC/supabase_admin,authenticated=U/supabase_admin}"
+      },
+      {
+        "name": "storage",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin,supabase_storage_admin=U*C*/supabase_admin,dashboard_user=UC/supabase_admin}"
+      },
+      {
+        "name": "supabase_functions",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,postgres=U/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin,supabase_functions_admin=UC/supabase_admin}"
+      },
+      {
+        "name": "vault",
+        "owner": "supabase_admin",
+        "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,service_role=U/supabase_admin}"
+      }
+    ]
+  },
+  "dataSha256": "33ef35978ef2619e58ac52b4c38126dc6f4cda1af2a4fdf46529909ebe213cb0",
+  "tableCount": 87,
+  "foreignKeysChecked": 89,
+  "restoredServices": {
+    "authImage": "supabase/gotrue:v2.197.0",
+    "restImage": "postgrest/postgrest:v16.4"
+  }
+}

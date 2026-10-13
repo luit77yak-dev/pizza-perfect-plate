@@ -1,0 +1,53 @@
+{
+  "classification": "REVIEW_ONLY_NO_REMOTE_INSTALL",
+  "master_branch": "audit/group-addons-v1-20261013",
+  "master_commit": "703ef87cb498be67b02d3257fcf1f91d4098b893",
+  "delivery_branch": "audit/group-addons-integration-20261013",
+  "delivery_runtime_commit": "56756c13ff2c1617e7ed2efe728622f7e29eecc6",
+  "input_contract": "GROUP_ADDONS_V1",
+  "snapshot_version": 2,
+  "pricing_rule": "BASE_PLUS_DELTAS_V1",
+  "payments_enabled": false,
+  "production_approved": false,
+  "sql_candidates": [
+    {
+      "path": "audits/sql/group-addons-pricing.candidate.sql",
+      "sha256": "3850db07fda4a794b00d13177c08138b3e0486e7e7abc5bc8eb05c608ac84a1d"
+    },
+    {
+      "path": "audits/sql/group-addons-capability.candidate.sql",
+      "sha256": "675fe171218eaf5c5aa6570aefed31dace35f63f0293cb0f146dc8f0d3491a5e"
+    }
+  ],
+  "prerequisites": "Full historical Master catalog + phase2/runtime/admin ACL; capability must precede second candidate. No automatic migration sequence.",
+  "managed_roles_defaults": "Preserved; no modifications to supabase_admin defaults.",
+  "client_activation_default": false,
+  "server_activation_default": false,
+  "activation_contract": "Server GROUP flag true requires GROUP on every item; false accepts legacy only. Client cannot choose downgrade. Intrinsic group/required-option rules enforced in SQL independent of marker.",
+  "blocked_features": [
+    "half pizza",
+    "combos/components",
+    "multiple quantities per addon",
+    "unknown preparation option types",
+    "fractional-cent policy",
+    "real payments/ledger"
+  ],
+  "limitations": [
+    "Historical captured schema, not proof of current production equivalence",
+    "Browser/mobile flow not manually tested",
+    "Legacy writers for grouped/required-option SKU require coordinated cutover",
+    "Phone-based public tracking and buyer token recovery remain pending",
+    "Global lint Delivery and 43 existing Master TypeScript errors remain"
+  ],
+  "final_evidence": {
+    "integration_run": 38346177959,
+    "integration_passed": 493,
+    "integration_failed": 0,
+    "node_passed": 54,
+    "recovery_run": 38345378954,
+    "recovery_passed": 193,
+    "historical_passed": 36,
+    "next_isolated_homologation": "GO_RESTRICTED",
+    "production": "NO_GO"
+  }
+}
