@@ -2,6 +2,8 @@ name: Disposable Bridge Clean and Upgrade
 
 on:
   workflow_dispatch:
+  push:
+    branches: [audit/migration-bridge-v1-20261013]
 
 permissions:
   contents: read
