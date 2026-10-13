@@ -16,12 +16,42 @@ type Intent = {
   createdAt: number;
   expiresAt: number;
 };
+const seen = new WeakMap<object, Map<string, string>>();
+function mark(storage: CheckoutIntentStorage, instance: string, value: string | null) {
+  if (!seen.has(storage)) seen.set(storage, new Map());
+  if (value === null) seen.get(storage)?.delete(instance);
+  else seen.get(storage)?.set(instance, value);
+  if (
+    typeof document !== "undefined" &&
+    typeof window !== "undefined" &&
+    storage === window.localStorage
+  ) {
+    const name = "__Host-neroxa-intent-" + instance;
+    document.cookie =
+      name +
+      "=" +
+      (value === null ? "" : "pending") +
+      "; Path=/; Secure; SameSite=Strict; Max-Age=" +
+      (value === null ? 0 : 86400);
+    if (value !== null && !document.cookie.split("; ").includes(name + "=pending"))
+      throw Error("Marcador de recuperação indisponível. Pedido não enviado.");
+  }
+}
+function remembered(storage: CheckoutIntentStorage, instance: string) {
+  return (
+    seen.get(storage)?.has(instance) ||
+    (typeof document !== "undefined" &&
+      document.cookie.split("; ").includes("__Host-neroxa-intent-" + instance + "=pending"))
+  );
+}
 const ttl = 24 * 60 * 60 * 1000;
 export function intentStorageKey(instanceId: string) {
   return `neroxa:checkout-intent:v1:${instanceId}`;
 }
 function read(storage: CheckoutIntentStorage, instanceId: string): Intent | null {
   const raw = storage.getItem(intentStorageKey(instanceId));
+  if (raw === null && remembered(storage, instanceId))
+    throw Error("Cofre removido após tentativa; reconciliação autorizada necessária.");
   if (raw === null) return null;
   const parsed: unknown = JSON.parse(raw);
   if (!parsed || typeof parsed !== "object")
@@ -118,6 +148,7 @@ export async function withDurableCheckoutIntent<T>(
         "Armazenamento indisponível. Pedido não enviado; não use outro navegador para repetir uma tentativa incerta.",
       );
     }
+    mark(options.storage, instanceId, JSON.stringify(intent));
     let resolved: "CONFIRMED" | "ROLLED_BACK" | null = null;
     const resolve = (rolledBack = false) => {
       resolved = rolledBack ? "ROLLED_BACK" : "CONFIRMED";
@@ -128,9 +159,10 @@ export async function withDurableCheckoutIntent<T>(
       if (resolved) {
         // Failure to clean up is conservative: keep the original key, never silently replace it.
         try {
-          if (resolved === "ROLLED_BACK" && !prior)
+          if (resolved === "ROLLED_BACK" && !prior) {
             options.storage.removeItem(intentStorageKey(instanceId));
-          else if (resolved === "ROLLED_BACK")
+            mark(options.storage, instanceId, null);
+          } else if (resolved === "ROLLED_BACK")
             options.storage.setItem(
               intentStorageKey(instanceId),
               JSON.stringify({ ...intent, state: "PENDING" }),

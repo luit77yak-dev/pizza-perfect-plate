@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   integrated-auth:
-    if: github.ref == 'refs/heads/audit/h03-h04-20261013'
+    if: github.ref == 'refs/heads/audit/first-complete-order-20261013'
     uses: ./.github/workflows/integrated-delivery-auth.yml
 
   validate:

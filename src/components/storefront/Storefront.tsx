@@ -220,7 +220,10 @@ export function Storefront() {
             fulfillment: current?.fulfillment ?? stored.fulfillment,
             status: status ?? stored.status ?? "RECEIVED",
           }))
-          .filter((order) => order.status !== "DELIVERED" && order.status !== "CANCELLED");
+          .filter(
+            (order) =>
+              durableRecovery || (order.status !== "DELIVERED" && order.status !== "CANCELLED"),
+          );
 
         setTrackedOrders(activeOrders);
         setSelectedTrackedOrderId((current) =>

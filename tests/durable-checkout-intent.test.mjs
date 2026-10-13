@@ -161,3 +161,44 @@ test("separate instance keys and rollback are explicit", async () => {
   assert.equal(storage.getItem(intentStorageKey("D1")), null);
   assert.ok(storage.getItem(intentStorageKey("A2")));
 });
+
+test("eviction of a previously submitted intent never creates a fresh key", async () => {
+  const storage = {
+    data: new Map(),
+    getItem(k) {
+      return this.data.get(k) ?? null;
+    },
+    setItem(k, v) {
+      this.data.set(k, v);
+    },
+    removeItem(k) {
+      this.data.delete(k);
+    },
+  };
+  const locks = { request: async (_name, cb) => cb() };
+  const instance = "a0000000-0000-4000-8000-000000000001";
+  const payload = { instance_id: instance, client_cart_reference: "a".repeat(64), items: [] };
+  await assert.rejects(() =>
+    withDurableCheckoutIntent(
+      instance,
+      payload,
+      async () => {
+        throw Error("Uncertain");
+      },
+      { storage, locks },
+    ),
+  );
+  storage.data.clear();
+  let called = false;
+  await assert.rejects(() =>
+    withDurableCheckoutIntent(
+      instance,
+      payload,
+      async () => {
+        called = true;
+      },
+      { storage, locks },
+    ),
+  );
+  assert.equal(called, false);
+});

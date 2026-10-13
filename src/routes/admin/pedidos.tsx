@@ -29,10 +29,27 @@ type Order = {
   created_at: string;
 };
 
+type OrderItem = {
+  id: string;
+  product_name: string;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+  size_name: string | null;
+  crust_name: string | null;
+  selection_snapshot: { contract_version?: string; groups?: unknown[] } | null;
+  addons: Array<{ name?: string; quantity?: number }>;
+};
+type OrderDetail = {
+  order: Order;
+  items: OrderItem[];
+  history: Array<{ id: string; to_status: string }>;
+};
 type StoreContext = { instance_id: string; instance_name?: string; organization_name?: string };
 type AdminRpcResults = {
   get_public_storefront_context: StoreContext | StoreContext[];
   get_admin_orders: Order[];
+  get_admin_order_detail: OrderDetail;
   update_admin_order_status: Order | Order[];
 };
 type AdminRpcTransport = <K extends keyof AdminRpcResults>(
@@ -70,6 +87,58 @@ function AdminOrdersPage() {
   const [error, setError] = useState<string | null>(null);
 
   const requestSequence = useRef(0);
+  const detailSequence = useRef(0);
+  const [detail, setDetail] = useState<OrderDetail | null>(null);
+  const statusBusy = useRef(false);
+  const invalidate = useCallback(() => {
+    requestSequence.current++;
+    detailSequence.current++;
+  }, []);
+  const invalidateDetail = useCallback(() => {
+    detailSequence.current++;
+  }, []);
+  useEffect(() => {
+    const subscription = supabase.auth.onAuthStateChange((_event, next) => {
+      if (!next) {
+        requestSequence.current++;
+        detailSequence.current++;
+        setSession(false);
+        setOrders([]);
+        setSelected(null);
+        setDetail(null);
+        setInstanceId(null);
+      }
+    });
+    return () => {
+      subscription.data.subscription.unsubscribe();
+      invalidate();
+    };
+  }, [invalidate]);
+  useEffect(() => {
+    const sequence = ++detailSequence.current;
+    setDetail(null);
+    if (!selected || !instanceId || selected.instance_id !== instanceId) return;
+    void adminRpc("get_admin_order_detail", { p_instance_id: instanceId, p_order_id: selected.id })
+      .then(({ data, error: detailError }) => {
+        if (sequence !== detailSequence.current) return;
+        if (
+          detailError ||
+          !data ||
+          data.order.instance_id !== instanceId ||
+          data.order.id !== selected.id
+        ) {
+          setError("Não foi possível obter detalhes autorizados.");
+          return;
+        }
+        setDetail(data);
+      })
+      .catch(() => {
+        if (sequence === detailSequence.current) setError("Detalhes indisponíveis.");
+      });
+    return () => {
+      invalidateDetail();
+    };
+  }, [selected, instanceId, invalidateDetail]);
   const loadOrders = useCallback(async () => {
     const sequence = ++requestSequence.current;
     setLoading(true);
@@ -78,7 +147,12 @@ function AdminOrdersPage() {
       if (!backendMatches)
         throw new Error("O painel e o catálogo devem usar o mesmo backend autorizado.");
       const { data: userData } = await supabase.auth.getUser();
+      if (sequence !== requestSequence.current) return;
       if (!userData.user) {
+        setOrders([]);
+        setSelected(null);
+        setDetail(null);
+        setInstanceId(null);
         setSession(false);
         return;
       }
@@ -185,21 +259,42 @@ function AdminOrdersPage() {
   };
 
   const changeStatus = async (status: OrderStatus) => {
-    if (!selected || selected.instance_id !== instanceId) return;
+    if (!selected || selected.instance_id !== instanceId || statusBusy.current) return;
+    statusBusy.current = true;
+    const sequence = requestSequence.current;
     setLoading(true);
     setError(null);
-    const { data, error: updateError } = await adminRpc("update_admin_order_status", {
-      p_order_id: selected.id,
-      p_status: status,
-      p_note: null,
-    });
-    if (updateError) setError(updateError.message);
-    else {
-      const updated = (Array.isArray(data) ? data[0] : data) as Order;
-      setSelected(updated);
-      await loadOrders();
+    try {
+      const { data, error: updateError } = await adminRpc("update_admin_order_status", {
+        p_order_id: selected.id,
+        p_status: status,
+        p_note: null,
+      });
+      if (sequence !== requestSequence.current) {
+        statusBusy.current = false;
+        return;
+      }
+      if (updateError) setError(updateError.message);
+      else {
+        const updated = (Array.isArray(data) ? data[0] : data) as Order;
+        if (updated?.instance_id !== instanceId || updated.id !== selected.id) {
+          setError("Resposta incompatível com a instância.");
+          statusBusy.current = false;
+          setLoading(false);
+          return;
+        }
+        setSelected(updated);
+        await loadOrders();
+      }
+      statusBusy.current = false;
+      setLoading(false);
+    } catch {
+      if (sequence === requestSequence.current)
+        setError("Operação indisponível. Atualize o pedido antes de repetir.");
+    } finally {
+      statusBusy.current = false;
+      if (sequence === requestSequence.current) setLoading(false);
     }
-    setLoading(false);
   };
 
   if (session === null) {
@@ -227,6 +322,7 @@ function AdminOrdersPage() {
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              aria-label="E-mail"
               type="email"
               placeholder="E-mail"
               className="h-12 w-full rounded-[14px] border border-white/10 bg-black/20 px-4 outline-none focus:border-[#ff6a3d]"
@@ -234,6 +330,7 @@ function AdminOrdersPage() {
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              aria-label="Senha"
               type="password"
               placeholder="Senha"
               onKeyDown={(e) => {
@@ -241,7 +338,11 @@ function AdminOrdersPage() {
               }}
               className="h-12 w-full rounded-[14px] border border-white/10 bg-black/20 px-4 outline-none focus:border-[#ff6a3d]"
             />
-            {error && <p className="text-sm text-red-300">{error}</p>}
+            {error && (
+              <p role="alert" className="text-sm text-red-300">
+                {error}
+              </p>
+            )}
             <button
               onClick={() => void signIn()}
               disabled={loading || !email || !password}
@@ -319,7 +420,10 @@ function AdminOrdersPage() {
         </div>
 
         {error && (
-          <div className="mb-4 rounded-[14px] border border-red-400/20 bg-red-400/10 p-3 text-sm text-red-200">
+          <div
+            role="alert"
+            className="mb-4 rounded-[14px] border border-red-400/20 bg-red-400/10 p-3 text-sm text-red-200"
+          >
             {error}
           </div>
         )}
@@ -401,6 +505,26 @@ function AdminOrdersPage() {
                     </p>
                   )}
                 </div>
+                <section aria-label="Itens do pedido" className="mt-4 space-y-2">
+                  {detail?.items.map((item) => (
+                    <div key={item.id} className="rounded-xl border border-white/10 p-3 text-sm">
+                      <p>
+                        {item.quantity} × {item.product_name}
+                      </p>
+                      <p>
+                        {item.size_name} {item.crust_name}
+                      </p>
+                      <p>
+                        {item.addons
+                          ?.map((a) => a.name)
+                          .filter(Boolean)
+                          .join(", ")}
+                      </p>
+                      <p>{formatCurrency(Number(item.line_total))}</p>
+                    </div>
+                  ))}
+                  {!detail && <p role="status">Carregando detalhes autorizados...</p>}
+                </section>
                 <div className="mt-5 border-t border-white/10 pt-5">
                   <p className="mb-2 text-[10px] uppercase tracking-[.16em] text-white/40">
                     Atualizar status
