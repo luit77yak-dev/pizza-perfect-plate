@@ -1,10 +1,14 @@
+import { validateCustomerDetails } from "@/core/delivery/customer-details";
 import { useRef, useState } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/storefront-backend/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/domain/money";
-import { readBuyerAmendmentToken, rememberBuyerAmendmentToken } from "@/lib/domain/order-amendment-capability";
+import {
+  readBuyerAmendmentToken,
+  rememberBuyerAmendmentToken,
+} from "@/lib/domain/order-amendment-capability";
 import { normalizeNeighborhood } from "@/features/storefront/domain/storefront-utils";
 import type {
   CartItem,
@@ -176,9 +180,13 @@ export function CheckoutPanel({
               items: appendItems,
             }),
           });
-          const reply = await response.json() as {
-            error?: string; order_id?: string; order_number?: number;
-            subtotal?: number; total?: number; payment_state?: string;
+          const reply = (await response.json()) as {
+            error?: string;
+            order_id?: string;
+            order_number?: number;
+            subtotal?: number;
+            total?: number;
+            payment_state?: string;
           };
           if (!response.ok) throw new Error(reply.error ?? "Complemento seguro indisponível.");
           if (!reply.order_id || !reply.order_number || reply.payment_state !== "NOT_SETTLED") {
@@ -195,7 +203,9 @@ export function CheckoutPanel({
             fulfillment: existingOrder.fulfillment,
           });
         } catch (amendError) {
-          setError(amendError instanceof Error ? amendError.message : "Não foi possível adicionar o item.");
+          setError(
+            amendError instanceof Error ? amendError.message : "Não foi possível adicionar o item.",
+          );
         } finally {
           setSubmitting(false);
         }
@@ -234,7 +244,10 @@ export function CheckoutPanel({
           appendError instanceof Error
             ? appendError.message
             : typeof appendError === "object" && appendError !== null && "message" in appendError
-              ? String((appendError as { message?: unknown }).message ?? "Não foi possível adicionar o complemento.")
+              ? String(
+                  (appendError as { message?: unknown }).message ??
+                    "Não foi possível adicionar o complemento.",
+                )
               : "Não foi possível adicionar o complemento.";
         setError(message);
       } finally {
@@ -312,6 +325,9 @@ export function CheckoutPanel({
         ]),
       };
 
+      const detailsError = validateCustomerDetails(payload);
+      if (detailsError) throw new Error(detailsError);
+
       // Opt-in only while trusted ingress, credentials and the backend release gate
       // are being validated. Gateway errors NEVER fall back to the public RPC.
       let created: unknown;
@@ -322,7 +338,13 @@ export function CheckoutPanel({
           credentials: "same-origin",
           body: JSON.stringify({ p_order: payload }),
         });
-        const reply = await response.json() as { error?: string; order_id?: string; order_number?: number; total?: number; amendment_token?: string };
+        const reply = (await response.json()) as {
+          error?: string;
+          order_id?: string;
+          order_number?: number;
+          total?: number;
+          amendment_token?: string;
+        };
         if (!response.ok) throw new Error(reply.error ?? "Checkout seguro indisponível.");
         created = reply;
       } else {
@@ -331,18 +353,21 @@ export function CheckoutPanel({
         created = data;
       }
 
-      const order = (Array.isArray(created) ? created[0] : created) as { order_id?: string; order_number?: number; total?: number; amendment_token?: string } | null | undefined;
+      const order = (Array.isArray(created) ? created[0] : created) as
+        | { order_id?: string; order_number?: number; total?: number; amendment_token?: string }
+        | null
+        | undefined;
       if (!order?.order_number || !order?.order_id)
         throw new Error("Não foi possível criar o pedido.");
       const createdTotal = Number(order.total);
       const fallbackTotal =
-        fulfillment === "DELIVERY"
-          ? subtotal + Number(selectedZone?.delivery_fee ?? 0)
-          : subtotal;
+        fulfillment === "DELIVERY" ? subtotal + Number(selectedZone?.delivery_fee ?? 0) : subtotal;
 
-      if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true" &&
+      if (
+        import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true" &&
         import.meta.env["VITE_NEROXA_CHECKOUT_AMENDMENTS"] === "true" &&
-        order.amendment_token) {
+        order.amendment_token
+      ) {
         // Capability is never stored in tracking/history localStorage.
         rememberBuyerAmendmentToken(instanceId, String(order.order_id), order.amendment_token);
       }
@@ -380,7 +405,9 @@ export function CheckoutPanel({
             <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
               {existingOrder ? "Complementar pedido" : "Finalizar pedido"}
             </p>
-            <h1 className="mt-1 text-3xl sm:text-4xl">{existingOrder ? `Pedido #${existingOrder.number}` : "Quase lá"}</h1>
+            <h1 className="mt-1 text-3xl sm:text-4xl">
+              {existingOrder ? `Pedido #${existingOrder.number}` : "Quase lá"}
+            </h1>
           </div>
           <button
             onClick={onClose}
@@ -394,60 +421,60 @@ export function CheckoutPanel({
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
           <div className="space-y-4">
             {!existingOrder && (
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <p className="text-sm font-semibold">Como você quer receber?</p>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {settings.delivery_enabled && (
-                  <button
-                    onClick={() => setFulfillment("DELIVERY")}
-                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "DELIVERY" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
-                  >
-                    <p className="font-semibold">Entrega</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Receba no seu endereço</p>
-                  </button>
-                )}
-                {settings.pickup_enabled && (
-                  <button
-                    onClick={() => setFulfillment("PICKUP")}
-                    className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "PICKUP" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
-                  >
-                    <p className="font-semibold">Retirada</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Retire na loja</p>
-                  </button>
-                )}
-              </div>
-            </section>
+              <section className="rounded-3xl border bg-card p-5 shadow-soft">
+                <p className="text-sm font-semibold">Como você quer receber?</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {settings.delivery_enabled && (
+                    <button
+                      onClick={() => setFulfillment("DELIVERY")}
+                      className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "DELIVERY" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                    >
+                      <p className="font-semibold">Entrega</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Receba no seu endereço</p>
+                    </button>
+                  )}
+                  {settings.pickup_enabled && (
+                    <button
+                      onClick={() => setFulfillment("PICKUP")}
+                      className={`rounded-2xl border p-4 text-left transition-colors ${fulfillment === "PICKUP" ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                    >
+                      <p className="font-semibold">Retirada</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Retire na loja</p>
+                    </button>
+                  )}
+                </div>
+              </section>
             )}
 
             {!existingOrder && (
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <p className="text-sm font-semibold">Seus dados</p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <label className="text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                    Nome *
-                  </span>
-                  <input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Seu nome"
-                    className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
-                  />
-                </label>
-                <label className="text-sm">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                    Telefone *
-                  </span>
-                  <input
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="(00) 00000-0000"
-                    inputMode="tel"
-                    className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
-                  />
-                </label>
-              </div>
-            </section>
+              <section className="rounded-3xl border bg-card p-5 shadow-soft">
+                <p className="text-sm font-semibold">Seus dados</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <label className="text-sm">
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                      Nome *
+                    </span>
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Seu nome"
+                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    />
+                  </label>
+                  <label className="text-sm">
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                      Telefone *
+                    </span>
+                    <input
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="(00) 00000-0000"
+                      inputMode="tel"
+                      className="h-11 w-full rounded-xl border bg-background px-3 outline-none focus:border-primary"
+                    />
+                  </label>
+                </div>
+              </section>
             )}
 
             {!existingOrder && fulfillment === "DELIVERY" && (
@@ -535,59 +562,63 @@ export function CheckoutPanel({
               </section>
             )}
 
-            {!(existingOrder && import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true" &&
-              import.meta.env["VITE_NEROXA_CHECKOUT_AMENDMENTS"] === "true") && (
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <p className="text-sm font-semibold">Pagamento</p>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {availablePayments.map((method) => (
-                  <button
-                    key={method}
-                    onClick={() => setPaymentMethod(method)}
-                    className={`rounded-2xl border p-4 text-left ${paymentMethod === method ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
-                  >
-                    <p className="font-semibold">
-                      {method === "PIX"
-                        ? "PIX"
-                        : method === "CASH"
-                          ? "Dinheiro"
-                          : method === "CARD_ON_DELIVERY"
-                            ? "Cartão na entrega"
-                            : "Cartão no local"}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {method === "PIX" ? "Pagamento via PIX" : "Pagamento combinado com a loja"}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </section>
-            )}
-            {existingOrder && import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true" &&
-              import.meta.env["VITE_NEROXA_CHECKOUT_AMENDMENTS"] === "true" && (
-              <section className="rounded-3xl border bg-card p-5 text-sm">
-                <p className="font-semibold">Valor adicional pendente</p>
-                <p className="mt-2 text-muted-foreground">
-                  Adicionar itens não confirma nem cobra o pagamento. Combine a diferença
-                  com o estabelecimento; ela será registrada como não liquidada.
-                </p>
+            {!(
+              existingOrder &&
+              import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true" &&
+              import.meta.env["VITE_NEROXA_CHECKOUT_AMENDMENTS"] === "true"
+            ) && (
+              <section className="rounded-3xl border bg-card p-5 shadow-soft">
+                <p className="text-sm font-semibold">Pagamento</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {availablePayments.map((method) => (
+                    <button
+                      key={method}
+                      onClick={() => setPaymentMethod(method)}
+                      className={`rounded-2xl border p-4 text-left ${paymentMethod === method ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-background"}`}
+                    >
+                      <p className="font-semibold">
+                        {method === "PIX"
+                          ? "PIX"
+                          : method === "CASH"
+                            ? "Dinheiro"
+                            : method === "CARD_ON_DELIVERY"
+                              ? "Cartão na entrega"
+                              : "Cartão no local"}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {method === "PIX" ? "Pagamento via PIX" : "Pagamento combinado com a loja"}
+                      </p>
+                    </button>
+                  ))}
+                </div>
               </section>
             )}
+            {existingOrder &&
+              import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true" &&
+              import.meta.env["VITE_NEROXA_CHECKOUT_AMENDMENTS"] === "true" && (
+                <section className="rounded-3xl border bg-card p-5 text-sm">
+                  <p className="font-semibold">Valor adicional pendente</p>
+                  <p className="mt-2 text-muted-foreground">
+                    Adicionar itens não confirma nem cobra o pagamento. Combine a diferença com o
+                    estabelecimento; ela será registrada como não liquidada.
+                  </p>
+                </section>
+              )}
 
             {!existingOrder && (
-            <section className="rounded-3xl border bg-card p-5 shadow-soft">
-              <label htmlFor="checkout-notes" className="text-sm font-semibold">
-                Observações do pedido
-              </label>
-              <Textarea
-                id="checkout-notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="mt-3"
-                placeholder="Ex.: tocar a campainha, tirar cebola..."
-                maxLength={500}
-              />
-            </section>
+              <section className="rounded-3xl border bg-card p-5 shadow-soft">
+                <label htmlFor="checkout-notes" className="text-sm font-semibold">
+                  Observações do pedido
+                </label>
+                <Textarea
+                  id="checkout-notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="mt-3"
+                  placeholder="Ex.: tocar a campainha, tirar cebola..."
+                  maxLength={500}
+                />
+              </section>
             )}
           </div>
 

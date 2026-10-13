@@ -1,3 +1,4 @@
+import { validateCustomerDetails } from "../core/delivery/customer-details.ts";
 import { readBoundedJson, RequestBodyTooLarge } from "./bounded-json.ts";
 /**
  * Candidate same-origin checkout ingress (pure HTTP logic; no secrets).
@@ -59,6 +60,7 @@ export async function handleCheckoutRequest(
 ): Promise<Response> {
   if (!dependencies.enabled) return result(503, "Checkout seguro indisponível.");
 
+  if (request.method !== "POST") return result(405, "Método não permitido.");
   const url = new URL(request.url);
   // No localhost / Lovable / Vercel preview fallback for privileged checkout.
   if (
@@ -128,6 +130,9 @@ export async function handleCheckoutRequest(
     return result(400, "Itens ou chave do pedido inválidos.");
   }
 
+  const customerError = validateCustomerDetails(payload);
+  if (customerError) return result(400, customerError);
+
   let context: StoreContext | null;
   try {
     context = await dependencies.resolveContext(url.hostname.toLowerCase());
@@ -178,7 +183,8 @@ export async function handleCheckoutRequest(
       !isUuid(created.order_id) ||
       !Number.isSafeInteger(Number(created.order_number)) ||
       Number(created.order_number) < 1 ||
-      !Number.isFinite(Number(created.total))
+      !Number.isFinite(Number(created.total)) ||
+      Number(created.total) < 0
     ) {
       return result(502, "Resposta inválida do checkout.");
     }

@@ -1,3 +1,4 @@
+import { sameDeliveryBackend } from "../core/delivery/backend-binding";
 import { createHash, createHmac, randomBytes } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
@@ -12,7 +13,10 @@ import {
  * SUPABASE_SERVICE_ROLE_KEY is read exclusively by client.server.ts.
  */
 export function checkoutGatewayEnabled(): boolean {
-  return process.env["NEROXA_CHECKOUT_GATEWAY_ENABLED"] === "true";
+  return (
+    process.env["NEROXA_CHECKOUT_GATEWAY_ENABLED"] === "true" &&
+    sameDeliveryBackend(process.env["SUPABASE_URL"], process.env["NEROXA_DELIVERY_BACKEND_URL"])
+  );
 }
 
 // Generated database types describe the pre-migration production contract. The
@@ -31,8 +35,12 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
     return handleCheckoutRequest(request, {
       enabled: false,
       resolveContext: async () => null,
-      reserveQuota: async () => { throw new Error("Gateway disabled"); },
-      createOrder: async () => { throw new Error("Gateway disabled"); },
+      reserveQuota: async () => {
+        throw new Error("Gateway disabled");
+      },
+      createOrder: async () => {
+        throw new Error("Gateway disabled");
+      },
     });
   }
   // No HMAC key, no privileged checkout. Never substitute a fixed/shared key.
@@ -41,8 +49,12 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
     return handleCheckoutRequest(request, {
       enabled: false,
       resolveContext: async () => null,
-      reserveQuota: async () => { throw new Error("Quota secret unavailable"); },
-      createOrder: async () => { throw new Error("Quota secret unavailable"); },
+      reserveQuota: async () => {
+        throw new Error("Quota secret unavailable");
+      },
+      createOrder: async () => {
+        throw new Error("Quota secret unavailable");
+      },
     });
   }
   const candidate = supabaseAdmin as unknown as CandidateRpcClient;
@@ -56,9 +68,12 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
       const record = Array.isArray(data) ? data[0] : data;
       if (!record || typeof record !== "object") return null;
       const resolved = record as Record<string, unknown>;
-      if (typeof resolved["domain"] !== "string" ||
+      if (
+        typeof resolved["domain"] !== "string" ||
         typeof resolved["instance_id"] !== "string" ||
-        typeof resolved["organization_id"] !== "string") return null;
+        typeof resolved["organization_id"] !== "string"
+      )
+        return null;
       return {
         domain: resolved["domain"],
         instance_id: resolved["instance_id"],

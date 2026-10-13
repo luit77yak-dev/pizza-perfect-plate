@@ -1,0 +1,1632 @@
+{
+  "heads": {
+    "main": "bff5bee289cd4e911a5be012cb7b8731e48e82fd",
+    "pr36": "afb26bc61d4309d73cfdbd1bfd2f687b11dc71b4",
+    "pr37": "e8bd746bf6750057430a32baec54562cf06b09be"
+  },
+  "shared_changed_paths": [
+    ".github/workflows/ci.yml",
+    "src/components/storefront/Storefront.tsx",
+    "src/core/delivery/services/load-public-store.ts",
+    "src/features/storefront/components/CheckoutPanel.tsx",
+    "src/features/storefront/services/load-store.ts"
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "changed_in": [
+        "pr36",
+        "pr37"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "cbfbcb24a5bffeafa989a7f6b7a79ea0aca2521e0db03d9627a255c13068f88f",
+          "bytes": 1027
+        },
+        "pr36": {
+          "sha256": "ac8375fdb1f203961d7e4b22e15d4bf57cc1436c4da9d0ed322c035d9bf380db",
+          "bytes": 2003
+        },
+        "pr37": {
+          "sha256": "2acff6d6744db468e0c2532dad04a6a6af77e423ea0b534ffe4862c21f22f471",
+          "bytes": 3681
+        }
+      }
+    },
+    {
+      "path": ".github/workflows/delivery-authorization.yml",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "387e52cc4e510061cec26e7227cd30bb94e57ef677e1bb4bceaa6ffa6f38f901",
+          "bytes": 5475
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "README.md",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "e7b4a2533bcae3ea77e6ec7bc28c43828a2ed205a72c8c62934e419983d7c925",
+          "bytes": 23760
+        },
+        "pr36": {
+          "sha256": "164ecd6db740c5c8d15433227c86b6921bbec1bd3b882d73d7e7d43b6c9ad731",
+          "bytes": 25231
+        },
+        "pr37": {
+          "sha256": "e7b4a2533bcae3ea77e6ec7bc28c43828a2ed205a72c8c62934e419983d7c925",
+          "bytes": 23760
+        }
+      }
+    },
+    {
+      "path": "audits/checkout-abuse-control-20261012.md",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "9f5fa95f5e62c4cc48594f57c17b40b355ac644a3c9f591f4364361912d4f722",
+          "bytes": 5397
+        }
+      }
+    },
+    {
+      "path": "audits/checkout-gateway-gates-20261012.md",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "22f377bf1a4b077eba65dd5948dc741c959a1663f8fdf78ea6854f4c821f3774",
+          "bytes": 5465
+        }
+      }
+    },
+    {
+      "path": "audits/order-consumers-legacy-gates-20261012.md",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "875858e5a9f575467e662b868752bfe0235f8d4787c550de13e8dba75f64d85a",
+          "bytes": 7409
+        }
+      }
+    },
+    {
+      "path": "docs/delivery-order-authorization-hardening.md",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "09207cf326f68e48cb50ebcbce73d7d032a0088e3089d69eed25d5f668e758f6",
+          "bytes": 3403
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "docs/master-live-schema-authorization-diff-20261011.md",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "2bea3405ebc4d5d2c9a713812269109c8bc63c61ab9444a6ab56a3d742e54bb6",
+          "bytes": 2658
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "docs/master-rls-trigger-review-20261011.md",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "69412f8f52933c244e214b5afa1499ee3dc107fd5e05c616c12f8ea4826e063d",
+          "bytes": 2750
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "docs/master-supplier-role-gate.md",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "8b26dba9c1ec57535bec2588de54c6434df8d40485efbbe66d82b5d621026b7b",
+          "bytes": 3211
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "docs/neroxa-master-delivery-compatibility-gate.md",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "a069badb4be0d5e3255c4d064b8c604bf8f9d829e12df6db80c87bff3aed7491",
+          "bytes": 3840
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/components/storefront/Storefront.tsx",
+      "changed_in": [
+        "pr36",
+        "pr37"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "24301a8a243ae11c8748eb3e88c25f4ae8d7eb481fa51f747394716952e3404a",
+          "bytes": 46588
+        },
+        "pr36": {
+          "sha256": "eca41586d76da2f354c42327660b4847a9092350fdac07386e73ff3650549cea",
+          "bytes": 38213
+        },
+        "pr37": {
+          "sha256": "3ec629382f1a049b5395d022c6d90adedfc1c8e94f1db8a3c70667c4dd227b56",
+          "bytes": 47638
+        }
+      }
+    },
+    {
+      "path": "src/components/storefront/StorefrontHero.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "a7e6ccf936d5630db14d093500058ba4489e958c15288a4efb0ef5f17a0ff3a0",
+          "bytes": 4612
+        },
+        "pr36": null,
+        "pr37": {
+          "sha256": "a7e6ccf936d5630db14d093500058ba4489e958c15288a4efb0ef5f17a0ff3a0",
+          "bytes": 4612
+        }
+      }
+    },
+    {
+      "path": "src/components/storefront/TrackedOrderPanel.tsx",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "9c740686ea5c5d5b7e686a0a3a571678691b4de60b478d70d88e4cfb5a6040bd",
+          "bytes": 15688
+        },
+        "pr36": {
+          "sha256": "9c740686ea5c5d5b7e686a0a3a571678691b4de60b478d70d88e4cfb5a6040bd",
+          "bytes": 15688
+        },
+        "pr37": {
+          "sha256": "af62f333e94942c9503aa625be5f5d87433797adcb9b2d0ccffc686594ed0a13",
+          "bytes": 15777
+        }
+      }
+    },
+    {
+      "path": "src/core/delivery/content.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "3249a7a312426d1fc2f6e881a6a2c373b23838bca1491d8446717bc7851dbd67",
+          "bytes": 943
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/core/delivery/contracts.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "485df015bbf1a9c17604250e03d137d5690e4a90270cdfef9e18030160216f4d",
+          "bytes": 1790
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/core/delivery/modules.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "83fb842a780c56a9305f76caa09c89e93e5036640230eda20dd5624ffbea63d1",
+          "bytes": 1307
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/core/delivery/services/load-public-store.ts",
+      "changed_in": [
+        "pr36",
+        "pr37"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "8ee92e65f29f89573bcf64bf75e634008e157841316b0f2574b39aedfaa6fbd4",
+          "bytes": 8708
+        },
+        "pr36": {
+          "sha256": "91502fabaeed73e5ae92e9720f166a8f14a6e6170cb175b9f4b1c7fa43888d49",
+          "bytes": 11198
+        },
+        "pr37": {
+          "sha256": "e53fde1c91a9f725d038ee90851176b3a6c5949c7f3ca96c66d46a200e58cd65",
+          "bytes": 8978
+        }
+      }
+    },
+    {
+      "path": "src/core/delivery/services/load-supplier-panel.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "78136b094d7d77178ec23f9434a633fe596b5d92bbc3a900bd8f7fcfce7068dc",
+          "bytes": 1828
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/core/delivery/services/order-tracking.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "3e57532960b518cb06931ba7b176b007413dec8dbeff3376ec33b580f4256993",
+          "bytes": 330
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/core/delivery/services/store-rules.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "9c6de78c1664451eb87993d5971d2a0ea1243f7104eefa8153745b889ba76a8d",
+          "bytes": 1917
+        },
+        "pr36": {
+          "sha256": "9c6de78c1664451eb87993d5971d2a0ea1243f7104eefa8153745b889ba76a8d",
+          "bytes": 1917
+        },
+        "pr37": {
+          "sha256": "9c6de78c1664451eb87993d5971d2a0ea1243f7104eefa8153745b889ba76a8d",
+          "bytes": 1917
+        }
+      }
+    },
+    {
+      "path": "src/core/delivery/tenant-access.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "6265ec057ff0f6dc86f386dca2a94487057053ed4224dfc9ae676b3b3256b8f2",
+          "bytes": 802
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/core/delivery/tenant.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "7eb581d97809fee0d2f3640ed8bb88d96d94aa14e700bad36a4c554bc91371e1",
+          "bytes": 754
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/cart/hooks/use-local-cart.ts",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "cc42886ff52ccf5f83e671e8ef7bfbf95ecaca917451e8dab7eb6c34410f4786",
+          "bytes": 1253
+        },
+        "pr36": {
+          "sha256": "cc42886ff52ccf5f83e671e8ef7bfbf95ecaca917451e8dab7eb6c34410f4786",
+          "bytes": 1253
+        },
+        "pr37": {
+          "sha256": "f8f065991b56e7a71057513d66513b23147ff58dc09759fd8ed5d6b94f58ce21",
+          "bytes": 2444
+        }
+      }
+    },
+    {
+      "path": "src/features/storefront/components/CheckoutPanel.tsx",
+      "changed_in": [
+        "pr36",
+        "pr37"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "746dbebc4c9de868ac617294be7828b90b9d6e0333589c9616df07700e07f8fb",
+          "bytes": 23003
+        },
+        "pr36": {
+          "sha256": "ec3c2836179c82a261cdccc3390cfeeee59560f42e26912932a043d91a057b7f",
+          "bytes": 24051
+        },
+        "pr37": {
+          "sha256": "f012a61fba539ddb0140752d6bff4ef81c049b9e5aa61c7380e242d8dc51f539",
+          "bytes": 28095
+        }
+      }
+    },
+    {
+      "path": "src/features/storefront/components/ProductConfigurator.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "9517b9002b0e0d6858abab000166a02c9ea0d863783ac49c807f5afb2bf827ad",
+          "bytes": 39220
+        },
+        "pr36": {
+          "sha256": "0e91dd4216f758dc2bc4ab60631b942f2cc6d76d113414d51cba288aae61f946",
+          "bytes": 41779
+        },
+        "pr37": {
+          "sha256": "9517b9002b0e0d6858abab000166a02c9ea0d863783ac49c807f5afb2bf827ad",
+          "bytes": 39220
+        }
+      }
+    },
+    {
+      "path": "src/features/storefront/components/StorefrontAbout.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "cbb0f8a13fee27f660a2f42201cb375d056f1e888455b0357ec162b01d1cad0a",
+          "bytes": 2772
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/storefront/components/StorefrontCategoryNav.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "984d130929eec392bd2a1323b43da9c0c1f1c6c56cf62d91d0ffab741584ff4a",
+          "bytes": 2991
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/storefront/components/StorefrontFooter.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "d7843c91f303dbd334024cc0403362389605f40c4a382b6348051edb1643e7e4",
+          "bytes": 3589
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/storefront/components/StorefrontHeader.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "fe2a5c8fc4236625fc1ef9faf2944e835ae67e7c7cbf5f47a028a37c02c8395c",
+          "bytes": 3483
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/storefront/components/StorefrontHero.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "af658d3bc65d836e08e06efa37064b3f0d3156e50b8ca02c83387f38b0a73d87",
+          "bytes": 2916
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/storefront/components/StorefrontMenu.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "9c785d4471ceb7c4798cf9c94d565a6ebc07854ea4a406faf5333fe1bf0f6bb1",
+          "bytes": 3832
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/storefront/components/StorefrontProductCard.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "cc0bde2f3feea141564ec51858ac42bb90987b1a3ae61f8bb4bb7bbebf722a89",
+          "bytes": 3866
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/storefront/domain/storefront-utils.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "9c6de78c1664451eb87993d5971d2a0ea1243f7104eefa8153745b889ba76a8d",
+          "bytes": 1917
+        },
+        "pr36": {
+          "sha256": "ce162ea10c87a3acb93e47325320aff88b3b7c680b8541be43d6e1d82c536c78",
+          "bytes": 170
+        },
+        "pr37": {
+          "sha256": "9c6de78c1664451eb87993d5971d2a0ea1243f7104eefa8153745b889ba76a8d",
+          "bytes": 1917
+        }
+      }
+    },
+    {
+      "path": "src/features/storefront/services/load-store.ts",
+      "changed_in": [
+        "pr36",
+        "pr37"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "8ee92e65f29f89573bcf64bf75e634008e157841316b0f2574b39aedfaa6fbd4",
+          "bytes": 8708
+        },
+        "pr36": {
+          "sha256": "cd1f6b7aebb7f4ab51e092c818be9a74a6f8d412bb6889981e261ed4723e9a8c",
+          "bytes": 260
+        },
+        "pr37": {
+          "sha256": "e53fde1c91a9f725d038ee90851176b3a6c5949c7f3ca96c66d46a200e58cd65",
+          "bytes": 8978
+        }
+      }
+    },
+    {
+      "path": "src/features/storefront/themes/registry.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "6d47c1b5dcd47f120232e5a72e5532b65576607f8ec34a14d3f2a48f169c2726",
+          "bytes": 1662
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/storefront/themes/resolve.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "2fa71b5933a53c9e9dd8316e9599b2036b764c169c13111ff986c887222c3545",
+          "bytes": 3191
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/storefront/themes/types.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "d9b309db673d5752bb0e044416490fa03ebc58c70cb440a2a5c1533b98ccef4a",
+          "bytes": 4323
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/supplier/components/SupplierDashboard.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "1c031fccf4a1b8eda4fe113e70df1d31a85122ab6d81af7dc0aa413152684e74",
+          "bytes": 2825
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/features/supplier/components/SupplierPanel.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "b5f703fb22cb76199c207c4d310340dc484f85678d3d07a0e50141a694f86dfa",
+          "bytes": 40603
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "src/integrations/supabase/types.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "ae464f64e567b963364393f3d5fe4cab58ec715f03ab80d34879547ce63220c0",
+          "bytes": 45572
+        },
+        "pr36": {
+          "sha256": "9a9f5d2acd6c0639bdd47f8d9b2ca40783d70870bcc6d0931fcd68d30204d8d0",
+          "bytes": 56449
+        },
+        "pr37": {
+          "sha256": "ae464f64e567b963364393f3d5fe4cab58ec715f03ab80d34879547ce63220c0",
+          "bytes": 45572
+        }
+      }
+    },
+    {
+      "path": "src/lib/domain/order-amendment-capability.ts",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "1759dcf8095a1fbef8d339d640047dc383fb44d2e9bd7150f4f684353376f6ab",
+          "bytes": 1471
+        }
+      }
+    },
+    {
+      "path": "src/lib/domain/store-context.ts",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "7016251df59e2efe46dea82f4971a4170166136280b0cc61e04926658c3c6c72",
+          "bytes": 384
+        }
+      }
+    },
+    {
+      "path": "src/lib/domain/types.ts",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "7223ad620bf18027fe0670bc03cb9525edae83ff4c5e5dd89304fd74ceaec5d6",
+          "bytes": 4870
+        },
+        "pr36": {
+          "sha256": "af5a9fa62d0e5b9b34d7e911534e218df7cf7eecfc4d4d98b122f2339b11c7d0",
+          "bytes": 4866
+        },
+        "pr37": {
+          "sha256": "7223ad620bf18027fe0670bc03cb9525edae83ff4c5e5dd89304fd74ceaec5d6",
+          "bytes": 4870
+        }
+      }
+    },
+    {
+      "path": "src/routes/__root.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "d2d3ffb8055b1faaf79443cca639e37328f0dc5126ade36edec35e1bb543c190",
+          "bytes": 4647
+        },
+        "pr36": {
+          "sha256": "302b6c72b41d5445dfb2070f26667f99ac01304754b3d553c39e9381f5ac1366",
+          "bytes": 4643
+        },
+        "pr37": {
+          "sha256": "d2d3ffb8055b1faaf79443cca639e37328f0dc5126ade36edec35e1bb543c190",
+          "bytes": 4647
+        }
+      }
+    },
+    {
+      "path": "src/routes/admin/pedidos.tsx",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "b7beef504dce75d6b9431c29c81da44f89c27d3c5b9789f9e5bb19481a808c96",
+          "bytes": 13102
+        },
+        "pr36": {
+          "sha256": "4f0f66bdf68ea25b85f0aef2706a5949bb7aae6adc56466b3733a792a923d61a",
+          "bytes": 12867
+        },
+        "pr37": {
+          "sha256": "2527c5580645cb0cc3a6abad495fb8c70ed3584afd563669ab86ac00efbeb70b",
+          "bytes": 15872
+        }
+      }
+    },
+    {
+      "path": "src/routes/api/checkout.ts",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "fa94603c737759fb93efc568e049c4f9b82e12032dd6e021c1a7ba29bedc5280",
+          "bytes": 558
+        }
+      }
+    },
+    {
+      "path": "src/routes/api/order-amend.ts",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "bba9d67746b833f8b4131c82bdfe53a58365fcb6660fc2a05a0e7e19b390a1d3",
+          "bytes": 514
+        }
+      }
+    },
+    {
+      "path": "src/routes/index.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "274c05a9f8309333291403338ff3458d794f80fe48325960944449d0dfb86748",
+          "bytes": 757
+        },
+        "pr36": {
+          "sha256": "583621a25a6118734edb9451239e930f1c33d8fcec489fae3900e6e107f75d25",
+          "bytes": 765
+        },
+        "pr37": {
+          "sha256": "274c05a9f8309333291403338ff3458d794f80fe48325960944449d0dfb86748",
+          "bytes": 757
+        }
+      }
+    },
+    {
+      "path": "src/routes/loja/$slug.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "ac9f3ab83097f62448ce6bcb17a11c287024ecd3e971b02647290652bc0a066d",
+          "bytes": 304
+        },
+        "pr36": {
+          "sha256": "feb4dae7e076d23e1532c764465543300de2b929b89eb6bd39e9b7f7ada377f9",
+          "bytes": 255
+        },
+        "pr37": {
+          "sha256": "ac9f3ab83097f62448ce6bcb17a11c287024ecd3e971b02647290652bc0a066d",
+          "bytes": 304
+        }
+      }
+    },
+    {
+      "path": "src/routes/painel.tsx",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "190d3fc8050108fbe109b1af8bab35319ec516d276d5159a7ed5cfa59a656f7c",
+          "bytes": 120459
+        },
+        "pr36": {
+          "sha256": "7b42d324af6c821fe1e2580effb0fbd094cb8f16f0c0d6c1f2915bb682ab434d",
+          "bytes": 215
+        },
+        "pr37": {
+          "sha256": "190d3fc8050108fbe109b1af8bab35319ec516d276d5159a7ed5cfa59a656f7c",
+          "bytes": 120459
+        }
+      }
+    },
+    {
+      "path": "src/server/bounded-json.ts",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "ef7d02c0a4cda3f96e671dfe81a1696366f0f787aba62ad3f297b8f4ebee2f76",
+          "bytes": 993
+        }
+      }
+    },
+    {
+      "path": "src/server/checkout-gateway.server.ts",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "8c626d48e41af6cd013edb9b2cdfcc92946286a97e227d97aa9ec0db44e5010c",
+          "bytes": 5602
+        }
+      }
+    },
+    {
+      "path": "src/server/checkout-gateway.ts",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "5dc59dbf5083ecf00ff051a5b5bd89280fc279861df0e1f06cede69049f6a404",
+          "bytes": 7443
+        }
+      }
+    },
+    {
+      "path": "src/server/order-amendment.server.ts",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "2c3183387902f85851d6edd71dee4e80b3b23d2581d0554620da231ef50d4a53",
+          "bytes": 4007
+        }
+      }
+    },
+    {
+      "path": "src/server/order-amendment.ts",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "b1d0c1f7ba1675f4a7c1c272dcdf5091c105d5127767823868ff923ed10eebf4",
+          "bytes": 6590
+        }
+      }
+    },
+    {
+      "path": "src/styles.css",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": {
+          "sha256": "a296caaa2ac4e98f0a29a9584cb4f42eef79e667854752386d27cd9aca111dfa",
+          "bytes": 198754
+        },
+        "pr36": {
+          "sha256": "9c0127775709c0af7117538a81eb046fb2295f6a47dfcfb888a701bb617ad4d7",
+          "bytes": 235002
+        },
+        "pr37": {
+          "sha256": "a296caaa2ac4e98f0a29a9584cb4f42eef79e667854752386d27cd9aca111dfa",
+          "bytes": 198754
+        }
+      }
+    },
+    {
+      "path": "supabase/migrations/20261009103000_add_storefront_visual_overrides.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "0f43e951f2425b7df677314e40d2fa5387ffe1fd872a5733ecfa553ab90c146d",
+          "bytes": 4610,
+          "functions": [
+            [
+              "public.get_public_storefront_catalog",
+              "p_domain text",
+              "jsonb"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261009190000_fix_public_order_addon_pricing.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "8fa3bed5f293f151db7c074d1d8bdc8fc435ac2e607cc83e403fa8f43cae72a9",
+          "bytes": 7900,
+          "functions": [
+            [
+              "public.calculate_public_order_line_price",
+              "\n  p_instance_id uuid,\n  p_product_id uuid,\n  p_second_product_id uuid,\n  p_size_id text,\n  p_crust_id text,\n  p_addons jsonb,\n  p_complements jsonb\n",
+              "numeric"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261009195000_create_neroxa_order_storage.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "dc9ad1fab2eea5fde217f1d2cfd38b7206dedb1b78243e517d485cdd722e5ef9",
+          "bytes": 4568,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261009200000_bind_public_orders_to_verified_domain.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "fbb264590c80392455e641b17f3b5dc9cb7ea72eea71b9f0c6e654a1e5e9efb2",
+          "bytes": 7906,
+          "functions": [
+            [
+              "public.create_public_order",
+              "p_order jsonb",
+              "table(order_id uuid, order_number bigint, total numeric)"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261010120000_unify_neroxa_order_storage.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "bc01615b7d43a334e85a8580a14d691e6bf96024519f7182019cdba400693ec4",
+          "bytes": 11443,
+          "functions": [
+            [
+              "public.get_public_order_status",
+              "\n  p_order_id uuid,\n  p_customer_phone text\n",
+              "jsonb"
+            ],
+            [
+              "public.append_public_order_items_with_payment",
+              "\n  p_order_id uuid,\n  p_customer_phone text,\n  p_items jsonb,\n  p_payment_method text\n",
+              "table(order_id uuid, order_number bigint, subtotal numeric, total numeric)"
+            ],
+            [
+              "public.get_admin_orders",
+              "\n  p_instance_id uuid,\n  p_status text default null\n",
+              "setof public.neroxa_orders"
+            ],
+            [
+              "public.update_admin_order_status",
+              "\n  p_order_id uuid,\n  p_status text,\n  p_note text default null\n",
+              "public.neroxa_orders"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261010130000_prepare_order_amendment_authorization.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "a660d63a4ed214efe7cf30b3cef3747a1aeeae8dd69b066287462e1519869932",
+          "bytes": 1804,
+          "functions": [
+            [
+              "public.append_authorized_order_items",
+              "\n  p_order_id uuid, p_amendment_token text, p_items jsonb, p_payment_method text\n",
+              "table(order_id uuid, order_number bigint, subtotal numeric, total numeric)"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261010140000_order_addition_payment_ledger.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "28a387d9b32342eb4002afa64c2be446125660a5a8c929f08e7839ab6d39efe2",
+          "bytes": 3137,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261010150000_decide_order_addition_requests.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "78147f010d7224262b55be19e98da86c37c8d0372fbc91e1f561dee5d911c819",
+          "bytes": 2190,
+          "functions": [
+            [
+              "public.decide_order_addition_request",
+              "\n  p_request_id uuid, p_approve boolean\n",
+              "public.neroxa_order_addition_requests"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261010160000_calculate_addition_amount.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "dcc59cf454d81f97d0a5b575a0d4cdb58e94cb6f943f674424e2c9d04687503c",
+          "bytes": 2710,
+          "functions": [
+            [
+              "public.neroxa_calculate_addition_amount",
+              "\n  p_instance_id uuid, p_items jsonb\n",
+              "numeric"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261010170000_atomic_addition_approval_charge.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "e0dd7c28858f8ed88567c3d37b00e23c0a9b76e2d15a34c78e2fccb7b1f17ce4",
+          "bytes": 2835,
+          "functions": [
+            [
+              "public.decide_order_addition_request",
+              "\n  p_request_id uuid, p_approve boolean\n",
+              "public.neroxa_order_addition_requests"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261010180000_internal_addition_payment_settlement.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "39b96dff8d33c87e4035711689bf03e70c034322f082818617b25a45ad565532",
+          "bytes": 2689,
+          "functions": [
+            [
+              "public.neroxa_confirm_addition_payment",
+              "\n  p_charge_id uuid,\n  p_provider text,\n  p_provider_reference text,\n  p_external_event_id text\n",
+              "public.neroxa_order_addition_charges"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261011150000_supplier_catalog_schema_and_rls.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "e6dc7fd286128122f23514745e608c7262e2bfd35af36c3dcdbd14c14fa7ac0f",
+          "bytes": 5532,
+          "functions": [
+            [
+              "public.neroxa_can_manage_storefront_instance",
+              "p_instance_id uuid",
+              "boolean language sql stable security definer set search_path = '' as $fn$"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261011160000_supplier_settings_delivery_rls.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "0e1bdefe15927873e56426dc378b5051338aeb5fe11e06de725d88445762e929",
+          "bytes": 1913,
+          "functions": [
+            [
+              "public.neroxa_can_manage_storefront_organization",
+              "p_organization_id uuid",
+              "boolean language sql stable security definer set search_path = '' as $fn$"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261011170000_master_catalog_compatibility_columns.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "85e2e944507353f70ed4383205afd1bb112d4da787efed2fc534d8453aff887d",
+          "bytes": 793,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261011180000_restrict_supplier_writes_until_roles_verified.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "bc1cc819d92ad2992b29531fb8c79fdc85c9253ab86c8fa844a39a68b6f1a0ce",
+          "bytes": 5767,
+          "functions": [
+            [
+              "public.neroxa_can_write_storefront_organization",
+              "p_organization_id uuid",
+              "boolean language sql stable security definer set search_path = '' as $fn$"
+            ],
+            [
+              "public.neroxa_can_write_storefront_instance",
+              "p_instance_id uuid",
+              "boolean language sql stable security definer set search_path = '' as $fn$"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/migrations/20261011190000_product_category_instance_integrity.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "e9af314e13cc3c95aae4c7bf578ea9252cfffa6d38fbb34a8e8818c2166ab537",
+          "bytes": 1992,
+          "functions": [
+            [
+              "public.neroxa_assert_product_category_instance",
+              "",
+              "trigger language plpgsql set search_path = '' as $$"
+            ],
+            [
+              "public.neroxa_assert_category_instance_change",
+              "",
+              "trigger language plpgsql set search_path = '' as $$"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/README.md",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "0007a84f82db338695d2895598aa60e95c338f82496f721196ae94a29c2e1b4c",
+          "bytes": 2260
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/fixtures/master_roles_policy_overlay.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "dd7c6c30758417be853cc6003c480f1042de3350dd92383c87e4ec20cb5bca9f",
+          "bytes": 4118,
+          "functions": [
+            [
+              "public.neroxa_has_org_role",
+              "target_organization_id uuid, allowed_roles public.neroxa_organization_role[] default null",
+              "boolean language sql stable security definer set search_path = '' as $$"
+            ],
+            [
+              "public.neroxa_has_platform_role",
+              "p_roles public.neroxa_platform_role[]",
+              "boolean language sql stable security definer set search_path = '' as $$"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/fixtures/neroxa_shared_schema_baseline.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "b55972366b6cd2c53b1517a77d250b607a3a0a9013c2f61bb5bf018347b660f3",
+          "bytes": 8520,
+          "functions": [
+            [
+              "public.neroxa_is_platform_member",
+              "",
+              "boolean"
+            ],
+            [
+              "public.get_public_storefront_context",
+              "p_domain text",
+              "table("
+            ],
+            [
+              "public.calculate_public_order_line_price",
+              "\n  p_instance_id uuid,\n  p_product_id uuid,\n  p_second_product_id uuid,\n  p_size_id text,\n  p_crust_id text,\n  p_addons jsonb,\n  p_complements jsonb\n",
+              "numeric"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/master_catalog_compatibility.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "2eb0ce71b6b17abb8533d4bb15d73c7c10a7de3ffc7d3b56aa218f9a5e7f027b",
+          "bytes": 2795,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/master_role_dml_matrix.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "55c6e0d2d655b92675160094a99469d008c5c29b58312f1e81e81a58c92b78e8",
+          "bytes": 3167,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/master_role_matrix.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "1b0c6c82804a8ff7263b963668d1de39b15232789ca5b639cbd485aac3027ad0",
+          "bytes": 2940,
+          "functions": [
+            [
+              "auth.uid",
+              "",
+              "uuid language sql stable as $$"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/order_addition_amount.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "2208dd34e144d33d28ddbdb4fcd57002987c43ce5628dca8e015f4ba8a56f780",
+          "bytes": 2176,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/order_addition_concurrent_approvals.sh",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "bb3e7d39846ca5fb811fb26d396bc55c0c0b55fab3732dfdb1eddc54298f9fe4",
+          "bytes": 3579
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/order_addition_decision_authorization.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "68e723a50e4a4868a5ad48c6d976142b27b444b6b99a4a9ba52ae1a86f0cdb93",
+          "bytes": 6118,
+          "functions": [
+            [
+              "auth.uid",
+              "",
+              "uuid language sql stable"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/order_addition_payment_ledger.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "b0ac2375f8abf69075e38061c0a6b67f4adb28904ae6d15f3501e7009bc44ee4",
+          "bytes": 3136,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/order_addition_payment_settlement.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "1b9610638400596e3e83c1712fe288b8955866fc15f12648b77489b577aa545a",
+          "bytes": 2542,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/order_amendment_authorization.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "1ca7bacb1c0baed3096b2b1240b9ea932df5b6c1fdbb770fcc3bf67115777384",
+          "bytes": 3701,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/product_category_instance_integrity.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "a97b0280223812a69376a49c20ab242810ea18345fd42bcb5d5f99b3aba74ef1",
+          "bytes": 1219,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/supplier_catalog_rls.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "828cfede90d0f5f24c9bf1b93078ab30edcce17ed834cde87838568bc48137d8",
+          "bytes": 4155,
+          "functions": [
+            [
+              "auth.uid",
+              "",
+              "uuid language sql stable as $fn$"
+            ]
+          ]
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/supplier_settings_delivery_rls.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "76980fea0254cfb9fc702f9b8d58a8265fd3e983785b42b22a50c361829e0475",
+          "bytes": 2990,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "supabase/tests/supplier_write_roles_gate.sql",
+      "changed_in": [
+        "pr36"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": {
+          "sha256": "1482465bf45c0efcb4177e9bd6fff950774a2b6bcc47a80eec529443d209b3db",
+          "bytes": 2067,
+          "functions": []
+        },
+        "pr37": null
+      }
+    },
+    {
+      "path": "tests/bounded-json.test.mjs",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "ae0eab841bbb9f3944b22eb0e8a745b51b88ae1a755e56d36aad3bed20bb32c7",
+          "bytes": 2396
+        }
+      }
+    },
+    {
+      "path": "tests/checkout-gateway.test.mjs",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "9df8673487c9281dc7d14c49936e8e1caf2297ab6d41a3f472d7af57ddc3b308",
+          "bytes": 10151
+        }
+      }
+    },
+    {
+      "path": "tests/order-amendment.test.mjs",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "eba6948fe9bd23efd194c3b3bd3cc9f81b5c373bd149f3ca48fe2e190ec58c53",
+          "bytes": 6793
+        }
+      }
+    },
+    {
+      "path": "tests/order-consumer-safety.test.mjs",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "ee5d4d6166024b2af906f5921a530aaa6b603958fa8d8dc7d5e0fa3bc5ce9a09",
+          "bytes": 4029
+        }
+      }
+    },
+    {
+      "path": "tests/store-context.test.mjs",
+      "changed_in": [
+        "pr37"
+      ],
+      "versions": {
+        "main": null,
+        "pr36": null,
+        "pr37": {
+          "sha256": "72a32fe77fd1a03d2af491f1bdd2a1f376f0c623dd71d00348817bbe78a50edc",
+          "bytes": 1592
+        }
+      }
+    }
+  ]
+}

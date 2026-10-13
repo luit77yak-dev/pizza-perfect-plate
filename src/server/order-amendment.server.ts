@@ -1,3 +1,4 @@
+import { sameDeliveryBackend } from "../core/delivery/backend-binding";
 import { createHmac } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { CheckoutRateLimitError, type StoreContext } from "./checkout-gateway";
@@ -9,13 +10,18 @@ import {
 } from "./order-amendment";
 
 type CandidateRpcClient = {
-  rpc: (name: string, args: Record<string, unknown>) =>
-    Promise<{ data: unknown; error: { code?: string } | null }>;
+  rpc: (
+    name: string,
+    args: Record<string, unknown>,
+  ) => Promise<{ data: unknown; error: { code?: string } | null }>;
 };
 
 function enabled(): boolean {
-  return process.env["NEROXA_CHECKOUT_GATEWAY_ENABLED"] === "true" &&
-    process.env["NEROXA_CHECKOUT_AMENDMENTS_ENABLED"] === "true";
+  return (
+    sameDeliveryBackend(process.env["SUPABASE_URL"], process.env["NEROXA_DELIVERY_BACKEND_URL"]) &&
+    process.env["NEROXA_CHECKOUT_GATEWAY_ENABLED"] === "true" &&
+    process.env["NEROXA_CHECKOUT_AMENDMENTS_ENABLED"] === "true"
+  );
 }
 
 /** Service credentials and the quota-HMAC secret never leave this server file. */
@@ -25,8 +31,12 @@ export async function handlePrivateOrderAmendment(request: Request): Promise<Res
     return handleOrderAmendmentRequest(request, {
       enabled: false,
       resolveContext: async () => null,
-      reserveQuota: async () => { throw new Error("Disabled"); },
-      appendItems: async () => { throw new Error("Disabled"); },
+      reserveQuota: async () => {
+        throw new Error("Disabled");
+      },
+      appendItems: async () => {
+        throw new Error("Disabled");
+      },
     });
   }
 
@@ -41,9 +51,12 @@ export async function handlePrivateOrderAmendment(request: Request): Promise<Res
       const row = Array.isArray(data) ? data[0] : data;
       if (!row || typeof row !== "object") return null;
       const record = row as Record<string, unknown>;
-      if (typeof record["domain"] !== "string" ||
+      if (
+        typeof record["domain"] !== "string" ||
         typeof record["instance_id"] !== "string" ||
-        typeof record["organization_id"] !== "string") return null;
+        typeof record["organization_id"] !== "string"
+      )
+        return null;
       return {
         domain: record["domain"],
         instance_id: record["instance_id"],

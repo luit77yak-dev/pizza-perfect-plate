@@ -5,19 +5,19 @@
 
 export type AppRole = "OWNER" | "ADMIN" | "ATTENDANT" | "KITCHEN" | "DRIVER" | "CUSTOMER";
 
-export type OrderStatus =
-  | "RECEIVED"
-  | "CONFIRMED"
-  | "PREPARING"
-  | "READY"
-  | "OUT_FOR_DELIVERY"
-  | "DELIVERED"
-  | "CANCELLED";
-
+export type {
+  DeliveryOrderStatus as OrderStatus,
+  DeliveryFulfillment as FulfillmentType,
+  DeliveryPaymentMethod as PaymentMethod,
+  DeliveryProductKind as ProductKind,
+} from "@/core/delivery/contracts";
+import type {
+  DeliveryOrderStatus as OrderStatus,
+  DeliveryFulfillment as FulfillmentType,
+  DeliveryPaymentMethod as PaymentMethod,
+  DeliveryProductKind as ProductKind,
+} from "@/core/delivery/contracts";
 export type CouponType = "PERCENTAGE" | "FIXED" | "FREE_DELIVERY";
-export type FulfillmentType = "DELIVERY" | "PICKUP";
-export type PaymentMethod = "CASH" | "PIX" | "CARD_ON_DELIVERY" | "CARD_ON_SITE";
-export type ProductKind = "PIZZA" | "SIMPLE" | "BURGER" | "SIDE" | "COMBO" | "DRINK";
 export type HalfPizzaRule = "highest_half" | "average_halves" | "fixed_price";
 
 export interface Organization {

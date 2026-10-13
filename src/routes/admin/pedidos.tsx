@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { sameDeliveryBackend } from "@/core/delivery/backend-binding";
+import { STOREFRONT_URL } from "@/integrations/storefront-backend/client";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, Clock3, LogIn, LogOut, RefreshCw, ShoppingBag, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,6 +59,8 @@ function AdminOrdersPage() {
   const [session, setSession] = useState<boolean | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [requestedInstance, setRequestedInstance] = useState("");
+  const backendMatches = sameDeliveryBackend(import.meta.env["VITE_SUPABASE_URL"], STOREFRONT_URL);
   const [instanceId, setInstanceId] = useState<string | null>(null);
   const [storeName, setStoreName] = useState("Pedidos");
   const [orders, setOrders] = useState<Order[]>([]);
@@ -65,10 +69,14 @@ function AdminOrdersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadOrders = async () => {
+  const requestSequence = useRef(0);
+  const loadOrders = useCallback(async () => {
+    const sequence = ++requestSequence.current;
     setLoading(true);
     setError(null);
     try {
+      if (!backendMatches)
+        throw new Error("O painel e o catálogo devem usar o mesmo backend autorizado.");
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) {
         setSession(false);
@@ -76,18 +84,21 @@ function AdminOrdersPage() {
       }
       setSession(true);
 
+      if (
+        requestedInstance &&
+        !/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(
+          requestedInstance,
+        )
+      )
+        throw new Error("Informe um identificador de instância válido.");
       const domain = window.location.hostname.replace(/\.$/, "").toLowerCase();
-      const { data: context, error: contextError } = await adminRpc(
-        "get_public_storefront_context",
-        { p_domain: domain },
-      );
+      const { data: context, error: contextError } = requestedInstance
+        ? { data: { instance_id: requestedInstance } as StoreContext, error: null }
+        : await adminRpc("get_public_storefront_context", { p_domain: domain });
       if (contextError) throw contextError;
       const current = Array.isArray(context) ? context[0] : context;
       if (!current?.instance_id)
         throw new Error("Nenhuma loja ativa foi encontrada neste domínio.");
-
-      setInstanceId(current.instance_id);
-      setStoreName(current.instance_name || current.organization_name || "Pedidos");
 
       const { data, error: ordersError } = await adminRpc("get_admin_orders", {
         p_instance_id: current.instance_id,
@@ -95,6 +106,9 @@ function AdminOrdersPage() {
       });
       if (ordersError) throw ordersError;
 
+      if (sequence !== requestSequence.current) return;
+      setInstanceId(current.instance_id);
+      setStoreName(current.instance_name || current.organization_name || "Pedidos");
       const next = (Array.isArray(data) ? data : []).map((item) => ({
         ...item,
         order_number: Number(item.order_number),
@@ -107,25 +121,34 @@ function AdminOrdersPage() {
         currentSelected ? (next.find((item) => item.id === currentSelected.id) ?? null) : null,
       );
     } catch (err) {
+      if (sequence !== requestSequence.current) return;
+      setOrders([]);
+      setSelected(null);
+      setInstanceId(null);
       setError(err instanceof Error ? err.message : "Não foi possível carregar os pedidos.");
     } finally {
-      setLoading(false);
+      if (sequence === requestSequence.current) setLoading(false);
     }
-  };
+  }, [backendMatches, requestedInstance, filter]);
 
   useEffect(() => {
+    if (!backendMatches) {
+      setSession(false);
+      setError("Backend do painel incompatível com o catálogo.");
+      return;
+    }
     supabase.auth.getSession().then(({ data }) => setSession(Boolean(data.session)));
-  }, []);
+  }, [backendMatches]);
 
   useEffect(() => {
     if (session) void loadOrders();
-  }, [session, filter]);
+  }, [session, loadOrders]);
 
   useEffect(() => {
     if (!session) return;
     const timer = window.setInterval(() => void loadOrders(), 5000);
     return () => window.clearInterval(timer);
-  }, [session, filter]);
+  }, [session, loadOrders]);
 
   const pendingCount = useMemo(
     () =>
@@ -137,6 +160,11 @@ function AdminOrdersPage() {
   const signIn = async () => {
     setLoading(true);
     setError(null);
+    if (!backendMatches) {
+      setError("Backend do painel incompatível com o catálogo.");
+      setLoading(false);
+      return;
+    }
     const { error: authError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
@@ -147,6 +175,9 @@ function AdminOrdersPage() {
   };
 
   const signOut = async () => {
+    requestSequence.current++;
+    setInstanceId(null);
+    setRequestedInstance("");
     await supabase.auth.signOut();
     setSession(false);
     setOrders([]);
@@ -154,7 +185,7 @@ function AdminOrdersPage() {
   };
 
   const changeStatus = async (status: OrderStatus) => {
-    if (!selected) return;
+    if (!selected || selected.instance_id !== instanceId) return;
     setLoading(true);
     setError(null);
     const { data, error: updateError } = await adminRpc("update_admin_order_status", {
@@ -253,6 +284,22 @@ function AdminOrdersPage() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6">
+        <label className="mb-4 block text-sm">
+          Instância (vazio utiliza o domínio atual; a RPC verifica sua autorização)
+          <input
+            aria-label="Instância"
+            value={requestedInstance}
+            onChange={(event) => {
+              requestSequence.current++;
+              setOrders([]);
+              setSelected(null);
+              setInstanceId(null);
+              setRequestedInstance(event.target.value.trim());
+            }}
+            className="mt-2 w-full rounded-xl border border-white/20 bg-black/20 p-3"
+            placeholder="UUID da loja autorizada"
+          />
+        </label>
         <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
           <button
             onClick={() => setFilter("ALL")}
