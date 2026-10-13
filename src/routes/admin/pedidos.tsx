@@ -100,6 +100,8 @@ function AdminOrdersPage() {
   useEffect(() => {
     const subscription = supabase.auth.onAuthStateChange((_event, next) => {
       if (!next) {
+        setLoading(false);
+        statusBusy.current = false;
         requestSequence.current++;
         detailSequence.current++;
         setSession(false);
