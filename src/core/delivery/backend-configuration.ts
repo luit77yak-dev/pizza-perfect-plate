@@ -9,7 +9,12 @@ function fail(): never {
 
 export function canonicalBackendUrl(value: string | undefined): string {
   if (!value) return fail();
-  const url = new URL(value);
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return fail();
+  }
   if (url.username || url.password || url.search || url.hash || url.pathname !== "/") return fail();
   const local = ["127.0.0.1", "localhost", "[::1]"].includes(url.hostname);
   if (url.protocol !== "https:" && !(local && url.protocol === "http:")) return fail();

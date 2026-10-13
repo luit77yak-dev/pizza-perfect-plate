@@ -10,7 +10,7 @@ export default async (environment: ConfigEnv) => {
   if (environment.mode === "homologation" && !config) {
     throw new Error("Homologation build requires explicit backend configuration");
   }
-  if (config) assertServerBackend(config, process.env);
+  assertServerBackend(config, process.env);
   return defineConfig({
     tanstackStart: { server: { entry: "server" } },
     // A normal build from this config, never a replacement SDK module or alias.

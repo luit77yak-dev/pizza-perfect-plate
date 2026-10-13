@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: luit77yak-dev/neroxa-master
-          ref: 128eea6c7ffbe62e8a6fd98557dd82d4dcb84ce5
+          ref: bdf9be73b96adbc6b2ecb338fe140e281a27e75c
           path: master
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -74,7 +74,7 @@ jobs:
           path: master/delivery-consumer
           persist-credentials: false
       - name: Verify pinned Master commit
-        run: test "$(git rev-parse HEAD)" = "128eea6c7ffbe62e8a6fd98557dd82d4dcb84ce5"
+        run: test "$(git rev-parse HEAD)" = "bdf9be73b96adbc6b2ecb338fe140e281a27e75c"
       - name: Verify pinned delivery commit
         run: test "$(git -C delivery-consumer rev-parse HEAD)" = "${{ github.sha }}"
       - name: Integrate real local checkout gateway and test direct RPC revocation
