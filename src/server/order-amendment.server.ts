@@ -24,6 +24,7 @@ type CandidateRpcClient = {
 };
 
 function enabled(): boolean {
+  checkRuntimeBackend(true);
   return (
     sameDeliveryBackend(process.env["SUPABASE_URL"], process.env["NEROXA_DELIVERY_BACKEND_URL"]) &&
     process.env["NEROXA_CHECKOUT_GATEWAY_ENABLED"] === "true" &&

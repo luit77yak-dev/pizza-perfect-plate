@@ -76,6 +76,8 @@ test("opaque publishable format allowed, runtime project binding still requires 
   assert.ok(
     testBackend({
       ...config(),
+      VITE_NEROXA_TEST_PROJECT_REF: "abcdefghijklmnopqrst",
+      VITE_NEROXA_TEST_BACKEND_URL: "https://abcdefghijklmnopqrst.supabase.co",
       VITE_NEROXA_TEST_PUBLISHABLE_KEY: "sb_publishable_abcdefghijklmnopqrstuvwxyz",
     }),
   ));
@@ -152,18 +154,20 @@ test("actual public key probe is scoped, redirect-denying and shared across conc
   let calls = 0;
   const transport = async (url, init) => {
     calls++;
-    assert.equal(url, c.url + "/auth/v1/settings");
+    assert.equal(url, c.url + "/rest/v1/");
     assert.equal(init.redirect, "error");
     assert.equal(init.headers.apikey, c.key);
-    return Response.json({ external: { email: true } });
+    return Response.json({ swagger: "2.0" });
   };
   await Promise.all([ensureTestBackendKey(c, transport), ensureTestBackendKey(c, transport)]);
   assert.equal(calls, 1);
 });
-test("invalid opaque public key rejected by destination before catalog or privileged operation", async () => {
+test("hosted opaque public key rejected by destination before catalog or privileged operation", async () => {
   const { ensureTestBackendKey } = await import("../src/core/delivery/backend-configuration.ts");
   const c = testBackend({
     ...config(),
+    VITE_NEROXA_TEST_PROJECT_REF: "abcdefghijklmnopqrst",
+    VITE_NEROXA_TEST_BACKEND_URL: "https://abcdefghijklmnopqrst.supabase.co",
     VITE_NEROXA_TEST_PUBLISHABLE_KEY: "sb_publishable_abcdefghijklmnopqrstuvwxyz",
   });
   let calls = 0;
@@ -176,8 +180,32 @@ test("invalid opaque public key rejected by destination before catalog or privil
   await assert.rejects(() =>
     ensureTestBackendKey(c, async () => {
       calls++;
-      return Response.json({ external: {} });
+      return Response.json({ swagger: "2.0" });
     }),
   );
   assert.equal(calls, 1);
 });
+test("temporary native PostgREST failure denies operations but can be safely retried at same destination", async () => {
+  const { ensureTestBackendKey } = await import("../src/core/delivery/backend-configuration.ts");
+  const c = testBackend(config());
+  let calls = 0;
+  const transport = async (url, init) => {
+    calls++;
+    assert.equal(url, c.url + "/rest/v1/");
+    assert.ok(init.signal);
+    return calls === 1
+      ? Response.json({ error: "unavailable" }, { status: 503 })
+      : Response.json({ swagger: "2.0" });
+  };
+  await assert.rejects(() => ensureTestBackendKey(c, transport));
+  await ensureTestBackendKey(c, transport);
+  assert.equal(calls, 2);
+});
+
+test("native local opaque key is denied before any request because local gateway binding is unproved", () =>
+  assert.throws(() =>
+    testBackend({
+      ...config(),
+      VITE_NEROXA_TEST_PUBLISHABLE_KEY: "sb_publishable_abcdefghijklmnopqrstuvwxyz",
+    }),
+  ));

@@ -1,7 +1,7 @@
 /** Configuration boundaries, never tenant/user authorization. Keys are validated by Supabase too. */
 export type BackendEnvironment = Record<string, string | undefined>;
 export type TestBackend = Readonly<{ url: string; key: string; project: string }>;
-const forbiddenProjects = new Set(["iefaoaqzltvpfabyeelj", "uvyinrojuhizjqbuzdcy"]);
+const forbiddenProjects = new Set(["iefaoaqzltvpfabyeelj"]);
 
 function fail(): never {
   throw new Error("Invalid or incomplete homologation backend configuration");
@@ -31,7 +31,10 @@ function jwtClaims(key: string): Record<string, unknown> {
 
 function validateKey(key: string, project: string, privileged = false): void {
   if (privileged && /^sb_secret_[A-Za-z0-9_-]{20,}$/.test(key)) return;
-  if (!privileged && /^sb_publishable_[A-Za-z0-9_-]{20,}$/.test(key)) return;
+  if (!privileged && /^sb_publishable_[A-Za-z0-9_-]{20,}$/.test(key)) {
+    if (project === "local-disposable") return fail();
+    return;
+  }
   const claims = jwtClaims(key);
   if (typeof claims["ref"] === "string" && forbiddenProjects.has(claims["ref"])) return fail();
   if (claims["role"] !== (privileged ? "service_role" : "anon")) return fail();
@@ -120,16 +123,32 @@ export async function ensureTestBackendKey(
   if (!config) return;
   let pending = keyChecks.get(config);
   if (!pending) {
+    let permanent = false;
     pending = (async () => {
-      const response = await transport(`${config.url}/auth/v1/settings`, {
-        headers: { apikey: config.key },
+      const response = await transport(`${config.url}/rest/v1/`, {
+        headers: {
+          apikey: config.key,
+          ...(!config.key.startsWith("sb_publishable_")
+            ? { Authorization: `Bearer ${config.key}` }
+            : {}),
+        },
         redirect: "error",
+        signal: AbortSignal.timeout(5000),
       });
+      permanent = response.status === 401 || response.status === 403;
       if (!response.ok || (response.url && new URL(response.url).origin !== config.url))
         return fail();
       const settings: unknown = await response.json();
-      if (!settings || typeof settings !== "object" || !("external" in settings)) return fail();
-    })();
+      if (
+        !settings ||
+        typeof settings !== "object" ||
+        !("swagger" in settings || "openapi" in settings)
+      )
+        return fail();
+    })().catch((error) => {
+      if (!permanent) keyChecks.delete(config);
+      throw error;
+    });
     keyChecks.set(config, pending);
   }
   await pending;
