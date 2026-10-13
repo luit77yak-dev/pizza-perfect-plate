@@ -186,5 +186,5 @@ test("native integration workflow pins an existing immutable-format Master commi
   assert.doesNotMatch(workflow, /PLACEHOLDER/);
   const master = workflow.match(/repository: luit77yak-dev\/neroxa-master\s+ref: ([a-f0-9]{40})\s/);
   assert.ok(master, "Master ref must be a complete SHA");
-  assert.equal(master[1], "86c8f8d2d84910734acc3bcd0f91469cb0590eb6");
+  assert.equal(master[1], "6b264762a2ac1469c37de4a0433cf70548cacd0f");
 });
