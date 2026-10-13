@@ -105,12 +105,15 @@ export async function handlePrivateCheckout(
       const normalized = customerPhone.replace(/[^0-9]/g, "");
       // No raw telephone number, cookie or IP is persisted in quota tables.
       const digest = createHmac("sha256", secret)
-        .update(context.instance_id + ":" + normalized)
+        .update((recoverOnly ? "recovery:" : "") + context.instance_id + ":" + normalized)
         .digest("hex");
-      const { data, error } = await candidate.rpc("neroxa_checkout_reserve_quota", {
-        p_instance_id: context.instance_id,
-        p_contact_fingerprint: digest,
-      });
+      const { data, error } = await candidate.rpc(
+        recoverOnly ? "neroxa_recovery_reserve_quota" : "neroxa_checkout_reserve_quota",
+        {
+          p_instance_id: context.instance_id,
+          p_contact_fingerprint: digest,
+        },
+      );
       if (error?.code === "PT429") throw new CheckoutRateLimitError("Quota exceeded");
       if (error || data !== true) throw new Error("Quota service unavailable");
     },
