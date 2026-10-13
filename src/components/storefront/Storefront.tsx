@@ -1,3 +1,4 @@
+import { reviewCartPrices } from "@/core/delivery/review-cart-prices";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { supabase } from "@/integrations/storefront-backend/client";
 import { useQuery } from "@tanstack/react-query";
@@ -1065,6 +1066,20 @@ export function Storefront() {
           groupCatalog={data.groupCatalog}
           instanceId={data.instanceId}
           storeDomain={data.storeDomain}
+          onReviewPrices={async () => {
+            const refreshed = await refetch();
+            if (refreshed.isError || !refreshed.data?.groupCatalog)
+              throw new Error(
+                "Não foi possível atualizar o catálogo. Nenhum pedido foi reenviado.",
+              );
+            const reviewed = reviewCartPrices(
+              activeComplementOrderId ? complementItems : cart.items,
+              refreshed.data.groupCatalog,
+              data.instanceId,
+            );
+            if (activeComplementOrderId) setComplementItems(reviewed);
+            else cart.replaceItems(reviewed);
+          }}
           settings={data.settings}
           deliveryZones={data.deliveryZones}
           items={activeComplementOrderId ? complementItems : cart.items}

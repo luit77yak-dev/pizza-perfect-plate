@@ -79,5 +79,12 @@ export function useLocalCart(instanceId: string | undefined) {
     setSnapshot({ key, items: [] });
   }, [key]);
 
-  return { items, addItem, updateQuantity, removeItem, clear };
+  const replaceItems = useCallback(
+    (reviewed: CartItem[]) => {
+      if (key) setSnapshot({ key, items: reviewed });
+    },
+    [key],
+  );
+
+  return { items, addItem, updateQuantity, removeItem, clear, replaceItems };
 }

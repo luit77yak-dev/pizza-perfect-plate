@@ -1,0 +1,195 @@
+{
+  "context": {
+    "domain": "a.ab.invalid",
+    "system_id": null,
+    "instance_id": "20000000-0000-0000-0000-000000000001",
+    "system_name": null,
+    "system_slug": null,
+    "system_type": null,
+    "instance_name": "Loja ficticia a",
+    "instance_slug": "a",
+    "instance_status": "ACTIVE",
+    "organization_id": "10000000-0000-0000-0000-000000000001",
+    "organization_name": null
+  },
+  "products": [
+    {
+      "id": "30000000-0000-0000-0000-000000000003",
+      "name": "Ficticio segundo sabor",
+      "slug": "segundo",
+      "price": 50,
+      "active": true,
+      "metadata": {
+        "kind": "SIMPLE",
+        "options": [
+          {
+            "id": "tamanho",
+            "choices": [
+              {
+                "id": "grande",
+                "price": 10
+              }
+            ]
+          },
+          {
+            "id": "borda",
+            "choices": [
+              {
+                "id": "queijo",
+                "price": 5
+              }
+            ]
+          }
+        ],
+        "available": true
+      },
+      "image_url": null,
+      "sort_order": 0,
+      "category_id": "70000000-0000-0000-0000-000000000001",
+      "description": null
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000001",
+      "name": "Produto ficticio A",
+      "slug": "a",
+      "price": 30,
+      "active": true,
+      "metadata": {
+        "kind": "PIZZA",
+        "options": [
+          {
+            "id": "tamanho",
+            "name": "Tamanho",
+            "choices": [
+              {
+                "id": "grande",
+                "name": "Grande ficticia",
+                "price": 10
+              }
+            ]
+          },
+          {
+            "id": "borda",
+            "name": "Borda",
+            "choices": [
+              {
+                "id": "queijo",
+                "name": "Queijo ficticio",
+                "price": 5
+              }
+            ]
+          }
+        ],
+        "available": true,
+        "allow_half": true
+      },
+      "image_url": null,
+      "sort_order": 0,
+      "category_id": "70000000-0000-0000-0000-000000000001",
+      "description": null
+    }
+  ],
+  "settings": {
+    "logo_url": null,
+    "hero_title": null,
+    "address_zip": null,
+    "description": "Descricao publica ficticia A",
+    "font_family": "inherit",
+    "address_city": null,
+    "social_links": {},
+    "address_state": null,
+    "hero_subtitle": null,
+    "primary_color": "145 28% 32%",
+    "address_number": null,
+    "address_street": null,
+    "hero_cta_label": null,
+    "hero_image_url": null,
+    "pickup_enabled": true,
+    "whatsapp_phone": null,
+    "payment_methods": [
+      "CASH"
+    ],
+    "secondary_color": "42 35% 96%",
+    "delivery_enabled": true,
+    "min_order_amount": 0.0,
+    "storefront_theme": "neroxa-classic",
+    "scheduling_enabled": false,
+    "pickup_instructions": null,
+    "address_neighborhood": null,
+    "half_pizza_fixed_price": null,
+    "half_pizza_pricing_rule": "highest_half",
+    "estimated_pickup_minutes": 20,
+    "estimated_delivery_minutes": 45,
+    "loyalty_points_per_currency": 0.0,
+    "store_open": true
+  },
+  "categories": [
+    {
+      "id": "70000000-0000-0000-0000-000000000001",
+      "name": "Ficticia pizzas A",
+      "slug": "pizzas-a",
+      "active": true,
+      "image_url": null,
+      "sort_order": 0,
+      "description": null
+    }
+  ],
+  "addon_groups": [
+    {
+      "id": "80000000-0000-0000-0000-000000000001",
+      "name": "Grupo ficticio A",
+      "active": true,
+      "addons": [
+        {
+          "id": "90000000-0000-0000-0000-000000000001",
+          "name": "Gratuito ficticio",
+          "active": true,
+          "sort_order": 0,
+          "price_delta": 0
+        },
+        {
+          "id": "90000000-0000-0000-0000-000000000003",
+          "name": "Outro ficticio",
+          "active": true,
+          "sort_order": 0,
+          "price_delta": 4
+        },
+        {
+          "id": "90000000-0000-0000-0000-000000000002",
+          "name": "Pago ficticio",
+          "active": true,
+          "sort_order": 0,
+          "price_delta": 2
+        }
+      ],
+      "products": [
+        {
+          "product_id": "30000000-0000-0000-0000-000000000001",
+          "sort_order": 0
+        },
+        {
+          "product_id": "30000000-0000-0000-0000-000000000003",
+          "sort_order": 0
+        }
+      ],
+      "required": true,
+      "sort_order": 0,
+      "max_selections": 2,
+      "min_selections": 1
+    }
+  ],
+  "delivery_zones": [
+    {
+      "id": "5e27e403-57d3-4a68-bb3d-f031dc12d48d",
+      "name": "Zona ficticia A",
+      "active": true,
+      "delivery_fee": 5,
+      "minimum_order": 0,
+      "neighborhoods": [
+        "Teste"
+      ],
+      "estimated_minutes": null
+    }
+  ],
+  "selection_contract": "GROUP_ADDONS_V1"
+}

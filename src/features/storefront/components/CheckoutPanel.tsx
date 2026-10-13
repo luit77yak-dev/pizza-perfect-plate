@@ -33,6 +33,7 @@ export function CheckoutPanel({
   subtotal,
   onClose,
   onSuccess,
+  onReviewPrices,
   storeOpen,
   storeStatusLabel,
   existingOrder = null,
@@ -46,6 +47,7 @@ export function CheckoutPanel({
   items: CartItem[];
   subtotal: number;
   onClose: () => void;
+  onReviewPrices?: () => Promise<void>;
   onSuccess: (order: {
     id: string;
     number: number;
@@ -83,6 +85,9 @@ export function CheckoutPanel({
   const [reference, setReference] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [reviewNotice, setReviewNotice] = useState<string | null>(null);
+  const [priceReviewRequired, setPriceReviewRequired] = useState(false);
+  const [reviewingPrices, setReviewingPrices] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // A retry after a partial server failure must reuse its original key.
   const checkoutKeyRef = useRef<string | null>(null);
@@ -119,6 +124,7 @@ export function CheckoutPanel({
     : (["PIX"] as PaymentMethod[]);
 
   const submitOrder = async () => {
+    if (priceReviewRequired || reviewingPrices || submitting) return;
     setError(null);
 
     if (!storeOpen) {
@@ -187,6 +193,7 @@ export function CheckoutPanel({
             payment_state?: string;
           };
           if (response.status === 409 && reply.code === "PRICE_CHANGED") {
+            setPriceReviewRequired(true);
             amendmentKeyRef.current = null;
             amendmentIntentRef.current = null;
           }
@@ -331,6 +338,7 @@ export function CheckoutPanel({
           amendment_token?: string;
         };
         if (response.status === 409 && reply.code === "PRICE_CHANGED") {
+          setPriceReviewRequired(true);
           checkoutKeyRef.current = null;
           checkoutIntentRef.current = null;
         }
@@ -656,13 +664,55 @@ export function CheckoutPanel({
                 <span>{formatCurrency(total)}</span>
               </div>
             </div>
+            {reviewNotice && (
+              <p role="status" className="mt-4 text-sm text-muted-foreground">
+                {reviewNotice}
+              </p>
+            )}
             {error && (
-              <p className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">
+              <p
+                role="alert"
+                className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive"
+              >
                 {error}
               </p>
             )}
+            {priceReviewRequired && (
+              <Button
+                className="mt-4 w-full"
+                disabled={reviewingPrices || !onReviewPrices}
+                onClick={async () => {
+                  if (!onReviewPrices || reviewingPrices) return;
+                  setReviewingPrices(true);
+                  try {
+                    await onReviewPrices();
+                    setPriceReviewRequired(false);
+                    setError(null);
+                    setReviewNotice(
+                      "Valores atualizados. Confira o resumo antes de confirmar novamente.",
+                    );
+                  } catch (reviewError) {
+                    setError(
+                      reviewError instanceof Error
+                        ? reviewError.message
+                        : "Catálogo indisponível. Tente revisar novamente.",
+                    );
+                  } finally {
+                    setReviewingPrices(false);
+                  }
+                }}
+              >
+                {reviewingPrices ? "Atualizando valores..." : "Revisar preços"}
+              </Button>
+            )}
             <Button
-              disabled={submitting || items.length === 0 || !storeOpen}
+              disabled={
+                submitting ||
+                reviewingPrices ||
+                priceReviewRequired ||
+                items.length === 0 ||
+                !storeOpen
+              }
               onClick={submitOrder}
               className="mt-5 h-12 w-full rounded-full"
             >
