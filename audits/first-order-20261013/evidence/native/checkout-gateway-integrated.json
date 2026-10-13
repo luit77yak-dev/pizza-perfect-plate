@@ -1,0 +1,240 @@
+{
+  "classification": "INCONCLUSIVO",
+  "stage": "done",
+  "productionCompatibility": false,
+  "source": "Disposable local full historical Master catalog + candidate migrations; Pizza Perfect Plate gateway pinned source",
+  "checks": [
+    {
+      "name": "Pinned gateway core imported",
+      "passed": true
+    },
+    {
+      "name": "Verified synthetic domain a",
+      "passed": true
+    },
+    {
+      "name": "Synthetic product for shop a",
+      "passed": true
+    },
+    {
+      "name": "Read synthetic shop order baseline a",
+      "passed": true
+    },
+    {
+      "name": "Verified synthetic domain b",
+      "passed": true
+    },
+    {
+      "name": "Synthetic product for shop b",
+      "passed": true
+    },
+    {
+      "name": "Read synthetic shop order baseline b",
+      "passed": true
+    },
+    {
+      "name": "Verified synthetic domain c",
+      "passed": true
+    },
+    {
+      "name": "Synthetic product for shop c",
+      "passed": true
+    },
+    {
+      "name": "Read synthetic shop order baseline c",
+      "passed": true
+    },
+    {
+      "name": "A and B belong to same organization but different instances",
+      "passed": true
+    },
+    {
+      "name": "C belongs to another organization",
+      "passed": true
+    },
+    {
+      "name": "Anonymous direct RPC EXECUTE removed",
+      "passed": true
+    },
+    {
+      "name": "Authenticated direct RPC EXECUTE removed",
+      "passed": true
+    },
+    {
+      "name": "Server-only service role RPC EXECUTE retained",
+      "passed": true
+    },
+    {
+      "name": "Anonymous legacy public amendment EXECUTE removed",
+      "passed": true
+    },
+    {
+      "name": "Authenticated legacy public amendment EXECUTE removed",
+      "passed": true
+    },
+    {
+      "name": "Server-only amendment EXECUTE retained for later token gateway",
+      "passed": true
+    },
+    {
+      "name": "Anon cannot invoke quota RPC",
+      "passed": true
+    },
+    {
+      "name": "Authenticated cannot invoke quota RPC",
+      "passed": true
+    },
+    {
+      "name": "Service role can invoke quota RPC",
+      "passed": true
+    },
+    {
+      "name": "Anonymous direct create RPC denied for a",
+      "passed": true
+    },
+    {
+      "name": "Anonymous direct create RPC denied for b",
+      "passed": true
+    },
+    {
+      "name": "Anonymous phone-only append bypass denied by PostgREST",
+      "passed": true
+    },
+    {
+      "name": "Authenticated direct create RPC denied",
+      "passed": true
+    },
+    {
+      "name": "Authenticated phone-only append bypass denied by PostgREST",
+      "passed": true
+    },
+    {
+      "name": "Gateway creates A checkout through service role",
+      "passed": true
+    },
+    {
+      "name": "A order price calculated by PostgreSQL",
+      "passed": true
+    },
+    {
+      "name": "Gateway creates B checkout through service role",
+      "passed": true
+    },
+    {
+      "name": "B order price calculated by PostgreSQL",
+      "passed": true
+    },
+    {
+      "name": "A and B orders have distinct identities",
+      "passed": true
+    },
+    {
+      "name": "Gateway retries preserve order idempotency",
+      "passed": true
+    },
+    {
+      "name": "Cross-shop request body rejected before privileged RPC",
+      "passed": true
+    },
+    {
+      "name": "Forged store_domain rejected before privileged RPC",
+      "passed": true
+    },
+    {
+      "name": "Unknown domain fails closed",
+      "passed": true
+    },
+    {
+      "name": "Real SQL rejects other shop product through gateway",
+      "passed": true
+    },
+    {
+      "name": "Read final orders a",
+      "passed": true
+    },
+    {
+      "name": "Read final orders b",
+      "passed": true
+    },
+    {
+      "name": "Read final orders c",
+      "passed": true
+    },
+    {
+      "name": "Exactly one new order in A",
+      "passed": true
+    },
+    {
+      "name": "Exactly one new order in B",
+      "passed": true
+    },
+    {
+      "name": "Other-organization shop C unaffected",
+      "passed": true
+    },
+    {
+      "name": "Read B orders before gateway quota probe",
+      "passed": true
+    },
+    {
+      "name": "Five B gateway order requests accepted in ten-minute contact window",
+      "passed": true
+    },
+    {
+      "name": "Sixth B gateway request blocked with HTTP 429",
+      "passed": true
+    },
+    {
+      "name": "429 prevented creation of a sixth B order",
+      "passed": true
+    },
+    {
+      "name": "Exactly five quota reservations under concurrent requests",
+      "passed": true
+    },
+    {
+      "name": "Other seven concurrent requests receive 429",
+      "passed": true
+    },
+    {
+      "name": "Durable contact quota counter persisted at five",
+      "passed": true
+    },
+    {
+      "name": "Another store has an independent contact quota",
+      "passed": true
+    },
+    {
+      "name": "Other organization has independent quota",
+      "passed": true
+    },
+    {
+      "name": "Store bucket populated before saturation",
+      "passed": true
+    },
+    {
+      "name": "Store-wide quota denies after 60 attempts",
+      "passed": true
+    },
+    {
+      "name": "Rejected quota attempt did not increment store bucket",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Real local PostgREST and SQL with imported Pizza gateway core, not the deployed TanStack route or Vercel edge.",
+    "Host/Origin values in Request are simulated and not cryptographically attested.",
+    "No production secrets, production SQL, live domain or live customer data used.",
+    "Local PostgreSQL quotas are tested; Vercel/edge IP rate limits, abuse protection, quota retention and live rollout are not validated."
+  ],
+  "summary": {
+    "checksPassed": 54,
+    "checksFailed": 0,
+    "consumer": "Pizza Perfect Plate pinned checkout-gateway.ts",
+    "rpcBypassDenied": true,
+    "durableQuotaSimultaneousRequests": 12,
+    "durableQuotaEnforced": true,
+    "gatewayOrders": 2,
+    "rollbackOrDeploymentProven": false
+  }
+}

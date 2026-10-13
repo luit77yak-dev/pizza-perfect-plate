@@ -1,0 +1,104 @@
+{
+  "classification": "PASS_NATIVE_OPERATIONS",
+  "productionApproved": false,
+  "checks": [
+    {
+      "name": "real delivery per store a.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "same UUID scoped by store and exact proof a.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "real delivery per store b.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "same UUID scoped by store and exact proof b.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "real delivery per store c.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "same UUID scoped by store and exact proof c.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "same idempotency UUID across stores gives distinct orders",
+      "passed": true
+    },
+    {
+      "name": "cross shop proof denied b.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "foreign addon denied b.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "cross shop proof denied c.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "foreign addon denied c.ab.invalid",
+      "passed": true
+    },
+    {
+      "name": "unserved area rejected",
+      "passed": true
+    },
+    {
+      "name": "forged total rejected with real rollback",
+      "passed": true
+    },
+    {
+      "name": "product disabled during purchase rejected",
+      "passed": true
+    },
+    {
+      "name": "store closing during purchase rejects order",
+      "passed": true
+    },
+    {
+      "name": "all rejected new purchases preserve database count",
+      "passed": true
+    },
+    {
+      "name": "private GROUP append remains NOT_SETTLED",
+      "passed": true
+    },
+    {
+      "name": "append repeated receipt creates no extra items",
+      "passed": true
+    },
+    {
+      "name": "private append capability cannot cross store",
+      "passed": true
+    },
+    {
+      "name": "concurrent operator fencing versus creation is serialized",
+      "passed": true
+    },
+    {
+      "name": "reconciliation has actor and immutable scoped audit",
+      "passed": true
+    },
+    {
+      "name": "native GoTrue itself issues short-lived credential for real owner",
+      "passed": true
+    },
+    {
+      "name": "short-lived native token authorized before expiry",
+      "passed": true
+    },
+    {
+      "name": "real PostgREST rejects signed local expired identity",
+      "passed": true
+    }
+  ],
+  "passed": 24,
+  "failed": 0
+}

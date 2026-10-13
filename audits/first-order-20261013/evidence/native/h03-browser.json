@@ -1,0 +1,96 @@
+{
+  "classification": "PASS_FIRST_ORDER_NATIVE",
+  "productionApproved": false,
+  "checks": [
+    {
+      "name": "real scoped catalog renders",
+      "passed": true
+    },
+    {
+      "name": "blocked browser storage sends zero checkout HTTP requests",
+      "passed": true
+    },
+    {
+      "name": "real authenticated owner price update",
+      "passed": true
+    },
+    {
+      "name": "real SQL rejects stale price with no order",
+      "passed": true
+    },
+    {
+      "name": "35 shown before new consent",
+      "passed": true
+    },
+    {
+      "name": "lost-response transport actually persisted via HTTPS",
+      "passed": true
+    },
+    {
+      "name": "order committed once despite lost response",
+      "passed": true
+    },
+    {
+      "name": "closed/reopened browser recovers same confirmed order",
+      "passed": true
+    },
+    {
+      "name": "two actual browser tabs replay same key with one database order",
+      "passed": true
+    },
+    {
+      "name": "client PII absent from localStorage",
+      "passed": true
+    },
+    {
+      "name": "real tracking no horizontal document overflow 360",
+      "passed": true
+    },
+    {
+      "name": "real tracking no horizontal document overflow 390",
+      "passed": true
+    },
+    {
+      "name": "real tracking no horizontal document overflow 412",
+      "passed": true
+    },
+    {
+      "name": "real tracking no horizontal document overflow 768",
+      "passed": true
+    },
+    {
+      "name": "real tracking no horizontal document overflow 1440",
+      "passed": true
+    },
+    {
+      "name": "real authenticated status transition",
+      "passed": true
+    },
+    {
+      "name": "private proof tracking reflects backend status",
+      "passed": true
+    },
+    {
+      "name": "timeout before transport creates no database order",
+      "passed": true
+    },
+    {
+      "name": "double click after pre-persistence timeout creates one order with same key",
+      "passed": true
+    },
+    {
+      "name": "browser A1 and A2 intentions remain independent",
+      "passed": true
+    },
+    {
+      "name": "no browser JavaScript exceptions",
+      "passed": true
+    }
+  ],
+  "passed": 21,
+  "failed": 0,
+  "errors": [],
+  "blockedOrigins": [
+    "https://fonts.googleapis.com"
+  ]
+}

@@ -1,0 +1,304 @@
+{
+  "classification": "PASS_DELIVERY_AND_PANEL_NATIVE",
+  "productionApproved": false,
+  "checks": [
+    {
+      "name": "real scoped catalog renders",
+      "passed": true
+    },
+    {
+      "name": "authorized fake owner sets initial price",
+      "passed": true
+    },
+    {
+      "name": "catalog no document overflow 360",
+      "passed": true
+    },
+    {
+      "name": "catalog no document overflow 390",
+      "passed": true
+    },
+    {
+      "name": "catalog no document overflow 412",
+      "passed": true
+    },
+    {
+      "name": "catalog no document overflow 768",
+      "passed": true
+    },
+    {
+      "name": "catalog no document overflow 1440",
+      "passed": true
+    },
+    {
+      "name": "configurator no document overflow 360",
+      "passed": true
+    },
+    {
+      "name": "configurator no document overflow 390",
+      "passed": true
+    },
+    {
+      "name": "configurator no document overflow 412",
+      "passed": true
+    },
+    {
+      "name": "configurator no document overflow 768",
+      "passed": true
+    },
+    {
+      "name": "configurator no document overflow 1440",
+      "passed": true
+    },
+    {
+      "name": "cart no document overflow 360",
+      "passed": true
+    },
+    {
+      "name": "cart no document overflow 390",
+      "passed": true
+    },
+    {
+      "name": "cart no document overflow 412",
+      "passed": true
+    },
+    {
+      "name": "cart no document overflow 768",
+      "passed": true
+    },
+    {
+      "name": "cart no document overflow 1440",
+      "passed": true
+    },
+    {
+      "name": "keyboard reaches customer telephone",
+      "passed": true
+    },
+    {
+      "name": "delivery area alone cannot bypass required street",
+      "passed": true
+    },
+    {
+      "name": "checkout no document overflow 360",
+      "passed": true
+    },
+    {
+      "name": "checkout no document overflow 390",
+      "passed": true
+    },
+    {
+      "name": "checkout no document overflow 412",
+      "passed": true
+    },
+    {
+      "name": "checkout no document overflow 768",
+      "passed": true
+    },
+    {
+      "name": "checkout no document overflow 1440",
+      "passed": true
+    },
+    {
+      "name": "authenticated owner changes fee",
+      "passed": true
+    },
+    {
+      "name": "changed fee rejected without order",
+      "passed": true
+    },
+    {
+      "name": "delivery total91 shown before consent",
+      "passed": true
+    },
+    {
+      "name": "normal delivery opens tracking without technical intervention",
+      "passed": true
+    },
+    {
+      "name": "database authoritative delivery fields and GROUP snapshot",
+      "passed": true
+    },
+    {
+      "name": "tracking no document overflow 360",
+      "passed": true
+    },
+    {
+      "name": "tracking no document overflow 390",
+      "passed": true
+    },
+    {
+      "name": "tracking no document overflow 412",
+      "passed": true
+    },
+    {
+      "name": "tracking no document overflow 768",
+      "passed": true
+    },
+    {
+      "name": "tracking no document overflow 1440",
+      "passed": true
+    },
+    {
+      "name": "keyboard reaches operational password",
+      "passed": true
+    },
+    {
+      "name": "real authenticated panel shows GROUP items and delivery",
+      "passed": true
+    },
+    {
+      "name": "panel no document overflow 360",
+      "passed": true
+    },
+    {
+      "name": "panel no document overflow 390",
+      "passed": true
+    },
+    {
+      "name": "panel no document overflow 412",
+      "passed": true
+    },
+    {
+      "name": "panel no document overflow 768",
+      "passed": true
+    },
+    {
+      "name": "panel no document overflow 1440",
+      "passed": true
+    },
+    {
+      "name": "delayed A1 response cannot populate A2 panel",
+      "passed": true
+    },
+    {
+      "name": "backend list failure clears stale private orders",
+      "passed": true
+    },
+    {
+      "name": "invalid transition changes neither status nor history",
+      "passed": true
+    },
+    {
+      "name": "visual panel advances CONFIRMED with matching customer tracking",
+      "passed": true
+    },
+    {
+      "name": "visual panel advances PREPARING with matching customer tracking",
+      "passed": true
+    },
+    {
+      "name": "visual panel advances READY with matching customer tracking",
+      "passed": true
+    },
+    {
+      "name": "visual panel advances OUT_FOR_DELIVERY with matching customer tracking",
+      "passed": true
+    },
+    {
+      "name": "visual panel advances DELIVERED with matching customer tracking",
+      "passed": true
+    },
+    {
+      "name": "one historical event for each valid transition",
+      "passed": true
+    },
+    {
+      "name": "repeated final status does not duplicate history",
+      "passed": true
+    },
+    {
+      "name": "authorized reconciliation recognizes confirmed order without financial change",
+      "passed": true
+    },
+    {
+      "name": "operator fences a known absent key",
+      "passed": true
+    },
+    {
+      "name": "server fence rejects future creation and preserves one order",
+      "passed": true
+    },
+    {
+      "name": "genuine GoTrue expiry denial removes operational session and data",
+      "passed": true
+    },
+    {
+      "name": "keyboard reaches operational password",
+      "passed": true
+    },
+    {
+      "name": "keyboard reaches operational password",
+      "passed": true
+    },
+    {
+      "name": "real authenticated foreign/outsider cannot read A1 detail 1",
+      "passed": true
+    },
+    {
+      "name": "foreign identity cannot alter A1 1",
+      "passed": true
+    },
+    {
+      "name": "foreign identity cannot fence A1 1",
+      "passed": true
+    },
+    {
+      "name": "keyboard reaches operational password",
+      "passed": true
+    },
+    {
+      "name": "real authenticated foreign/outsider cannot read A1 detail 2",
+      "passed": true
+    },
+    {
+      "name": "foreign identity cannot alter A1 2",
+      "passed": true
+    },
+    {
+      "name": "foreign identity cannot fence A1 2",
+      "passed": true
+    },
+    {
+      "name": "keyboard reaches operational password",
+      "passed": true
+    },
+    {
+      "name": "real authenticated foreign/outsider cannot read A1 detail 3",
+      "passed": true
+    },
+    {
+      "name": "foreign identity cannot alter A1 3",
+      "passed": true
+    },
+    {
+      "name": "foreign identity cannot fence A1 3",
+      "passed": true
+    },
+    {
+      "name": "session ended clears operational data",
+      "passed": true
+    },
+    {
+      "name": "complete localStorage clearing blocks repeat in current session",
+      "passed": true
+    },
+    {
+      "name": "pending cookie denial detects erased vault after reload",
+      "passed": true
+    },
+    {
+      "name": "storage loss tests create no extra delivery order",
+      "passed": true
+    },
+    {
+      "name": "no JavaScript exceptions in actual consumer and panel",
+      "passed": true
+    }
+  ],
+  "passed": 73,
+  "failed": 0,
+  "errors": [],
+  "blockedOrigins": [
+    "https://fonts.googleapis.com"
+  ]
+}
