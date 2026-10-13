@@ -1,7 +1,11 @@
 import { sameDeliveryBackend } from "../core/delivery/backend-binding";
 import { createHmac } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { CheckoutRateLimitError, type StoreContext } from "./checkout-gateway";
+import {
+  CheckoutPriceChangedError,
+  CheckoutRateLimitError,
+  type StoreContext,
+} from "./checkout-gateway";
 import {
   AmendmentAuthorizationError,
   AmendmentConflictError,
@@ -77,6 +81,29 @@ export async function handlePrivateOrderAmendment(request: Request): Promise<Res
       if (error || data !== true) throw new Error("Quota RPC unavailable");
     },
     appendItems: async (context, details): Promise<AmendmentResult> => {
+      const groupedItems = details.items;
+      if (
+        Array.isArray(groupedItems) &&
+        groupedItems.some(
+          (i: unknown) =>
+            i !== null &&
+            typeof i === "object" &&
+            (i as Record<string, unknown>)["selection_contract"] === "GROUP_ADDONS_V1",
+        )
+      ) {
+        if (process.env["NEROXA_GROUP_ADDONS_V1_ENABLED"] !== "true")
+          throw new Error("Grouped orders disabled");
+        const advertised = await candidate.rpc("get_public_storefront_catalog", {
+          p_domain: context.domain,
+        });
+        if (
+          advertised.error ||
+          !advertised.data ||
+          typeof advertised.data !== "object" ||
+          (advertised.data as Record<string, unknown>)["selection_contract"] !== "GROUP_ADDONS_V1"
+        )
+          throw new Error("Grouped backend unavailable");
+      }
       const { data, error } = await candidate.rpc("neroxa_append_order_items_with_capability", {
         p_instance_id: context.instance_id,
         p_order_id: details.orderId,
@@ -84,6 +111,7 @@ export async function handlePrivateOrderAmendment(request: Request): Promise<Res
         p_request_key: details.requestKey,
         p_items: details.items,
       });
+      if (error?.code === "PT409") throw new CheckoutPriceChangedError("Price changed");
       if (error?.code === "42501") throw new AmendmentAuthorizationError("Forbidden");
       if (error?.code === "22023") throw new AmendmentConflictError("Order rejected");
       if (error) throw new Error("Secure amendment RPC unavailable");

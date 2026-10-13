@@ -41,6 +41,44 @@ export function groupOrderLine(catalog: PublicCatalog, selection: GroupSelection
     )
       throw new Error(`Revise o grupo ${group.name}.`);
   }
+  const options = Array.isArray(product.metadata["options"]) ? product.metadata["options"] : [];
+  for (const unknownOption of options) {
+    if (!unknownOption || typeof unknownOption !== "object" || Array.isArray(unknownOption))
+      throw new Error("Opção inválida.");
+    const option = unknownOption as Record<string, unknown>;
+    if (!["tamanho", "borda"].includes(String(option["id"])))
+      throw new Error("Contrato de preparo pendente.");
+    const selected = option["id"] === "tamanho" ? selection.sizeId : selection.crustId;
+    if (!selected) {
+      if (option["required"] === true) throw new Error("Selecione a opção obrigatória.");
+      continue;
+    }
+    const choices = Array.isArray(option["choices"]) ? option["choices"] : [];
+    if (
+      choices.filter(
+        (c: unknown) =>
+          c !== null &&
+          typeof c === "object" &&
+          (c as Record<string, unknown>)["id"] === selected &&
+          (c as Record<string, unknown>)["active"] !== false &&
+          (c as Record<string, unknown>)["available"] !== false,
+      ).length !== 1
+    )
+      throw new Error("Opção indisponível.");
+  }
+  for (const [optionId, selected] of [
+    ["tamanho", selection.sizeId],
+    ["borda", selection.crustId],
+  ]) {
+    if (
+      selected &&
+      !options.some(
+        (o: unknown) =>
+          o !== null && typeof o === "object" && (o as Record<string, unknown>)["id"] === optionId,
+      )
+    )
+      throw new Error("Opção não pertence ao produto.");
+  }
   return {
     selection_contract: "GROUP_ADDONS_V1" as const,
     product_id: product.id,

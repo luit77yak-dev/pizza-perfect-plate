@@ -1,3 +1,5 @@
+import { cartOrderLines } from "@/core/delivery/cart-order-lines";
+import type { PublicCatalog } from "@/core/delivery/services/public-catalog";
 import { bindRequestIntent } from "@/core/delivery/request-intent";
 import { validateCustomerDetails } from "@/core/delivery/customer-details";
 import { useRef, useState } from "react";
@@ -22,6 +24,7 @@ import type {
 
 export function CheckoutPanel({
   organization,
+  groupCatalog = null,
   instanceId,
   storeDomain,
   settings,
@@ -34,6 +37,7 @@ export function CheckoutPanel({
   storeStatusLabel,
   existingOrder = null,
 }: {
+  groupCatalog?: PublicCatalog | null;
   organization: Organization;
   instanceId: string;
   storeDomain: string;
@@ -133,28 +137,13 @@ export function CheckoutPanel({
         setError("Adicione pelo menos um item.");
         return;
       }
-      const appendItems = items.flatMap((item) => [
-        {
-          product_id: item.productId,
-          second_product_id: item.secondProductId,
-          is_half: item.isHalf,
-          size_id: item.sizeId,
-          crust_id: item.crustId,
-          quantity: item.quantity,
-          notes: item.notes,
-          addons: item.addons.map((addon) => ({ id: addon.id })),
-        },
-        ...(item.complements ?? []).map((complement) => ({
-          product_id: complement.productId,
-          second_product_id: null,
-          is_half: false,
-          size_id: null,
-          crust_id: null,
-          quantity: 1,
-          notes: "Complemento do pedido: " + item.productName,
-          addons: [],
-        })),
-      ]);
+      let appendItems: ReturnType<typeof cartOrderLines>;
+      try {
+        appendItems = cartOrderLines(items, groupCatalog);
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : "Seleções inválidas.");
+        return;
+      }
 
       // With the secure checkout enabled, never call the historic phone-only
       // RPC: a buyer needs the private capability issued at order creation.
@@ -190,12 +179,17 @@ export function CheckoutPanel({
           });
           const reply = (await response.json()) as {
             error?: string;
+            code?: string;
             order_id?: string;
             order_number?: number;
             subtotal?: number;
             total?: number;
             payment_state?: string;
           };
+          if (response.status === 409 && reply.code === "PRICE_CHANGED") {
+            amendmentKeyRef.current = null;
+            amendmentIntentRef.current = null;
+          }
           if (!response.ok) throw new Error(reply.error ?? "Complemento seguro indisponível.");
           if (!reply.order_id || !reply.order_number || reply.payment_state !== "NOT_SETTLED") {
             throw new Error("Não foi possível confirmar a inclusão do item.");
@@ -298,6 +292,7 @@ export function CheckoutPanel({
         instance_id: instanceId,
         store_domain: storeDomain,
         subtotal,
+        ...(groupCatalog ? { expected_total: Math.round(total * 100) / 100 } : {}),
         customer_name: name.trim(),
         customer_phone: phone.trim(),
         fulfillment,
@@ -310,28 +305,7 @@ export function CheckoutPanel({
         address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
         notes: notes.trim() || null,
         idempotency_key: (checkoutKeyRef.current ??= crypto.randomUUID()),
-        items: items.flatMap((item) => [
-          {
-            product_id: item.productId,
-            second_product_id: item.secondProductId,
-            is_half: item.isHalf,
-            size_id: item.sizeId,
-            crust_id: item.crustId,
-            quantity: item.quantity,
-            notes: item.notes,
-            addons: item.addons.map((addon) => ({ id: addon.id })),
-          },
-          ...(item.complements ?? []).map((complement) => ({
-            product_id: complement.productId,
-            second_product_id: null,
-            is_half: false,
-            size_id: null,
-            crust_id: null,
-            quantity: 1,
-            notes: "Complemento do pedido: " + item.productName,
-            addons: [],
-          })),
-        ]),
+        items: cartOrderLines(items, groupCatalog),
       };
 
       const detailsError = validateCustomerDetails(payload);
@@ -350,11 +324,16 @@ export function CheckoutPanel({
         });
         const reply = (await response.json()) as {
           error?: string;
+          code?: string;
           order_id?: string;
           order_number?: number;
           total?: number;
           amendment_token?: string;
         };
+        if (response.status === 409 && reply.code === "PRICE_CHANGED") {
+          checkoutKeyRef.current = null;
+          checkoutIntentRef.current = null;
+        }
         if (!response.ok) throw new Error(reply.error ?? "Checkout seguro indisponível.");
         created = reply;
       } else {

@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: luit77yak-dev/neroxa-master
-          ref: 358ea94b59368b2b8a0995f6a980334c817fa20f
+          ref: f318960781978dac3010a39145373185ec91a5ae
           path: master
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -79,20 +79,10 @@ jobs:
         run: node --experimental-strip-types tools/ab-auth/checkout_gateway_integration.mjs
       - name: Test tokenized buyer amendments against disposable Auth and PostgreSQL
         run: node tools/ab-auth/order_amendment_capability.mjs
-      - name: Bind the disposable server to its local backend
-        run: |
-          python3 - <<'PYCODE'
-          from pathlib import Path
-          p = Path('tools/ab-auth/checkout_http_enabled.mjs')
-          s = p.read_text()
-          assert s.count('SUPABASE_URL:local.API_URL,') == 2
-          s = s.replace('    SUPABASE_URL:local.API_URL,', '    NEROXA_DELIVERY_BACKEND_URL:local.API_URL,\n    SUPABASE_URL:local.API_URL,', 1)
-          p.write_text(s)
-          PYCODE
+      - name: Test GROUP_ADDONS_V1 with real Auth and PostgREST
+        run: node --experimental-strip-types tools/ab-auth/group_addons.mjs
       - name: Exercise enabled TanStack HTTPS checkout on disposable Supabase
         run: node tools/ab-auth/checkout_http_enabled.mjs
-      - name: Test GROUP_ADDONS_V1 with real Auth and PostgREST
-        run: node tools/ab-auth/group_addons.mjs
       - name: Sanitized evidence only
         if: always()
         uses: actions/upload-artifact@v4

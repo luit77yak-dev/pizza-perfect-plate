@@ -1,5 +1,9 @@
 import { readBoundedJson, RequestBodyTooLarge } from "./bounded-json.ts";
-import { CheckoutRateLimitError, type StoreContext } from "./checkout-gateway.ts";
+import {
+  CheckoutPriceChangedError,
+  CheckoutRateLimitError,
+  type StoreContext,
+} from "./checkout-gateway.ts";
 
 /** This is a candidate only. Never enable without staged SQL + ACL revocation. */
 export class AmendmentAuthorizationError extends Error {}
@@ -176,6 +180,11 @@ export async function handleOrderAmendmentRequest(
       { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
     );
   } catch (e) {
+    if (e instanceof CheckoutPriceChangedError)
+      return Response.json(
+        { error: "O preço mudou. Atualize o catálogo e revise os itens.", code: "PRICE_CHANGED" },
+        { status: 409, headers: { "Cache-Control": "no-store" } },
+      );
     if (e instanceof AmendmentAuthorizationError) {
       return errorResponse(403, "Alteração não autorizada.");
     }

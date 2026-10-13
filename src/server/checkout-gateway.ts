@@ -20,6 +20,7 @@ export type OrderResult = {
   amendment_token?: string;
 };
 
+export class CheckoutPriceChangedError extends Error {}
 export class CheckoutRateLimitError extends Error {}
 
 export type CheckoutDependencies = {
@@ -203,7 +204,15 @@ export async function handleCheckoutRequest(
       },
       { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
     );
-  } catch {
+  } catch (error) {
+    if (error instanceof CheckoutPriceChangedError)
+      return Response.json(
+        {
+          error: "O preço mudou. Atualize o catálogo e revise a sacola antes de confirmar.",
+          code: "PRICE_CHANGED",
+        },
+        { status: 409, headers: { "Cache-Control": "no-store" } },
+      );
     // No DB error details, stack traces, tokens or personally identifiable data.
     return result(503, "Não foi possível registrar o pedido. Tente novamente.");
   }

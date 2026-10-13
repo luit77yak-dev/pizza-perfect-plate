@@ -183,6 +183,8 @@ export interface CartItemComplement {
 }
 
 export interface CartItem {
+  selectionContract?: "GROUP_ADDONS_V1";
+  groupAddonIds?: string[];
   /** id local do item no carrinho */
   lineId: string;
   productId: string;

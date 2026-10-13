@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
   handleCheckoutRequest,
   CheckoutRateLimitError,
+  CheckoutPriceChangedError,
   type OrderResult,
   type StoreContext,
 } from "./checkout-gateway";
@@ -94,9 +95,33 @@ export async function handlePrivateCheckout(request: Request): Promise<Response>
       if (error || data !== true) throw new Error("Quota service unavailable");
     },
     createOrder: async (payload): Promise<OrderResult> => {
+      const groupedItems = payload["items"];
+      if (
+        Array.isArray(groupedItems) &&
+        groupedItems.some(
+          (i: unknown) =>
+            i !== null &&
+            typeof i === "object" &&
+            (i as Record<string, unknown>)["selection_contract"] === "GROUP_ADDONS_V1",
+        )
+      ) {
+        if (process.env["NEROXA_GROUP_ADDONS_V1_ENABLED"] !== "true")
+          throw new Error("Grouped orders disabled");
+        const advertised = await candidate.rpc("get_public_storefront_catalog", {
+          p_domain: payload["store_domain"],
+        });
+        if (
+          advertised.error ||
+          !advertised.data ||
+          typeof advertised.data !== "object" ||
+          (advertised.data as Record<string, unknown>)["selection_contract"] !== "GROUP_ADDONS_V1"
+        )
+          throw new Error("Grouped backend unavailable");
+      }
       const { data, error } = await candidate.rpc("create_public_order", {
         p_order: payload,
       });
+      if (error?.code === "PT409") throw new CheckoutPriceChangedError("Price changed");
       if (error) throw new Error("Order RPC rejected");
       const record = Array.isArray(data) ? data[0] : data;
       if (!record || typeof record !== "object") throw new Error("Order RPC returned no order");
