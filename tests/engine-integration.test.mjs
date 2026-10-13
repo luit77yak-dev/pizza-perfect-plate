@@ -1,3 +1,4 @@
+import { bindRequestIntent } from "../src/core/delivery/request-intent.ts";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { validateCustomerDetails } from "../src/core/delivery/customer-details.ts";
@@ -105,4 +106,21 @@ test("negative server totals fail closed instead of being presented as confirmed
     createOrder: async () => ({ order_id: id, order_number: 1, total: -1 }),
   };
   assert.equal((await handleCheckoutRequest(request(payload), dependencies)).status, 502);
+});
+
+test("uncertain writes retain their intent; modified retries cannot silently reuse a key", () => {
+  const first = bindRequestIntent(null, {
+    items: [{ id: "a", quantity: 1 }],
+    phone: "00000000001",
+  });
+  assert.equal(
+    bindRequestIntent(first, { items: [{ id: "a", quantity: 1 }], phone: "00000000001" }),
+    first,
+  );
+  assert.throws(() =>
+    bindRequestIntent(first, { items: [{ id: "a", quantity: 2 }], phone: "00000000001" }),
+  );
+  assert.throws(() =>
+    bindRequestIntent(first, { items: [{ id: "a", quantity: 1 }], phone: "00000000002" }),
+  );
 });

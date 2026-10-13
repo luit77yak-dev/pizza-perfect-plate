@@ -1,3 +1,4 @@
+import { bindRequestIntent } from "@/core/delivery/request-intent";
 import { validateCustomerDetails } from "@/core/delivery/customer-details";
 import { useRef, useState } from "react";
 import { X } from "lucide-react";
@@ -82,6 +83,8 @@ export function CheckoutPanel({
   // A retry after a partial server failure must reuse its original key.
   const checkoutKeyRef = useRef<string | null>(null);
   const amendmentKeyRef = useRef<string | null>(null);
+  const checkoutIntentRef = useRef<string | null>(null);
+  const amendmentIntentRef = useRef<string | null>(null);
 
   const selectedZone =
     fulfillment === "DELIVERY"
@@ -168,6 +171,11 @@ export function CheckoutPanel({
         setSubmitting(true);
         try {
           const requestKey = (amendmentKeyRef.current ??= crypto.randomUUID());
+          amendmentIntentRef.current = bindRequestIntent(amendmentIntentRef.current, {
+            instanceId,
+            orderId: existingOrder.id,
+            items: appendItems,
+          });
           const response = await fetch("/api/order-amend", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -193,6 +201,7 @@ export function CheckoutPanel({
             throw new Error("Não foi possível confirmar a inclusão do item.");
           }
           amendmentKeyRef.current = null;
+          amendmentIntentRef.current = null;
           onSuccess({
             id: reply.order_id,
             number: reply.order_number,
@@ -327,6 +336,7 @@ export function CheckoutPanel({
 
       const detailsError = validateCustomerDetails(payload);
       if (detailsError) throw new Error(detailsError);
+      checkoutIntentRef.current = bindRequestIntent(checkoutIntentRef.current, payload);
 
       // Opt-in only while trusted ingress, credentials and the backend release gate
       // are being validated. Gateway errors NEVER fall back to the public RPC.
