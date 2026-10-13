@@ -43,6 +43,7 @@ try {
         body: JSON.stringify(catalog),
       });
     if (u.hostname === "127.0.0.1") {
+      if (u.port !== "4173") return route.abort();
       if (u.pathname === "/api/checkout") {
         requests.push(req.postDataJSON().p_order);
         await new Promise((r) => setTimeout(r, 250));
@@ -63,6 +64,7 @@ try {
           ),
         });
       }
+      if (u.pathname.startsWith("/api/") || u.pathname.startsWith("/rest/")) return route.abort();
       return route.continue();
     }
     if (

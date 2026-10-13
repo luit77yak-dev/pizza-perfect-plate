@@ -1,0 +1,26 @@
+{
+  "classification": "PARTIAL_NO_E2E_APPROVAL",
+  "branch": "audit/group-addons-homologation-20261013",
+  "delivery_parent": "10f7074f7a12330a5858754930ab5f0decfc9027",
+  "master_unchanged": "6ff327cc36dea31198ae612b454685c78451dcde",
+  "node_tests": 58,
+  "browser_positive_checks": 30,
+  "browser_known_blocker_reproduction": 1,
+  "browser_total_checks": 31,
+  "typecheck": "PASS",
+  "build": "PASS",
+  "targeted_lint": "PASS",
+  "remote_sql_executed": false,
+  "payments_enabled": false,
+  "backend_this_run": "NOT_OPERATIONAL",
+  "source_sha256": {
+    "src/styles.css": "8ade1df35af93379ee0d1538e5ca42b96de57e078077d52b5c53ac4be99b9518",
+    "src/core/delivery/review-cart-prices.ts": "59db5013b4a466a67776394638e35d036e03e31606006b9cd3a4fcf4ab80de0a",
+    "src/features/cart/hooks/use-local-cart.ts": "5eb93823aa7aee2a2baf9d28cc893577208f5b2a0dad3822a526859f2263da66",
+    "src/features/storefront/components/CheckoutPanel.tsx": "de252c105b3c6a699c995bb85b730dc4ca453a07de3b45f819c089505319c164",
+    "src/components/storefront/Storefront.tsx": "95f88200a67f01d53c0310f15948c295bc4e9f47d0c6c5b02ea604d1fe85943d"
+  },
+  "local_runtime_commit": "28d8a69c8503e5e9d20f0919c1dce988a866032d",
+  "push_performed": false,
+  "disposable_cleanup": "COMPLETE"
+}

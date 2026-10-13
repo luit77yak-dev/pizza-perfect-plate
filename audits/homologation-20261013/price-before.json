@@ -1,0 +1,14 @@
+{
+  "classification": "BROWSER_MOCK_TRANSPORT",
+  "checks": [
+    {
+      "name": "PRICE_CHANGED reaches actual checkout",
+      "passed": true
+    },
+    {
+      "name": "price review recovery available",
+      "passed": false
+    }
+  ],
+  "realDatabaseValidated": false
+}
