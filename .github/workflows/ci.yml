@@ -26,7 +26,7 @@ jobs:
         run: npm install
 
       - name: Format refactored storefront and candidate gateway
-        run: npx prettier --write src/components/storefront/Storefront.tsx src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx src/components/storefront/TrackedOrderPanel.tsx src/server/bounded-json.ts src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts src/server/order-amendment.ts src/server/order-amendment.server.ts src/routes/api/order-amend.ts src/lib/domain/order-amendment-capability.ts
+        run: npx prettier --write src/components/storefront/Storefront.tsx src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx src/components/storefront/TrackedOrderPanel.tsx src/routes/admin/pedidos.tsx src/server/bounded-json.ts src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts src/server/order-amendment.ts src/server/order-amendment.server.ts src/routes/api/order-amend.ts src/lib/domain/order-amendment-capability.ts
 
       - name: Lint refactored storefront
         run: npx eslint src/components/storefront/Storefront.tsx src/features/storefront/components/ProductConfigurator.tsx src/features/storefront/components/CheckoutPanel.tsx src/features/cart/components/CartPanel.tsx
@@ -35,7 +35,7 @@ jobs:
         run: npx eslint src/features/cart/hooks/use-local-cart.ts src/lib/domain/store-context.ts
 
       - name: Lint gateway files
-        run: npx eslint src/server/bounded-json.ts src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts src/server/order-amendment.ts src/server/order-amendment.server.ts src/routes/api/order-amend.ts src/lib/domain/order-amendment-capability.ts
+        run: npx eslint src/routes/admin/pedidos.tsx src/server/bounded-json.ts src/server/checkout-gateway.ts src/server/checkout-gateway.server.ts src/routes/api/checkout.ts src/server/order-amendment.ts src/server/order-amendment.server.ts src/routes/api/order-amend.ts src/lib/domain/order-amendment-capability.ts
 
       - name: Store context and gateway contract tests
         run: node --experimental-strip-types --test tests/store-context.test.mjs tests/checkout-gateway.test.mjs tests/order-consumer-safety.test.mjs tests/order-amendment.test.mjs tests/bounded-json.test.mjs
