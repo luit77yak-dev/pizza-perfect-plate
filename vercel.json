@@ -7,7 +7,8 @@
       "audit/group-addons-integration-20261013": false,
       "audit/h03-h04-20261013": false,
       "audit/first-complete-order-20261013": false,
-      "audit/backend-isolation-20261013": false
+      "audit/backend-isolation-20261013": false,
+      "audit/migration-bridge-v1-20261013": false
     }
   }
 }

@@ -1,0 +1,131 @@
+name: Disposable Bridge Clean and Upgrade
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auth-matrix:
+    if: github.ref == 'refs/heads/audit/migration-bridge-v1-20261013'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [clean, upgrade]
+    defaults:
+      run:
+        working-directory: master
+    env:
+      SUPABASE_INTERNAL_IMAGE_REGISTRY: docker.io
+      BRIDGE_SCENARIO: ${{ matrix.scenario }}
+      AB_PROJECT: neroxa-ab-${{ github.run_id }}
+      AB_NETWORK: neroxa-ab-${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: luit77yak-dev/neroxa-master
+          ref: 305c39a32686b787afcb31a66b52491f31770050
+          path: master
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: npm
+          cache-dependency-path: master/package-lock.json
+      - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.120.0
+      - name: Preflight and platform-only configuration
+        run: |
+          export AB_WORKDIR="$RUNNER_TEMP/neroxa-ab-$GITHUB_RUN_ID"
+          echo "AB_WORKDIR=$AB_WORKDIR" >> "$GITHUB_ENV"
+          test "$(df --output=avail -B1 "$RUNNER_TEMP" | tail -1)" -gt 8589934592
+          mkdir -m 700 "$AB_WORKDIR"
+          supabase init --workdir "$AB_WORKDIR"
+          python3 tools/ab-auth/configure.py
+          test ! -d "$AB_WORKDIR/supabase/migrations"
+          test ! -f "$AB_WORKDIR/supabase/seed.sql"
+          test ! -f "$AB_WORKDIR/supabase/.temp/project-ref"
+          docker network create --driver bridge --opt com.docker.network.bridge.host_binding_ipv4=127.0.0.1 "$AB_NETWORK" >/dev/null
+      - name: Private Docker relay enforces loopback binds
+        run: |
+          python3 tools/ab-auth/docker_loopback.py > "$AB_WORKDIR/proxy.private.log" 2>&1 &
+          echo "$!" > "$AB_WORKDIR/proxy.pid"
+          for attempt in $(seq 1 30); do
+            test -S "$AB_WORKDIR/docker-loopback.sock" && break
+            sleep 1
+          done
+          test -S "$AB_WORKDIR/docker-loopback.sock"
+          echo "DOCKER_HOST=unix://$AB_WORKDIR/docker-loopback.sock" >> "$GITHUB_ENV"
+      - name: Start real local PostgreSQL Auth and REST
+        run: |
+          if ! supabase start --workdir "$AB_WORKDIR" --network-id "$AB_NETWORK" --exclude studio,imgproxy,storage-api,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit > "$AB_WORKDIR/start.private.log" 2>&1; then
+            python3 tools/ab-auth/start_failure.py
+            exit 1
+          fi
+          supabase status --workdir "$AB_WORKDIR" -o env > "$AB_WORKDIR/status.private.env"
+      - name: Verify bridge package without connecting remotely
+        run: python3 tools/migration-bridge-v1/test_package.py
+      - name: Faithful observed sandbox preparation and injected failures
+        if: matrix.scenario == 'upgrade'
+        run: node tools/migration-bridge-v1/rehearse.mjs
+      - name: Rebuild historical catalog or prepared incremental upgrade and run JWT matrix
+        run: node tools/ab-auth/run.mjs
+      - name: Checkout pinned Pizza Perfect Plate gateway source
+        uses: actions/checkout@v4
+        with:
+          repository: luit77yak-dev/pizza-perfect-plate
+          ref: ${{ github.sha }}
+          path: master/delivery-consumer
+          persist-credentials: false
+      - name: Verify pinned Master commit
+        run: test "$(git rev-parse HEAD)" = "305c39a32686b787afcb31a66b52491f31770050"
+      - name: Verify pinned delivery commit
+        run: test "$(git -C delivery-consumer rev-parse HEAD)" = "${{ github.sha }}"
+      - name: Integrate real local checkout gateway and test direct RPC revocation
+        run: node --experimental-strip-types tools/ab-auth/checkout_gateway_integration.mjs
+      - name: Test tokenized buyer amendments against disposable Auth and PostgreSQL
+        run: node tools/ab-auth/order_amendment_capability.mjs
+      - name: Test GROUP_ADDONS_V1 with real Auth and PostgREST
+        run: node --experimental-strip-types tools/ab-auth/group_addons.mjs
+      - name: Exercise enabled TanStack HTTPS checkout on disposable Supabase
+        run: node tools/ab-auth/checkout_http_enabled.mjs
+      - name: H03 H04 native database and authorization checks
+        run: node tools/ab-auth/h03_h04.mjs
+      - name: Prepare isolated browser without application dependencies
+        run: |
+          npm install --prefix "$RUNNER_TEMP/neroxa-browser" --ignore-scripts --no-audit --no-fund playwright@1.58.2
+          echo "BROWSER_MODULE=$RUNNER_TEMP/neroxa-browser/node_modules/playwright" >> "$GITHUB_ENV"
+          echo "CHROME_BIN=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          echo "127.0.0.1 a.ab.invalid b.ab.invalid c.ab.invalid" | sudo tee -a /etc/hosts >/dev/null
+      - name: First complete order through Chromium and native Supabase
+        run: node tools/ab-auth/h03_browser.mjs
+      - name: Operational failures isolation and reconciliation race
+        run: node tools/ab-auth/first_order_security.mjs
+      - name: Native negative backend configuration and normal build guards
+        run: node --experimental-strip-types tools/ab-auth/backend_configuration_native.mjs
+      - name: Full delivery and authenticated operational panel through normal compiled build
+        run: node tools/ab-auth/first_order_browser.mjs
+      - name: Preserve old orders verify native cutover and T1 roll-forward
+        if: matrix.scenario == 'upgrade'
+        run: node tools/migration-bridge-v1/verify-cutover.mjs
+      - name: Sanitized evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bridge-${{ matrix.scenario }}-evidence-${{ github.run_id }}
+          path: master/audits/ab-auth/results/
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Remove only this disposable stack
+        if: always()
+        run: |
+          if [ -f "$AB_WORKDIR/supabase/config.toml" ]; then
+            supabase stop --workdir "$AB_WORKDIR" --no-backup
+          fi
+          docker network rm "$AB_NETWORK" 2>/dev/null || true
+          if [ -f "$AB_WORKDIR/proxy.pid" ]; then kill "$(cat "$AB_WORKDIR/proxy.pid")" 2>/dev/null || true; fi
