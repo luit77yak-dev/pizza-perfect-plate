@@ -1,0 +1,24 @@
+{
+  "parser": "pglast 7.14",
+  "status": "PASS syntax only",
+  "files": [
+    {
+      "file": "scoped-order-access.candidate.sql",
+      "syntax": "PASS",
+      "statements": 85,
+      "plpgsql_bodies_parsed": 2,
+      "sql_function_bodies_parsed": 2,
+      "database_execution": "NOT RUN",
+      "RLSProof": false
+    },
+    {
+      "file": "legacy-store-surfaces-quarantine.candidate.sql",
+      "syntax": "PASS",
+      "statements": 8,
+      "plpgsql_bodies_parsed": 3,
+      "sql_function_bodies_parsed": 0,
+      "database_execution": "NOT RUN",
+      "RLSProof": false
+    }
+  ]
+}

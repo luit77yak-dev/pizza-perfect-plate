@@ -1,0 +1,10 @@
+{
+  "status": "FAIL",
+  "serverSha": "b324c1499ff3feda7cb6b56fec3c2ac63bc56052",
+  "usesRealAuth": false,
+  "RLSProof": false,
+  "configuration": "homologation, loopback sink, no valid credentials, Node outbound guard; Chromium remote traffic blocked by dead local proxy",
+  "http": 200,
+  "ssr_suspension": true,
+  "error": "Command '['chromium', '--headless', '--no-sandbox', '--disable-gpu', '--disable-background-networking', '--disable-component-update', '--no-first-run', '--proxy-server=http://127.0.0.1:9', '--proxy-bypass-list=127.0.0.1;localhost', '--user-data-dir=/workspace/scratch/mission02a2-chromium-final', '--virtual-time-budget=5000', '--dump-dom', 'http://127.0.0.1:54176/painel']' timed out after 45 seconds"
+}
