@@ -20,7 +20,7 @@ BEGIN
  FOREACH t IN ARRAY ARRAY['organizations','organization_members','organization_settings',
  'products','categories','product_sizes','product_prices','product_addons',
  'product_crusts','product_addon_links','store_hours','special_hours',
- 'delivery_zones','orders','order_items','order_status_history'] LOOP
+ 'delivery_zones','orders','order_items','order_status_history','drivers','loyalty_accounts'] LOOP
   IF to_regclass(format('public.%I',t)) IS NULL THEN
    RAISE EXCEPTION '02A2 legacy relation missing: %',t; END IF;
   EXECUTE format('REVOKE ALL PRIVILEGES ON TABLE public.%I FROM PUBLIC,anon,authenticated',t);
