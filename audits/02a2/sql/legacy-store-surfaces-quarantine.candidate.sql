@@ -51,7 +51,9 @@ END $rpc$;
 
 -- Bucket quarantine is restrictive (AND), not an extra permissive policy.
 -- Images are retained. Public URLs/reads also become unavailable in this profile.
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- Storage native RLS must already be enabled. The managed executor may create
+-- policies but cannot ALTER the protected relation; do not transfer ownership.
+DO $$ BEGIN IF NOT coalesce((SELECT relrowsecurity FROM pg_class WHERE oid='storage.objects'::regclass),false) THEN RAISE EXCEPTION 'Native Storage RLS prerequisite missing'; END IF; END $$;
 DROP POLICY IF EXISTS mission02a2_legacy_images_quarantine ON storage.objects;
 CREATE POLICY mission02a2_legacy_images_quarantine ON storage.objects
  AS RESTRICTIVE FOR ALL TO anon,authenticated
