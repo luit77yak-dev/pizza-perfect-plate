@@ -39,27 +39,6 @@ export type TrackedOrder = {
   status?: OrderStatus | undefined;
 };
 
-async function recoverSnapshot(payload: Record<string, unknown> | undefined) {
-  if (!payload) throw new Error("Tentativa original não disponível nesta sessão.");
-  const response = await fetch("/api/order-recover", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "same-origin",
-    body: JSON.stringify({ p_order: payload }),
-  });
-  const reply: unknown = await response.json();
-  if (!response.ok || !reply || typeof reply !== "object" || !("snapshot" in reply))
-    throw new Error("Recuperação não autorizada ou indisponível.");
-  const snapshot = (reply as { snapshot: unknown }).snapshot;
-  if (
-    !snapshot ||
-    typeof snapshot !== "object" ||
-    Array.isArray(snapshot) ||
-    (snapshot as Record<string, unknown>)["instance_id"] !== payload["instance_id"]
-  )
-    throw new Error("Resposta de recuperação incompatível com a loja.");
-  return snapshot as Record<string, unknown>;
-}
 export function Storefront() {
   const [mounted, setMounted] = useState(false);
 
@@ -174,10 +153,8 @@ export function Storefront() {
 
         const results = await Promise.all(
           storedActiveOrders.map(async (stored) => {
-            const recovery = durableRecovery ? await recoverSnapshot(stored.recoveryPayload) : null;
-            const { data: tracking, error } = recovery
-              ? { data: recovery, error: null }
-              : { data: await readPrivateTracking(data.instanceId, stored.id), error: null };
+            const tracking = await readPrivateTracking(data.instanceId, stored.id);
+            const error = null;
             const current = (Array.isArray(tracking) ? tracking[0] : tracking) as
               | {
                   order_number?: unknown;
@@ -1204,15 +1181,7 @@ export function Storefront() {
               fulfillment?: unknown;
             } | null;
             try {
-              const original =
-                order.recoveryPayload ??
-                liveTracking.current.orders.find((item) => item.id === order.id)?.recoveryPayload;
-              const recovery = durableRecovery
-                ? (order.snapshot ?? (await recoverSnapshot(original)))
-                : null;
-              const { data: tracking } = recovery
-                ? { data: recovery }
-                : { data: await readPrivateTracking(data.instanceId, order.id) };
+              const tracking = await readPrivateTracking(data.instanceId, order.id);
               const current = Array.isArray(tracking) ? tracking[0] : tracking;
               if (current && typeof current === "object") {
                 snapshot = current as NonNullable<typeof snapshot>;
