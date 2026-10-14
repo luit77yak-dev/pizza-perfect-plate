@@ -20,6 +20,7 @@ import { Route as AdminPedidosRouteImport } from './routes/admin/pedidos'
 import { Route as ApiCheckoutRouteImport } from './routes/api/checkout'
 import { Route as ApiOrderAmendRouteImport } from './routes/api/order-amend'
 import { Route as ApiOrderRecoverRouteImport } from './routes/api/order-recover'
+import { Route as ApiOrderTrackRouteImport } from './routes/api/order-track'
 import { Route as LojaSlugRouteImport } from './routes/loja/$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -77,6 +78,11 @@ const ApiOrderRecoverRoute = ApiOrderRecoverRouteImport.update({
   path: '/api/order-recover',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiOrderTrackRoute = ApiOrderTrackRouteImport.update({
+  id: '/api/order-track',
+  path: '/api/order-track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LojaSlugRoute = LojaSlugRouteImport.update({
   id: '/loja/$slug',
   path: '/loja/$slug',
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/api/checkout': typeof ApiCheckoutRoute
   '/api/order-amend': typeof ApiOrderAmendRoute
   '/api/order-recover': typeof ApiOrderRecoverRoute
+  '/api/order-track': typeof ApiOrderTrackRoute
   '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRoutesByTo {
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/api/checkout': typeof ApiCheckoutRoute
   '/api/order-amend': typeof ApiOrderAmendRoute
   '/api/order-recover': typeof ApiOrderRecoverRoute
+  '/api/order-track': typeof ApiOrderTrackRoute
   '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRoutesById {
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/api/checkout': typeof ApiCheckoutRoute
   '/api/order-amend': typeof ApiOrderAmendRoute
   '/api/order-recover': typeof ApiOrderRecoverRoute
+  '/api/order-track': typeof ApiOrderTrackRoute
   '/loja/$slug': typeof LojaSlugRoute
 }
 export interface FileRouteTypes {
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
     | '/api/checkout'
     | '/api/order-amend'
     | '/api/order-recover'
+    | '/api/order-track'
     | '/loja/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/api/checkout'
     | '/api/order-amend'
     | '/api/order-recover'
+    | '/api/order-track'
     | '/loja/$slug'
   id:
     | '__root__'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/api/checkout'
     | '/api/order-amend'
     | '/api/order-recover'
+    | '/api/order-track'
     | '/loja/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -183,6 +195,7 @@ export interface RootRouteChildren {
   ApiCheckoutRoute: typeof ApiCheckoutRoute
   ApiOrderAmendRoute: typeof ApiOrderAmendRoute
   ApiOrderRecoverRoute: typeof ApiOrderRecoverRoute
+  ApiOrderTrackRoute: typeof ApiOrderTrackRoute
   LojaSlugRoute: typeof LojaSlugRoute
 }
 
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiOrderRecoverRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/order-track': {
+      id: '/api/order-track'
+      path: '/api/order-track'
+      fullPath: '/api/order-track'
+      preLoaderRoute: typeof ApiOrderTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/loja/$slug': {
       id: '/loja/$slug'
       path: '/loja/$slug'
@@ -287,6 +307,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCheckoutRoute: ApiCheckoutRoute,
   ApiOrderAmendRoute: ApiOrderAmendRoute,
   ApiOrderRecoverRoute: ApiOrderRecoverRoute,
+  ApiOrderTrackRoute: ApiOrderTrackRoute,
   LojaSlugRoute: LojaSlugRoute,
 }
 export const routeTree = rootRouteImport

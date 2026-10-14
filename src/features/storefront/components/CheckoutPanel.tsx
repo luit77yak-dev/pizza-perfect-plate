@@ -1,3 +1,4 @@
+import { rememberPrivateTrackingToken } from "@/lib/domain/private-tracking-capability";
 import {
   cartReference,
   durableIntentState,
@@ -239,47 +240,8 @@ export function CheckoutPanel({
         return;
       }
 
-      // Legacy path intentionally unchanged while rollout flags are off;
-      // direct RPC execution must be revoked in the coordinated release.
-      setSubmitting(true);
-      try {
-        const { data: appended, error: appendError } = await supabase.rpc(
-          "append_public_order_items_with_payment",
-          {
-            p_order_id: existingOrder.id,
-            p_customer_phone: existingOrder.phone,
-            p_items: appendItems,
-            p_payment_method: paymentMethod,
-          },
-        );
-        if (appendError) throw appendError;
-        const order = Array.isArray(appended) ? appended[0] : appended;
-        if (!order?.order_number || !order?.order_id) {
-          throw new Error("Não foi possível adicionar o complemento ao pedido.");
-        }
-        onSuccess({
-          id: String(order.order_id),
-          number: Number(order.order_number),
-          phone: existingOrder.phone,
-          items: [...(existingOrder.items ?? []), ...items],
-          subtotal: Number(order.subtotal),
-          total: Number(order.total),
-          fulfillment: existingOrder.fulfillment,
-        });
-      } catch (appendError) {
-        const message =
-          appendError instanceof Error
-            ? appendError.message
-            : typeof appendError === "object" && appendError !== null && "message" in appendError
-              ? String(
-                  (appendError as { message?: unknown }).message ??
-                    "Não foi possível adicionar o complemento.",
-                )
-              : "Não foi possível adicionar o complemento.";
-        setError(message);
-      } finally {
-        setSubmitting(false);
-      }
+      // Phone/UUID never authorize an amendment, including when the gateway is off.
+      setError("Alteração segura indisponível. Solicite atendimento da loja.");
       return;
     }
 
@@ -362,6 +324,7 @@ export function CheckoutPanel({
             order_number?: number;
             total?: number;
             amendment_token?: string;
+            tracking_token?: string;
             snapshot?: Record<string, unknown>;
           };
           if (response.status === 409 && reply.code === "PRICE_CHANGED") {
@@ -409,12 +372,15 @@ export function CheckoutPanel({
             order_number?: number;
             total?: number;
             amendment_token?: string;
+            tracking_token?: string;
             snapshot?: Record<string, unknown>;
           }
         | null
         | undefined;
       if (!order?.order_number || !order?.order_id)
         throw new Error("Não foi possível criar o pedido.");
+      if (order.tracking_token)
+        rememberPrivateTrackingToken(instanceId, String(order.order_id), order.tracking_token);
       const createdTotal = Number(order.total);
       const fallbackTotal =
         fulfillment === "DELIVERY" ? subtotal + Number(selectedZone?.delivery_fee ?? 0) : subtotal;

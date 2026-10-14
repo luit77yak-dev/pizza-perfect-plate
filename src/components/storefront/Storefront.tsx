@@ -1,7 +1,7 @@
+import { readPrivateTracking } from "@/lib/domain/private-tracking-capability";
 import { durableIntentState } from "@/core/delivery/durable-checkout-intent";
 import { reviewCartPrices } from "@/core/delivery/review-cart-prices";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { supabase } from "@/integrations/storefront-backend/client";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ChevronRight, Pizza, Plus, ShoppingBag, Store, X } from "lucide-react";
 import { loadStore } from "@/features/storefront/services/load-store";
@@ -177,10 +177,7 @@ export function Storefront() {
             const recovery = durableRecovery ? await recoverSnapshot(stored.recoveryPayload) : null;
             const { data: tracking, error } = recovery
               ? { data: recovery, error: null }
-              : await supabase.rpc("get_public_order_status", {
-                  p_order_id: stored.id,
-                  p_customer_phone: stored.phone,
-                });
+              : { data: await readPrivateTracking(data.instanceId, stored.id), error: null };
             const current = (Array.isArray(tracking) ? tracking[0] : tracking) as
               | {
                   order_number?: unknown;
@@ -1215,10 +1212,7 @@ export function Storefront() {
                 : null;
               const { data: tracking } = recovery
                 ? { data: recovery }
-                : await supabase.rpc("get_public_order_status", {
-                    p_order_id: order.id,
-                    p_customer_phone: order.phone,
-                  });
+                : { data: await readPrivateTracking(data.instanceId, order.id) };
               const current = Array.isArray(tracking) ? tracking[0] : tracking;
               if (current && typeof current === "object") {
                 snapshot = current as NonNullable<typeof snapshot>;
