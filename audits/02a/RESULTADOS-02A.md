@@ -19,7 +19,9 @@ Data: 2026-10-14. Proposta de contenção de F01 somente na rota; **não é homo
 ## Evidência / limitações
 
 - A inspeção de código confirmou filtros e writes por `organization_id` na implementação legada; novo painel de pedidos usa RPC com `p_instance_id`.
-- Teste estático de rota: a ser executado no commit remoto pelo CI ou em checkout isolado.
+- Verificação estrutural da versão gravada no GitHub: **7/7 verificações de leitura** passaram (route component, ausência de mount do legado, ausência de chamadas legadas dentro da tela de suspensão, link limitado, aviso comercial, fixtures A/B de mesma organização presentes no teste, código legado mantido inativo). Isso **não equivale à execução de `node --test` nem à matriz Auth/RLS**.
+- O workflow `.github/workflows/ci.yml` observa PRs com base `main`; esta PR é intencionalmente contra a branch candidata auditada. Na consulta inicial à API Actions, **0 runs** desta branch; CI portanto **não executado**, não PASS.
+- PR criada: https://github.com/luit77yak-dev/pizza-perfect-plate/pull/38 — draft, base `audit/independent-recovery-v1-20261014`, 5 arquivos, 189 adições e 1 remoção (revisão inicial).
 - Suite inteira, build, TypeScript e lint: **PENDENTES**, sem afirmar PASS com base nos logs anteriores.
 - Auth/RLS/Storage/Realtime para A/B na mesma organização: **PENDENTES** em banco descartável; este patch não revoga grants nem resolve acesso RPC direto.
 - Regressão intencional: edição de catálogo, configurações e som legados ficam suspensos em `/painel`; esta UI não substitui a gestão da loja.
