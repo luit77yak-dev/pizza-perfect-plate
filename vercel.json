@@ -10,7 +10,8 @@
       "audit/backend-isolation-20261013": false,
       "audit/migration-bridge-v1-20261013": false,
       "audit/independent-recovery-v1-20261014": false,
-      "security/mission-02a2-legacy-quarantine-20261014": false
+      "security/mission-02a2-legacy-quarantine-20261014": false,
+      "security/mission-02a4-legacy-replay-20261014": false
     }
   }
 }

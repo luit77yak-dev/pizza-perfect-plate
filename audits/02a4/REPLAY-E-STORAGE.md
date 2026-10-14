@@ -1,0 +1,13 @@
+# Candidato de reparo de replay histórico — não promover
+
+Base Delivery #40 7fe0e05ca899de3182872921591cbaccd840e58c. A última função usa v_crust inexistente apesar de declarar v_crust_price/name. Selecionar price/name nessas variáveis já tipadas corrige a compilação e preserva os campos do snapshot e o cálculo autoritativo. Esta edição histórica é somente para instalação **fresh** do perfil candidato em clone; não reexecutar migration em banco instalado. Uma futura implantação exigirá migration incremental revisada e preflight do corpo antigo.
+
+Nenhum schema Master é importado. Regerar o manifesto das 31 migrations deste SHA e verificar cada original/derivado. Validar corpos normalmente: check_function_bodies=on. Omitir somente UPDATE histórico de URL de imagem na reconstrução sem dados reais; documentar a diferença, sem chamar o derivado de replay byte a byte literal.
+
+Storage: o executor postgres não é owner de storage.objects no Supabase nativo. Consultar pg_class/pg_roles e policies no clone. Remover só ALTER TABLE não torna CREATE POLICY permitido ao não-owner. Não transferir owner, não elevar executor e não alterar proteção nativa para conseguir PASS. A quarentena Delivery #40 permanece integral e deve falhar/ficar BLOCKED até uma etapa de administração Storage suportada e autorizada, com identidade owner legítima e contrato operacional. Separar responsabilidade de schema público/Storage não equivale a instalar a quarentena completa. Não há rollback por GRANT inseguro.
+
+Não pronta para merge: comprovação real de replay/checkout pendente; isolamento nativo por instância ausente; quarentena suspende consumidores sem substituto integral.
+
+Alternativa candidata sem elevação: substituir o ALTER redundante por precondição relrowsecurity=true; conservar CREATE POLICY restritiva nativa. As migrations anteriores já criam policies Storage como postgres; testar se essa operação suportada permanece permitida, sem assumir que privilégio ALTER equivale a CREATE POLICY. Se CREATE POLICY falhar, BLOCKED. Nenhuma mudança de owner/roles.
+
+Ensaio real7388038: replay literal PASS e policies Storage permitidas sem ALTER; checkout retornou500/55000. O record v_size não tem formato definido no item sem tamanho e é referenciado no snapshot. Substituído por escalares price/name, mantendo a consulta/preço e snapshot. Antes de homologar, validar resposta e financeiro no clone. Quarentena deixou drivers/loyalty_accounts legíveis por adminA sobO1: P0 real pós-commit. Essas duas tabelas entram na mesma revogação de ACLs/colunas; motoristas e fidelidade legados ficam conscientemente indisponíveis, sem substituto comercial aprovado. Não afirmar que isso cobre todos os RPCs/views externos.

@@ -33,7 +33,8 @@ DECLARE
   v_product record;
   v_second_product record;
   v_second_product_name text;
-  v_size record;
+  v_size_price numeric(10,2);
+  v_size_name text;
   v_second_size_price numeric(10,2);
   v_base_price numeric(10,2);
   v_unit_price numeric(10,2);
@@ -120,7 +121,8 @@ BEGIN
     v_size_id := NULLIF(v_item->>'size_id','')::uuid;
     v_crust_id := NULLIF(v_item->>'crust_id','')::uuid;
     v_is_half := COALESCE((v_item->>'is_half')::boolean, false);
-    v_size := NULL;
+    v_size_price := NULL;
+    v_size_name := NULL;
     v_second_size_price := NULL;
     v_second_product_name := NULL;
     v_crust_price := 0;
@@ -182,7 +184,7 @@ BEGIN
 
     IF v_size_id IS NOT NULL THEN
       SELECT pp.price, ps.name
-        INTO v_size
+        INTO v_size_price, v_size_name
       FROM product_prices pp
       JOIN product_sizes ps ON ps.id = pp.size_id
       WHERE pp.product_id = v_product_id
@@ -192,7 +194,7 @@ BEGIN
         AND ps.active;
 
       IF FOUND THEN
-        v_base_price := COALESCE(v_size.price, v_base_price);
+        v_base_price := COALESCE(v_size_price, v_base_price);
       ELSE
         RAISE EXCEPTION 'Tamanho inválido para o produto';
       END IF;
@@ -257,8 +259,8 @@ BEGIN
     END LOOP;
 
     IF v_crust_id IS NOT NULL THEN
-      SELECT c.*
-        INTO v_crust
+      SELECT c.price, c.name
+        INTO v_crust_price, v_crust_name
       FROM product_crusts c
       WHERE c.id = v_crust_id
         AND c.organization_id = v_org
@@ -268,12 +270,13 @@ BEGIN
         RAISE EXCEPTION 'Borda inválida';
       END IF;
     ELSE
-      v_crust := NULL;
+      v_crust_price := 0;
+      v_crust_name := NULL;
     END IF;
 
     v_unit_price := round(
       v_base_price
-      + COALESCE(v_crust.price, 0)
+      + COALESCE(v_crust_price, 0)
       + v_addon_total,
       2
     );
@@ -287,7 +290,7 @@ BEGIN
     ) VALUES (
       v_org, v_order_id, v_product_id, v_product.name, 
       v_second_product_id, v_second_product_name,
-      v_is_half, v_size_id, CASE WHEN v_size_id IS NOT NULL THEN v_size.name ELSE NULL END,
+      v_is_half, v_size_id, CASE WHEN v_size_id IS NOT NULL THEN v_size_name ELSE NULL END,
       v_crust_id, v_crust_name,
       round(COALESCE(v_crust_price, 0), 2), v_unit_price, v_quantity,
       round(v_unit_price * v_quantity, 2),

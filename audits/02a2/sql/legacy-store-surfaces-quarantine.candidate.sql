@@ -20,7 +20,7 @@ BEGIN
  FOREACH t IN ARRAY ARRAY['organizations','organization_members','organization_settings',
  'products','categories','product_sizes','product_prices','product_addons',
  'product_crusts','product_addon_links','store_hours','special_hours',
- 'delivery_zones','orders','order_items','order_status_history'] LOOP
+ 'delivery_zones','orders','order_items','order_status_history','drivers','loyalty_accounts'] LOOP
   IF to_regclass(format('public.%I',t)) IS NULL THEN
    RAISE EXCEPTION '02A2 legacy relation missing: %',t; END IF;
   EXECUTE format('REVOKE ALL PRIVILEGES ON TABLE public.%I FROM PUBLIC,anon,authenticated',t);
@@ -51,7 +51,9 @@ END $rpc$;
 
 -- Bucket quarantine is restrictive (AND), not an extra permissive policy.
 -- Images are retained. Public URLs/reads also become unavailable in this profile.
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- Storage native RLS must already be enabled. The managed executor may create
+-- policies but cannot ALTER the protected relation; do not transfer ownership.
+DO $$ BEGIN IF NOT coalesce((SELECT relrowsecurity FROM pg_class WHERE oid='storage.objects'::regclass),false) THEN RAISE EXCEPTION 'Native Storage RLS prerequisite missing'; END IF; END $$;
 DROP POLICY IF EXISTS mission02a2_legacy_images_quarantine ON storage.objects;
 CREATE POLICY mission02a2_legacy_images_quarantine ON storage.objects
  AS RESTRICTIVE FOR ALL TO anon,authenticated
