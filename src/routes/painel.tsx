@@ -20,7 +20,8 @@ function SuspendedLegacyPanel() {
       <h1 className="text-2xl font-semibold">Painel legado temporariamente indisponível</h1>
       <p>
         As operações antigas de catálogo, configurações e pedidos foram suspensas nesta rota
-        enquanto validamos as permissões por instância. Nenhuma alteração foi aplicada aos seus dados.
+        enquanto validamos as permissões por instância. Nenhuma alteração foi aplicada aos seus
+        dados.
       </p>
       <p>
         A área de pedidos por instância pode ser acessada separadamente. Ela ainda está em

@@ -1,0 +1,27 @@
+{
+  "method": "same unchanged source line mapped by exact +22 insertion offset, rule and severity; formatting suggestion text may differ globally",
+  "base_errors": 382,
+  "base_warnings": 2,
+  "head_errors": 383,
+  "head_warnings": 2,
+  "new_diagnostics": [
+    {
+      "ruleId": "prettier/prettier",
+      "severity": 2,
+      "message": "Insert `\u23ce\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7`",
+      "line": 23,
+      "column": 96,
+      "nodeType": null,
+      "messageId": "insert",
+      "endLine": 23,
+      "endColumn": 96,
+      "fix": {
+        "range": [
+          1522,
+          1522
+        ],
+        "text": "\n       "
+      }
+    }
+  ]
+}

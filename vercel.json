@@ -9,7 +9,8 @@
       "audit/first-complete-order-20261013": false,
       "audit/backend-isolation-20261013": false,
       "audit/migration-bridge-v1-20261013": false,
-      "audit/independent-recovery-v1-20261014": false
+      "audit/independent-recovery-v1-20261014": false,
+      "security/mission-02a2-validation-20261014": false
     }
   }
 }
