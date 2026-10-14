@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: luit77yak-dev/neroxa-master
-          ref: d99eef6fa881b32a4e41a993f00725d9b228a943
+          ref: bb2dbdad54f98b4decb719d8e8f861b3abf05fba
           path: master
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -45,6 +45,8 @@ jobs:
           echo "DR_SOURCE_PROJECT=$AB_PROJECT" >> "$GITHUB_ENV"
           echo "DR_SOURCE_WORKDIR=$AB_WORKDIR" >> "$GITHUB_ENV"
           mkdir -m 700 "$AB_WORKDIR"
+          python3 tools/independent-recovery-v1/monitor.py > "$AB_WORKDIR/resource-monitor.private.log" 2>&1 &
+          echo "$!" > "$AB_WORKDIR/monitor.pid"
           supabase init --workdir "$AB_WORKDIR"
           python3 tools/ab-auth/configure.py
           DR_SIDE=source python3 tools/independent-recovery-v1/configure.py
@@ -83,7 +85,7 @@ jobs:
           path: master/delivery-consumer
           persist-credentials: false
       - name: Verify pinned Master commit
-        run: test "$(git rev-parse HEAD)" = "d99eef6fa881b32a4e41a993f00725d9b228a943"
+        run: test "$(git rev-parse HEAD)" = "bb2dbdad54f98b4decb719d8e8f861b3abf05fba"
       - name: Verify pinned delivery commit
         run: test "$(git -C delivery-consumer rev-parse HEAD)" = "${{ github.sha }}"
       - name: Integrate real local checkout gateway and test direct RPC revocation
@@ -145,10 +147,16 @@ jobs:
           echo "AB_DATABASE=neroxa_recovery_$GITHUB_RUN_ID" >> "$GITHUB_ENV"
       - name: Cross cluster private archive transfer restore fingerprint and real target Auth
         run: node tools/independent-recovery-v1/restore.mjs
+      - name: Deliberate archive ACL FK and interrupted-restore negatives
+        run: node tools/independent-recovery-v1/negative.mjs
       - name: Normal compiled Delivery browser points ONLY to restored TARGET
         run: node tools/ab-auth/first_order_browser.mjs
       - name: Preserve post-cutover T1 writes and block destructive T0 rollback
         run: node tools/independent-recovery-v1/t0-t1.mjs
+      - name: Finalize private resource sampler
+        if: always()
+        run: |
+          if [ -f "$DR_SOURCE_WORKDIR/monitor.pid" ]; then kill "$(cat "$DR_SOURCE_WORKDIR/monitor.pid")" 2>/dev/null || true; fi
       - name: Sanitized evidence only
         if: always()
         uses: actions/upload-artifact@v4
@@ -166,10 +174,12 @@ jobs:
             docker network rm "$project" 2>/dev/null || true
           done
           for dir in "$RUNNER_TEMP/neroxa-ab-$GITHUB_RUN_ID" "$RUNNER_TEMP/neroxa-dr-target-$GITHUB_RUN_ID"; do
-            for pidfile in "$dir/proxy.pid" "$dir/dr-proxy.pid"; do
+            for pidfile in "$dir/proxy.pid" "$dir/dr-proxy.pid" "$dir/monitor.pid"; do
               if [ -f "$pidfile" ]; then kill "$(cat "$pidfile")" 2>/dev/null || true; fi
             done
             rm -rf "$dir"
           done
           test -z "$(docker ps -aq --filter label=com.supabase.cli.project=neroxa-ab-$GITHUB_RUN_ID)"
           test -z "$(docker ps -aq --filter label=com.supabase.cli.project=neroxa-ab-${GITHUB_RUN_ID}1)"
+          test -z "$(docker volume ls -q --filter label=com.supabase.cli.project=neroxa-ab-$GITHUB_RUN_ID)"
+          test -z "$(docker volume ls -q --filter label=com.supabase.cli.project=neroxa-ab-${GITHUB_RUN_ID}1)"
