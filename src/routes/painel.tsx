@@ -7,9 +7,31 @@ import { formatCurrency } from "@/lib/domain/money";
 import { TopPanelNav, type PanelView } from "@/features/admin/components/TopPanelNav";
 import type { Addon as DomainAddon, Crust, DeliveryZone, OrderStatus, SpecialHour, StoreHour, PaymentMethod } from "@/lib/domain/types";
 
+// Temporary containment for the legacy organization-scoped administration UI.
+// Do not restore the old route without instance-level server/RLS/Storage validation.
+// This blocks the browser route only; it does NOT revoke the legacy database grants.
 export const Route = createFileRoute("/painel")({
-  component: StaffPanel,
+  component: SuspendedLegacyPanel,
 });
+
+function SuspendedLegacyPanel() {
+  return (
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-5 px-6 py-12 text-foreground">
+      <h1 className="text-2xl font-semibold">Painel legado temporariamente indisponível</h1>
+      <p>
+        As operações antigas de catálogo, configurações e pedidos foram suspensas nesta rota
+        enquanto validamos as permissões por instância. Nenhuma alteração foi aplicada aos seus dados.
+      </p>
+      <p>
+        A área de pedidos por instância pode ser acessada separadamente. Ela ainda está em
+        homologação e não autoriza operação comercial.
+      </p>
+      <a className="w-fit rounded-lg border px-4 py-2 font-medium underline" href="/admin/pedidos">
+        Abrir painel de pedidos em validação
+      </a>
+    </main>
+  );
+}
 
 type BusinessType = "PIZZERIA" | "RESTAURANT" | "RETAIL" | "SERVICES" | "BEAUTY";
 
