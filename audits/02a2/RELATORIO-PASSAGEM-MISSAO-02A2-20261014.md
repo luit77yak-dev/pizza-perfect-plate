@@ -48,6 +48,7 @@ Node **22.23.0**, Bun **1.3.14**, lock `bun.lock` congelado. Não utilizamos npm
 | Chromium hidratado | FAIL do ensaio por timeout 45 s; aprovação de navegador NOT RUN até concluir ensaio | gate-http-browser.json |
 | Follow-up com quebra de linha | PASS 105/105; lint FAIL herdado 382 erros/2 avisos | followup-node-tests.log/lint-followup.json |
 | Parser pglast 7.14, SQL e corpos SQL/PLpgSQL | PASS de sintaxe: 85 statements Master, oito legado | sql-syntax.json |
+| Manifesto (53 hashes) | PASS de integridade offline, não de banco | manifest-verification.json |
 | Instalação/aplicação/queries SQL, Auth/RLS, Storage, Realtime | BLOCKED ambiente; operações NOT RUN | runner-preflight.json |
 | Provisionamento/restore/rollback em banco | NOT RUN | COMPATIBILIDADE-E-REVERSAO-02A2.md |
 
@@ -135,3 +136,13 @@ PRs novas listadas no adendo final desta seção, com branches e SHAs após comm
 **F. Testes hospedados?** Ingress TLS/Host/Origin, antiabuso, sessões/MFA/cookies, Storage/CDN/CORS, Realtime e DR/durabilidade do ambiente escolhido. A matriz de banco básica não deve esperar produção; deve rodar em ambiente descartável adequado.
 
 **G. Decisão da Coordenação?** Viabilizar runner gratuito adequado ou deliberar separadamente sobre infraestrutura antes de qualquer custo; confirmar política de grant explícito do staff e escopo CRM × Delivery; revisar os três drafts e escolher sequência de substituição dos consumidores. Manter F01 aberta, comercial NÃO LIBERADO e 02B somente em planejamento. Esta missão não pede nem concede autorização de produção.
+
+## Adendo — PRs criadas em draft
+
+| PR | Branch / base preservada | Commit inicial revisável | Estado verificado |
+|---|---|---|---|
+| [Delivery #39](https://github.com/luit77yak-dev/pizza-perfect-plate/pull/39) — validação/formatação | security/mission-02a2-validation-20261014 → security/delivery-02a-panel-gate-20261014 | 26a544a | OPEN / draft |
+| [Delivery #40](https://github.com/luit77yak-dev/pizza-perfect-plate/pull/40) — SQL de quarentena offline | security/mission-02a2-legacy-quarantine-20261014 → security/delivery-02a-panel-gate-20261014 | 4f1f217 | OPEN / draft |
+| [Master #38](https://github.com/luit77yak-dev/neroxa-master/pull/38) — SQL de escopo explícito | security/mission-02a2-scoped-admin-20261014 → audit/independent-recovery-v1-20261014 | 18a730f | OPEN / draft |
+
+Os commits seguintes desta missão acrescentam apenas logs/documentação/verificador offline de manifesto; os SQLs e a correção TSX não mudam. SHAs finais ficam nos metadados pr*-final.json do pacote. PR38 original Delivery continua draft em b324c149, e PR37 Master continua draft em 229059e. Nenhum teste foi disparado alterando a base. Um primeiro push concorrente da branch de quarentena foi recusado genericamente; push sequencial concluiu, sem force-push ou reescrita de histórico.
