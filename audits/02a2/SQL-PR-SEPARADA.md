@@ -1,0 +1,1 @@
+SQL legado separado na branch security/mission-02a2-legacy-quarantine-20261014, baseada em PR38 b324c149. Não aplicar em schema Master; DB NOT RUN/BLOCKED. Esta branch de validação não altera permissões.

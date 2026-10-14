@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "O1": [
+    "A",
+    "B"
+  ],
+  "O2": [
+    "C"
+  ],
+  "users": [
+    "admin_A",
+    "admin_B",
+    "admin_C",
+    "staff_master_A",
+    "staff_master_sem_grant",
+    "common_user",
+    "anon"
+  ],
+  "staffGrant": "Reuse neroxa_instance_members, explicit active A ADMIN; no implicit platform grant, real AAL2 required",
+  "negativeCases": [
+    "A->B same organization",
+    "A->C",
+    "adulterated organization/instance",
+    "parent category/group/product cross-store",
+    "membership revoke with old JWT",
+    "RPC direct bypass UI",
+    "PUBLIC and inherited table/column ACLs",
+    "Storage upsert prefix spoof",
+    "existing Realtime subscription after revoke"
+  ],
+  "status": "NOT RUN, BLOCKED runner"
+}

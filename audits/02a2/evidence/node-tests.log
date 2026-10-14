@@ -1,0 +1,640 @@
+TAP version 13
+# Subtest: availability belongs to the selected store and fails closed for missing/malformed data
+ok 1 - availability belongs to the selected store and fails closed for missing/malformed data
+  ---
+  duration_ms: 17.031823
+  type: 'test'
+  ...
+# Subtest: legacy production and preview behavior retained only without test opt-in
+ok 2 - legacy production and preview behavior retained only without test opt-in
+  ---
+  duration_ms: 1.721269
+  type: 'test'
+  ...
+# Subtest: explicit local config and matching private runtime accepted
+ok 3 - explicit local config and matching private runtime accepted
+  ---
+  duration_ms: 0.515923
+  type: 'test'
+  ...
+# Subtest: test config missing VITE_NEROXA_TEST_BACKEND_URL denied
+ok 4 - test config missing VITE_NEROXA_TEST_BACKEND_URL denied
+  ---
+  duration_ms: 0.259892
+  type: 'test'
+  ...
+# Subtest: test config missing VITE_NEROXA_TEST_PROJECT_REF denied
+ok 5 - test config missing VITE_NEROXA_TEST_PROJECT_REF denied
+  ---
+  duration_ms: 0.131784
+  type: 'test'
+  ...
+# Subtest: test config missing VITE_NEROXA_TEST_PUBLISHABLE_KEY denied
+ok 6 - test config missing VITE_NEROXA_TEST_PUBLISHABLE_KEY denied
+  ---
+  duration_ms: 0.2598
+  type: 'test'
+  ...
+# Subtest: unsafe test destination not-a-url denied before transport
+ok 7 - unsafe test destination not-a-url denied before transport
+  ---
+  duration_ms: 0.23407
+  type: 'test'
+  ...
+# Subtest: unsafe test destination http://example.com denied before transport
+ok 8 - unsafe test destination http://example.com denied before transport
+  ---
+  duration_ms: 0.166133
+  type: 'test'
+  ...
+# Subtest: unsafe test destination https://iefaoaqzltvpfabyeelj.supabase.co denied before transport
+ok 9 - unsafe test destination https://iefaoaqzltvpfabyeelj.supabase.co denied before transport
+  ---
+  duration_ms: 0.166388
+  type: 'test'
+  ...
+# Subtest: unsafe test destination https://uvyinrojuhizjqbuzdcy.supabase.co denied before transport
+ok 10 - unsafe test destination https://uvyinrojuhizjqbuzdcy.supabase.co denied before transport
+  ---
+  duration_ms: 0.795278
+  type: 'test'
+  ...
+# Subtest: unsafe test destination https://example.com denied before transport
+ok 11 - unsafe test destination https://example.com denied before transport
+  ---
+  duration_ms: 0.40218
+  type: 'test'
+  ...
+# Subtest: unsafe test destination http://127.0.0.1:54321/path denied before transport
+ok 12 - unsafe test destination http://127.0.0.1:54321/path denied before transport
+  ---
+  duration_ms: 0.163841
+  type: 'test'
+  ...
+# Subtest: unsafe test destination http://user:pass@127.0.0.1:54321 denied before transport
+ok 13 - unsafe test destination http://user:pass@127.0.0.1:54321 denied before transport
+  ---
+  duration_ms: 0.231095
+  type: 'test'
+  ...
+# Subtest: unsafe test destination http://127.0.0.1:54321/?q=1 denied before transport
+ok 14 - unsafe test destination http://127.0.0.1:54321/?q=1 denied before transport
+  ---
+  duration_ms: 0.116146
+  type: 'test'
+  ...
+# Subtest: production ref rejected even if explicitly configured
+ok 15 - production ref rejected even if explicitly configured
+  ---
+  duration_ms: 0.258678
+  type: 'test'
+  ...
+# Subtest: hosted project requires exact URL and anon ref
+ok 16 - hosted project requires exact URL and anon ref
+  ---
+  duration_ms: 0.479328
+  type: 'test'
+  ...
+# Subtest: public config never accepts privileged credential
+ok 17 - public config never accepts privileged credential
+  ---
+  duration_ms: 0.174932
+  type: 'test'
+  ...
+# Subtest: opaque publishable format allowed, runtime project binding still requires real backend verification
+ok 18 - opaque publishable format allowed, runtime project binding still requires real backend verification
+  ---
+  duration_ms: 0.091152
+  type: 'test'
+  ...
+# Subtest: admin browser other project rejected
+ok 19 - admin browser other project rejected
+  ---
+  duration_ms: 0.111882
+  type: 'test'
+  ...
+# Subtest: admin key divergence rejected
+ok 20 - admin key divergence rejected
+  ---
+  duration_ms: 0.158969
+  type: 'test'
+  ...
+# Subtest: private divergence SUPABASE_URL denied
+ok 21 - private divergence SUPABASE_URL denied
+  ---
+  duration_ms: 0.157829
+  type: 'test'
+  ...
+# Subtest: private divergence NEROXA_DELIVERY_BACKEND_URL denied
+ok 22 - private divergence NEROXA_DELIVERY_BACKEND_URL denied
+  ---
+  duration_ms: 0.268658
+  type: 'test'
+  ...
+# Subtest: private divergence SUPABASE_PUBLISHABLE_KEY denied
+ok 23 - private divergence SUPABASE_PUBLISHABLE_KEY denied
+  ---
+  duration_ms: 0.181124
+  type: 'test'
+  ...
+# Subtest: private divergence NEROXA_TEST_PROJECT_REF denied
+ok 24 - private divergence NEROXA_TEST_PROJECT_REF denied
+  ---
+  duration_ms: 0.093134
+  type: 'test'
+  ...
+# Subtest: private divergence NEROXA_BACKEND_MODE denied
+ok 25 - private divergence NEROXA_BACKEND_MODE denied
+  ---
+  duration_ms: 0.083213
+  type: 'test'
+  ...
+# Subtest: private credential must be privileged, not public
+ok 26 - private credential must be privileged, not public
+  ---
+  duration_ms: 0.253175
+  type: 'test'
+  ...
+# Subtest: server opt-in cannot use legacy compiled config
+ok 27 - server opt-in cannot use legacy compiled config
+  ---
+  duration_ms: 0.094883
+  type: 'test'
+  ...
+# Subtest: mode typo denied, not production fallback
+ok 28 - mode typo denied, not production fallback
+  ---
+  duration_ms: 0.19976
+  type: 'test'
+  ...
+# Subtest: test settings without opt-in denied
+ok 29 - test settings without opt-in denied
+  ---
+  duration_ms: 0.126481
+  type: 'test'
+  ...
+# Subtest: SSR public and private use identical destination and project
+ok 30 - SSR public and private use identical destination and project
+  ---
+  duration_ms: 0.118912
+  type: 'test'
+  ...
+# Subtest: unknown preview domains have no real-store fallback
+ok 31 - unknown preview domains have no real-store fallback
+  ---
+  duration_ms: 0.247849
+  type: 'test'
+  ...
+# Subtest: SDK fetch cannot redirect credentials to external project
+ok 32 - SDK fetch cannot redirect credentials to external project
+  ---
+  duration_ms: 21.143023
+  type: 'test'
+  ...
+# Subtest: public key from known production project rejected even through local transport
+ok 33 - public key from known production project rejected even through local transport
+  ---
+  duration_ms: 0.346895
+  type: 'test'
+  ...
+# Subtest: actual public key probe is scoped, redirect-denying and shared across concurrent calls
+ok 34 - actual public key probe is scoped, redirect-denying and shared across concurrent calls
+  ---
+  duration_ms: 3.235431
+  type: 'test'
+  ...
+# Subtest: hosted opaque public key rejected by destination before catalog or privileged operation
+ok 35 - hosted opaque public key rejected by destination before catalog or privileged operation
+  ---
+  duration_ms: 0.849121
+  type: 'test'
+  ...
+# Subtest: temporary native PostgREST failure denies operations but can be safely retried at same destination
+ok 36 - temporary native PostgREST failure denies operations but can be safely retried at same destination
+  ---
+  duration_ms: 0.804194
+  type: 'test'
+  ...
+# Subtest: native local opaque key is denied before any request because local gateway binding is unproved
+ok 37 - native local opaque key is denied before any request because local gateway binding is unproved
+  ---
+  duration_ms: 0.151965
+  type: 'test'
+  ...
+# Subtest: bounded reader cancels an oversized stream without draining it
+ok 38 - bounded reader cancels an oversized stream without draining it
+  ---
+  duration_ms: 37.679319
+  type: 'test'
+  ...
+# Subtest: bounded reader preserves valid JSON and rejects invalid UTF8
+ok 39 - bounded reader preserves valid JSON and rejects invalid UTF8
+  ---
+  duration_ms: 2.532355
+  type: 'test'
+  ...
+# Subtest: handleCheckoutRequest rejects spoofed lengths before any backend call
+ok 40 - handleCheckoutRequest rejects spoofed lengths before any backend call
+  ---
+  duration_ms: 2.011614
+  type: 'test'
+  ...
+# Subtest: handleOrderAmendmentRequest rejects spoofed lengths before any backend call
+ok 41 - handleOrderAmendmentRequest rejects spoofed lengths before any backend call
+  ---
+  duration_ms: 0.873581
+  type: 'test'
+  ...
+# Subtest: disabled by default: no Supabase action is attempted
+ok 42 - disabled by default: no Supabase action is attempted
+  ---
+  duration_ms: 28.706016
+  type: 'test'
+  ...
+# Subtest: domain comes from routed request; payload cannot select another shop
+ok 43 - domain comes from routed request; payload cannot select another shop
+  ---
+  duration_ms: 4.961873
+  type: 'test'
+  ...
+# Subtest: two domains of one organization resolve independently
+ok 44 - two domains of one organization resolve independently
+  ---
+  duration_ms: 0.923953
+  type: 'test'
+  ...
+# Subtest: rejects forged organization, instance and catalog-domain fields
+ok 45 - rejects forged organization, instance and catalog-domain fields
+  ---
+  duration_ms: 2.096791
+  type: 'test'
+  ...
+# Subtest: rejects forged host, Origin and Sec-Fetch-Site
+ok 46 - rejects forged host, Origin and Sec-Fetch-Site
+  ---
+  duration_ms: 1.326464
+  type: 'test'
+  ...
+# Subtest: Host port normalization keeps strict hostname and full Origin checks
+ok 47 - Host port normalization keeps strict hostname and full Origin checks
+  ---
+  duration_ms: 1.328998
+  type: 'test'
+  ...
+# Subtest: TanStack stripped Host works only with an exact HTTPS Origin
+ok 48 - TanStack stripped Host works only with an exact HTTPS Origin
+  ---
+  duration_ms: 1.873638
+  type: 'test'
+  ...
+# Subtest: never trusts X-Forwarded-Host to select the store
+ok 49 - never trusts X-Forwarded-Host to select the store
+  ---
+  duration_ms: 1.192127
+  type: 'test'
+  ...
+# Subtest: rejects localhost, preview hosts and non-TLS requests
+ok 50 - rejects localhost, preview hosts and non-TLS requests
+  ---
+  duration_ms: 1.203281
+  type: 'test'
+  ...
+# Subtest: rejects unknown or mismatched server-side domain registration
+ok 51 - rejects unknown or mismatched server-side domain registration
+  ---
+  duration_ms: 1.974117
+  type: 'test'
+  ...
+# Subtest: rejects missing idempotency and oversized bodies
+ok 52 - rejects missing idempotency and oversized bodies
+  ---
+  duration_ms: 1.140612
+  type: 'test'
+  ...
+# Subtest: hides privileged backend errors and does not log customer data
+ok 53 - hides privileged backend errors and does not log customer data
+  ---
+  duration_ms: 1.125029
+  type: 'test'
+  ...
+# Subtest: quota rejects attempts before privileged create RPC
+ok 54 - quota rejects attempts before privileged create RPC
+  ---
+  duration_ms: 1.554423
+  type: 'test'
+  ...
+# Subtest: quota backend failure returns 503 without creating an order
+ok 55 - quota backend failure returns 503 without creating an order
+  ---
+  duration_ms: 0.494666
+  type: 'test'
+  ...
+# Subtest: quota identity is only checked after store identity and payload pass
+ok 56 - quota identity is only checked after store identity and payload pass
+  ---
+  duration_ms: 1.040162
+  type: 'test'
+  ...
+# Subtest: customer CSS compiles and parses in the dev transform, not only production minifier
+ok 57 - customer CSS compiles and parses in the dev transform, not only production minifier
+  ---
+  duration_ms: 324.39028
+  type: 'test'
+  ...
+# Subtest: lost response survives remount and exact retry with no PII stored
+ok 58 - lost response survives remount and exact retry with no PII stored
+  ---
+  duration_ms: 13.348596
+  type: 'test'
+  ...
+# Subtest: two concurrent tabs retain one confirmed key and explicit new cart differs
+ok 59 - two concurrent tabs retain one confirmed key and explicit new cart differs
+  ---
+  duration_ms: 33.37026
+  type: 'test'
+  ...
+# Subtest: uncertain changed payload and expired intent never send or clear
+ok 60 - uncertain changed payload and expired intent never send or clear
+  ---
+  duration_ms: 2.883062
+  type: 'test'
+  ...
+# Subtest: blocked storage or missing locks refuses before operation
+ok 61 - blocked storage or missing locks refuses before operation
+  ---
+  duration_ms: 1.01875
+  type: 'test'
+  ...
+# Subtest: separate instance keys and rollback are explicit
+ok 62 - separate instance keys and rollback are explicit
+  ---
+  duration_ms: 3.350139
+  type: 'test'
+  ...
+# Subtest: eviction of a previously submitted intent never creates a fresh key
+ok 63 - eviction of a previously submitted intent never creates a fresh key
+  ---
+  duration_ms: 2.307592
+  type: 'test'
+  ...
+# Subtest: pickup does not require an address; delivery requires each address field
+ok 64 - pickup does not require an address; delivery requires each address field
+  ---
+  duration_ms: 1.126611
+  type: 'test'
+  ...
+# Subtest: invalid customer identity and fulfillment are rejected centrally
+ok 65 - invalid customer identity and fulfillment are rejected centrally
+  ---
+  duration_ms: 0.229657
+  type: 'test'
+  ...
+# Subtest: backend binding denies missing configuration, different projects and crafted URLs
+ok 66 - backend binding denies missing configuration, different projects and crafted URLs
+  ---
+  duration_ms: 0.415324
+  type: 'test'
+  ...
+# Subtest: PR36 vocabulary retains PR37 payment, product and state contracts
+ok 67 - PR36 vocabulary retains PR37 payment, product and state contracts
+  ---
+  duration_ms: 0.147648
+  type: 'test'
+  ...
+# Subtest: invalid delivery and method do not resolve context or call quota/database
+ok 68 - invalid delivery and method do not resolve context or call quota/database
+  ---
+  duration_ms: 29.538163
+  type: 'test'
+  ...
+# Subtest: negative server totals fail closed instead of being presented as confirmed
+ok 69 - negative server totals fail closed instead of being presented as confirmed
+  ---
+  duration_ms: 1.144034
+  type: 'test'
+  ...
+# Subtest: uncertain writes retain their intent; modified retries cannot silently reuse a key
+ok 70 - uncertain writes retain their intent; modified retries cannot silently reuse a key
+  ---
+  duration_ms: 0.463401
+  type: 'test'
+  ...
+# Subtest: explicit addon identifiers never become product identifiers
+ok 71 - explicit addon identifiers never become product identifiers
+  ---
+  duration_ms: 3.315492
+  type: 'test'
+  ...
+# Subtest: required groups, duplicates, wrong-shop IDs and product IDs fail closed
+ok 72 - required groups, duplicates, wrong-shop IDs and product IDs fail closed
+  ---
+  duration_ms: 0.302619
+  type: 'test'
+  ...
+# Subtest: quantity and availability denied before HTTP
+ok 73 - quantity and availability denied before HTTP
+  ---
+  duration_ms: 0.282288
+  type: 'test'
+  ...
+# Subtest: combo contract stays blocked
+ok 74 - combo contract stays blocked
+  ---
+  duration_ms: 0.248016
+  type: 'test'
+  ...
+# Subtest: checkout/append serializer keeps GROUP separate and denies legacy restoration in advanced mode
+ok 75 - checkout/append serializer keeps GROUP separate and denies legacy restoration in advanced mode
+  ---
+  duration_ms: 0.420235
+  type: 'test'
+  ...
+# Subtest: per-product textual required options validated without casting UUIDs
+ok 76 - per-product textual required options validated without casting UUIDs
+  ---
+  duration_ms: 2.329573
+  type: 'test'
+  ...
+# Subtest: transactional stale-price error is HTTP409 with explicit review code
+ok 77 - transactional stale-price error is HTTP409 with explicit review code
+  ---
+  duration_ms: 27.492222
+  type: 'test'
+  ...
+# Subtest: options projection uses only the selected product and excludes inactive choices
+ok 78 - options projection uses only the selected product and excludes inactive choices
+  ---
+  duration_ms: 1.82268
+  type: 'test'
+  ...
+# Subtest: private mode determines the protocol; caller cannot remove marker or mix formats
+ok 79 - private mode determines the protocol; caller cannot remove marker or mix formats
+  ---
+  duration_ms: 0.466502
+  type: 'test'
+  ...
+# Subtest: native integration workflow pins an existing immutable-format Master commit without placeholders
+ok 80 - native integration workflow pins an existing immutable-format Master commit without placeholders
+  ---
+  duration_ms: 0.601955
+  type: 'test'
+  ...
+# Subtest: /painel never mounts the organization-scoped legacy implementation
+ok 81 - /painel never mounts the organization-scoped legacy implementation
+  ---
+  duration_ms: 1.000233
+  type: 'test'
+  ...
+# Subtest: closed route does not select an organization or instance supplied by A or B
+ok 82 - closed route does not select an organization or instance supplied by A or B
+  ---
+  duration_ms: 0.237707
+  type: 'test'
+  ...
+# Subtest: suspension is disclosed, and alternative links only to the existing order UI
+ok 83 - suspension is disclosed, and alternative links only to the existing order UI
+  ---
+  duration_ms: 0.335201
+  type: 'test'
+  ...
+# Subtest: order admin still uses instance-bound RPC, but is not thereby homologated
+ok 84 - order admin still uses instance-bound RPC, but is not thereby homologated
+  ---
+  duration_ms: 1.141011
+  type: 'test'
+  ...
+# Subtest: disabled amendment route does not reach privileged Supabase
+ok 85 - disabled amendment route does not reach privileged Supabase
+  ---
+  duration_ms: 23.62582
+  type: 'test'
+  ...
+# Subtest: server determines instance and returns unpaid increment
+ok 86 - server determines instance and returns unpaid increment
+  ---
+  duration_ms: 5.04922
+  type: 'test'
+  ...
+# Subtest: cannot route another store or forged host/origin to mutation
+ok 87 - cannot route another store or forged host/origin to mutation
+  ---
+  duration_ms: 2.551622
+  type: 'test'
+  ...
+# Subtest: stripped Host works only for same-origin HTTPS
+ok 88 - stripped Host works only for same-origin HTTPS
+  ---
+  duration_ms: 1.575185
+  type: 'test'
+  ...
+# Subtest: rejects absent/bad capability, identifiers and quantities before quota
+ok 89 - rejects absent/bad capability, identifiers and quantities before quota
+  ---
+  duration_ms: 3.149985
+  type: 'test'
+  ...
+# Subtest: persistent quota 429 and backend errors both fail closed
+ok 90 - persistent quota 429 and backend errors both fail closed
+  ---
+  duration_ms: 2.012241
+  type: 'test'
+  ...
+# Subtest: authorization errors and stale-status conflicts never expose tokens
+ok 91 - authorization errors and stale-status conflicts never expose tokens
+  ---
+  duration_ms: 1.88344
+  type: 'test'
+  ...
+# Subtest: no forwarded-host redirection or preview-domain bypass
+ok 92 - no forwarded-host redirection or preview-domain bypass
+  ---
+  duration_ms: 0.869233
+  type: 'test'
+  ...
+# Subtest: protected checkout must fail closed before historical phone-only amendment RPC
+ok 93 - protected checkout must fail closed before historical phone-only amendment RPC
+  ---
+  duration_ms: 0.906569
+  type: 'test'
+  ...
+# Subtest: buyer token and RECEIVED/CONFIRMED are required for secure add-to-order CTA
+ok 94 - buyer token and RECEIVED/CONFIRMED are required for secure add-to-order CTA
+  ---
+  duration_ms: 0.227129
+  type: 'test'
+  ...
+# Subtest: secure amendment requires session token, server endpoint and no phone-only fallback
+ok 95 - secure amendment requires session token, server endpoint and no phone-only fallback
+  ---
+  duration_ms: 0.217058
+  type: 'test'
+  ...
+# Subtest: issued buyer credential must only be handled in browser session storage
+ok 96 - issued buyer credential must only be handled in browser session storage
+  ---
+  duration_ms: 0.207522
+  type: 'test'
+  ...
+# Subtest: public order creation in protected mode must not fall back to direct RPC
+ok 97 - public order creation in protected mode must not fall back to direct RPC
+  ---
+  duration_ms: 0.229452
+  type: 'test'
+  ...
+# Subtest: new admin panel is instance-scoped; legacy panel remains a known release blocker
+ok 98 - new admin panel is instance-scoped; legacy panel remains a known release blocker
+  ---
+  duration_ms: 0.165764
+  type: 'test'
+  ...
+# Subtest: public tracking is still phone-based, not token-authorized (release gate)
+ok 99 - public tracking is still phone-based, not token-authorized (release gate)
+  ---
+  duration_ms: 0.166036
+  type: 'test'
+  ...
+# Subtest: explicit price review updates exact estimates without mutating old cart
+ok 100 - explicit price review updates exact estimates without mutating old cart
+  ---
+  duration_ms: 2.390759
+  type: 'test'
+  ...
+# Subtest: review rejects another instance, unavailable selection and fractional cents
+ok 101 - review rejects another instance, unavailable selection and fractional cents
+  ---
+  duration_ms: 0.579802
+  type: 'test'
+  ...
+# Subtest: review refuses legacy identifiers and incomplete required groups
+ok 102 - review refuses legacy identifiers and incomplete required groups
+  ---
+  duration_ms: 0.179342
+  type: 'test'
+  ...
+# Subtest: same-organization stores have different cart and tracking keys
+ok 103 - same-organization stores have different cart and tracking keys
+  ---
+  duration_ms: 2.906031
+  type: 'test'
+  ...
+# Subtest: missing store identity fails closed
+ok 104 - missing store identity fails closed
+  ---
+  duration_ms: 0.661239
+  type: 'test'
+  ...
+# Subtest: public catalog identity is passed through to checkout
+ok 105 - public catalog identity is passed through to checkout
+  ---
+  duration_ms: 0.82403
+  type: 'test'
+  ...
+1..105
+# tests 105
+# suites 0
+# pass 105
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2180.56751
