@@ -257,8 +257,8 @@ BEGIN
     END LOOP;
 
     IF v_crust_id IS NOT NULL THEN
-      SELECT c.*
-        INTO v_crust
+      SELECT c.price, c.name
+        INTO v_crust_price, v_crust_name
       FROM product_crusts c
       WHERE c.id = v_crust_id
         AND c.organization_id = v_org
@@ -268,12 +268,13 @@ BEGIN
         RAISE EXCEPTION 'Borda inválida';
       END IF;
     ELSE
-      v_crust := NULL;
+      v_crust_price := 0;
+      v_crust_name := NULL;
     END IF;
 
     v_unit_price := round(
       v_base_price
-      + COALESCE(v_crust.price, 0)
+      + COALESCE(v_crust_price, 0)
       + v_addon_total,
       2
     );
