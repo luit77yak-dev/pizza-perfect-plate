@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [upgrade]
+        scenario: [clean, upgrade]
     defaults:
       run:
         working-directory: master
@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: luit77yak-dev/neroxa-master
-          ref: c5d920345786a2c8559204e5e9d946faf497c262
+          ref: 0246fd31572f42b970215c8c2071bb08356d2af3
           path: master
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -85,7 +85,7 @@ jobs:
           path: master/delivery-consumer
           persist-credentials: false
       - name: Verify pinned Master commit
-        run: test "$(git rev-parse HEAD)" = "c5d920345786a2c8559204e5e9d946faf497c262"
+        run: test "$(git rev-parse HEAD)" = "0246fd31572f42b970215c8c2071bb08356d2af3"
       - name: Verify pinned delivery commit
         run: test "$(git -C delivery-consumer rev-parse HEAD)" = "${{ github.sha }}"
       - name: Integrate real local checkout gateway and test direct RPC revocation
@@ -112,6 +112,9 @@ jobs:
         run: node --experimental-strip-types tools/ab-auth/backend_configuration_native.mjs
       - name: Full delivery and authenticated operational panel through normal compiled build
         run: node tools/ab-auth/first_order_browser.mjs
+      - name: Clean install post-cutover ACL and scoped Auth regression
+        if: matrix.scenario == 'clean'
+        run: node tools/migration-bridge-v1/verify-clean-gate.mjs
       - name: Preserve old orders verify native cutover and T1 roll-forward
         if: matrix.scenario == 'upgrade'
         run: node tools/migration-bridge-v1/verify-cutover.mjs
