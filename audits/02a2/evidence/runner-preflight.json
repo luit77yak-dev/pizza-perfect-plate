@@ -1,0 +1,12 @@
+{
+  "status": "BLOCKED",
+  "driver": "vfs",
+  "total_bytes": 33770192896,
+  "free_bytes": 24413663232,
+  "cgroup_memory_limit": "8589934592",
+  "prior_extraction_failure": "failed to register layer: no space left on device",
+  "prior_start_free_bytes": 31082352640,
+  "reason": "Same 32GiB filesystem and vfs driver already failed PostgreSQL extraction with more free space than available now; no measured peak headroom. No new pull/start permitted by this preflight.",
+  "database_matrix": "NOT RUN; BLOCKED before startup",
+  "remote_fallback": false
+}

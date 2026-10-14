@@ -1,0 +1,1722 @@
+[
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/server/checkout-gateway.server.ts",
+    "line": 87,
+    "kind": "rpc",
+    "resource": "get_public_storefront_context",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/server/checkout-gateway.server.ts",
+    "line": 124,
+    "kind": "rpc",
+    "resource": "neroxa_recover_group_order",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/server/checkout-gateway.server.ts",
+    "line": 148,
+    "kind": "rpc",
+    "resource": "get_public_storefront_catalog",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/server/checkout-gateway.server.ts",
+    "line": 159,
+    "kind": "rpc",
+    "resource": "create_public_order",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/server/order-amendment.server.ts",
+    "line": 55,
+    "kind": "rpc",
+    "resource": "get_public_storefront_context",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/server/order-amendment.server.ts",
+    "line": 80,
+    "kind": "rpc",
+    "resource": "neroxa_checkout_reserve_quota",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/server/order-amendment.server.ts",
+    "line": 91,
+    "kind": "rpc",
+    "resource": "get_public_storefront_catalog",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/server/order-amendment.server.ts",
+    "line": 102,
+    "kind": "rpc",
+    "resource": "neroxa_append_order_items_with_capability",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 215,
+    "kind": "from",
+    "resource": "organization_members",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 228,
+    "kind": "rpc",
+    "resource": "claim_first_owner",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 243,
+    "kind": "from",
+    "resource": "products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 244,
+    "kind": "from",
+    "resource": "categories",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 245,
+    "kind": "from",
+    "resource": "product_sizes",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 246,
+    "kind": "from",
+    "resource": "product_prices",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 247,
+    "kind": "from",
+    "resource": "product_addon_links",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 266,
+    "kind": "from",
+    "resource": "categories",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 276,
+    "kind": "from",
+    "resource": "product_sizes",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 292,
+    "kind": "from",
+    "resource": "product-images",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 295,
+    "kind": "from",
+    "resource": "products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 305,
+    "kind": "from",
+    "resource": "product_addons",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 315,
+    "kind": "from",
+    "resource": "product_crusts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 325,
+    "kind": "from",
+    "resource": "delivery_zones",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 333,
+    "kind": "from",
+    "resource": "store_hours",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 334,
+    "kind": "from",
+    "resource": "special_hours",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 353,
+    "kind": "from",
+    "resource": "store_hours",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 364,
+    "kind": "from",
+    "resource": "special_hours",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 376,
+    "kind": "from",
+    "resource": "special_hours",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 386,
+    "kind": "from",
+    "resource": "special_hours",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 393,
+    "kind": "from",
+    "resource": "organization_settings",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 406,
+    "kind": "from",
+    "resource": "organization_settings",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 439,
+    "kind": "from",
+    "resource": "product_addons",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 450,
+    "kind": "from",
+    "resource": "product_crusts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 469,
+    "kind": "from",
+    "resource": "product_crusts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 486,
+    "kind": "from",
+    "resource": "product_crusts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 499,
+    "kind": "from",
+    "resource": "product_crusts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 509,
+    "kind": "from",
+    "resource": "delivery_zones",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 521,
+    "kind": "from",
+    "resource": "delivery_zones",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 549,
+    "kind": "from",
+    "resource": "delivery_zones",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 569,
+    "kind": "from",
+    "resource": "delivery_zones",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 585,
+    "kind": "from",
+    "resource": "product_addons",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 604,
+    "kind": "from",
+    "resource": "product_addons",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 619,
+    "kind": "from",
+    "resource": "product_addons",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 632,
+    "kind": "from",
+    "resource": "orders",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 690,
+    "kind": "channel",
+    "resource": "admin-order-additions:${organizationId}",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 787,
+    "kind": "from",
+    "resource": "products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 794,
+    "kind": "from",
+    "resource": "product_prices",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 804,
+    "kind": "from",
+    "resource": "product_prices",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 808,
+    "kind": "from",
+    "resource": "product_addon_links",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 820,
+    "kind": "from",
+    "resource": "product_addon_links",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 838,
+    "kind": "from",
+    "resource": "products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 854,
+    "kind": "from",
+    "resource": "products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 876,
+    "kind": "from",
+    "resource": "product-images",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 888,
+    "kind": "from",
+    "resource": "product-images",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 890,
+    "kind": "from",
+    "resource": "products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 914,
+    "kind": "from",
+    "resource": "product-images",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 918,
+    "kind": "from",
+    "resource": "products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 931,
+    "kind": "rpc",
+    "resource": "update_order_status",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 1126,
+    "kind": "from",
+    "resource": "categories",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 1133,
+    "kind": "from",
+    "resource": "categories",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 1145,
+    "kind": "from",
+    "resource": "product_sizes",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/routes/painel.tsx",
+    "line": 1152,
+    "kind": "from",
+    "resource": "product_sizes",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/storefront/components/CheckoutPanel.tsx",
+    "line": 401,
+    "kind": "rpc",
+    "resource": "create_public_order",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/finance/services.ts",
+    "line": 5,
+    "kind": "from",
+    "resource": "neroxa_invoices",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/finance/services.ts",
+    "line": 6,
+    "kind": "from",
+    "resource": "neroxa_payments",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/finance/services.ts",
+    "line": 7,
+    "kind": "from",
+    "resource": "neroxa_clients",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 7,
+    "kind": "from",
+    "resource": "neroxa_proposals",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 11,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 15,
+    "kind": "from",
+    "resource": "neroxa_clients",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/clients/services.ts",
+    "line": 13,
+    "kind": "rpc",
+    "resource": "is_neroxa_staff",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/clients/services.ts",
+    "line": 23,
+    "kind": "from",
+    "resource": "neroxa_clients",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/clients/services.ts",
+    "line": 33,
+    "kind": "from",
+    "resource": "neroxa_client_contacts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/clients/services.ts",
+    "line": 50,
+    "kind": "rpc",
+    "resource": "create_neroxa_client",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/clients/services.ts",
+    "line": 68,
+    "kind": "rpc",
+    "resource": "update_neroxa_client",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/clients/services.ts",
+    "line": 81,
+    "kind": "rpc",
+    "resource": "transition_neroxa_client_status",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/clients/services.ts",
+    "line": 100,
+    "kind": "rpc",
+    "resource": "create_neroxa_client_contact",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 5,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 6,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 7,
+    "kind": "from",
+    "resource": "neroxa_clients",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/core/delivery/services/public-catalog.ts",
+    "line": 55,
+    "kind": "rpc",
+    "resource": "get_public_storefront_catalog",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/core/delivery/services/load-public-store.ts",
+    "line": 166,
+    "kind": "rpc",
+    "resource": "get_public_storefront_catalog",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/components/storefront/Storefront.tsx",
+    "line": 180,
+    "kind": "rpc",
+    "resource": "get_public_order_status",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Delivery-PR38",
+    "path": "src/components/storefront/Storefront.tsx",
+    "line": 1218,
+    "kind": "rpc",
+    "resource": "get_public_order_status",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/assinar-contrato.tsx",
+    "line": 60,
+    "kind": "rpc",
+    "resource": "get_neroxa_public_contract",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/assinar-contrato.tsx",
+    "line": 72,
+    "kind": "rpc",
+    "resource": "sign_neroxa_contract_as_customer",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-catalogo.tsx",
+    "line": 152,
+    "kind": "from",
+    "resource": "neroxa_system_instances",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-catalogo.tsx",
+    "line": 172,
+    "kind": "from",
+    "resource": "neroxa_storefront_categories",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-catalogo.tsx",
+    "line": 178,
+    "kind": "from",
+    "resource": "neroxa_storefront_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-catalogo.tsx",
+    "line": 214,
+    "kind": "from",
+    "resource": "neroxa_storefront_settings",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-catalogo.tsx",
+    "line": 272,
+    "kind": "from",
+    "resource": "neroxa_storefront_categories",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-catalogo.tsx",
+    "line": 284,
+    "kind": "from",
+    "resource": "neroxa_storefront_categories",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-catalogo.tsx",
+    "line": 324,
+    "kind": "from",
+    "resource": "neroxa_storefront_categories",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-catalogo.tsx",
+    "line": 375,
+    "kind": "from",
+    "resource": "neroxa_storefront_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-catalogo.tsx",
+    "line": 387,
+    "kind": "from",
+    "resource": "neroxa_storefront_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-catalogo.tsx",
+    "line": 436,
+    "kind": "from",
+    "resource": "neroxa_storefront_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master.tsx",
+    "line": 102,
+    "kind": "from",
+    "resource": "neroxa_clients",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master.tsx",
+    "line": 104,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master.tsx",
+    "line": 108,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master.tsx",
+    "line": 112,
+    "kind": "from",
+    "resource": "neroxa_proposals",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master.tsx",
+    "line": 116,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master.tsx",
+    "line": 120,
+    "kind": "from",
+    "resource": "neroxa_system_instances",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-checkout.tsx",
+    "line": 21,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-checkout.tsx",
+    "line": 21,
+    "kind": "from",
+    "resource": "neroxa_checkout_sessions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/master-produtos.tsx",
+    "line": 105,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/proposta-publica.tsx",
+    "line": 52,
+    "kind": "rpc",
+    "resource": "get_neroxa_public_proposal",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/routes/proposta-publica.tsx",
+    "line": 64,
+    "kind": "rpc",
+    "resource": "respond_neroxa_public_proposal",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/finance/services.ts",
+    "line": 26,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/finance/services.ts",
+    "line": 29,
+    "kind": "from",
+    "resource": "neroxa_clients",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/finance/services.ts",
+    "line": 40,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/finance/services.ts",
+    "line": 45,
+    "kind": "from",
+    "resource": "neroxa_audit_logs",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/finance/services.ts",
+    "line": 60,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/finance/services.ts",
+    "line": 61,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/finance/services.ts",
+    "line": 124,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/finance/services.ts",
+    "line": 147,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/products/services.ts",
+    "line": 6,
+    "kind": "from",
+    "resource": "neroxa_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/products/services.ts",
+    "line": 25,
+    "kind": "from",
+    "resource": "neroxa_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/products/services.ts",
+    "line": 54,
+    "kind": "from",
+    "resource": "neroxa_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/products/services.ts",
+    "line": 71,
+    "kind": "from",
+    "resource": "neroxa_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/products/services.ts",
+    "line": 77,
+    "kind": "from",
+    "resource": "neroxa_plan_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/products/services.ts",
+    "line": 91,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/products/services.ts",
+    "line": 92,
+    "kind": "from",
+    "resource": "neroxa_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/products/services.ts",
+    "line": 115,
+    "kind": "from",
+    "resource": "neroxa_plan_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/products/services.ts",
+    "line": 127,
+    "kind": "from",
+    "resource": "neroxa_plan_products",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 40,
+    "kind": "from",
+    "resource": "neroxa_proposals",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 41,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 42,
+    "kind": "from",
+    "resource": "neroxa_clients",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 57,
+    "kind": "from",
+    "resource": "neroxa_organizations",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 63,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 70,
+    "kind": "from",
+    "resource": "neroxa_proposals",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 93,
+    "kind": "from",
+    "resource": "neroxa_proposals",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 104,
+    "kind": "from",
+    "resource": "neroxa_proposals",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 112,
+    "kind": "from",
+    "resource": "neroxa_proposals",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 118,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 122,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 143,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 162,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 175,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 196,
+    "kind": "rpc",
+    "resource": "send_neroxa_contract_for_signature",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 207,
+    "kind": "rpc",
+    "resource": "sign_neroxa_contract",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 215,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/commercial/services.ts",
+    "line": 267,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/implementation/services.ts",
+    "line": 35,
+    "kind": "from",
+    "resource": "neroxa_provisioning_jobs",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/implementation/services.ts",
+    "line": 44,
+    "kind": "from",
+    "resource": "neroxa_system_instances",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/implementation/services.ts",
+    "line": 58,
+    "kind": "from",
+    "resource": "neroxa_system_instances",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/implementation/services.ts",
+    "line": 77,
+    "kind": "from",
+    "resource": "neroxa_system_instances",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/implementation/services.ts",
+    "line": 88,
+    "kind": "rpc",
+    "resource": "delete_neroxa_system_instance_safely",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/implementation/services.ts",
+    "line": 98,
+    "kind": "from",
+    "resource": "neroxa_provisioning_jobs",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/implementation/services.ts",
+    "line": 107,
+    "kind": "rpc",
+    "resource": "update_neroxa_provisioning_job_status",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/implementation/services.ts",
+    "line": 116,
+    "kind": "rpc",
+    "resource": "transition_neroxa_instance_status",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/implementation/services.ts",
+    "line": 124,
+    "kind": "rpc",
+    "resource": "retry_neroxa_provisioning_job",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/implementation/services.ts",
+    "line": 136,
+    "kind": "rpc",
+    "resource": "prepare_neroxa_implementation_from_subscription",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/settings/services.ts",
+    "line": 48,
+    "kind": "from",
+    "resource": "neroxa_platform_settings",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/settings/services.ts",
+    "line": 75,
+    "kind": "from",
+    "resource": "neroxa_platform_settings",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/settings/services.ts",
+    "line": 99,
+    "kind": "from",
+    "resource": "neroxa_platform_settings",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/settings/services.ts",
+    "line": 134,
+    "kind": "from",
+    "resource": "neroxa_platform_settings",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 12,
+    "kind": "rpc",
+    "resource": "get_neroxa_platform_access",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 29,
+    "kind": "rpc",
+    "resource": "record_neroxa_audit",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 53,
+    "kind": "from",
+    "resource": "neroxa_audit_logs",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 71,
+    "kind": "from",
+    "resource": "neroxa_platform_members",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 82,
+    "kind": "from",
+    "resource": "neroxa_clients",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 92,
+    "kind": "from",
+    "resource": "neroxa_client_contacts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 109,
+    "kind": "rpc",
+    "resource": "create_neroxa_client",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 127,
+    "kind": "rpc",
+    "resource": "update_neroxa_client",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 140,
+    "kind": "rpc",
+    "resource": "transition_neroxa_client_status",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 159,
+    "kind": "rpc",
+    "resource": "create_neroxa_client_contact",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 197,
+    "kind": "from",
+    "resource": "neroxa_system_instances",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/clients/services.ts",
+    "line": 208,
+    "kind": "from",
+    "resource": "neroxa_system_domains",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/systems/services.ts",
+    "line": 48,
+    "kind": "from",
+    "resource": "neroxa_systems",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/systems/services.ts",
+    "line": 71,
+    "kind": "from",
+    "resource": "neroxa_systems",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/systems/services.ts",
+    "line": 89,
+    "kind": "from",
+    "resource": "neroxa_systems",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/systems/services.ts",
+    "line": 106,
+    "kind": "from",
+    "resource": "neroxa_systems",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/systems/services.ts",
+    "line": 141,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/systems/services.ts",
+    "line": 157,
+    "kind": "from",
+    "resource": "neroxa_system_instances",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/systems/services.ts",
+    "line": 177,
+    "kind": "from",
+    "resource": "neroxa_system_instances",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 43,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 50,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 56,
+    "kind": "from",
+    "resource": "neroxa_clients",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 60,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 157,
+    "kind": "from",
+    "resource": "neroxa_contracts",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 185,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 218,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 233,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 247,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 270,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 342,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 358,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 372,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 390,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 411,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 429,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 457,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 482,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 495,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 533,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 554,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 568,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 576,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 598,
+    "kind": "from",
+    "resource": "neroxa_billing_records",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 605,
+    "kind": "from",
+    "resource": "neroxa_subscriptions",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 627,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 655,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 685,
+    "kind": "from",
+    "resource": "neroxa_plans",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 717,
+    "kind": "from",
+    "resource": "neroxa_plan_features",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 729,
+    "kind": "from",
+    "resource": "neroxa_plan_features",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/subscriptions/services.ts",
+    "line": 735,
+    "kind": "from",
+    "resource": "neroxa_plan_features",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/domains/services.ts",
+    "line": 78,
+    "kind": "rpc",
+    "resource": "transition_neroxa_domain_status",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/domains/services.ts",
+    "line": 117,
+    "kind": "from",
+    "resource": "neroxa_system_domains",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/domains/services.ts",
+    "line": 128,
+    "kind": "from",
+    "resource": "neroxa_system_domains",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/domains/services.ts",
+    "line": 137,
+    "kind": "from",
+    "resource": "neroxa_system_domains",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/domains/services.ts",
+    "line": 153,
+    "kind": "rpc",
+    "resource": "delete_neroxa_system_domain_safely",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/support/services.ts",
+    "line": 42,
+    "kind": "from",
+    "resource": "neroxa_support_tickets",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/support/services.ts",
+    "line": 51,
+    "kind": "from",
+    "resource": "neroxa_support_messages",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/support/services.ts",
+    "line": 69,
+    "kind": "from",
+    "resource": "neroxa_support_tickets",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/support/services.ts",
+    "line": 106,
+    "kind": "from",
+    "resource": "neroxa_support_tickets",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/support/services.ts",
+    "line": 119,
+    "kind": "from",
+    "resource": "neroxa_support_messages",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  },
+  {
+    "repo": "Master-candidate",
+    "path": "src/features/master/support/services.ts",
+    "line": 130,
+    "kind": "from",
+    "resource": "neroxa_support_tickets",
+    "runtimeConsumerStatus": "UNKNOWN; source reference only"
+  }
+]

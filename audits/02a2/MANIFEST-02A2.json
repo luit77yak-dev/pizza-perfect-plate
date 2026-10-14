@@ -1,0 +1,233 @@
+{
+  "mission": "02A.2",
+  "databaseExecution": "BLOCKED",
+  "remoteExecutionAuthorized": false,
+  "productionApproved": false,
+  "deliveryReviewedSha": "b324c1499ff3feda7cb6b56fec3c2ac63bc56052",
+  "deliveryBaseSha": "c18d6803b319de442d5dfb2ed1d58fb367df096d",
+  "masterSourceSha": "b6f70f1e86ef9f4f5ae8fc9a53d71cb024c4e3db",
+  "historicalCatalog": {
+    "path": "audits/ab-auth/master-catalog-20261009.json",
+    "sha256": "e7ed111d73ec8d63b514db8c39059d6b87ae97be74d54e0d682d38bc0e4cf858"
+  },
+  "masterProfile": {
+    "baseline": "Fresh replay of full historical 2026-10-09 catalog using tools/ab-auth/build_schema.py, real local Auth, not a minimal fixture",
+    "predecessorOrder": [
+      {
+        "path": "audits/sql/instance-membership-foundation.candidate.sql",
+        "sha256": "7889d4d9bdc37cf01457a8d0608e997e143f8bbfd377130b16f72539487c72d0"
+      },
+      {
+        "path": "audits/sql/storefront-instance-phase1.candidate.sql",
+        "sha256": "e4e75abc28a5c07b163a6e98f7a9c7be9fad3f8a2543c4635cfbf5d35193e462"
+      },
+      {
+        "path": "audits/sql/store-product-category-guard.candidate.sql",
+        "sha256": "385d4446003c5604f9e18a0ebbf1b5f1c92d83fd11655db6cdd9815e7547011e"
+      },
+      {
+        "path": "audits/sql/storefront-tenant-integrity.candidate.sql",
+        "sha256": "c388d0dabb8c58988ef30c30b1f084c2acabf33ff23e798d278ac8d99ff99cf1"
+      },
+      {
+        "path": "audits/sql/storefront-parent-instance-guard.candidate.sql",
+        "sha256": "ec8afaa42ec5f590c1cbb1c98ff191d652779c3b0d97adc2ff4599f7389084c5"
+      },
+      {
+        "path": "audits/sql/store-isolation-policies.candidate.sql",
+        "sha256": "848d370e950ca8998ae8e3322c41f1484bb25e667c30d2cb1e8e2e1da087735c"
+      },
+      {
+        "path": "audits/sql/storefront-instance-phase2-cutover.candidate.sql",
+        "sha256": "f06c49a835128063c95d1dae7272502a1831ff1009c3a9dc430edae7b633855a"
+      },
+      {
+        "path": "audits/sql/storefront-settings-zones-rls.candidate.sql",
+        "sha256": "959170218f352c6d7b41e7dcc011ab8e092ded44e8a5a8e8855a1c8947f52c64"
+      },
+      {
+        "path": "audits/sql/storefront-admin-rpc.candidate.sql",
+        "sha256": "0e1c6e4a806a12f5631c556040e2ee06b29c3c37c789f53e1631c5f71a9bc753"
+      },
+      {
+        "path": "audits/sql/storefront-rpcs-phase2.candidate.sql",
+        "sha256": "4d37407a16a8b962161c0aa807b444a95b033299fc1131cf1938421e4068b439"
+      },
+      {
+        "path": "audits/sql/store-isolation-prerequisites.assert.sql",
+        "sha256": "9b2e0873c49d4358ef7e138f5c6ac9a6f4d673f9fa7107cb5fbb22403daa9c55"
+      },
+      {
+        "path": "audits/sql/store-isolation-runtime-hardening.candidate.sql",
+        "sha256": "342bafbec2f94f1f03aab24731fa31700b7c20151334a2ec415564c412384c37"
+      },
+      {
+        "path": "audits/sql/admin-order-rpc-acl.release-gate.candidate.sql",
+        "sha256": "dd50db6bf42a0b2c41065110d6a88f2ee7e26bf225538718a3ac2f96020666a4"
+      },
+      {
+        "path": "audits/sql/group-addons-pricing.candidate.sql",
+        "sha256": "3850db07fda4a794b00d13177c08138b3e0486e7e7abc5bc8eb05c608ac84a1d"
+      },
+      {
+        "path": "audits/sql/store-availability.candidate.sql",
+        "sha256": "45da99d6ef1d4f0afadd65473b5c2ed7360f1e5766ec3af7aa6e61fdfbcb9daf"
+      },
+      {
+        "path": "audits/sql/checkout-recovery.candidate.sql",
+        "sha256": "acc820704864db99ade9c27352c6462163fdfb0fef5076b816c9963c06ca9022"
+      },
+      {
+        "path": "audits/sql/checkout-reconciliation.candidate.sql",
+        "sha256": "bf5da2fca7e7ca19ca084c070f422ee3112ca7f0d7408044660299f9e5b43c5a"
+      },
+      {
+        "path": "audits/sql/operational-order-detail.candidate.sql",
+        "sha256": "beff5f1acf436176435806f697c89a21e646dd6f3b4eb4c031ef345763867790"
+      },
+      {
+        "path": "audits/sql/operational-order-transitions.candidate.sql",
+        "sha256": "4d4baf9edbcbd7d269c52b38ff3fde5cbeb1f7be40ea945eef6c5ebd7eae1180"
+      }
+    ],
+    "newCandidate": {
+      "path": "audits/02a2/scoped-order-access.candidate.sql",
+      "sha256": "648fcca5bdac67ba3879c0804189b204a53fc4f3b136646407b659ca5a62f23c"
+    },
+    "additionalConsumerGates": "Checkout quota/revocation, amendment capability and tracking redesign must be staged and tested separately; run.mjs historical platform-allow assertions are incompatible with new no-grant denial and require explicit new expectations."
+  },
+  "deliveryLegacyProfile": {
+    "baseline": "31 legacy SQL migrations from exact PR38 source, inspect replay before quarantine; NEVER combine with Master profile",
+    "migrations": [
+      {
+        "path": "supabase/migrations/20260924025927_c9b76a2b-b43e-4b2e-b236-42cbe19fd6f2.sql",
+        "sha256": "5c48d5dd9afa9d4472d61db7d676cf3208dc8931ec87b9a64cf844c4d2ba574d"
+      },
+      {
+        "path": "supabase/migrations/20260924025959_2f2d3aed-70a3-4e06-82fc-477207b4d359.sql",
+        "sha256": "ce2fd76f5418ed8604d955f6fd026b927cb22994102093451c24d9d7215c51cd"
+      },
+      {
+        "path": "supabase/migrations/20260924030033_8fa3fa08-b582-48e3-953e-f328b191efad.sql",
+        "sha256": "ee065239bfb0a0331f1e448fd111b6ce400f67fe64c950fd10883d097d331be2"
+      },
+      {
+        "path": "supabase/migrations/20260924030057_d8465ae2-84d7-4c63-aff0-8fc3ecb1e6ae.sql",
+        "sha256": "a470e3458f4a94de3e016b583a60b2db2672c271fc20e9c554708e3e7c47ed5d"
+      },
+      {
+        "path": "supabase/migrations/20260925003510_3c2ad10a-ccee-4f31-8271-0312ae9b1f61.sql",
+        "sha256": "970bb3a82747be5dc7c9972612050a8d5fadfa92e0e304f730c59ad26ef4bf01"
+      },
+      {
+        "path": "supabase/migrations/20260925010400_add_public_order_status_tracking.sql",
+        "sha256": "e2bb37a299d30ee30e0a6a54628fbae74e7d634dae3fcfacf6ab34ea32ee02aa"
+      },
+      {
+        "path": "supabase/migrations/20260925011434_3943bfb2-e97b-4a94-b263-d7735f7a0dbc.sql",
+        "sha256": "c32eb1f896cb9a89baaa2d23792b71abf246aea4a1c4323a332c76e3d5125749"
+      },
+      {
+        "path": "supabase/migrations/20260925011456_b013e0c8-6824-47e2-987a-8f7c93ee08fe.sql",
+        "sha256": "73a59cdad34ed663cd4842d23f35581ea9e206f24b33b1d13ffee3b804dc22e5"
+      },
+      {
+        "path": "supabase/migrations/20260925011547_93dd5764-f219-4218-ac1c-ac043223aeb2.sql",
+        "sha256": "378886916234dd64c0d9ce39404b628000a828d921f508cbfdbfd4831b44909c"
+      },
+      {
+        "path": "supabase/migrations/20260925020936_d8efc867-c321-4c97-b84f-8cc2c55de5c6.sql",
+        "sha256": "2b106dc35a20326e51b55d0d79d0c48a70722f058820eb750fede6f7da49fb75"
+      },
+      {
+        "path": "supabase/migrations/20260925033434_317a1edd-6341-4fcf-82d4-0cde17683a4c.sql",
+        "sha256": "548b668c1960624482a13f4b342a209ab4eb6c5fcd9ad4670b9e346275de8c9e"
+      },
+      {
+        "path": "supabase/migrations/20260926032516_070872c0-e4d9-4274-ac37-eb601429be5e.sql",
+        "sha256": "5157106fdb8c0cc9fb44d010f7a834c1f88080807d64b6121b75243f959cb156"
+      },
+      {
+        "path": "supabase/migrations/20260926130000_apply_minimum_order_only_to_delivery.sql",
+        "sha256": "402cce7737bc238df902abc534b4b53180101e1003a99e979cf0beb70afcba6f"
+      },
+      {
+        "path": "supabase/migrations/20260926230000_harden_public_order_pricing.sql",
+        "sha256": "444b1ee85d2de7624b717451ade0be07c242fa21e1d27518dce1541aa96f79e1"
+      },
+      {
+        "path": "supabase/migrations/20260926241000_align_public_order_pricing.sql",
+        "sha256": "9458fec43f19e8909b5ca420a910abf0b6a4715f7f28f3b9edf405c45fcae780"
+      },
+      {
+        "path": "supabase/migrations/20260927001108_f889d6a8-88ae-4603-8e72-e9d0d36c0535.sql",
+        "sha256": "a40f4aba8f3f84aebb8d7e426dd47649bf722da1a13303ec43e4579e6346eb03"
+      },
+      {
+        "path": "supabase/migrations/20260927120000_remove_public_order_minimum.sql",
+        "sha256": "f4dc6960f88ab6c91efd53c4df183c09196b5e0719e2df545d3ca89daba165c1"
+      },
+      {
+        "path": "supabase/migrations/20260927130000_delivery_minimum_fee_plus_one.sql",
+        "sha256": "c8bd4de06fbc31d8b4c3b082e27c9b9da0dac58fcf2d2f238d68e01134b78668"
+      },
+      {
+        "path": "supabase/migrations/20260927140000_allow_public_order_item_additions.sql",
+        "sha256": "bbb8fb975fca932797c576949ac468a3e3440a0dbfc5c663746c5f07d25baa1c"
+      },
+      {
+        "path": "supabase/migrations/20260928120000_append_order_items_with_payment.sql",
+        "sha256": "6d3379b42b0f3e8c8ac2dadefaa14fff71f4327468863afdcbaf95489cae4f8d"
+      },
+      {
+        "path": "supabase/migrations/20260928133000_fix_append_order_items_with_payment.sql",
+        "sha256": "366d5fbbd833152ab2d0436d1194dbfb2cc5120e89c5fa10695bfce480addbe6"
+      },
+      {
+        "path": "supabase/migrations/20260928143000_fix_public_order_status_items.sql",
+        "sha256": "20a797537d4005a2436ece313c90778677ee8b9c07a5abdf9ea8870066aa8c3e"
+      },
+      {
+        "path": "supabase/migrations/20260928143100_reload_postgrest_schema.sql",
+        "sha256": "5cc20c052fcd47bc8736b8fe2fdee438cca70f6093af0b31493b9275159bc6e9"
+      },
+      {
+        "path": "supabase/migrations/20260930170000_neroxa_master_security_foundation.sql",
+        "sha256": "910032e6db7ec422ca7088da5bbcf8692b7238ad167d2ee99f6fc93b95c7fd4c"
+      },
+      {
+        "path": "supabase/migrations/20260930171000_neroxa_master_audit_foundation.sql",
+        "sha256": "4ccb436f1eb1b9820cda98a8aa172e14cb1e8f8cc2258938c12b316af578b3dd"
+      },
+      {
+        "path": "supabase/migrations/20260930173000_neroxa_master_security_hardening.sql",
+        "sha256": "2e63730b16ac13b669103cea13b4025a90ded8133f9a0b8c4bd7e6142779a8ea"
+      },
+      {
+        "path": "supabase/migrations/20260930180000_neroxa_master_clients_foundation.sql",
+        "sha256": "b723591e43e4179363601571bfcb5e8f71f72b0c3b87953a3271a92e0081a385"
+      },
+      {
+        "path": "supabase/migrations/20260930183000_neroxa_master_client_service.sql",
+        "sha256": "dadbf795711bcf07d165d617746db8db93c4c983fb978c1c56fb5953ede73212"
+      },
+      {
+        "path": "supabase/migrations/20260930190000_neroxa_master_commercial_foundation.sql",
+        "sha256": "c6677c120e90f3e7cbf07ed97b9e097d59e29bb69f6b801db6350f2871f6b23f"
+      },
+      {
+        "path": "supabase/migrations/20260930200000_neroxa_master_subscriptions_foundation.sql",
+        "sha256": "1dae572b17748d1baf2d42a3fa838df721705123dc6f2a663d54b5ee27faf810"
+      },
+      {
+        "path": "supabase/migrations/20260930210000_neroxa_master_finance_foundation.sql",
+        "sha256": "4dc74fce400366750e6222925b742370541cdd5441e387b59b1f3e4fabfb4c4f"
+      }
+    ],
+    "newCandidate": {
+      "path": "audits/02a2/sql/legacy-store-surfaces-quarantine.candidate.sql",
+      "sha256": "23fdefa37984d73339fb314833e878b48d84f3069948ebe922210877e34c513c"
+    }
+  },
+  "warning": "Hashes are compatibility controls, not SQL/RLS execution evidence. GUC is intent only. No remote executor."
+}
