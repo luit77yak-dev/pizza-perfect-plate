@@ -1,14 +1,13 @@
 import { handlePrivateTrackingRequest } from "./private-tracking";
+import { privateTrackingConfiguration, privateTrackingDependencies, type TrackingRpc } from "./private-tracking-backend";
 import { checkRuntimeBackend } from "../integrations/test-backend";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-/** Fail closed until durable ingress quota and trusted proxy integration are validated. */
+/** Production remains off even if the tracking flag is accidentally true. */
 export function handlePrivateTracking(request: Request): Promise<Response> {
   checkRuntimeBackend(true);
-  return handlePrivateTrackingRequest(request, {
-    enabled: false, // NEROXA_PRIVATE_TRACKING_ENABLED cannot bypass missing infrastructure.
-    canonicalDomains: [],
-    reserveIngress: async () => false,
-    resolveContext: async () => null,
-    track: async () => null,
-  });
+  const enabled = privateTrackingConfiguration(process.env) !== null;
+  return handlePrivateTrackingRequest(request, privateTrackingDependencies(
+    enabled ? process.env : {}, supabaseAdmin as unknown as TrackingRpc,
+  ));
 }

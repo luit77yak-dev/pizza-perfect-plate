@@ -1,3 +1,4 @@
+import { privateTrackingConfiguration } from "./private-tracking-backend";
 import { issueTrackingOnce } from "./tracking-issuance";
 import { checkRuntimeBackend } from "../integrations/test-backend";
 import { groupedContract } from "./group-contract";
@@ -53,9 +54,10 @@ export async function handlePrivateCheckout(
       { error: "Recuperação segura indisponível." },
       { status: 503, headers: { "Cache-Control": "no-store" } },
     );
-  // The buyer gateway is not integrated yet. An operator flag cannot enable
-  // half an integration or mint credentials for an unavailable tracking route.
-  if (process.env["NEROXA_PRIVATE_TRACKING_ENABLED"] === "true")
+  // Only the explicit disposable local-backend contract may exercise tracking.
+  // A production flag alone cannot activate this candidate.
+  if (process.env["NEROXA_PRIVATE_TRACKING_ENABLED"] === "true" &&
+      privateTrackingConfiguration(process.env) === null)
     return Response.json(
       { error: "Integração privada pendente de validação." },
       { status: 503, headers: { "Cache-Control": "no-store" } },
