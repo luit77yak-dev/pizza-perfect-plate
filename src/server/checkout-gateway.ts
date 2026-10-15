@@ -20,6 +20,7 @@ export type OrderResult = {
   snapshot?: Record<string, unknown>;
   /** Returned only once after a successful service-only capability registration. */
   amendment_token?: string;
+  tracking_token?: string;
 };
 
 export class CheckoutPriceChangedError extends Error {}
@@ -214,8 +215,11 @@ export async function handleCheckoutRequest(
     ) {
       return result(502, "Credencial de alteração inválida.");
     }
+    if (created.tracking_token !== undefined && !/^[A-Za-z0-9_-]{43}$/.test(created.tracking_token))
+      return result(502, "Credencial de acompanhamento inválida.");
     return Response.json(
       {
+        ...(created.tracking_token ? { tracking_token: created.tracking_token } : {}),
         order_id: created.order_id,
         order_number: Number(created.order_number),
         total: Number(created.total),

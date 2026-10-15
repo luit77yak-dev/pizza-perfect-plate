@@ -100,12 +100,12 @@ test("cannot route another store or forged host/origin to mutation", async () =>
   }
 });
 
-test("stripped Host works only for same-origin HTTPS", async () => {
+test("canonical amendment ingress rejects explicit ports even with stripped Host", async () => {
   const u = "https://" + hostname + ":4173/api/order-amend";
   const origin = "https://" + hostname + ":4173";
   const missingHost = request(body, { target: u, host: hostname, origin });
   missingHost.headers.delete("host");
-  assert.equal((await handleOrderAmendmentRequest(missingHost, setup().deps)).status, 200);
+  assert.equal((await handleOrderAmendmentRequest(missingHost, setup().deps)).status, 403);
   for (const invalid of [
     request(body, { target: u, host: hostname + ":8443", origin }),
     request(body, { target: u, host: hostname, origin: "https://" + hostname }),
@@ -165,8 +165,8 @@ test("authorization errors and stale-status conflicts never expose tokens", asyn
 test("no forwarded-host redirection or preview-domain bypass", async () => {
   const requestA = request(body, { extra: { "x-forwarded-host": "b.neroxa.example" } });
   const { deps, calls } = setup();
-  assert.equal((await handleOrderAmendmentRequest(requestA, deps)).status, 200);
-  assert.deepEqual(calls[0], ["resolve", hostname]);
+  assert.equal((await handleOrderAmendmentRequest(requestA, deps)).status, 403);
+  assert.deepEqual(calls, []);
 
   for (const blockedDomain of ["app.vercel.app", "localhost"]) {
     const target = "https://" + blockedDomain + "/api/order-amend";

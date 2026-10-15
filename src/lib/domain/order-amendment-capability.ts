@@ -1,4 +1,5 @@
-/** Browser-only, per-order buyer capability kept out of localStorage/order history. */
+/** Browser-only, per-order buyer capability held only in memory; reload requires assisted support. */
+const tokens = new Map<string, string>();
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 const UUID_PATTERN = /^[a-f0-9-]{36}$/i;
 
@@ -16,20 +17,17 @@ export function rememberBuyerAmendmentToken(
 ): boolean {
   if (!TOKEN_PATTERN.test(token) || typeof window === "undefined") return false;
   try {
-    sessionStorage.setItem(buyerAmendmentSessionKey(instanceId, orderId), token);
+    tokens.set(buyerAmendmentSessionKey(instanceId, orderId), token);
     return true;
   } catch {
     return false;
   }
 }
 
-export function readBuyerAmendmentToken(
-  instanceId: string,
-  orderId: string,
-): string | null {
+export function readBuyerAmendmentToken(instanceId: string, orderId: string): string | null {
   if (typeof window === "undefined") return null;
   try {
-    const candidate = sessionStorage.getItem(buyerAmendmentSessionKey(instanceId, orderId));
+    const candidate = tokens.get(buyerAmendmentSessionKey(instanceId, orderId));
     return candidate && TOKEN_PATTERN.test(candidate) ? candidate : null;
   } catch {
     return null;
@@ -39,8 +37,8 @@ export function readBuyerAmendmentToken(
 export function forgetBuyerAmendmentToken(instanceId: string, orderId: string): void {
   if (typeof window === "undefined") return;
   try {
-    sessionStorage.removeItem(buyerAmendmentSessionKey(instanceId, orderId));
+    tokens.delete(buyerAmendmentSessionKey(instanceId, orderId));
   } catch {
-    // Browser storage may be disabled; never log or serialize the token.
+    // Invalid identifiers may be rejected; never log or serialize the token.
   }
 }

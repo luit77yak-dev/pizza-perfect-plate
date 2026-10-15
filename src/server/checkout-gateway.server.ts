@@ -1,3 +1,6 @@
+import { orderAmendmentEnabled } from "./order-amendment-backend";
+import { privateTrackingConfiguration } from "./private-tracking-backend";
+import { issueTrackingOnce } from "./tracking-issuance";
 import { checkRuntimeBackend } from "../integrations/test-backend";
 import { groupedContract } from "./group-contract";
 import { sameDeliveryBackend } from "../core/delivery/backend-binding";
@@ -50,6 +53,18 @@ export async function handlePrivateCheckout(
   )
     return Response.json(
       { error: "Recuperação segura indisponível." },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
+    );
+  // Only the explicit disposable local-backend contract may exercise tracking.
+  // A production flag alone cannot activate this candidate.
+  if (
+    (process.env["NEROXA_PRIVATE_TRACKING_ENABLED"] === "true" &&
+      privateTrackingConfiguration(process.env) === null) ||
+    (process.env["NEROXA_CHECKOUT_AMENDMENTS_ENABLED"] === "true" &&
+      !orderAmendmentEnabled(process.env))
+  )
+    return Response.json(
+      { error: "Integração privada pendente de validação." },
       { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   // Supabase admin proxy is created only after the feature flag is checked.
@@ -171,6 +186,21 @@ export async function handlePrivateCheckout(
         process.env["NEROXA_REQUIRE_DURABLE_CHECKOUT_INTENTS"] === "true"
           ? await recover()
           : undefined;
+      // Separate tracking credential; never share the amendment capability.
+      let trackingToken: string | undefined;
+      if (process.env["NEROXA_PRIVATE_TRACKING_ENABLED"] === "true") {
+        trackingToken = await issueTrackingOnce(async (digest) => {
+          const registration = await candidate.rpc("neroxa_register_tracking_capability", {
+            p_instance_id: payload["instance_id"],
+            p_order_id: row["order_id"],
+            p_checkout_key: payload["idempotency_key"],
+            p_token_sha256: digest,
+          });
+          if (registration.error || typeof registration.data !== "boolean")
+            throw new Error("Tracking capability unavailable");
+          return registration.data;
+        });
+      }
       // Both checkout and amendments must be explicitly enabled at runtime.
       // This credential is minted by the server, never accepted from the
       // browser as a substitute for the order's authorization.
@@ -197,6 +227,7 @@ export async function handlePrivateCheckout(
             order_number: Number(row["order_number"]),
             total: Number(row["total"]),
             amendment_token: token,
+            ...(trackingToken ? { tracking_token: trackingToken } : {}),
             ...(snapshot ? { snapshot } : {}),
           };
         }
@@ -206,6 +237,7 @@ export async function handlePrivateCheckout(
         order_id: row["order_id"],
         order_number: Number(row["order_number"]),
         total: Number(row["total"]),
+        ...(trackingToken ? { tracking_token: trackingToken } : {}),
         ...(snapshot ? { snapshot } : {}),
       };
     },

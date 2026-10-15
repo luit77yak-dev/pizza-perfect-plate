@@ -42,7 +42,14 @@ const TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 const errorResponse = (status: number, message: string): Response =>
   Response.json(
     { error: message },
-    { status, headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
+    {
+      status,
+      headers: {
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "no-referrer",
+      },
+    },
   );
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -59,6 +66,12 @@ export async function handleOrderAmendmentRequest(
   const url = new URL(request.url);
   if (
     url.protocol !== "https:" ||
+    !!url.port ||
+    !!url.search ||
+    !!url.hash ||
+    request.headers.has("forwarded") ||
+    request.headers.has("x-forwarded-host") ||
+    request.headers.has("x-forwarded-proto") ||
     !url.hostname ||
     url.hostname === "localhost" ||
     url.hostname === "127.0.0.1" ||
@@ -162,6 +175,7 @@ export async function handleOrderAmendmentRequest(
     });
     if (
       !UUID_PATTERN.test(amended.order_id) ||
+      amended.order_id !== body["order_id"] ||
       !Number.isSafeInteger(Number(amended.order_number)) ||
       ![amended.subtotal, amended.total, amended.added_amount].every(
         (x) => Number.isFinite(Number(x)) && Number(x) >= 0,
@@ -179,7 +193,13 @@ export async function handleOrderAmendmentRequest(
         added_amount: Number(amended.added_amount),
         payment_state: "NOT_SETTLED",
       },
-      { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
+      {
+        headers: {
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+          "Referrer-Policy": "no-referrer",
+        },
+      },
     );
   } catch (e) {
     if (e instanceof GroupContractError)

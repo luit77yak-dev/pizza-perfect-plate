@@ -9,13 +9,9 @@ const trackingPanel = readFileSync("src/components/storefront/TrackedOrderPanel.
 const admin = readFileSync("src/routes/admin/pedidos.tsx", "utf8");
 const legacyPanel = readFileSync("src/routes/painel.tsx", "utf8");
 
-test("protected checkout must fail closed before historical phone-only amendment RPC", () => {
-  const guarded = checkout.indexOf('if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true")', checkout.indexOf("if (existingOrder)"));
-  const append = checkout.indexOf('"append_public_order_items_with_payment"');
-  assert.ok(guarded > 0 && guarded < append, "guard must precede vulnerable legacy append");
-  const relevant = checkout.slice(guarded, append);
-  assert.match(relevant, /setError\(/);
-  assert.match(relevant, /return;/);
+test("phone-only append is absent even with gateway disabled", () => {
+  assert.doesNotMatch(checkout, /append_public_order_items/);
+  assert.match(checkout, /Alteração segura indisponível/);
 });
 
 test("buyer token and RECEIVED/CONFIRMED are required for secure add-to-order CTA", () => {
@@ -28,7 +24,7 @@ test("buyer token and RECEIVED/CONFIRMED are required for secure add-to-order CT
 
 test("secure amendment requires session token, server endpoint and no phone-only fallback", () => {
   const guarded = checkout.indexOf('if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true")', checkout.indexOf("if (existingOrder)"));
-  const legacy = checkout.indexOf("// Legacy path intentionally unchanged", guarded);
+  const legacy = checkout.indexOf("// Phone/UUID never authorize", guarded);
   assert.ok(guarded > 0 && legacy > guarded);
   const block = checkout.slice(guarded, legacy);
   assert.match(block, /readBuyerAmendmentToken\(instanceId, existingOrder\.id\)/);
@@ -38,11 +34,11 @@ test("secure amendment requires session token, server endpoint and no phone-only
   assert.doesNotMatch(block, /supabase\.rpc\(/);
 });
 
-test("issued buyer credential must only be handled in browser session storage", () => {
+test("issued buyer credential stays in browser memory without persistent storage", () => {
   const capability = readFileSync("src/lib/domain/order-amendment-capability.ts", "utf8");
-  assert.match(capability, /sessionStorage\.setItem/);
-  assert.match(capability, /sessionStorage\.getItem/);
-  assert.doesNotMatch(capability, /localStorage\.(getItem|setItem|removeItem)/);
+  assert.match(capability, /tokens\.set/);
+  assert.match(capability, /tokens\.get/);
+  assert.doesNotMatch(capability, /(?:localStorage|sessionStorage)\.(getItem|setItem|removeItem)/);
   assert.match(checkout, /rememberBuyerAmendmentToken\(instanceId/);
 });
 
@@ -64,7 +60,7 @@ test("new admin panel is instance-scoped; legacy panel remains a known release b
   assert.match(legacyPanel, /\.rpc\("update_order_status"/);
 });
 
-test("public tracking is still phone-based, not token-authorized (release gate)", () => {
-  assert.match(storefront, /"get_public_order_status"/);
-  assert.match(storefront, /p_customer_phone: stored\.phone/);
+test("tracking has no UUID plus phone fallback in either consumer", () => {
+  assert.doesNotMatch(storefront, /get_public_order_status|p_customer_phone/);
+  assert.equal((storefront.match(/readPrivateTracking\(/g) ?? []).length, 2);
 });
