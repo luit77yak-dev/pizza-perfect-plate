@@ -1,3 +1,4 @@
+import { orderAmendmentEnabled } from "./order-amendment-backend";
 import { privateTrackingConfiguration } from "./private-tracking-backend";
 import { issueTrackingOnce } from "./tracking-issuance";
 import { checkRuntimeBackend } from "../integrations/test-backend";
@@ -57,8 +58,10 @@ export async function handlePrivateCheckout(
   // Only the explicit disposable local-backend contract may exercise tracking.
   // A production flag alone cannot activate this candidate.
   if (
-    process.env["NEROXA_PRIVATE_TRACKING_ENABLED"] === "true" &&
-    privateTrackingConfiguration(process.env) === null
+    (process.env["NEROXA_PRIVATE_TRACKING_ENABLED"] === "true" &&
+      privateTrackingConfiguration(process.env) === null) ||
+    (process.env["NEROXA_CHECKOUT_AMENDMENTS_ENABLED"] === "true" &&
+      !orderAmendmentEnabled(process.env))
   )
     return Response.json(
       { error: "Integração privada pendente de validação." },

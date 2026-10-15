@@ -34,11 +34,11 @@ test("secure amendment requires session token, server endpoint and no phone-only
   assert.doesNotMatch(block, /supabase\.rpc\(/);
 });
 
-test("issued buyer credential must only be handled in browser session storage", () => {
+test("issued buyer credential stays in browser memory without persistent storage", () => {
   const capability = readFileSync("src/lib/domain/order-amendment-capability.ts", "utf8");
-  assert.match(capability, /sessionStorage\.setItem/);
-  assert.match(capability, /sessionStorage\.getItem/);
-  assert.doesNotMatch(capability, /localStorage\.(getItem|setItem|removeItem)/);
+  assert.match(capability, /tokens\.set/);
+  assert.match(capability, /tokens\.get/);
+  assert.doesNotMatch(capability, /(?:localStorage|sessionStorage)\.(getItem|setItem|removeItem)/);
   assert.match(checkout, /rememberBuyerAmendmentToken\(instanceId/);
 });
 
