@@ -11,7 +11,8 @@
       "audit/migration-bridge-v1-20261013": false,
       "audit/independent-recovery-v1-20261014": false,
       "security/mission-02a2-validation-20261014": false,
-      "security/mission-02a5-private-tracking-local-20261014": false
+      "security/mission-02a5-private-tracking-local-20261014": false,
+      "fix/f02-capability-integration-20261025": false
     }
   }
 }
