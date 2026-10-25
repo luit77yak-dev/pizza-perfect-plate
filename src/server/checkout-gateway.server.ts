@@ -11,5 +11,10 @@ export function checkoutGatewayEnabled(): boolean {
 export async function handlePrivateCheckout(request: Request, recoverOnly = false): Promise<Response> {
   checkRuntimeBackend(true);
   // The proxy remains lazy; no service client is accessed while disabled.
-  return handleCheckoutWithBackend(request, process.env, supabaseAdmin, recoverOnly);
+  return handleCheckoutWithBackend(
+    request,
+    process.env,
+    supabaseAdmin as unknown as Parameters<typeof handleCheckoutWithBackend>[2],
+    recoverOnly,
+  );
 }
