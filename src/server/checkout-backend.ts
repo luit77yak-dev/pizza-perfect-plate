@@ -1,3 +1,4 @@
+import { gateHostedRpc } from "./hosted-release-core.mjs";
 import { orderAmendmentEnabled } from "./order-amendment-backend.ts";
 import { privateTrackingConfiguration } from "./private-tracking-backend.ts";
 import { issueTrackingOnce } from "./tracking-issuance.ts";
@@ -44,6 +45,7 @@ export async function handleCheckoutWithBackend(
   candidate: CandidateRpcClient,
   recoverOnly = false,
 ): Promise<Response> {
+  candidate = gateHostedRpc(env, candidate);
   if (
     recoverOnly &&
     (env["NEROXA_CHECKOUT_RECOVERY_ENABLED"] !== "true" ||
@@ -54,7 +56,7 @@ export async function handleCheckoutWithBackend(
       { error: "Recuperação segura indisponível." },
       { status: 503, headers: { "Cache-Control": "no-store" } },
     );
-  // Only the explicit disposable local-backend contract may exercise tracking.
+  // Local homologation and signed hosted admission are distinct contracts.
   // A production flag alone cannot activate this candidate.
   if (
     (env["NEROXA_PRIVATE_TRACKING_ENABLED"] === "true" &&

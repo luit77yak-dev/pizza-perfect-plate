@@ -1,10 +1,10 @@
-import { checkRuntimeBackend } from "../integrations/test-backend";
+import { assertServerAdmission } from "./hosted-admission.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { handleOrderAmendmentRequest } from "./order-amendment";
 import { orderAmendmentDependencies, orderAmendmentEnabled } from "./order-amendment-backend";
 
 export async function handlePrivateOrderAmendment(request: Request): Promise<Response> {
-  checkRuntimeBackend(true);
+  assertServerAdmission();
   const enabled = orderAmendmentEnabled(process.env);
   // Do not touch the lazy service client unless the local-only candidate is enabled.
   const backend = enabled

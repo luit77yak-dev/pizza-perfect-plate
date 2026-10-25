@@ -13,7 +13,8 @@
       "security/mission-02a2-validation-20261014": false,
       "security/mission-02a5-private-tracking-local-20261014": false,
       "fix/f02-capability-integration-20261025": false,
-      "fix/f02-legacy-consumers-20261025": false
+      "fix/f02-legacy-consumers-20261025": false,
+      "fix/f02-hosted-admission-20261025": false
     }
   }
 }

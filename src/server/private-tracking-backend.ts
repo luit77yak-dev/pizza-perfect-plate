@@ -1,3 +1,4 @@
+import { serverConfiguration, gateHostedRpc } from "./hosted-release-core.mjs";
 import { createHmac } from "node:crypto";
 import type { TrackingDependencies } from "./private-tracking.ts";
 
@@ -12,10 +13,14 @@ export type TrackingRpc = {
   }>;
 };
 
-/** This candidate is deliberately incapable of activation against a hosted backend. */
+/** Hosted activation requires separately pinned authority; default trust is closed. */
 export function privateTrackingConfiguration(
   env: Environment,
 ): { domains: string[]; secret: string } | null {
+  if (env["NEROXA_BACKEND_MODE"] === "hosted-release") {
+    if (env["NEROXA_PRIVATE_TRACKING_ENABLED"] !== "true") return null;
+    try { const config = serverConfiguration(env); return {domains: [...config.domains], secret: config.secret}; } catch { return null; }
+  }
   if (
     env["NEROXA_PRIVATE_TRACKING_ENABLED"] !== "true" ||
     env["NEROXA_BACKEND_MODE"] !== "homologation" ||
@@ -57,6 +62,7 @@ export function privateTrackingDependencies(
   env: Environment,
   backend: TrackingRpc,
 ): TrackingDependencies {
+  backend = gateHostedRpc(env, backend);
   const config = privateTrackingConfiguration(env);
   return {
     enabled: config !== null,
