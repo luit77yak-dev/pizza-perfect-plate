@@ -1,3 +1,4 @@
+import { gateHostedRpc } from "./hosted-release-core.mjs";
 import { privateTrackingConfiguration } from "./private-tracking-backend.ts";
 import { groupedContract } from "./group-contract.ts";
 import { sameDeliveryBackend } from "../core/delivery/backend-binding.ts";
@@ -37,6 +38,7 @@ export function orderAmendmentDependencies(
   env: Record<string, string | undefined>,
   candidate: CandidateRpcClient,
 ): AmendmentDependencies {
+  candidate = gateHostedRpc(env, candidate);
   const secret = env["NEROXA_CHECKOUT_RATE_LIMIT_SECRET"];
   if (!orderAmendmentEnabled(env) || !secret || Buffer.byteLength(secret, "utf8") < 32) {
     return {

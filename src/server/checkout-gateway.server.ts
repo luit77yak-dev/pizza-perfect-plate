@@ -1,15 +1,15 @@
-import { checkRuntimeBackend } from "../integrations/test-backend";
+import { assertServerAdmission } from "./hosted-admission.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { handleCheckoutWithBackend, checkoutGatewayEnabled as enabled } from "./checkout-backend";
 
 export function checkoutGatewayEnabled(): boolean {
-  checkRuntimeBackend(true);
+  assertServerAdmission();
   return enabled(process.env);
 }
 
 /** Same RPC-backed handler exercised by the disposable integration suite. */
 export async function handlePrivateCheckout(request: Request, recoverOnly = false): Promise<Response> {
-  checkRuntimeBackend(true);
+  assertServerAdmission();
   // The proxy remains lazy; no service client is accessed while disabled.
   return handleCheckoutWithBackend(
     request,

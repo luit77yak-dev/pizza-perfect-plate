@@ -4,12 +4,12 @@ import {
   privateTrackingDependencies,
   type TrackingRpc,
 } from "./private-tracking-backend";
-import { checkRuntimeBackend } from "../integrations/test-backend";
+import { assertServerAdmission } from "./hosted-admission.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 /** Production remains off even if the tracking flag is accidentally true. */
 export function handlePrivateTracking(request: Request): Promise<Response> {
-  checkRuntimeBackend(true);
+  assertServerAdmission();
   const enabled = privateTrackingConfiguration(process.env) !== null;
   return handlePrivateTrackingRequest(
     request,
