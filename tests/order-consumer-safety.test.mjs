@@ -42,11 +42,11 @@ test("issued buyer credential stays in browser memory without persistent storage
   assert.match(checkout, /rememberBuyerAmendmentToken\(instanceId/);
 });
 
-test("public order creation in protected mode must not fall back to direct RPC", () => {
-  const start = checkout.indexOf('if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] === "true")', checkout.indexOf("const payload ="));
-  const fallback = checkout.indexOf('supabase.rpc("create_public_order"', start);
-  assert.ok(start > 0 && fallback > start);
-  assert.match(checkout.slice(start, fallback), /if \(!response\.ok\) throw new Error/);
+test("disabled gateway suspends checkout without a direct public RPC fallback", () => {
+  assert.doesNotMatch(checkout, /supabase|create_public_order/);
+  assert.match(checkout, /Checkout seguro indisponível\. Solicite atendimento da loja\./);
+  assert.match(checkout, /fetch\("\/api\/checkout"/);
+  assert.match(checkout, /if \(!response\.ok\) throw new Error/);
 });
 
 test("new admin panel is instance-scoped; legacy panel remains a known release blocker", () => {

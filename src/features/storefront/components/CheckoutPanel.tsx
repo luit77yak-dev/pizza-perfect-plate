@@ -10,7 +10,6 @@ import { bindRequestIntent } from "@/core/delivery/request-intent";
 import { validateCustomerDetails } from "@/core/delivery/customer-details";
 import { useRef, useState } from "react";
 import { X } from "lucide-react";
-import { supabase } from "@/integrations/storefront-backend/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/domain/money";
@@ -361,9 +360,8 @@ export function CheckoutPanel({
           });
         } else created = await send(payload, () => {});
       } else {
-        const { data, error } = await supabase.rpc("create_public_order", { p_order: payload });
-        if (error) throw error;
-        created = data;
+        // A disabled gateway suspends creation; never downgrade to public RPC.
+        throw new Error("Checkout seguro indisponível. Solicite atendimento da loja.");
       }
 
       const order = (Array.isArray(created) ? created[0] : created) as
