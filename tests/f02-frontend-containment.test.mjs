@@ -15,6 +15,13 @@ test("buyer checkout and amendment do not use public RPC, collect personal detai
   assert.match(checkout, /Alterações do pedido temporariamente indisponíveis/);
 });
 
+test("suspended checkout notice avoids the legacy mobile two-column dialog rule", () => {
+  // The legacy CSS targets [role="dialog"] > div > div:last-child
+  // and otherwise turns the notice card into a two-column grid on mobile.
+  assert.match(checkout, /<section className="rounded-3xl border border-white\/15/);
+  assert.doesNotMatch(checkout, /<div className="rounded-3xl border border-white\/15/);
+});
+
 test("storefront never polls UUID and phone tracking or fabricates successful checkout", () => {
   assert.doesNotMatch(storefront, /get_public_order_status|p_customer_phone|supabase\.rpc\s*\(/);
   assert.doesNotMatch(storefront, /readPrivateTracking\s*\(/);
