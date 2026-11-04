@@ -39,9 +39,29 @@ const statuses: Array<{ value: OrderStatus; label: string }> = [
   { value: "CANCELLED", label: "Cancelado" },
 ];
 
+// F01/F02: do not mount the legacy administrative RPC consumer until
+// instance-scoped authorization and its hosted callers are homologated.
+// This route block does not revoke any SQL privileges.
 export const Route = createFileRoute("/admin/pedidos")({
-  component: AdminOrdersPage,
+  component: SuspendedAdminOrders,
 });
+
+function SuspendedAdminOrders() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-[#0e0c0b] px-5 py-12 text-[#f7efe6]">
+      <section className="w-full max-w-2xl rounded-2xl border border-white/15 bg-[#1a1614] p-6 sm:p-10">
+        <h1 className="font-display text-2xl font-semibold sm:text-3xl">
+          Pedidos administrativos temporariamente indisponíveis
+        </h1>
+        <p className="mt-5 text-sm leading-7 text-white/75">
+          Esta área está suspensa enquanto a NEROXA valida permissões específicas
+          por instância. Nenhum pedido poderá ser consultado ou alterado por esta
+          interface até uma autorização de reativação.
+        </p>
+      </section>
+    </main>
+  );
+}
 
 function AdminOrdersPage() {
   const [session, setSession] = useState<boolean | null>(null);
