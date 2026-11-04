@@ -52,7 +52,7 @@ export function CheckoutPanel({ onClose, existingOrder = null }: CheckoutPanelPr
       className="ppp-checkout-panel fixed inset-0 z-[140] overflow-y-auto bg-black/70 backdrop-blur-md"
     >
       <div className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center bg-[#06282d] px-6 py-12 text-[#f4eee2]">
-        <div className="rounded-3xl border border-white/15 bg-white/[.06] p-6 shadow-soft sm:p-9">
+        <section className="rounded-3xl border border-white/15 bg-white/[.06] p-6 shadow-soft sm:p-9">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
@@ -87,7 +87,7 @@ export function CheckoutPanel({ onClose, existingOrder = null }: CheckoutPanelPr
           >
             Voltar à loja
           </button>
-        </div>
+        </section>
       </div>
     </div>
   );
