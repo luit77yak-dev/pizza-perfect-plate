@@ -54,9 +54,9 @@ function SuspendedAdminOrders() {
           Pedidos administrativos temporariamente indisponíveis
         </h1>
         <p className="mt-5 text-sm leading-7 text-white/75">
-          Esta área está suspensa enquanto a NEROXA valida permissões
-          específicas por instância. Nenhum pedido poderá ser consultado ou
-          alterado por esta interface até uma autorização de reativação.
+          Esta área está suspensa enquanto a NEROXA valida permissões específicas por instância.
+          Nenhum pedido poderá ser consultado ou alterado por esta interface até uma autorização de
+          reativação.
         </p>
       </section>
     </main>
