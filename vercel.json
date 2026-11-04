@@ -1,4 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "tanstack-start"
+  "framework": "tanstack-start",
+  "git": {
+    "deploymentEnabled": {
+      "security/f02-frontend-containment-20261104": false
+    }
+  }
 }
