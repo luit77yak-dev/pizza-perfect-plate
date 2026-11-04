@@ -43,7 +43,10 @@ type CheckoutPanelProps = {
  * collect customer details, send orders or pretend that checkout succeeded.
  * The original UI remains in git history and in the isolated candidate chain.
  */
-export function CheckoutPanel({ onClose, existingOrder = null }: CheckoutPanelProps) {
+export function CheckoutPanel({
+  onClose,
+  existingOrder = null,
+}: CheckoutPanelProps) {
   return (
     <div
       role="dialog"
