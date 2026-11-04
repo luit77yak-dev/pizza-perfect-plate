@@ -7,6 +7,7 @@ const checkout = readFileSync("src/features/storefront/components/CheckoutPanel.
 const storefront = readFileSync("src/components/storefront/Storefront.tsx", "utf8");
 const panel = readFileSync("src/routes/painel.tsx", "utf8");
 const vercel = JSON.parse(readFileSync("vercel.json", "utf8"));
+const adminOrders = readFileSync("src/routes/admin/pedidos.tsx", "utf8");
 
 test("buyer checkout and amendment do not use public RPC, collect personal details, or send HTTP", () => {
   assert.doesNotMatch(checkout, /supabase|create_public_order|append_public_order_items|fetch\s*\(/);
@@ -36,6 +37,14 @@ test("organization-scoped legacy staff route is suspended, not authorized by the
   assert.doesNotMatch(panel, /component: StaffPanel,/);
   // Old code is retained temporarily but is NOT connected to the router.
   assert.match(panel, /function StaffPanel\(\)/);
+});
+
+test("remaining legacy administrative orders route is suspended", () => {
+  assert.match(adminOrders, /createFileRoute\("\/admin\/pedidos"\)\(\{\s*component: SuspendedAdminOrders,/);
+  assert.match(adminOrders, /Pedidos administrativos temporariamente indisponíveis/);
+  assert.doesNotMatch(adminOrders, /component: AdminOrdersPage,/);
+  // Legacy source is retained for review but is not the routed component.
+  assert.match(adminOrders, /function AdminOrdersPage\(\)/);
 });
 
 test("this branch has automated Vercel deployments explicitly disabled", () => {
