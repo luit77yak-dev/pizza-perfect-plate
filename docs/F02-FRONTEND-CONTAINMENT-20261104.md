@@ -72,7 +72,26 @@ O fundador forneceu capturas da vitrine, da suspensão `/painel`, do aviso de ch
 
 ## 6. Controles de lint e CI
 
-- Ferramenta estática adicional: `tools/f02-lint-baseline-delta.mjs` lê via `git show` a base congelada e o candidato, chama `ESLint.lintText()` em memória, separa `prettier/prettier` de outras regras e imprime deltas por arquivo. **Ainda não executada pelo fundador**; não promete PASS nem altera o código.
+- Ferramenta estática adicional: `tools/f02-lint-baseline-delta.mjs` lê via `git show` a base congelada e o candidato, chama `ESLint.lintText()` em memória, separa `prettier/prettier` de outras regras e imprime deltas por arquivo. **Executada pelo fundador no Termux, com resultado comparativo registrado abaixo**; não altera o código.
 - O script pode baixar o commit base público se ele não estiver disponível em clone raso; não faz checkout, fix, push, build ou CI.
 - O workflow `.github/workflows/ci.yml` é acionado por PR para `main` (inclusive draft), formata arquivos com `prettier --write`, executa ESLint e build. Exige admissão específica antes de abrir PR.
 - Dado que não houve lint completo e existem erros de formatação herdados, **lint completo permanece NÃO APROVADO**. A comparação de baseline serve para dimensionar o delta, não para dispensar lint de admissão.
+
+### Resultado real da comparação de lint — 2026-11-04
+
+Executado em clone limpo da branch no SHA `908aaa2a7b343a229d43d2b25c18c690f2d30f55`, contra a base congelada `bff5bee289cd4e911a5be012cb7b8731e48e82fd`. O comparador buscou o commit base público (clone raso) sem checkout.
+
+| Arquivo | Base: erros Prettier | Candidato: erros Prettier | Delta | Avisos base/candidato |
+| --- | ---: | ---: | ---: | ---: |
+| `Storefront.tsx` | 294 | 281 | -13 | 0 / 0 |
+| `CheckoutPanel.tsx` | 68 | 0 | -68 | 0 / 0 |
+| `painel.tsx` | 382 | 384 | +2 | 2 / 2 |
+| `admin/pedidos.tsx` | 36 | 37 | +1 | 2 / 2 |
+| **Total, 4 arquivos** | **780** | **702** | **-78** | **4 / 4** |
+
+- Todos os **702 erros atuais** desses quatro arquivos são `prettier/prettier`; **zero erros** de outras regras. Os **4 avisos de React Hooks** permanecem, sem acréscimo líquido.
+- A redução líquida de 78 **não significa zero regressões locais**: `painel.tsx` e `admin/pedidos.tsx` ganharam, respectivamente, +2 e +1 ocorrências de Prettier. Identificar as ocorrências no trecho adicionado e ajustar apenas esses trechos, sem reformatar o legado inteiro.
+- `Storefront.tsx` permanece com 281 erros herdados; o checkout novo está com **0** erros Prettier.
+- `git status --short` retornou árvore limpa. **Nenhum CI, merge, PR ou deploy** foi provocado pela comparação.
+- Isto é um **baseline relativo, não PASS de lint completo**; a auditoria está limitada aos 4 arquivos alterados e não cobre toda a árvore nem a versão do workflow em execução.
+- `.github/workflows/ci.yml` formata alguns arquivos em seu checkout temporário antes de executar ESLint; o resultado desse workflow, caso futuramente autorizado, deve ser avaliado separadamente do lint direto do clone.
