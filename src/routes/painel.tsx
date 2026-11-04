@@ -16,17 +16,14 @@ export const Route = createFileRoute("/painel")({
 function SuspendedLegacyPanel() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-5 px-6 py-12 text-foreground">
-      <h1 className="text-2xl font-semibold">
-        Painel legado temporariamente indisponível
-      </h1>
+      <h1 className="text-2xl font-semibold">Painel legado temporariamente indisponível</h1>
       <p>
-        As operações antigas de catálogo, pedidos e configurações estão
-        suspensas neste endereço enquanto validamos permissões específicas por
-        loja.
+        As operações antigas de catálogo, pedidos e configurações estão suspensas neste endereço
+        enquanto validamos permissões específicas por loja.
       </p>
       <p>
-        Nenhum dado foi alterado. Para continuar, entre em contato com o suporte
-        da Neroxa ou utilize apenas as áreas que já tenham sido homologadas.
+        Nenhum dado foi alterado. Para continuar, entre em contato com o suporte da Neroxa ou
+        utilize apenas as áreas que já tenham sido homologadas.
       </p>
     </main>
   );
