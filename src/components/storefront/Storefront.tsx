@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { supabase } from "@/integrations/storefront-backend/client";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ChevronRight, Pizza, Plus, ShoppingBag, Store, X } from "lucide-react";
 import { loadStore } from "@/features/storefront/services/load-store";
@@ -64,136 +63,11 @@ export function Storefront() {
   const [complementOrderId, setComplementOrderId] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
 
-  useEffect(() => {
-    if (!data?.organization?.id) return;
-    let cancelled = false;
+  // F02 containment: order tracking needs a private buyer capability.
+  // Do not read phone-based local receipts or poll the legacy public RPC.
+  // Existing browser storage is left untouched for assisted recovery.
+  // trackedOrders stays empty until a separately admitted private gateway exists.
 
-    const loadTrackedOrders = async () => {
-      try {
-        const raw = localStorage.getItem(`ppp:tracked-orders:${data.organization.id}`) ?? localStorage.getItem(`ppp:last-order:${data.organization.id}`);
-        if (!raw) {
-          if (!cancelled) {
-            setTrackedOrders([]);
-            setSelectedTrackedOrderId(null);
-          }
-          return;
-        }
-
-        const parsed = JSON.parse(raw);
-        const storedOrders = (Array.isArray(parsed) ? parsed : [parsed]).filter(
-          (item): item is TrackedOrder =>
-            Boolean(item?.id && item?.phone),
-        );
-
-        if (storedOrders.length === 0) {
-          if (!cancelled) {
-            setTrackedOrders([]);
-            setSelectedTrackedOrderId(null);
-          }
-          return;
-        }
-
-        // Local snapshots are the source of truth for showing the order immediately.
-        // The RPC only enriches/updates the snapshot; a temporary RPC/schema-cache
-        // failure must never make the tracking UI disappear.
-        const storedActiveOrders: TrackedOrder[] = storedOrders
-          .map((stored) => ({
-            ...stored,
-            status: stored.status ?? "RECEIVED",
-          }))
-          .filter(
-            (stored) =>
-              stored.status !== "DELIVERED" &&
-              stored.status !== "CANCELLED",
-          );
-
-        if (!cancelled) {
-          setTrackedOrders(storedActiveOrders);
-          setSelectedTrackedOrderId((current) =>
-            current && storedActiveOrders.some((order) => order.id === current)
-              ? current
-              : storedActiveOrders[0]?.id ?? null,
-          );
-        }
-
-        const results = await Promise.all(
-          storedActiveOrders.map(async (stored) => {
-            const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
-              p_order_id: stored.id,
-              p_customer_phone: stored.phone,
-            });
-            const current = (Array.isArray(tracking) ? tracking[0] : tracking) as ({ order_number?: unknown; items?: unknown; subtotal?: unknown; total?: unknown; fulfillment?: "DELIVERY" | "PICKUP"; status?: string }) | null | undefined;
-            return {
-              stored,
-              current,
-              error,
-              status: current?.status as OrderStatus | undefined,
-            };
-          }),
-        );
-
-        if (cancelled) return;
-
-        const activeOrders: TrackedOrder[] = results
-          .map(({ stored, current, status }) => ({
-            ...stored,
-            number:
-              Number.isFinite(Number(current?.order_number)) &&
-              Number(current?.order_number) > 0
-                ? Number(current?.order_number)
-                : stored.number,
-            items: Array.isArray(current?.items)
-              ? (current.items as unknown as CartItem[])
-              : stored.items,
-            subtotal: Number.isFinite(Number(current?.subtotal))
-              ? Number(current?.subtotal)
-              : stored.subtotal,
-            total: Number.isFinite(Number(current?.total))
-              ? Number(current?.total)
-              : stored.total,
-            fulfillment: current?.fulfillment ?? stored.fulfillment,
-            status: status ?? stored.status ?? "RECEIVED",
-          }))
-          .filter(
-            (order) =>
-              order.status !== "DELIVERED" &&
-              order.status !== "CANCELLED",
-          );
-
-        setTrackedOrders(activeOrders);
-        setSelectedTrackedOrderId((current) =>
-          current && activeOrders.some((order) => order.id === current)
-            ? current
-            : activeOrders[0]?.id ?? null,
-        );
-
-        if (activeOrders.length > 0) {
-          localStorage.setItem(
-            `ppp:tracked-orders:${data.organization.id}`,
-            JSON.stringify(activeOrders),
-          );
-        } else {
-          localStorage.removeItem(`ppp:tracked-orders:${data.organization.id}`);
-          localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
-        }
-      } catch {
-        if (!cancelled) {
-          setTrackedOrders([]);
-          setSelectedTrackedOrderId(null);
-        }
-      }
-    };
-
-    void loadTrackedOrders();
-    const interval = window.setInterval(() => {
-      void loadTrackedOrders();
-    }, 5000);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
-  }, [data?.organization?.id]);
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 30_000);
     return () => window.clearInterval(interval);
@@ -886,85 +760,9 @@ export function Storefront() {
           }
           storeOpen={status.open}
           storeStatusLabel={status.label}
-          onSuccess={async (order) => {
-            if (!activeComplementOrderId) cart.clear();
-            setComplementItems([]);
-            setSelectedComplementIds([]);
-            setComplementOrderId(null);
-
-            // Refresh the complete public snapshot immediately so the tracking panel
-            // shows the real items and total after both a new order and an addition.
-            let snapshot = null as { items?: unknown; status?: string; order_number?: unknown; subtotal?: unknown; total?: unknown; fulfillment?: unknown } | null;
-            try {
-              const { data: tracking } = await supabase.rpc("get_public_order_status", {
-                p_order_id: order.id,
-                p_customer_phone: order.phone,
-              });
-              const current = Array.isArray(tracking) ? tracking[0] : tracking;
-              if (current && typeof current === "object") {
-                snapshot = current as NonNullable<typeof snapshot>;
-              }
-            } catch {
-              // The normal tracking refresh will retry shortly.
-            }
-
-            setTrackedOrders((current) => {
-              const previous = current.find((item) => item.id === order.id);
-              const snapshotItems = Array.isArray(snapshot?.items)
-                ? (snapshot?.items as unknown as CartItem[])
-                : undefined;
-              const snapshotStatus = snapshot?.status as OrderStatus | undefined;
-              const nextOrder: TrackedOrder = {
-                ...(previous ?? {}),
-                ...order,
-                number:
-                  Number.isFinite(Number(snapshot?.order_number)) &&
-                  Number(snapshot?.order_number) > 0
-                    ? Number(snapshot?.order_number)
-                    : order.number,
-                // Prefer the fresh RPC snapshot, then the checkout payload, then
-                // the previous tracked snapshot. This keeps new orders populated even
-                // when the tracking RPC has not been refreshed yet.
-                items: snapshotItems ?? order.items ?? previous?.items,
-                subtotal: Number.isFinite(Number(snapshot?.subtotal))
-                  ? Number(snapshot?.subtotal)
-                  : Number.isFinite(Number(order.subtotal))
-                    ? Number(order.subtotal)
-                    : previous?.subtotal,
-                total: Number.isFinite(Number(snapshot?.total))
-                  ? Number(snapshot?.total)
-                  : Number.isFinite(Number(order.total))
-                    ? Number(order.total)
-                    : previous?.total,
-                fulfillment:
-                  (snapshot?.fulfillment as TrackedOrder["fulfillment"] | undefined) ??
-                  order.fulfillment ??
-                  previous?.fulfillment,
-                status: snapshotStatus ?? (order.status as OrderStatus | undefined) ?? previous?.status ?? "RECEIVED",
-              };
-              const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
-              try {
-                localStorage.setItem(
-                  `ppp:tracked-orders:${data.organization.id}`,
-                  JSON.stringify(next),
-                );
-              } catch {
-                // Ignore storage failures; tracking still works for the current session.
-              }
-              return next;
-            });
-
-            setSelectedTrackedOrderId(order.id);
-            setCheckoutOpen(false);
-            setTrackingOpen(true);
-            try {
-              localStorage.setItem(
-                `ppp:last-order:${data.organization.id}`,
-                JSON.stringify(order),
-              );
-            } catch {
-              // Ignore storage failures.
-            }
+          onSuccess={() => {
+            // Unreachable while checkout is suspended. Never infer a successful
+            // purchase or fetch status using an order ID plus a phone number.
           }}
 
         />
