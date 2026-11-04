@@ -107,14 +107,15 @@ try {
   console.log('Compilando cópia temporária sem backend real... SHA=' + sha);
   const result = spawnSync(process.execPath, [vite, 'build'], { cwd: work, env, stdio: 'inherit' });
   if (result.status !== 0) throw Error('Build sintético falhou: ' + (result.status ?? result.error));
+  console.log('Vite dev local (evita incompatibilidade do preview Nitro/TanStack).');
   console.log('ABRA NO CHROME DO MESMO CELULAR: ' + site);
   console.log('PAINEL BLOQUEADO: ' + site + '/painel');
   console.log('RECIBO NO NAVEGADOR: ' + api + '/__health');
   console.log('Ctrl+C encerra e apaga somente a cópia temporária.');
-  preview = spawn(process.execPath, [vite, 'preview', '--host', '127.0.0.1', '--port', '4173', '--strictPort'], { cwd: work, env, stdio: 'inherit' });
+  preview = spawn(process.execPath, [vite, 'dev', '--host', '127.0.0.1', '--port', '4173', '--strictPort'], { cwd: work, env, stdio: 'inherit' });
   process.once('SIGINT', () => { stop(); process.exit(0); });
   process.once('SIGTERM', () => { stop(); process.exit(0); });
-  preview.once('exit', (code) => { console.log('Preview saiu:', code); stop(); });
+  preview.once('exit', (code) => { console.log('Servidor Vite local saiu:', code); stop(); });
 } catch (error) {
   console.error('F02_LOCAL_BLOCKED:', error.message ?? error);
   stop(); process.exitCode = 1;
