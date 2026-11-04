@@ -43,10 +43,7 @@ type CheckoutPanelProps = {
  * collect customer details, send orders or pretend that checkout succeeded.
  * The original UI remains in git history and in the isolated candidate chain.
  */
-export function CheckoutPanel({
-  onClose,
-  existingOrder = null,
-}: CheckoutPanelProps) {
+export function CheckoutPanel({ onClose, existingOrder = null }: CheckoutPanelProps) {
   return (
     <div
       role="dialog"
@@ -80,9 +77,8 @@ export function CheckoutPanel({
             </button>
           </div>
           <p className="mt-5 text-sm leading-6 text-[#f4eee2]/85">
-            Este canal está em validação de segurança. Nenhum pedido ou alteração
-            será enviado aqui. Entre em contato com a loja pelo canal oficial
-            para receber atendimento.
+            Este canal está em validação de segurança. Nenhum pedido ou alteração será enviado aqui.
+            Entre em contato com a loja pelo canal oficial para receber atendimento.
           </p>
           <button
             type="button"
