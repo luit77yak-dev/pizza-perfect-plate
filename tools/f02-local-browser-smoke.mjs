@@ -1,7 +1,7 @@
 // NEROXA F02 — preview local sintético. Não usa Supabase hospedado nem faz deploy.
 import { createServer } from 'node:http';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -57,18 +57,21 @@ try {
   created = true;
   symlinkSync(join(root, 'node_modules'), join(work, 'node_modules'), 'dir');
   for (const path of ['src/integrations/storefront-backend/client.ts', 'src/integrations/supabase/client.ts']) {
-    replaceOnce(path, remote, api);
+    replaceOnce(path, remote, site);
     replaceOnce(path, 'return fetch(input, { ...init, headers });',
       "const target = new URL(typeof input === 'string' ? input : input instanceof Request ? input.url : String(input));\n" +
-      "      if (target.origin !== '" + api + "') throw new Error('F02 BLOCKED nonlocal RPC');\n" +
+      "      if (target.origin !== '" + site + "') throw new Error('F02 BLOCKED nonlocal RPC');\n" +
       '      return fetch(input, { ...init, headers });');
   }
+  // Proxy local de mesma origem evita CORS e conserva os contadores da RPC fictícia.
+  replaceOnce('vite.config.ts', 'export default defineConfig({\n  tanstackStart:',
+    "export default defineConfig({\n  vite: { server: { proxy: { '/rest/v1': { target: '" + api + "', changeOrigin: true }, '/auth/v1': { target: '" + api + "', changeOrigin: true } } } },\n  tanstackStart:");
   // Horários sintéticos somente na cópia: o código de produto ainda retorna [] e fecha a loja.
   replaceOnce('src/features/storefront/services/load-store.ts',
     'hours: [], specialHours: [], deliveryZones,',
     "hours: Array.from({length: 7}, (_, weekday) => ({id: 'fixture-'+weekday, organization_id: context.organization_id, weekday, opens_at: '00:00', closes_at: '23:59', closed: false})) as never[], specialHours: [], deliveryZones,");
   // O CSP bloqueia conexões, recursos e formulários externos no navegador.
-  const policy = ["default-src 'self' data: blob:", "connect-src 'self' " + api,
+  const policy = ["default-src 'self' data: blob:", "connect-src 'self' ws://127.0.0.1:4173",
     "img-src 'self' data: blob:", "font-src 'self' data:",
     "style-src 'self' 'unsafe-inline'", "script-src 'self' 'unsafe-inline'",
     "worker-src 'self' blob:", "object-src 'none'", "form-action 'none'"].join('; ');
@@ -76,7 +79,7 @@ try {
     '<head>\n        <meta httpEquiv="Content-Security-Policy" content={' + JSON.stringify(policy) + '} />\n        <HeadContent />');
   const env = { ...process.env };
   for (const k of Object.keys(env)) if (/^(VITE_|SUPABASE_|NEROXA_|PUBLIC_)/.test(k)) delete env[k];
-  env.SUPABASE_URL = env.VITE_SUPABASE_URL = api;
+  env.SUPABASE_URL = env.VITE_SUPABASE_URL = site;
   env.SUPABASE_PUBLISHABLE_KEY = env.VITE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_fixture_only';
   mock = createServer(async (req, res) => {
     const route = new URL(req.url ?? '/', api).pathname;
@@ -107,7 +110,26 @@ try {
   console.log('Compilando cópia temporária sem backend real... SHA=' + sha);
   const result = spawnSync(process.execPath, [vite, 'build'], { cwd: work, env, stdio: 'inherit' });
   if (result.status !== 0) throw Error('Build sintético falhou: ' + (result.status ?? result.error));
-  console.log('Vite dev local (evita incompatibilidade do preview Nitro/TanStack).');
+  // Build gera o CSS válido; o transform CSS do Vite dev falha com dangling combinator
+  // nesta combinação de ferramentas. Use a saída gerada, só na worktree descartável.
+  const builtCss = [];
+  function collectCss(dir) {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const filename = join(dir, entry.name);
+      if (entry.isDirectory()) collectCss(filename);
+      else if (entry.name.endsWith('.css')) builtCss.push(filename);
+    }
+  }
+  collectCss(join(work, '.output', 'public'));
+  if (!builtCss.length) throw Error('CSS compilado não localizado na saída. Sem fallback para CSS inseguro.');
+  builtCss.sort();
+  mkdirSync(join(work, 'public'), { recursive: true });
+  writeFileSync(join(work, 'public', 'f02-local-compiled.css'), builtCss.map(p => readFileSync(p, 'utf8')).join('\n'));
+  replaceOnce('src/routes/__root.tsx',
+    'import appCss from "../styles.css?url";',
+    'const appCss = "/f02-local-compiled.css";');
+  console.log('CSS pré-compilado: ' + builtCss.length + ' arquivo(s), somente na cópia de teste.');
+  console.log('Vite dev local com RPC fictícia pela mesma origem.');
   console.log('ABRA NO CHROME DO MESMO CELULAR: ' + site);
   console.log('PAINEL BLOQUEADO: ' + site + '/painel');
   console.log('RECIBO NO NAVEGADOR: ' + api + '/__health');
