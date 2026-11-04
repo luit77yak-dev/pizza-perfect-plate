@@ -15,8 +15,9 @@ const paths = [
   "src/routes/painel.tsx",
   "src/routes/admin/pedidos.tsx",
 ];
-const git = (...args) =>
-  execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+const gitRaw = (...args) =>
+  execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+const git = (...args) => gitRaw(...args).trim();
 function hasCommit(sha) {
   try {
     git("cat-file", "-e", sha + "^{commit}");
@@ -64,8 +65,8 @@ try {
   const results = [];
   for (const path of paths) {
     const absolute = join(root, path);
-    const baseSource = git("show", baseSha + ":" + path);
-    const headSource = git("show", head + ":" + path);
+    const baseSource = gitRaw("show", baseSha + ":" + path);
+    const headSource = gitRaw("show", head + ":" + path);
     const base = summarize((await eslint.lintText(baseSource, { filePath: absolute }))[0]);
     const candidate = summarize((await eslint.lintText(headSource, { filePath: absolute }))[0]);
     for (const key of Object.keys(totals.base)) {
