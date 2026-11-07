@@ -38,5 +38,8 @@ jobs:
       - name: Check server checkout boundary
         run: node --experimental-strip-types --test tests/pilot-checkout-closed.test.mjs
 
+      - name: Check checkout request ingress A/B and HTTP negatives
+        run: node --experimental-strip-types --test tests/checkout-gateway.test.mjs
+
       - name: Build
         run: npm run build
