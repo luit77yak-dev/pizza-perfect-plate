@@ -1,3 +1,4 @@
+import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
 import { Minus, Plus, ShoppingBag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
@@ -30,19 +31,27 @@ export function CartPanel({
   deliveryEnabled: boolean;
   onCheckout: () => void;
 }) {
+  const dialogRef = useCustomerDialog(onClose);
   return (
     <div
       className="ppp-cart-panel fixed inset-0 z-[120] bg-foreground/35 backdrop-blur-sm"
+      ref={dialogRef}
+      data-customer-dialog
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-label="Carrinho"
     >
       <button
+        tabIndex={-1}
         className="absolute inset-0 cursor-default"
         onClick={onClose}
         aria-label="Fechar carrinho"
       />
-      <aside className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-background shadow-lifted">
+      <aside
+        data-order-surface
+        className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-background shadow-lifted"
+      >
         <div className="flex items-center justify-between border-b px-5 py-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">
@@ -50,7 +59,11 @@ export function CartPanel({
             </p>
             <h2 className="text-2xl">Carrinho</h2>
           </div>
-          <button onClick={onClose} aria-label="Fechar" className="rounded-[14px] p-2 hover:bg-muted">
+          <button
+            onClick={onClose}
+            aria-label="Fechar"
+            className="rounded-[14px] p-2 hover:bg-muted"
+          >
             <X className="size-5" />
           </button>
         </div>
@@ -138,7 +151,7 @@ export function CartPanel({
           )}
         </div>
 
-        <div className="border-t bg-card p-5">
+        <div data-order-footer className="border-t bg-card p-5">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
             <span className="text-xl font-bold">{formatCurrency(subtotal)}</span>
@@ -148,6 +161,12 @@ export function CartPanel({
           </p>
           {deliveryEnabled && minOrderAmount > 0 && subtotal < minOrderAmount && (
             <div className="mt-3 rounded-2xl bg-primary/5 p-3 text-sm">
+              <progress
+                className="forno-minimum-progress"
+                max={100}
+                value={Math.min(100, Math.round((subtotal / minOrderAmount) * 100))}
+                aria-label="Progresso até o pedido mínimo para entrega"
+              />
               <p className="font-semibold text-primary">
                 Pedido mínimo para entrega: {formatCurrency(minOrderAmount)}
               </p>

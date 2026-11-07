@@ -1,3 +1,4 @@
+import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
 import { Check, Clock3, Plus, Pizza, ShoppingBag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
@@ -16,14 +17,22 @@ export type PublicTrackedOrder = {
 
 function getTrackedOrderStatusLabel(status?: OrderStatus) {
   switch (status) {
-    case "RECEIVED": return "Pedido recebido";
-    case "CONFIRMED": return "Pedido confirmado";
-    case "PREPARING": return "Em preparo";
-    case "READY": return "Pronto";
-    case "OUT_FOR_DELIVERY": return "Saiu para entrega";
-    case "DELIVERED": return "Entregue";
-    case "CANCELLED": return "Cancelado";
-    default: return "Em andamento";
+    case "RECEIVED":
+      return "Pedido recebido";
+    case "CONFIRMED":
+      return "Pedido confirmado";
+    case "PREPARING":
+      return "Em preparo";
+    case "READY":
+      return "Pronto";
+    case "OUT_FOR_DELIVERY":
+      return "Saiu para entrega";
+    case "DELIVERED":
+      return "Entregue";
+    case "CANCELLED":
+      return "Cancelado";
+    default:
+      return "Em andamento";
   }
 }
 
@@ -40,6 +49,7 @@ export function TrackedOrderPanel({
   availableOrders?: PublicTrackedOrder[];
   onSelectOrder?: (orderId: string) => void;
 }) {
+  const dialogRef = useCustomerDialog(onClose);
   const currentStatus = order.status ?? "RECEIVED";
   const canAddMore = ["RECEIVED", "CONFIRMED", "PREPARING", "READY"].includes(currentStatus);
   const items = Array.isArray(order.items)
@@ -56,10 +66,20 @@ export function TrackedOrderPanel({
   const steps = [
     { status: "RECEIVED" as OrderStatus, label: "Recebido", description: "Pedido recebido" },
     { status: "CONFIRMED" as OrderStatus, label: "Confirmado", description: "Pedido confirmado" },
-    { status: "PREPARING" as OrderStatus, label: "Em preparo", description: "A cozinha está preparando" },
+    {
+      status: "PREPARING" as OrderStatus,
+      label: "Em preparo",
+      description: "A cozinha está preparando",
+    },
     { status: "READY" as OrderStatus, label: "Pronto", description: "Tudo pronto" },
     ...(order.fulfillment === "DELIVERY" || currentStatus === "OUT_FOR_DELIVERY"
-      ? [{ status: "OUT_FOR_DELIVERY" as OrderStatus, label: "A caminho", description: "Saiu para entrega" }]
+      ? [
+          {
+            status: "OUT_FOR_DELIVERY" as OrderStatus,
+            label: "A caminho",
+            description: "Saiu para entrega",
+          },
+        ]
       : []),
   ];
   const statusIndex = steps.findIndex((step) => step.status === currentStatus);
@@ -75,27 +95,46 @@ export function TrackedOrderPanel({
         : Math.min(100, Math.round((activeIndex / (steps.length - 1)) * 100));
 
   const statusMessage =
-    currentStatus === "RECEIVED" ? "Recebemos seu pedido e já estamos cuidando dele." :
-    currentStatus === "CONFIRMED" ? "Seu pedido foi confirmado e vai entrar na preparação." :
-    currentStatus === "PREPARING" ? "A cozinha está preparando tudo com carinho." :
-    currentStatus === "READY" ? order.fulfillment === "DELIVERY" ? "Seu pedido está pronto e aguardando a saída para entrega." : "Seu pedido está pronto para retirada." :
-    currentStatus === "OUT_FOR_DELIVERY" ? "Seu pedido saiu para entrega. Já já chega até você." :
-    currentStatus === "DELIVERED" ? "Pedido entregue. Bom apetite!" :
-    currentStatus === "CANCELLED" ? "Este pedido foi cancelado." :
-    "Estamos atualizando o status do seu pedido.";
+    currentStatus === "RECEIVED"
+      ? "Recebemos seu pedido e já estamos cuidando dele."
+      : currentStatus === "CONFIRMED"
+        ? "Seu pedido foi confirmado e vai entrar na preparação."
+        : currentStatus === "PREPARING"
+          ? "A cozinha está preparando tudo com carinho."
+          : currentStatus === "READY"
+            ? order.fulfillment === "DELIVERY"
+              ? "Seu pedido está pronto e aguardando a saída para entrega."
+              : "Seu pedido está pronto para retirada."
+            : currentStatus === "OUT_FOR_DELIVERY"
+              ? "Seu pedido saiu para entrega. Já já chega até você."
+              : currentStatus === "DELIVERED"
+                ? "Pedido entregue. Bom apetite!"
+                : currentStatus === "CANCELLED"
+                  ? "Este pedido foi cancelado."
+                  : "Estamos atualizando o status do seu pedido.";
 
   return (
     <div
       className="ppp-tracked-order-panel fixed inset-0 z-[180] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-5"
+      ref={dialogRef}
+      data-customer-dialog
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-label={`Acompanhar pedido #${orderNumber}`}
     >
-      <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Fechar acompanhamento" />
-      <section className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#06282d] text-[#f4eee2] shadow-2xl sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem]">
-        <header
-          className="relative shrink-0 overflow-hidden border-b border-black/10 bg-[#e8751a] px-5 pb-5 pt-4 text-white sm:px-7 sm:pb-6"
-        >
+      <button
+        type="button"
+        tabIndex={-1}
+        className="absolute inset-0 cursor-default"
+        onClick={onClose}
+        aria-label="Fechar acompanhamento"
+      />
+      <section
+        data-order-surface
+        className="relative flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-[#06282d] text-[#f4eee2] shadow-2xl sm:max-h-[min(900px,92dvh)] sm:rounded-[2rem]"
+      >
+        <header className="relative shrink-0 overflow-hidden border-b border-black/10 bg-[#e8751a] px-5 pb-5 pt-4 text-white sm:px-7 sm:pb-6">
           <div className="relative flex items-start justify-between gap-4">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -103,8 +142,12 @@ export function TrackedOrderPanel({
                   <ShoppingBag className="size-5" strokeWidth={1.9} />
                 </span>
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-[.2em] text-white/85">Acompanhamento</p>
-                  <h2 className="mt-0.5 truncate font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">Pedido #{orderNumber}</h2>
+                  <p className="text-[9px] font-black uppercase tracking-[.2em] text-white/85">
+                    Acompanhamento
+                  </p>
+                  <h2 className="mt-0.5 truncate font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                    Pedido #{orderNumber}
+                  </h2>
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-[#f4eee2]/65">
@@ -116,7 +159,12 @@ export function TrackedOrderPanel({
                 </span>
               </div>
             </div>
-            <button type="button" onClick={onClose} className="relative grid size-10 shrink-0 place-items-center rounded-full border border-white/30 bg-white/10 text-white transition hover:bg-white/20 active:scale-95" aria-label="Fechar">
+            <button
+              type="button"
+              onClick={onClose}
+              className="relative grid size-10 shrink-0 place-items-center rounded-full border border-white/30 bg-white/10 text-white transition hover:bg-white/20 active:scale-95"
+              aria-label="Fechar"
+            >
               <X className="size-4" />
             </button>
           </div>
@@ -156,30 +204,70 @@ export function TrackedOrderPanel({
               <div className="p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">Agora</p>
-                    <h3 className="mt-1 text-xl font-black tracking-tight">{getTrackedOrderStatusLabel(currentStatus)}</h3>
-                    <p className="mt-1.5 max-w-lg text-xs leading-5 text-background/50">{statusMessage}</p>
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-primary">
+                      Agora
+                    </p>
+                    <h3 className="mt-1 text-xl font-black tracking-tight">
+                      {getTrackedOrderStatusLabel(currentStatus)}
+                    </h3>
+                    <p className="mt-1.5 max-w-lg text-xs leading-5 text-background/50">
+                      {statusMessage}
+                    </p>
                   </div>
                   <div className="hidden size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary sm:grid">
-                    {currentStatus === "PREPARING" ? <Pizza className="size-5" /> : currentStatus === "OUT_FOR_DELIVERY" ? <ShoppingBag className="size-5" /> : <Clock3 className="size-5" />}
+                    {currentStatus === "PREPARING" ? (
+                      <Pizza className="size-5" />
+                    ) : currentStatus === "OUT_FOR_DELIVERY" ? (
+                      <ShoppingBag className="size-5" />
+                    ) : (
+                      <Clock3 className="size-5" />
+                    )}
                   </div>
                 </div>
 
                 {!isCancelled && (
                   <div className="mt-5">
                     <div className="h-1.5 overflow-hidden rounded-full bg-background/5">
-                      <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${progressPercent}%` }} />
+                      <div
+                        className="h-full rounded-full bg-primary transition-all duration-700"
+                        style={{ width: `${progressPercent}%` }}
+                      />
                     </div>
-                    <div className={steps.length === 5 ? "mt-4 grid grid-cols-5 gap-1" : "mt-4 grid grid-cols-4 gap-1"}>
+                    <div
+                      className={
+                        steps.length === 5
+                          ? "mt-4 grid grid-cols-5 gap-1"
+                          : "mt-4 grid grid-cols-4 gap-1"
+                      }
+                    >
                       {steps.map((step, index) => {
                         const complete = index < activeIndex || isFinished;
                         const active = index === activeIndex && !isFinished;
                         return (
-                          <div key={step.status} className="min-w-0 text-center">
-                            <div className={"mx-auto grid size-7 place-items-center rounded-full border text-[9px] font-black transition sm:size-8 " + (complete || active ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-background/10 bg-[#0d1117] text-muted-foreground")}>
+                          <div
+                            key={step.status}
+                            data-order-step
+                            aria-current={active ? "step" : undefined}
+                            className="min-w-0 text-center"
+                          >
+                            <div
+                              className={
+                                "mx-auto grid size-7 place-items-center rounded-full border text-[9px] font-black transition sm:size-8 " +
+                                (complete || active
+                                  ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                                  : "border-background/10 bg-[#0d1117] text-muted-foreground")
+                              }
+                            >
                               {complete ? <Check className="size-3.5" /> : index + 1}
                             </div>
-                            <p className={"mt-1.5 truncate text-[8px] font-bold uppercase tracking-[.06em] sm:text-[9px] " + (active || complete ? "text-background" : "text-muted-foreground")}>{step.label}</p>
+                            <p
+                              className={
+                                "mt-1.5 truncate text-[8px] font-bold uppercase tracking-[.06em] sm:text-[9px] " +
+                                (active || complete ? "text-background" : "text-muted-foreground")
+                              }
+                            >
+                              {step.label}
+                            </p>
                           </div>
                         );
                       })}
@@ -205,48 +293,75 @@ export function TrackedOrderPanel({
                   <Plus className="size-4" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-black text-[#f4eee2]">Esqueceu alguma coisa?</span>
-                  <span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">Adicione bebidas, acompanhamentos ou sobremesas ao pedido.</span>
+                  <span className="block text-sm font-black text-[#f4eee2]">
+                    Esqueceu alguma coisa?
+                  </span>
+                  <span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">
+                    Adicione bebidas, acompanhamentos ou sobremesas ao pedido.
+                  </span>
                 </span>
-                
               </button>
             )}
 
             <section className="overflow-hidden rounded-3xl border border-background/10 bg-background/[.035] shadow-sm">
               <div className="flex items-center justify-between gap-3 border-b border-background/10 px-4 py-3.5 sm:px-5 sm:py-4">
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-muted-foreground">Resumo</p>
+                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-muted-foreground">
+                    Resumo
+                  </p>
                   <h3 className="mt-0.5 text-base font-black">Itens do pedido</h3>
                 </div>
-                <span className="rounded-full bg-muted px-2.5 py-1 text-[9px] font-bold text-muted-foreground">{itemCount} {itemCount === 1 ? "item" : "itens"}</span>
+                <span className="rounded-full bg-muted px-2.5 py-1 text-[9px] font-bold text-muted-foreground">
+                  {itemCount} {itemCount === 1 ? "item" : "itens"}
+                </span>
               </div>
 
               <div className="divide-y">
-                {items.length > 0 ? items.map((item, index) => {
-                  const quantity = Number(item.quantity) || 0;
-                  const unitPrice = Number(item.unitPrice) || 0;
-                  const extras = [
-                    ...(item.sizeName ? [item.sizeName] : []),
-                    ...(item.crustName ? [item.crustName] : []),
-                    ...((item.addons ?? []).map((addon) => addon.name)),
-                    ...((item.complements ?? []).map((complement) => complement.productName)),
-                  ];
-                  return (
-                    <div key={item.lineId || item.productId || (item.productName || "item") + "-" + index} className="flex gap-3 px-4 py-3.5 sm:px-5">
-                      <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-primary">
-                        <Pizza className="size-4" />
+                {items.length > 0 ? (
+                  items.map((item, index) => {
+                    const quantity = Number(item.quantity) || 0;
+                    const unitPrice = Number(item.unitPrice) || 0;
+                    const extras = [
+                      ...(item.sizeName ? [item.sizeName] : []),
+                      ...(item.crustName ? [item.crustName] : []),
+                      ...(item.addons ?? []).map((addon) => addon.name),
+                      ...(item.complements ?? []).map((complement) => complement.productName),
+                    ];
+                    return (
+                      <div
+                        key={
+                          item.lineId ||
+                          item.productId ||
+                          (item.productName || "item") + "-" + index
+                        }
+                        className="flex gap-3 px-4 py-3.5 sm:px-5"
+                      >
+                        <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-primary">
+                          <Pizza className="size-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-bold">
+                            {quantity}× {item.productName || "Item"}
+                            {item.secondProductName ? " + " + item.secondProductName : ""}
+                          </p>
+                          {extras.length > 0 && (
+                            <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-muted-foreground">
+                              {extras.join(" ")}
+                            </p>
+                          )}
+                        </div>
+                        <span className="shrink-0 pt-0.5 text-sm font-bold">
+                          {formatCurrency(unitPrice * quantity)}
+                        </span>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold">{quantity}× {item.productName || "Item"}{item.secondProductName ? " + " + item.secondProductName : ""}</p>
-                        {extras.length > 0 && <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-muted-foreground">{extras.join(" ")}</p>}
-                      </div>
-                      <span className="shrink-0 pt-0.5 text-sm font-bold">{formatCurrency(unitPrice * quantity)}</span>
-                    </div>
-                  );
-                }) : (
+                    );
+                  })
+                ) : (
                   <div className="p-6 text-center">
                     <ShoppingBag className="mx-auto size-7 text-muted-foreground/50" />
-                    <p className="mt-2 text-xs text-muted-foreground">Os itens deste pedido não estão disponíveis nesta sessão.</p>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Os itens deste pedido não estão disponíveis nesta sessão.
+                    </p>
                   </div>
                 )}
               </div>
@@ -254,10 +369,18 @@ export function TrackedOrderPanel({
               <div className="border-t border-background/10 bg-[#0a0e14] px-4 py-4 sm:px-5">
                 <div className="flex items-end justify-between gap-4">
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[.16em] text-muted-foreground">Total do pedido</p>
-                    <p className="mt-0.5 font-display text-2xl tracking-tight sm:text-3xl">{formatCurrency(orderTotal)}</p>
+                    <p className="text-[9px] font-black uppercase tracking-[.16em] text-muted-foreground">
+                      Total do pedido
+                    </p>
+                    <p className="mt-0.5 font-display text-2xl tracking-tight sm:text-3xl">
+                      {formatCurrency(orderTotal)}
+                    </p>
                   </div>
-                  {canAddMore && <span className="text-[10px] font-semibold text-muted-foreground">Você pode acrescentar itens</span>}
+                  {canAddMore && (
+                    <span className="text-[10px] font-semibold text-muted-foreground">
+                      Você pode acrescentar itens
+                    </span>
+                  )}
                 </div>
               </div>
             </section>
@@ -267,15 +390,26 @@ export function TrackedOrderPanel({
         <footer className="shrink-0 border-t border-background/10 bg-[#0a0e14]/95 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl sm:hidden">
           <div className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-[8px] font-black uppercase tracking-[.14em] text-muted-foreground">Total</p>
+              <p className="text-[8px] font-black uppercase tracking-[.14em] text-muted-foreground">
+                Total
+              </p>
               <p className="truncate text-lg font-black">{formatCurrency(orderTotal)}</p>
             </div>
             {canAddMore ? (
-              <Button type="button" onClick={onAddToOrder} className="h-11 shrink-0 rounded-full px-4 text-xs font-black shadow-lg">
+              <Button
+                type="button"
+                onClick={onAddToOrder}
+                className="h-11 shrink-0 rounded-full px-4 text-xs font-black shadow-lg"
+              >
                 <Plus className="mr-1.5 size-3.5" /> Adicionar
               </Button>
             ) : (
-              <Button type="button" variant="outline" onClick={onClose} className="h-11 rounded-full px-5 text-xs font-bold">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="h-11 rounded-full px-5 text-xs font-bold"
+              >
                 Fechar
               </Button>
             )}

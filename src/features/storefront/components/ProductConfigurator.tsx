@@ -1,3 +1,4 @@
+import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
 import { useEffect, useRef, useState } from "react";
 import { Check, Circle, Pizza, X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +19,7 @@ export function ProductConfigurator({
   onClose: () => void;
   onAdded: (items: CartItem[]) => void;
 }) {
+  const dialogRef = useCustomerDialog(onClose);
   const [step, setStep] = useState(1);
   const [sizeId, setSizeId] = useState<string | null>(data.sizes[0]?.id ?? null);
   const [secondProductId, setSecondProductId] = useState<string | null>(null);
@@ -152,11 +154,17 @@ export function ProductConfigurator({
   return (
     <div
       className="ppp-order-builder fixed inset-0 z-[120] flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-6"
+      ref={dialogRef}
+      data-customer-dialog
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-label={"Montar " + product.name}
     >
-      <div className="flex h-[88dvh] max-h-[88dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-[2rem] border border-white/10 bg-[#06282d] text-[#f4eee2] shadow-[0_24px_80px_rgba(0,0,0,.5)] sm:h-[86vh] sm:max-h-[86vh] sm:rounded-[2rem]">
+      <div
+        data-order-surface
+        className="flex h-[88dvh] max-h-[88dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-[2rem] border border-white/10 bg-[#06282d] text-[#f4eee2] shadow-[0_24px_80px_rgba(0,0,0,.5)] sm:h-[86vh] sm:max-h-[86vh] sm:rounded-[2rem]"
+      >
         <div className="relative shrink-0 overflow-hidden border-b bg-foreground px-5 pb-5 pt-4 text-background sm:px-6">
           <div className="absolute -right-10 -top-16 size-40 rounded-[14px] bg-primary/25 blur-3xl" />
           <div className="relative flex items-center gap-4">
@@ -198,7 +206,12 @@ export function ProductConfigurator({
               const active = index + 1 === step;
               const complete = index + 1 < step;
               return (
-                <div key={label} className="flex min-w-0 flex-1 items-center gap-2">
+                <div
+                  key={label}
+                  data-order-step
+                  aria-current={active ? "step" : undefined}
+                  className="flex min-w-0 flex-1 items-center gap-2"
+                >
                   <div
                     className={
                       "grid size-8 shrink-0 place-items-center rounded-full border text-[10px] font-bold transition-all " +
@@ -370,15 +383,17 @@ export function ProductConfigurator({
                           </span>
                         )}
                       </div>
-                      <div className="min-w-0"><p className="text-sm font-bold">Pizza inteira</p>
-                      <p
-                        className={
-                          "mt-1 text-xs " +
-                          (!halfMode ? "text-primary-foreground/70" : "text-muted-foreground")
-                        }
-                      >
-                        1 sabor {product.name}
-                      </p></div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold">Pizza inteira</p>
+                        <p
+                          className={
+                            "mt-1 text-xs " +
+                            (!halfMode ? "text-primary-foreground/70" : "text-muted-foreground")
+                          }
+                        >
+                          1 sabor {product.name}
+                        </p>
+                      </div>
                     </button>
 
                     <button
@@ -429,15 +444,17 @@ export function ProductConfigurator({
                           </span>
                         )}
                       </div>
-                      <div className="min-w-0"><p className="text-sm font-bold">Meio a meio</p>
-                      <p
-                        className={
-                          "mt-1 text-xs " +
-                          (halfMode ? "text-primary-foreground/75" : "text-muted-foreground")
-                        }
-                      >
-                        2 sabores metade de cada
-                      </p></div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold">Meio a meio</p>
+                        <p
+                          className={
+                            "mt-1 text-xs " +
+                            (halfMode ? "text-primary-foreground/75" : "text-muted-foreground")
+                          }
+                        >
+                          2 sabores metade de cada
+                        </p>
+                      </div>
                     </button>
                   </div>
 
@@ -517,9 +534,7 @@ export function ProductConfigurator({
                               <span className="block text-sm font-bold">
                                 {formatCurrency(previewPrice)}
                               </span>
-                              <span className="text-[10px] text-white/40">
-                                total da pizza
-                              </span>
+                              <span className="text-[10px] text-white/40">total da pizza</span>
                             </span>
                           </button>
                         );
@@ -563,12 +578,16 @@ export function ProductConfigurator({
                     <Pizza className="size-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">Montagem</p>
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">
+                      Montagem
+                    </p>
                     <p className="mt-0.5 truncate text-sm font-bold text-[#f4eee2]">
-                      {product.name}{secondProduct ? " + " + secondProduct.name : ""}
+                      {product.name}
+                      {secondProduct ? " + " + secondProduct.name : ""}
                     </p>
                     <p className="mt-0.5 text-[11px] text-white/45">
-                      {selectedSize?.name ?? "Sem tamanho"} {halfMode && secondProduct ? "Meio a meio" : "Pizza inteira"}
+                      {selectedSize?.name ?? "Sem tamanho"}{" "}
+                      {halfMode && secondProduct ? "Meio a meio" : "Pizza inteira"}
                     </p>
                   </div>
                   <span className="shrink-0 font-display text-lg font-bold text-[#f4eee2]">
@@ -580,8 +599,12 @@ export function ProductConfigurator({
               {data.crusts.length > 0 && (
                 <div className="rounded-2xl border border-white/10 bg-[#092f34] p-3">
                   <div className="mb-2.5 flex items-center justify-between">
-                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">Borda</p>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-white/35">Opcional</span>
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">
+                      Borda
+                    </p>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-white/35">
+                      Opcional
+                    </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {data.crusts.map((item) => (
@@ -598,7 +621,9 @@ export function ProductConfigurator({
                       >
                         {item.name}
                         <span className="ml-1.5 text-[10px] opacity-70">
-                          {Number(item.price) > 0 ? "+" + formatCurrency(Number(item.price)) : "Grátis"}
+                          {Number(item.price) > 0
+                            ? "+" + formatCurrency(Number(item.price))
+                            : "Grátis"}
                         </span>
                       </button>
                     ))}
@@ -609,8 +634,12 @@ export function ProductConfigurator({
               {availableAddons.length > 0 && (
                 <div className="rounded-2xl border border-white/10 bg-[#092f34] p-3">
                   <div className="mb-2.5 flex items-center justify-between">
-                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">Adicionais</p>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-white/35">Toque para adicionar</span>
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#f3ad4b]">
+                      Adicionais
+                    </p>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-white/35">
+                      Toque para adicionar
+                    </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {availableAddons.map((item) => {
@@ -627,11 +656,20 @@ export function ProductConfigurator({
                               : "border-white/10 bg-[#0c3439] text-[#f4eee2] hover:border-white/25")
                           }
                         >
-                          <span className={"grid size-4 place-items-center rounded-full border " + (checked ? "border-primary-foreground/30 bg-primary-foreground/15" : "border-white/20")}>
+                          <span
+                            className={
+                              "grid size-4 place-items-center rounded-full border " +
+                              (checked
+                                ? "border-primary-foreground/30 bg-primary-foreground/15"
+                                : "border-white/20")
+                            }
+                          >
                             {checked ? <Check className="size-2.5" /> : null}
                           </span>
                           <span>{item.name}</span>
-                          <span className="text-[10px] opacity-65">+{formatCurrency(Number(item.price))}</span>
+                          <span className="text-[10px] opacity-65">
+                            +{formatCurrency(Number(item.price))}
+                          </span>
                         </button>
                       );
                     })}
@@ -647,7 +685,9 @@ export function ProductConfigurator({
                 >
                   <span>
                     <span className="block text-sm font-bold text-[#f4eee2]">Observação</span>
-                    <span className="block text-[10px] text-white/40">{notes.trim() ? "Adicionada" : "Opcional"}</span>
+                    <span className="block text-[10px] text-white/40">
+                      {notes.trim() ? "Adicionada" : "Opcional"}
+                    </span>
                   </span>
                   <span className="rounded-full border border-white/10 bg-white/[.04] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white/50">
                     {notesOpen ? "Fechar" : "Adicionar"}
@@ -744,7 +784,10 @@ export function ProductConfigurator({
           )}
         </div>
 
-        <div className="relative z-20 shrink-0 border-t border-primary/10 bg-card px-3 pb-[calc(.35rem+env(safe-area-inset-bottom))] pt-1.5 sm:px-4 sm:py-2.5 shadow-[0_-8px_20px_rgba(0,0,0,.12)]">
+        <div
+          data-order-footer
+          className="relative z-20 shrink-0 border-t border-primary/10 bg-card px-3 pb-[calc(.35rem+env(safe-area-inset-bottom))] pt-1.5 sm:px-4 sm:py-2.5 shadow-[0_-8px_20px_rgba(0,0,0,.12)]"
+        >
           <div className="mb-1 flex items-center justify-between gap-2">
             <span className="rounded-full bg-primary px-2 py-0.5 text-[8px] font-bold text-primary-foreground">
               {quantity} {quantity === 1 ? "pizza" : "pizzas"}
@@ -778,7 +821,9 @@ export function ProductConfigurator({
                     ? "Escolha o segundo sabor"
                     : "Próxima etapa"}
                 </span>
-                {!(step === 1 && product.allow_half && halfMode && !secondProductId) && <span aria-hidden="true">+</span>}
+                {!(step === 1 && product.allow_half && halfMode && !secondProductId) && (
+                  <span aria-hidden="true">+</span>
+                )}
               </button>
             ) : (
               <button

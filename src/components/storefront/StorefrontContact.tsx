@@ -2,25 +2,75 @@ import type { OrganizationSettings } from "@/lib/domain/types";
 
 type StorefrontContactProps = {
   settings: OrganizationSettings;
+  isFornoTheme?: boolean;
+  organizationName?: string;
   isPizzaTheme?: boolean;
   isBurgerTheme?: boolean;
 };
 
-export function StorefrontContact({ settings, isPizzaTheme = false, isBurgerTheme = false }: StorefrontContactProps) {
+export function StorefrontContact({
+  settings,
+  isFornoTheme = false,
+  organizationName = "",
+  isPizzaTheme = false,
+  isBurgerTheme = false,
+}: StorefrontContactProps) {
+  if (isFornoTheme) {
+    return (
+      <footer id="contato" className="forno-information forno-contact">
+        <p className="forno-kicker">Contato</p>
+        <h2>{organizationName}</h2>
+        <dl className="forno-store-stats">
+          <div>
+            <dt>Atendimento</dt>
+            <dd>
+              {settings.delivery_enabled && settings.pickup_enabled
+                ? "Entrega e retirada"
+                : settings.delivery_enabled
+                  ? "Entrega"
+                  : "Retirada"}
+            </dd>
+          </div>
+          <div>
+            <dt>WhatsApp</dt>
+            <dd>{settings.whatsapp_phone || "Consulte a loja"}</dd>
+          </div>
+          <div>
+            <dt>Cardápio</dt>
+            <dd>
+              <a href="#cardapio">Ver opções</a>
+            </dd>
+          </div>
+        </dl>
+        <a href="#inicio">Voltar ao topo ↑</a>
+      </footer>
+    );
+  }
+
   if (isBurgerTheme) {
     return (
       <footer id="contato" className="hc-footer">
         <div className="hc-footer-top">
           <div>
             <p className="hc-section-kicker">Contato</p>
-            <h2>Burger <em>Club.</em></h2>
+            <h2>
+              Burger <em>Club.</em>
+            </h2>
           </div>
-          <a href="#cardapio">Ver o cardápio <span>→</span></a>
+          <a href="#cardapio">
+            Ver o cardápio <span>→</span>
+          </a>
         </div>
         <div className="hc-footer-grid">
           <div>
             <span>Atendimento</span>
-            <strong>{settings.delivery_enabled && settings.pickup_enabled ? "Salão e delivery" : settings.delivery_enabled ? "Delivery" : "Retirada"}</strong>
+            <strong>
+              {settings.delivery_enabled && settings.pickup_enabled
+                ? "Salão e delivery"
+                : settings.delivery_enabled
+                  ? "Delivery"
+                  : "Retirada"}
+            </strong>
             <p>{settings.whatsapp_phone || "Consulte a loja"}</p>
           </div>
           <div>
@@ -50,9 +100,35 @@ export function StorefrontContact({ settings, isPizzaTheme = false, isBurgerThem
           <p className="text-xs font-semibold uppercase tracking-[.2em] text-accent">Contato</p>
           <h2 className="mt-3 text-[clamp(3.5rem,12vw,8rem)] leading-[.82]">Pizza Club</h2>
           <div className="mt-10 grid gap-3 sm:grid-cols-3">
-            <a href="#cardapio" className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4 transition-colors hover:border-primary hover:bg-secondary-foreground/10"><span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">Cardápio</span><span className="mt-1 block font-semibold">Ver as pizzas</span></a>
-            <div className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4"><span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">Atendimento</span><span className="mt-1 block font-semibold">{settings.delivery_enabled && settings.pickup_enabled ? "Salão e delivery" : settings.delivery_enabled ? "Delivery" : "Retirada"}</span></div>
-            <div className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4"><span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">WhatsApp</span><span className="mt-1 block font-semibold">{settings.whatsapp_phone || "Consulte a loja"}</span></div>
+            <a
+              href="#cardapio"
+              className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4 transition-colors hover:border-primary hover:bg-secondary-foreground/10"
+            >
+              <span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">
+                Cardápio
+              </span>
+              <span className="mt-1 block font-semibold">Ver as pizzas</span>
+            </a>
+            <div className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4">
+              <span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">
+                Atendimento
+              </span>
+              <span className="mt-1 block font-semibold">
+                {settings.delivery_enabled && settings.pickup_enabled
+                  ? "Salão e delivery"
+                  : settings.delivery_enabled
+                    ? "Delivery"
+                    : "Retirada"}
+              </span>
+            </div>
+            <div className="rounded-xl border border-secondary-foreground/15 bg-secondary-foreground/5 p-4">
+              <span className="block text-xs uppercase tracking-widest text-secondary-foreground/55">
+                WhatsApp
+              </span>
+              <span className="mt-1 block font-semibold">
+                {settings.whatsapp_phone || "Consulte a loja"}
+              </span>
+            </div>
           </div>
         </div>
       </section>
@@ -64,9 +140,15 @@ export function StorefrontContact({ settings, isPizzaTheme = false, isBurgerThem
       <div className="pc-footer-top">
         <div>
           <p className="pc-section-kicker">Pizza Club</p>
-          <h2>Mais uma<br /><em>fatia?</em></h2>
+          <h2>
+            Mais uma
+            <br />
+            <em>fatia?</em>
+          </h2>
         </div>
-        <a className="pc-footer-cta" href="#cardapio">Ver as pizzas <span>→</span></a>
+        <a className="pc-footer-cta" href="#cardapio">
+          Ver as pizzas <span>→</span>
+        </a>
       </div>
 
       <div className="pc-footer-grid">
@@ -77,7 +159,13 @@ export function StorefrontContact({ settings, isPizzaTheme = false, isBurgerThem
         </div>
         <div>
           <span>Atendimento</span>
-          <strong>{settings.delivery_enabled && settings.pickup_enabled ? "Salão e delivery" : settings.delivery_enabled ? "Delivery" : "Retirada"}</strong>
+          <strong>
+            {settings.delivery_enabled && settings.pickup_enabled
+              ? "Salão e delivery"
+              : settings.delivery_enabled
+                ? "Delivery"
+                : "Retirada"}
+          </strong>
           <p>{settings.whatsapp_phone ? settings.whatsapp_phone : "Fale com a casa"}</p>
         </div>
         <div>

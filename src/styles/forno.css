@@ -1,0 +1,517 @@
+/* Opt-in storefront variant. Every override stays inside the customer shell.
+   A dedicated priority layer resolves existing important rules without repeated selectors. */
+.ppp-customer-shell.ppp-forno-theme {
+  --forno-bg: #101914;
+  --forno-surface: #18231b;
+  --forno-deep: #0b100d;
+  --forno-cream: #f3ecdc;
+  --forno-gold: #dfbd6f;
+  --forno-border: rgb(243 236 220 / 18%);
+  --background: var(--forno-bg);
+  --foreground: var(--forno-cream);
+  --card: var(--forno-surface);
+  --card-foreground: var(--forno-cream);
+  --primary: var(--forno-gold);
+  --primary-foreground: #15160f;
+  --muted: #202b23;
+  --muted-foreground: #bac0b6;
+  --border: var(--forno-border);
+  --ring: var(--forno-gold);
+  color-scheme: dark;
+  background: var(--forno-bg);
+  color: var(--forno-cream);
+}
+
+.ppp-customer-shell.ppp-forno-theme :is(a, button, input, textarea, select):focus-visible {
+  outline-offset: 3px;
+}
+
+.ppp-customer-shell .forno-minimum-progress {
+  display: none;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-minimum-progress {
+  display: block;
+  width: 100%;
+  height: 0.5rem;
+  margin-bottom: 0.75rem;
+  accent-color: var(--forno-gold);
+}
+
+.ppp-customer-shell.ppp-forno-theme .ppp-reference-header {
+  border-bottom: 1px solid var(--forno-border);
+}
+.ppp-customer-shell.ppp-forno-theme .ppp-reference-header > div {
+  min-height: 4.5rem;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-step-nav {
+  display: none;
+}
+.ppp-customer-shell.ppp-forno-theme .ppp-reference-storefront {
+  --ppp-bg: var(--forno-bg);
+  --ppp-bg-deep: var(--forno-deep);
+  --ppp-ivory: var(--forno-cream);
+  --ppp-orange: var(--forno-gold);
+  --ppp-gold: var(--forno-gold);
+}
+.ppp-customer-shell.ppp-forno-theme .forno-hero {
+  position: relative;
+  isolation: isolate;
+  padding: 9.5rem max(1rem, calc((100vw - 72rem) / 2)) 2.5rem;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgb(16 25 20 / 98%), rgb(16 25 20 / 70%));
+}
+.ppp-customer-shell.ppp-forno-theme .forno-hero-copy {
+  max-width: 46rem;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-hero h1 {
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+  margin: 0.75rem 0 1rem;
+  font-size: clamp(2.25rem, 7vw, 5rem);
+}
+.ppp-customer-shell.ppp-forno-theme .forno-hero-copy > p {
+  line-height: 1.6;
+  max-width: 38rem;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  border-radius: 1rem;
+  background: var(--forno-gold);
+  color: #15160f;
+  font-weight: 600;
+  min-height: 3.25rem;
+  padding: 0.95rem 1.75rem;
+  font-size: 1rem;
+  box-shadow: 0 6px 24px rgb(223 189 111 / 14%);
+  border: 1px solid rgb(255 255 255 / 25%);
+}
+.ppp-customer-shell.ppp-forno-theme .forno-information {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  color: var(--forno-cream);
+}
+.ppp-customer-shell.ppp-forno-theme .forno-information h2 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.2;
+  margin-block: 1rem;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-information > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  margin-top: 1rem;
+  color: var(--forno-gold);
+}
+.ppp-customer-shell.ppp-forno-theme .forno-kicker {
+  color: var(--forno-gold);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+.ppp-customer-shell.ppp-forno-theme [data-order-surface] button {
+  overflow-wrap: anywhere;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-store-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-store-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 40rem;
+  border: 1px solid var(--forno-border);
+  border-radius: 1rem;
+  background: var(--forno-surface);
+  margin-top: 1.25rem;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-store-stats > div {
+  padding: 0.8rem;
+  min-width: 0;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-store-stats dt {
+  font-size: 0.75rem;
+  color: #bac0b6;
+  line-height: 1.45;
+}
+.ppp-customer-shell.ppp-forno-theme .forno-store-stats dd {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.ppp-customer-shell.ppp-forno-theme .ppp-product-card {
+  background: var(--forno-surface);
+  border-color: var(--forno-border);
+  border-radius: 1.5rem;
+}
+.ppp-customer-shell.ppp-forno-theme .ppp-product-card:hover {
+  border-color: var(--forno-gold);
+}
+.ppp-customer-shell.ppp-forno-theme [data-order-surface] :is(input, textarea, select) {
+  min-height: 3rem;
+}
+.ppp-customer-shell.ppp-forno-theme [data-order-surface] button {
+  min-height: 2.75rem;
+}
+.ppp-customer-shell.ppp-forno-theme [data-order-surface] button:hover {
+  transform: none;
+}
+.ppp-customer-shell.ppp-forno-theme [data-order-surface] [data-order-step] p {
+  font-size: 0.75rem;
+  white-space: normal;
+  overflow: visible;
+  line-height: 1.4;
+}
+.ppp-customer-shell.ppp-forno-theme [data-order-footer] {
+  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+}
+.ppp-customer-shell.ppp-forno-theme .forno-cart-bar {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .ppp-customer-shell.ppp-forno-theme .forno-step-nav {
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.65rem;
+    background: var(--forno-deep);
+    scrollbar-width: thin;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-step-nav > * {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--forno-border);
+    border-radius: 999px;
+    color: var(--forno-cream);
+    white-space: nowrap;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-reference-header > div {
+    padding-inline: 0.75rem;
+    gap: 0.5rem;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-reference-header > div > a {
+    min-width: 0;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-store-stats > div {
+    padding: 0.75rem 0.55rem;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-store-stats dd {
+    font-size: 0.875rem;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-cart-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 105;
+    display: block;
+    padding: 0.65rem 0.75rem calc(0.65rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--forno-border);
+    background: rgb(14 15 14 / 97%);
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-cart-bar > div {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-cart-bar span {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.8rem;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-cart-bar strong {
+    display: block;
+    font-size: 1.2rem;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-cart-bar button {
+    min-height: 3rem;
+    padding: 0.65rem 1rem;
+    border-radius: 1rem;
+    background: var(--forno-gold);
+    color: #15160f;
+    font-weight: 600;
+  }
+  .ppp-customer-shell.ppp-forno-theme :is(#cardapio, #sobre, #contato) {
+    padding-bottom: 7rem;
+  }
+  .ppp-customer-shell.ppp-forno-theme [data-order-surface] {
+    max-height: 94dvh;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-checkout-panel [data-order-surface] {
+    max-height: none;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-hero {
+    padding-top: 9rem;
+    padding-bottom: 2rem;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-hero-cta {
+    width: 100%;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-store-stats dt {
+    font-size: 0.75rem;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-contact .forno-store-stats {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-contact .forno-store-stats > div {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.875rem;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-contact .forno-store-stats > div + div {
+    border-top: 1px solid var(--forno-border);
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-contact .forno-store-stats dd {
+    margin-top: 0;
+  }
+}
+
+/* Only conflict resolutions use the priority layer; normal presentation remains unlayered. */
+
+@layer forno {
+  .ppp-customer-shell.ppp-forno-theme :is(a, button, input, textarea, select):focus-visible {
+    outline: 2px solid var(--forno-gold) !important;
+  }
+
+  .ppp-customer-shell.ppp-forno-theme .ppp-reference-header {
+    background: rgb(14 15 14 / 97%) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-hero {
+    background: var(--forno-bg) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-product-card,
+  .ppp-customer-shell.ppp-forno-theme .ppp-product-card > div {
+    background: var(--forno-surface) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-order-builder {
+    z-index: 160 !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme [data-order-surface] :is(button, label, p) {
+    font-size: 0.9rem !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme [data-order-surface] button {
+    white-space: normal !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme [data-order-footer] button {
+    font-size: 0.85rem !important;
+    letter-spacing: normal !important;
+    padding-inline: 0.75rem !important;
+    height: auto !important;
+    min-height: 3rem !important;
+    padding-block: 0.65rem !important;
+  }
+
+  .ppp-customer-shell.ppp-forno-theme [data-order-surface] {
+    background: var(--forno-bg) !important;
+    color: var(--forno-cream) !important;
+    border-color: var(--forno-border) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme [data-order-surface] > :first-child {
+    background: var(--forno-surface) !important;
+    border-color: var(--forno-border) !important;
+    color: var(--forno-cream) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme
+    [data-order-surface]
+    > :first-child
+    :is(p, h1, h2, button, svg) {
+    color: var(--forno-cream) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme [data-order-surface] :is(.bg-card, .bg-muted) {
+    background: var(--forno-surface) !important;
+    color: var(--forno-cream) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme [data-order-surface] :is(input, textarea, select) {
+    background: var(--forno-deep) !important;
+    color: var(--forno-cream) !important;
+    border-color: var(--forno-border) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme [data-order-surface] button.bg-primary:not(:disabled) {
+    background: var(--forno-gold) !important;
+    color: #15160f !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme [data-order-surface] [data-order-step] p {
+    color: var(--forno-cream) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme [data-order-footer] {
+    background: var(--forno-deep) !important;
+  }
+
+  @media (max-width: 639px) {
+    .ppp-customer-shell.ppp-forno-theme:has(> .forno-cart-bar) .forno-contact {
+      padding-bottom: 7rem !important;
+    }
+    .ppp-customer-shell.ppp-forno-theme .forno-step-nav {
+      display: flex !important;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ppp-customer-shell.ppp-forno-theme :is(button, a) {
+      transition: none !important;
+    }
+  }
+  .ppp-customer-shell.ppp-forno-theme [data-order-footer] .truncate {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-menu-filters button {
+    color: var(--forno-cream) !important;
+    background: var(--forno-surface) !important;
+    min-height: 2.75rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.3 !important;
+    padding: 0.6rem 1rem !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-menu-filters button[data-active="true"] {
+    background: var(--forno-gold) !important;
+    color: #15160f !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-menu-filters input {
+    background: var(--forno-surface) !important;
+    color: var(--forno-cream) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-menu-filters input::placeholder {
+    color: #bac0b6 !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-product-card-image[data-without-image] {
+    height: clamp(7rem, 12vw, 9rem) !important;
+    min-height: 0 !important;
+    aspect-ratio: auto !important;
+    background:
+      radial-gradient(ellipse at center, rgb(223 189 111 / 8%), transparent 75%), var(--forno-deep) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-product-card h3 {
+    font-size: 1.35rem !important;
+    line-height: 1.25 !important;
+    color: var(--forno-cream) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-product-price {
+    font-size: 1.125rem !important;
+    color: var(--forno-gold) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-header-icon-button {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    min-width: 2.75rem !important;
+    padding: 0 !important;
+    color: var(--forno-cream) !important;
+    border-color: var(--forno-border) !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-header-icon-button svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-reference-header > div > a {
+    min-height: 2.75rem !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-step-nav > * {
+    font-size: 0.875rem !important;
+    line-height: 1.3 !important;
+    letter-spacing: normal !important;
+    min-height: 2.75rem !important;
+    padding: 0.5rem 0.875rem !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-reference-menu {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-reference-menu-heading {
+    margin-bottom: 1.5rem !important;
+    gap: 0.5rem !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-reference-menu-heading h2 {
+    font-size: clamp(2rem, 5vw, 3.25rem) !important;
+    line-height: 1.15 !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .ppp-menu-filters {
+    margin-bottom: 1.25rem !important;
+    padding-bottom: 0 !important;
+    gap: 0.875rem !important;
+    border-bottom: 0 !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-information {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+  .ppp-customer-shell.ppp-forno-theme .forno-information h2 {
+    font-size: clamp(1.75rem, 4vw, 2.75rem) !important;
+    line-height: 1.2 !important;
+    text-align: left !important;
+    margin-block: 0.75rem !important;
+  }
+}
+
+.ppp-customer-shell.ppp-forno-theme .forno-hero-status {
+  color: #bac0b6;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.ppp-customer-shell.ppp-forno-theme .forno-product-placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--forno-gold);
+}
+
+.ppp-customer-shell.ppp-forno-theme .forno-product-placeholder svg {
+  width: 2.25rem;
+  height: 2.25rem;
+  box-sizing: content-box;
+  padding: 0.65rem;
+  border: 1px solid rgb(223 189 111 / 25%);
+  border-radius: 50%;
+  background: rgb(223 189 111 / 8%);
+}
+
+.ppp-customer-shell.ppp-forno-theme .forno-product-content {
+  padding: 1.1rem;
+}
+
+.ppp-customer-shell.ppp-forno-theme .forno-product-content h3 {
+  margin-bottom: 0.65rem;
+  overflow-wrap: anywhere;
+}
+
+.ppp-customer-shell.ppp-forno-theme .forno-product-price {
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  padding: 0.5rem 0.65rem;
+}
+
+.ppp-customer-shell.ppp-forno-theme .forno-contact .forno-store-stats {
+  max-width: none;
+  margin-top: 1rem;
+}
+
+.ppp-customer-shell.ppp-forno-theme .forno-contact .forno-store-stats a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--forno-gold);
+}

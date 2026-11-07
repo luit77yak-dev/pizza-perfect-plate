@@ -12,6 +12,7 @@ type StorefrontHeaderProps = {
   onOpenTracking: () => void;
   isPizzaTheme?: boolean;
   isBurgerTheme?: boolean;
+  isFornoTheme?: boolean;
 };
 
 export function StorefrontHeader({
@@ -23,6 +24,7 @@ export function StorefrontHeader({
   onOpenTracking,
   isPizzaTheme = false,
   isBurgerTheme = false,
+  isFornoTheme = false,
 }: StorefrontHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
 
@@ -34,11 +36,19 @@ export function StorefrontHeader({
   }, []);
 
   return (
-    <header className={`ppp-reference-header ${scrolled ? "scrolled" : ""} absolute inset-x-0 top-0 z-[100]`}>
+    <header
+      className={`ppp-reference-header ${scrolled ? "scrolled" : ""} absolute inset-x-0 top-0 z-[100]`}
+    >
       <div className="mx-auto flex h-[5.25rem] max-w-[1400px] items-center justify-between gap-3 px-5 sm:h-[5.75rem] sm:px-8 lg:px-12">
         <a href="#inicio" className="group flex min-w-0 items-center gap-3 text-white">
           <span className="grid size-11 shrink-0 place-items-center rounded-full border border-[#ffc15e] text-[#ffc15e] font-display text-lg font-semibold sm:size-12">
-            {isBurgerTheme ? "Hc" : isPizzaTheme ? "Pc" : "PC"}
+            {isFornoTheme
+              ? organizationName.charAt(0)
+              : isBurgerTheme
+                ? "Hc"
+                : isPizzaTheme
+                  ? "Pc"
+                  : "PC"}
           </span>
           <span className="truncate font-display text-xl font-semibold tracking-[-.035em] sm:text-2xl">
             {isBurgerTheme ? "Burger Club" : isPizzaTheme ? "Pizza Club" : organizationName}
@@ -46,7 +56,34 @@ export function StorefrontHeader({
         </a>
 
         <nav className="hidden items-center gap-8 text-xs font-medium text-white/70 lg:flex">
-          {isBurgerTheme ? (<><a href="#inicio" className="transition-colors hover:text-white">Início</a><a href="#cardapio" className="transition-colors hover:text-white">Cardápio</a><a href="#sobre" className="transition-colors hover:text-white">Sobre</a><a href="#contato" className="transition-colors hover:text-white">Contato</a></>) : (<><a href="#cardapio" className="transition-colors hover:text-white">Cardápio</a><a href="#sobre" className="transition-colors hover:text-white">A casa</a><a href="#contato" className="transition-colors hover:text-white">Contato</a></>)}
+          {isBurgerTheme ? (
+            <>
+              <a href="#inicio" className="transition-colors hover:text-white">
+                Início
+              </a>
+              <a href="#cardapio" className="transition-colors hover:text-white">
+                Cardápio
+              </a>
+              <a href="#sobre" className="transition-colors hover:text-white">
+                Sobre
+              </a>
+              <a href="#contato" className="transition-colors hover:text-white">
+                Contato
+              </a>
+            </>
+          ) : (
+            <>
+              <a href="#cardapio" className="transition-colors hover:text-white">
+                Cardápio
+              </a>
+              <a href="#sobre" className="transition-colors hover:text-white">
+                A casa
+              </a>
+              <a href="#contato" className="transition-colors hover:text-white">
+                Contato
+              </a>
+            </>
+          )}
         </nav>
 
         <div className="relative z-[110] flex items-center gap-2">
@@ -59,18 +96,43 @@ export function StorefrontHeader({
               aria-label="Acompanhar pedido"
             >
               <Clock3 className="size-5" strokeWidth={1.8} />
-              {selectedTrackedOrdersCount > 0 && <Badge className="ppp-header-badge">{selectedTrackedOrdersCount}</Badge>}
+              {selectedTrackedOrdersCount > 0 && (
+                <Badge className="ppp-header-badge">{selectedTrackedOrdersCount}</Badge>
+              )}
             </Button>
           )}
-          <Button size="sm" variant="ghost" className="ppp-header-icon-button relative" onClick={onOpenCart} aria-label="Abrir carrinho">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="ppp-header-icon-button relative"
+            onClick={onOpenCart}
+            aria-label="Abrir carrinho"
+          >
             <ShoppingCart className="size-5" strokeWidth={1.8} />
             {itemCount > 0 && <Badge className="ppp-header-badge">{itemCount}</Badge>}
           </Button>
-          <Button size="sm" variant="ghost" className="ppp-header-icon-button lg:hidden" onClick={() => document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth" })} aria-label="Abrir cardápio">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="ppp-header-icon-button lg:hidden"
+            onClick={() =>
+              document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth" })
+            }
+            aria-label="Abrir cardápio"
+          >
             <Menu className="size-5" strokeWidth={1.8} />
           </Button>
         </div>
       </div>
+      {isFornoTheme && (
+        <nav className="forno-step-nav" aria-label="Etapas do pedido">
+          <a href="#inicio">Início</a>
+          <a href="#cardapio">Montar pizza</a>
+          <button type="button" onClick={onOpenCart}>
+            Carrinho{itemCount > 0 ? ` · ${itemCount}` : ""}
+          </button>
+        </nav>
+      )}
     </header>
   );
 }
