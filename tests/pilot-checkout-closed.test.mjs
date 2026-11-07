@@ -7,7 +7,7 @@ const checkout = readFileSync(new URL("../src/features/storefront/components/Che
 const route = readFileSync(new URL("../src/routes/api/checkout.ts", import.meta.url), "utf8");
 
 test("POST checkout boundary rejects unconditionally without storing data", async () => {
-  const response = rejectPilotCheckout();
+  const response = await rejectPilotCheckout(new Request("https://a.synthetic.invalid/api/checkout", {method: "POST"}));
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("Cache-Control"), "no-store");
   assert.equal(response.headers.get("X-Content-Type-Options"), "nosniff");
@@ -29,6 +29,6 @@ test("client POST requires an explicit feature switch and uses only the app endp
 
 test("server route has no privileged imports and calls a closed handler", () => {
   assert.match(route, /createFileRoute\("\/api\/checkout"\)/);
-  assert.match(route, /POST: async \(\) => rejectPilotCheckout\(\)/);
+  assert.match(route, /POST: async \(\{ request \}\) => rejectPilotCheckout\(request\)/);
   assert.doesNotMatch(route, /supabase|service_role|process\.env|fetch\(/i);
 });
