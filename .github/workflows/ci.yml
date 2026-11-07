@@ -44,5 +44,8 @@ jobs:
       - name: Check disposable checkout adapter A/B and negative cases
         run: node --experimental-strip-types --test tests/pilot-disposable-checkout-adapter.test.mjs
 
+      - name: Check Master-like disposable RPC contract and capability negatives
+        run: node --experimental-strip-types --test tests/pilot-disposable-rpc-backend.test.mjs
+
       - name: Build
         run: npm run build
