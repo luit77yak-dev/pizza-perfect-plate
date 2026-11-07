@@ -24,3 +24,13 @@ test("tracking only mutates synthetic React state", () => {
   assert.match(source, /onClick=\{advanceStatus\}/);
   assert.match(source, /Dados apenas em memória/);
 });
+
+test("client and manager share only session-scoped synthetic orders", () => {
+  assert.match(source, /setView\("gerente"\)/);
+  assert.match(source, /setView\("cliente"\)/);
+  assert.match(source, /view === "gerente"/);
+  assert.match(source, /Gestão de pedidos fictícios/);
+  assert.match(source, /Status atualizado somente pelo painel fictício do gerente/);
+  assert.match(source, /onClick=\{advanceStatus\}/);
+  assert.match(source, /\[store\]: prev\[store\]\.map/);
+});
