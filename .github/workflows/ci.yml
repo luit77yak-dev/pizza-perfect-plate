@@ -35,5 +35,8 @@ jobs:
       - name: Check pilot checkout safety guards
         run: node --experimental-strip-types --test tests/pilot-checkout-guards.test.mjs
 
+      - name: Check server checkout boundary
+        run: node --experimental-strip-types --test tests/pilot-checkout-closed.test.mjs
+
       - name: Build
         run: npm run build
