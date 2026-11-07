@@ -1,7 +1,6 @@
 import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
 import { useState } from "react";
 import { X } from "lucide-react";
-import { supabase } from "@/integrations/storefront-backend/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/domain/money";
@@ -110,71 +109,7 @@ export function CheckoutPanel({
     }
 
     if (existingOrder) {
-      if (items.length === 0) {
-        setError("Adicione pelo menos um item.");
-        return;
-      }
-      setSubmitting(true);
-      try {
-        const appendItems = items.flatMap((item) => [
-          {
-            product_id: item.productId,
-            second_product_id: item.secondProductId,
-            is_half: item.isHalf,
-            size_id: item.sizeId,
-            crust_id: item.crustId,
-            quantity: item.quantity,
-            notes: item.notes,
-            addons: item.addons.map((addon) => ({ id: addon.id })),
-          },
-          ...(item.complements ?? []).map((complement) => ({
-            product_id: complement.productId,
-            second_product_id: null,
-            is_half: false,
-            size_id: null,
-            crust_id: null,
-            quantity: 1,
-            notes: "Complemento do pedido: " + item.productName,
-            addons: [],
-          })),
-        ]);
-        const { data: appended, error: appendError } = await supabase.rpc(
-          "append_public_order_items_with_payment",
-          {
-            p_order_id: existingOrder.id,
-            p_customer_phone: existingOrder.phone,
-            p_items: appendItems,
-            p_payment_method: paymentMethod,
-          },
-        );
-        if (appendError) throw appendError;
-        const order = Array.isArray(appended) ? appended[0] : appended;
-        if (!order?.order_number || !order?.order_id) {
-          throw new Error("Não foi possível adicionar o complemento ao pedido.");
-        }
-        onSuccess({
-          id: String(order.order_id),
-          number: Number(order.order_number),
-          phone: existingOrder.phone,
-          items: [...(existingOrder.items ?? []), ...items],
-          subtotal: Number(order.subtotal),
-          total: Number(order.total),
-          fulfillment: existingOrder.fulfillment,
-        });
-      } catch (appendError) {
-        const message =
-          appendError instanceof Error
-            ? appendError.message
-            : typeof appendError === "object" && appendError !== null && "message" in appendError
-              ? String(
-                  (appendError as { message?: unknown }).message ??
-                    "Não foi possível adicionar o complemento.",
-                )
-              : "Não foi possível adicionar o complemento.";
-        setError(message);
-      } finally {
-        setSubmitting(false);
-      }
+      setError("Complementos indisponíveis até validação do backend seguro. Solicite atendimento da loja.");
       return;
     }
 
@@ -245,10 +180,20 @@ export function CheckoutPanel({
         ]),
       };
 
-      const { data: created, error: createError } = await supabase.rpc("create_public_order", {
-        p_order: payload,
+      // No public order RPC fallback. Keep this branch blocked until a
+      // reviewed private checkout backend is deployed server-side.
+      if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] !== "true") {
+        throw new Error("Checkout seguro indisponível. Solicite atendimento da loja.");
+      }
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ p_order: payload }),
       });
-      if (createError) throw createError;
+      if (!response.ok) {
+        throw new Error("Checkout seguro indisponível. Solicite atendimento da loja.");
+      }
+      const created: unknown = await response.json();
 
       const order = (Array.isArray(created) ? created[0] : created) as
         { order_id?: string; order_number?: number; total?: number } | null | undefined;

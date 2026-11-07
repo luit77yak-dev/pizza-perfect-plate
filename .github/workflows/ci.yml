@@ -35,5 +35,17 @@ jobs:
       - name: Check pilot checkout safety guards
         run: node --experimental-strip-types --test tests/pilot-checkout-guards.test.mjs
 
+      - name: Check server checkout boundary
+        run: node --experimental-strip-types --test tests/pilot-checkout-closed.test.mjs
+
+      - name: Check checkout request ingress A/B and HTTP negatives
+        run: node --experimental-strip-types --test tests/checkout-gateway.test.mjs
+
+      - name: Check disposable checkout adapter A/B and negative cases
+        run: node --experimental-strip-types --test tests/pilot-disposable-checkout-adapter.test.mjs
+
+      - name: Check Master-like disposable RPC contract and capability negatives
+        run: node --experimental-strip-types --test tests/pilot-disposable-rpc-backend.test.mjs
+
       - name: Build
         run: npm run build
