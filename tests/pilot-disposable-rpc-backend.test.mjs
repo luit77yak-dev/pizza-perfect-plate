@@ -98,7 +98,10 @@ test("raw phone is not sent to quota RPC; server result overrides client subtota
   const quota = calls.find(c => c.name === "neroxa_checkout_reserve_quota");
   assert.equal(quota.args.p_instance_id, A);
   assert.match(quota.args.p_contact_fingerprint, /^[a-f0-9]{64}$/);
-  assert.doesNotMatch(JSON.stringify(quota), /00000000001/);
+  assert.deepEqual(Object.keys(quota.args).sort(), [
+    "p_contact_fingerprint", "p_instance_id",
+  ]);
+  assert.notEqual(quota.args.p_contact_fingerprint, "00000000001");
   assert.equal(calls.find(c => c.name === "create_public_order").args.p_order.subtotal, 0.01);
 });
 
