@@ -5,7 +5,7 @@ import { rejectPilotCheckout } from "@/server/pilot-checkout-closed";
 export const Route = createFileRoute("/api/checkout")({
   server: {
     handlers: {
-      POST: async () => rejectPilotCheckout(),
+      POST: async ({ request }) => rejectPilotCheckout(request),
     },
   },
 });
