@@ -1,0 +1,53 @@
+name: NEROXA V1 Candidate Build (No Deploy)
+on:
+  push:
+    branches:
+      - 'integration/v1-cloudflare-*'
+    paths:
+      - 'src/**'
+      - 'tools/integration/**'
+      - '.github/workflows/v1-build-proof.yml'
+      - 'package.json'
+      - 'bun.lock'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-build:
+    name: food build / closed-release gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      CI: 'true'
+      NEROXA_BACKEND_MODE: 'disabled'
+      NEROXA_CHECKOUT_GATEWAY_ENABLED: 'false'
+    steps:
+      - name: Checkout exact integration branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install dependencies with constrained versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global bun@1.4.4 --no-audit --no-fund
+          bun --version
+          bun install --frozen-lockfile --ignore-scripts
+      - name: Confirm checkout and hosted admission remain closed
+        run: node tools/integration/guard-release.mjs food .
+      - name: Candidate production build (no upload, no deploy)
+        run: bun run build
+      - name: Verify build output exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d .output
+          find .output -type f | wc -l
