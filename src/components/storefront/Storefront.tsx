@@ -20,6 +20,7 @@ import { CartPanel } from "@/features/cart/components/CartPanel";
 import { CheckoutPanel } from "@/features/storefront/components/CheckoutPanel";
 import { TrackedOrderPanel } from "@/components/storefront/TrackedOrderPanel";
 import { useLocalCart } from "@/features/cart/hooks/use-local-cart";
+import { storefrontLocalKey } from "@/lib/domain/store-context";
 import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
@@ -49,7 +50,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
     enabled: mounted,
     staleTime: 60_000,
   });
-  const cart = useLocalCart();
+  const cart = useLocalCart(data?.instanceId);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -67,14 +68,17 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    if (!data?.organization?.id) return;
+    if (!data?.instanceId) return;
+    // Never show the previous store's order snapshot while loading this instance.
+    setTrackedOrders([]);
+    setSelectedTrackedOrderId(null);
     let cancelled = false;
 
     const loadTrackedOrders = async () => {
       try {
         const raw =
-          localStorage.getItem(`ppp:tracked-orders:${data.organization.id}`) ??
-          localStorage.getItem(`ppp:last-order:${data.organization.id}`);
+          localStorage.getItem(storefrontLocalKey("tracked-orders", data.instanceId)) ??
+          localStorage.getItem(storefrontLocalKey("last-order", data.instanceId));
         if (!raw) {
           if (!cancelled) {
             setTrackedOrders([]);
@@ -171,12 +175,12 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
 
         if (activeOrders.length > 0) {
           localStorage.setItem(
-            `ppp:tracked-orders:${data.organization.id}`,
+            storefrontLocalKey("tracked-orders", data.instanceId),
             JSON.stringify(activeOrders),
           );
         } else {
-          localStorage.removeItem(`ppp:tracked-orders:${data.organization.id}`);
-          localStorage.removeItem(`ppp:last-order:${data.organization.id}`);
+          localStorage.removeItem(storefrontLocalKey("tracked-orders", data.instanceId));
+          localStorage.removeItem(storefrontLocalKey("last-order", data.instanceId));
         }
       } catch {
         if (!cancelled) {
@@ -195,7 +199,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [data?.organization?.id]);
+  }, [data?.instanceId]);
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 30_000);
     return () => window.clearInterval(interval);
@@ -1194,7 +1198,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
               const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
               try {
                 localStorage.setItem(
-                  `ppp:tracked-orders:${data.organization.id}`,
+                  storefrontLocalKey("tracked-orders", data.instanceId),
                   JSON.stringify(next),
                 );
               } catch {
@@ -1207,7 +1211,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
             setCheckoutOpen(false);
             setTrackingOpen(true);
             try {
-              localStorage.setItem(`ppp:last-order:${data.organization.id}`, JSON.stringify(order));
+              localStorage.setItem(storefrontLocalKey("last-order", data.instanceId), JSON.stringify(order));
             } catch {
               // Ignore storage failures.
             }
