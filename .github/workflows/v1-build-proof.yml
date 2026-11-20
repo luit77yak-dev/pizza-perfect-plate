@@ -47,6 +47,8 @@ jobs:
         run: node --experimental-strip-types --test tests/store-context.test.mjs
       - name: Reject direct legacy UUID and phone tracking
         run: node --test tests/legacy-tracking-quarantine.test.mjs
+      - name: Verify capability tracking contract and closed production route
+        run: node --experimental-strip-types --test tests/private-tracking.test.mjs tests/private-tracking-closed.test.mjs
       - name: Candidate production build (no upload, no deploy)
         run: bun run build
       - name: Verify build output exists

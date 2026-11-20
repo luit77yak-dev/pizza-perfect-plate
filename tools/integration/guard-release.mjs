@@ -35,6 +35,8 @@ if(mode==='food')safe(()=>{
   const gateway=source('src/server/checkout-gateway.ts');
   const panel=source('src/features/storefront/components/CheckoutPanel.tsx');
   const storefront=source('src/components/storefront/Storefront.tsx');
+  const trackingRoute=source('src/routes/api/order-track.ts');
+  const closedTracking=source('src/server/private-tracking-closed.ts');
   check(/POST\s*:\s*async\s*\(\s*\{\s*request\s*\}\s*\)\s*=>\s*rejectPilotCheckout\s*\(\s*request\s*\)/s.test(route),'FOOD_ROUTE_CALLS_CLOSED_HANDLER');
   check(!/handlePrivateCheckout|createClient|service_role|SUPABASE_SERVICE_ROLE_KEY|\.rpc\s*\(/.test(route),'FOOD_ROUTE_HAS_NO_PRIVILEGED_FALLBACK');
   check(/enabled\s*:\s*false\b/.test(closed)&&/handleCheckoutRequest\s*\(/.test(closed),'FOOD_CLOSED_ADAPTER_DISABLED');
@@ -42,6 +44,8 @@ if(mode==='food')safe(()=>{
   check(!/\.rpc\s*\(\s*['"\x60](?:create_public_order|append_public_order_items_with_payment|get_public_order_status)['"\x60]/.test(panel),'FOOD_BROWSER_NO_LEGACY_RPC');
   check(/fetch\s*\(\s*['"]\/api\/checkout['"]/.test(panel),'FOOD_PANEL_USES_SERVER_ENDPOINT');
   check(!/supabase\.rpc\s*\(\s*['"\x60](?:get_public_order_status|append_public_order_items_with_payment|create_public_order)['"\x60]/.test(storefront),'FOOD_BROWSER_NO_LEGACY_TRACKING_RPC');
+  check(/handleClosedPrivateTracking\s*\(request\)/.test(trackingRoute),'FOOD_TRACKING_ROUTE_CLOSED');
+  check(/enabled:\s*false/.test(closedTracking)&&!/supabaseAdmin|service_role|privateTrackingDependencies|hosted-admission/i.test(closedTracking+trackingRoute),'FOOD_TRACKING_NO_HOSTED_BACKEND');
 },'FOOD_SOURCE_READABLE');
 
 if(mode==='master')safe(()=>{
