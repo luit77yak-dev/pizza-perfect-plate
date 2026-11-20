@@ -1,7 +1,6 @@
 import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
 import { usesFornoAppearance, type StorefrontAppearance } from "@/features/storefront/appearance";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { supabase } from "@/integrations/storefront-backend/client";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ChevronRight, Pizza, Plus, ShoppingBag, Store, X } from "lucide-react";
 import { loadStore } from "@/features/storefront/services/load-store";
@@ -119,69 +118,8 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
           );
         }
 
-        const results = await Promise.all(
-          storedActiveOrders.map(async (stored) => {
-            const { data: tracking, error } = await supabase.rpc("get_public_order_status", {
-              p_order_id: stored.id,
-              p_customer_phone: stored.phone,
-            });
-            const current = (Array.isArray(tracking) ? tracking[0] : tracking) as
-              | {
-                  order_number?: unknown;
-                  items?: unknown;
-                  subtotal?: unknown;
-                  total?: unknown;
-                  fulfillment?: "DELIVERY" | "PICKUP";
-                  status?: string;
-                }
-              | null
-              | undefined;
-            return {
-              stored,
-              current,
-              error,
-              status: current?.status as OrderStatus | undefined,
-            };
-          }),
-        );
-
-        if (cancelled) return;
-
-        const activeOrders: TrackedOrder[] = results
-          .map(({ stored, current, status }) => ({
-            ...stored,
-            number:
-              Number.isFinite(Number(current?.order_number)) && Number(current?.order_number) > 0
-                ? Number(current?.order_number)
-                : stored.number,
-            items: Array.isArray(current?.items)
-              ? (current.items as unknown as CartItem[])
-              : stored.items,
-            subtotal: Number.isFinite(Number(current?.subtotal))
-              ? Number(current?.subtotal)
-              : stored.subtotal,
-            total: Number.isFinite(Number(current?.total)) ? Number(current?.total) : stored.total,
-            fulfillment: current?.fulfillment ?? stored.fulfillment,
-            status: status ?? stored.status ?? "RECEIVED",
-          }))
-          .filter((order) => order.status !== "DELIVERED" && order.status !== "CANCELLED");
-
-        setTrackedOrders(activeOrders);
-        setSelectedTrackedOrderId((current) =>
-          current && activeOrders.some((order) => order.id === current)
-            ? current
-            : (activeOrders[0]?.id ?? null),
-        );
-
-        if (activeOrders.length > 0) {
-          localStorage.setItem(
-            storefrontLocalKey("tracked-orders", data.instanceId),
-            JSON.stringify(activeOrders),
-          );
-        } else {
-          localStorage.removeItem(storefrontLocalKey("tracked-orders", data.instanceId));
-          localStorage.removeItem(storefrontLocalKey("last-order", data.instanceId));
-        }
+        // Private tracking by capability has not been admitted in this release.
+        // Keep only the current store's local snapshot; never query by UUID + phone.
       } catch {
         if (!cancelled) {
           setTrackedOrders([]);
@@ -1134,63 +1072,18 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
             setSelectedComplementIds([]);
             setComplementOrderId(null);
 
-            // Refresh the complete public snapshot immediately so the tracking panel
-            // shows the real items and total after both a new order and an addition.
-            let snapshot = null as {
-              items?: unknown;
-              status?: string;
-              order_number?: unknown;
-              subtotal?: unknown;
-              total?: unknown;
-              fulfillment?: unknown;
-            } | null;
-            try {
-              const { data: tracking } = await supabase.rpc("get_public_order_status", {
-                p_order_id: order.id,
-                p_customer_phone: order.phone,
-              });
-              const current = Array.isArray(tracking) ? tracking[0] : tracking;
-              if (current && typeof current === "object") {
-                snapshot = current as NonNullable<typeof snapshot>;
-              }
-            } catch {
-              // The normal tracking refresh will retry shortly.
-            }
-
+            // Keep this store's checkout response as a local display snapshot.
+            // Public UUID/phone order lookups remain disabled until capability tracking is admitted.
             setTrackedOrders((current) => {
               const previous = current.find((item) => item.id === order.id);
-              const snapshotItems = Array.isArray(snapshot?.items)
-                ? (snapshot?.items as unknown as CartItem[])
-                : undefined;
-              const snapshotStatus = snapshot?.status as OrderStatus | undefined;
               const nextOrder: TrackedOrder = {
                 ...(previous ?? {}),
                 ...order,
-                number:
-                  Number.isFinite(Number(snapshot?.order_number)) &&
-                  Number(snapshot?.order_number) > 0
-                    ? Number(snapshot?.order_number)
-                    : order.number,
-                // Prefer the fresh RPC snapshot, then the checkout payload, then
-                // the previous tracked snapshot. This keeps new orders populated even
-                // when the tracking RPC has not been refreshed yet.
-                items: snapshotItems ?? order.items ?? previous?.items,
-                subtotal: Number.isFinite(Number(snapshot?.subtotal))
-                  ? Number(snapshot?.subtotal)
-                  : Number.isFinite(Number(order.subtotal))
-                    ? Number(order.subtotal)
-                    : previous?.subtotal,
-                total: Number.isFinite(Number(snapshot?.total))
-                  ? Number(snapshot?.total)
-                  : Number.isFinite(Number(order.total))
-                    ? Number(order.total)
-                    : previous?.total,
-                fulfillment:
-                  (snapshot?.fulfillment as TrackedOrder["fulfillment"] | undefined) ??
-                  order.fulfillment ??
-                  previous?.fulfillment,
+                items: order.items ?? previous?.items,
+                subtotal: order.subtotal ?? previous?.subtotal,
+                total: order.total ?? previous?.total,
+                fulfillment: order.fulfillment ?? previous?.fulfillment,
                 status:
-                  snapshotStatus ??
                   (order.status as OrderStatus | undefined) ??
                   previous?.status ??
                   "RECEIVED",

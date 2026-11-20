@@ -24,7 +24,11 @@ test('Food: closed checkout accepted; privileged handler rejected',()=>{
     write(root,'src/server/pilot-checkout-closed.ts','return handleCheckoutRequest(request, { enabled: false });');
     write(root,'src/server/checkout-gateway.ts','if (!dependencies.enabled) return result(503, "disabled");');
     write(root,'src/features/storefront/components/CheckoutPanel.tsx','await fetch("/api/checkout", { method: "POST" });');
+    write(root,'src/components/storefront/Storefront.tsx','const records = [];');
     assert.equal(run('food',root).status,0);
+    write(root,'src/components/storefront/Storefront.tsx','await supabase.rpc("get_public_order_status", {});');
+    assert.equal(run('food',root).status,1);
+    write(root,'src/components/storefront/Storefront.tsx','const records = [];');
     write(root,'src/routes/api/checkout.ts','POST: async ({ request }) => handlePrivateCheckout(request)');
     assert.equal(run('food',root).status,1);
   }finally{rmSync(root,{recursive:true,force:true});}
