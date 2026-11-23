@@ -23,3 +23,13 @@ Criado script para download no Termux, **não comitar**: `neroxa_lab_scoped_pat_
 `TERMUX_SCOPED_PAT_CHECK=AWAITING_USER`; `LAB_DATABASE_WRITE_TOKEN=NOT_VERIFIED`; `ROLE=NOLOGIN`; `HYPERDRIVE_DEDICADO=NONE`; `WATCHDOG_ARMED=NO`; `MAIN_HOST=CLOSED`; `COMMERCIAL=NO-GO`.
 
 Após `LAB_PAT_CHECK=PASS`, verificar visualmente em Dashboard que o token é restrito à LAB e tem **Database (Read-write)**, não apenas `Database JIT (Read)`. Somente com autorização delimitada e plano de retorno a NOLOGIN preparar uma ferramenta separada para ativar o papel com o verificador SCRAM derivado da senha local; nunca redefinir a senha postgres sem necessidade.
+
+## PAT-PREFIX-FIX — correção do gate local após HOLD
+
+Em 23/11/2026, usuário executou `neroxa_lab_scoped_pat_check_20261123.py --self-test` com `LAB_PAT_SELF_TEST=PASS`, mas `--check` retornou `LAB_PAT_CHECK=HOLD; REASON=NOT_A_SCOPED_PAT; WRITES=NONE` **antes de chamar a API**.
+
+**Causa identificada no código:** versão v1 restringia prefixo a `sbp_fc_`. Documentação oficial Supabase garante somente prefixo `sbp_fc` (por exemplo `sbp_fc...`), portanto sublinhado adicional obrigatório era hipótese inválida e podia rejeitar token legítimo. Referências: https://supabase.com/docs/guides/platform/personal-access-tokens; https://supabase.com/blog/scope-your-personal-access-tokens .
+
+**Correção distribuída na conversa, NÃO em Git:** `neroxa_lab_scoped_pat_check_v2_20261123.py`, SHA-256 **do código** `2a50d46d721cb44c8da7ebb6e18a86a784607d8e7f772b94c7f674dd18733aff`. Nova regra `token.startswith('sbp_fc')`, `len>=24`, nenhum whitespace; teste offline cobre `sbp_fc...` e `sbp_fc_...` e rejeita legado `sbp_...` e placeholders curtos. `python -m py_compile` e `--self-test` PASS. **O teste v2 ainda não foi executado no Termux**, portanto escopo real, validade, projeto e acesso remoto permanecem indeterminados.
+
+**Próximo gate:** o usuário salvar a versão v2 em Downloads e executar `--self-test` + `--check` com o token completo apenas no prompt oculto (não nome do token, não máscara). Compartilhar só `LAB_PAT_CHECK` e `REASON`. Em caso de `403` verificar escopo LAB e `Database (Read)` no painel sem ampliar permissões ao comercial. Nenhuma escrita, reset, alteração de LOGIN ou Hyperdrive neste passo.
