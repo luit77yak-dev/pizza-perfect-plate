@@ -24,9 +24,8 @@ test('disarmed is idle with NO callbacks',async()=>{
 });
 test('guard disabled, wrong LAB, wrong original and invalid deadline always HOLD before effects',async()=>{
  for(const x of [{guardEnabled:false},{targetInstance:'bad'},{originalVersion:'wrong'},
-  {deadlineMs:NOW},{deadlineMs:NOW-20*60000},{startedAtMs:NOW,deadlineMs:NOW-1000}]){
+  {deadlineMs:NOW-20*60000},{startedAtMs:NOW,deadlineMs:NOW-1000}]){
   const f=fake();const r=await reconcileRecovery(config(x),f.adapters,NOW);
-  if(x.deadlineMs===NOW)continue; // future deadline is a safe not-due state, tested separately
   assert.equal(r.state,'HOLD_INVALID_OR_UNAUTHORIZED_WINDOW',JSON.stringify(x));assert.equal(f.calls.length,0);
  }
  assert.equal(MAX_WINDOW_MS,900000);
