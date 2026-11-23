@@ -28,3 +28,20 @@ Arquivo Python entregue na conversa, **fora do repositório**: `neroxa_watchdog_
 Executar **somente** `--self-test` e `--local-check` no Termux, sem fornecer senha em chat. Depois obter o certificado CA da LAB e parâmetros oficiais de conexão no Supabase Connect, realizar preflight autenticado de leitura e conferir TLS. A ativação real do login e provisionamento do Hyperdrive devem ser encadeados em janela autorizada, com reversão imediata `NOLOGIN` em erro. O watchdog deve permanecer desarmado e host fechado até readback e testes independentes completos.
 
 `TERMUX_SECRET_READY=USER_REPORTED_PASS`; `REMOTE_LOGIN=NOLOGIN`; `DEDICATED_HYPERDRIVE=NOT_CREATED`; `RUNTIME_REVOKE=NOT_RUN`; `LIVE_WINDOW=HOLD`; `COMERCIAL=NO-GO`.
+
+
+## RECIBO DO TERMUX — validação do operador privado
+
+O proprietário executou `--self-test` e `--local-check` na sessão privada preparada anteriormente, reportando:
+
+- `OFFLINE_OPERATOR_SELF_TEST=PASS; NETWORK=NONE; SECRET_CREATED=NO`.
+- `LOCAL_DB_SECRET_CHECK=PASS; PRIVATE_FILE=0600; PRIVATE_DIRS=0700`.
+- `NETWORK=NONE; PASSWORD_PRINTED=NO; DB_CHANGED=NO`.
+
+Por segurança, o identificador da sessão e a senha não foram transcritos para o PR. **Os comandos não validam uma conexão PostgreSQL e não ativam LOGIN.**
+
+Preflight independente atual: Supabase LAB `gomexvhvecvvfbdzhjct` `ACTIVE_HEALTHY`, papel `neroxa_i04_lab_watchdog_revoke` `NOLOGIN`, 0 grants ativos e 6 históricos revogados. Cloudflare: Worker original `33c3539b-b50a-48b5-b869-9a4aa6811fed` a 100%, host/previews fechados; watchdog original `962e36d9-1b3f-425f-bb0e-703b7cba1e8b` a 100%, Cron `* * * * *`, `ARMED=false`, `GUARD_ENABLED=false`.
+
+**Próxima operação permitida ao proprietário:** obter o certificado CA e parâmetros de conexão **oficiais da LAB** no Dashboard Supabase; executar `--preflight` com `PGSSLMODE=verify-full` e `psql` em modo leitura. Direto: `db.gomexvhvecvvfbdzhjct.supabase.co:5432` (requer rota IPv6 no plano sem IPv4 adicional). Se conexão direta não funcionar, usar apenas o **Session Pooler indicado no painel LAB**, com porta `5432` e usuário `postgres.gomexvhvecvvfbdzhjct`. Nunca inventar hostname do pooler nem reutilizar certificado não verificado de outro projeto.
+
+**Permanecem bloqueados:** `--activate`, LOGIN, senha remota, novo Hyperdrive, deploy, arming, grants e testes HTTP reais. `COMERCIAL=NO-GO`.
