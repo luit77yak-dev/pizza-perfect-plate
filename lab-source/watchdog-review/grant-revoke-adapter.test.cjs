@@ -80,7 +80,8 @@ test('SQL template is REVIEW ONLY with same LAB A and revoked_at IS NOT NULL rea
   assert.match(sql,/SECURITY DEFINER/);
   assert.match(sql,/SET search_path = ''/);
   assert.match(sql,/FROM PUBLIC, anon, authenticated, service_role/);
-  assert.match(sql,/LOGIN NOINHERIT PASSWORD NULL/);
+  assert.match(sql,/ARCHIVED_REVIEW_SQL_NOT_EXECUTABLE/);
+  assert.match(sql,/NOLOGIN NOINHERIT PASSWORD NULL/);
   assert.match(sql,/REVOKE ALL ON FUNCTION/);
   assert.doesNotMatch(sql,/GRANT (SELECT|UPDATE|INSERT|DELETE) ON (TABLE )?private\.neroxa_lab_operator_grants/i);
 });
