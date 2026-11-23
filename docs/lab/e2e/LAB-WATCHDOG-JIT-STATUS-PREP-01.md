@@ -29,3 +29,21 @@ O arquivo para Termux **fora do repositório** `neroxa_lab_jit_status_20261123.p
 **Limitação:** o endpoint GET depende de Project Settings Read; um 403 não significa necessariamente que o JIT está desativado e não justifica ampliar permissões. Um status ENABLED não prova que há regra autorizando este usuário a assumir `postgres`. Não migrar automaticamente de JIT para API SQL de escrita com verificador; manter NOLOGIN até caminho privado e rollback seguros.
 
 `TERMUX_SQL_CONTEXT=PASS`; `JIT_STATUS=AWAIT_TERMUX`; `ROLE=NOLOGIN`; `HYPERDRIVE_WATCHDOG=NONE`; `WATCHDOG_ARMED=false`; `HOST_CLOSED=LAST_VERIFIED`; `COMERCIAL=NO-GO`.
+
+## JIT-STATUS-V2 — corrigido estado unavailable
+
+Em 23/11/2026, o proprietário executou no Termux:
+- `LAB_JIT_SELF_TEST=PASS; NETWORK=NONE; TOKEN_READ=NO; DB_CHANGED=NO`
+- `LAB_JIT_STATUS=HOLD; REASON=UNKNOWN_RESPONSE; WRITES=NONE`
+
+Inspeção da fonte exata do script v1 `neroxa_lab_jit_status_20261123.py` provou que o endpoint estava **correto** (`GET /v1/projects/{ref}/jit-access`, ver API Reference), mas o parser tratava apenas `state=enabled` e `state=disabled`, convertendo a alternativa documentada `state=unavailable` em UNKNOWN_RESPONSE. Isso não significa token inválido, não prova JIT desligado e não permite inferir qual bloqueio existe sem o retorno do v2.
+
+**Fonte oficial:** https://supabase.com/docs/reference/api/v1-get-jit-access-config . Resposta 200 documentada por `oneOf` de `enabled/disabled` com `appliedSuccessfully`, ou `state=unavailable` e enum `unavailableReason`: `platform_unsupported`, `postgres_upgrade_required`, `ssl_enforcement_required`, `temporarily_unavailable`. Se `appliedSuccessfully=false` o verificador deve classificar HOLD, não aprovação.
+
+Criado **fora do Git**, disponível como download somente na conversa, o arquivo `neroxa_lab_jit_status_v2_20261123.py`. SHA-256 **do código**, sem relação com credenciais: `a8e39d9c7e71c3e3222d5f4fa13f400c77caa0e15e51a0c70a4efb9ae0cca06e`. V2 conserva endpoint correto, HTTPS com CA do SO, token por `getpass`, proibição de proxy e redirecionamento, `GET` único, sem segredo do watchdog. Faz whitelist de causas de indisponibilidade e só imprime códigos. `python3 -m py_compile` e `--self-test` PASS offline, cobrindo `unavailable` e `appliedSuccessfully` falso. **Não foi executado com token real no Termux** nesta etapa.
+
+Readback Supabase LAB `gomexvhvecvvfbdzhjct` `ACTIVE_HEALTHY`: role `neroxa_i04_lab_watchdog_revoke` continua `rolcanlogin=false`, `rolcreaterole=false`, `rolbypassrls=false`.
+
+**Próximo gate:** proprietário executar versão v2 `--self-test` e `--check` e enviar apenas linhas de status. Se `REASON=SSL_ENFORCEMENT_REQUIRED`, **não** habilitar SSL à força: a alteração de SSL enforcement no Supabase pode reiniciar o banco e afetar conexões; exigir avaliação de impacto/janela antes. `--activate`, `ALTER ROLE`, migrações, regra JIT, novo Hyperdrive, Watchdog armar, acesso público e comercial permanecem bloqueados.
+
+`JIT_V1=HOLD_UNKNOWN_RESPONSE`; `JIT_V2_SELF_TEST=PASS`; `JIT_V2_REMOTE=AWAIT_TERMUX`; `DB_ROLE=NOLOGIN`; `COMMERCIAL=NO-GO`.
