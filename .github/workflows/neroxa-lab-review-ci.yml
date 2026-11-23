@@ -56,6 +56,9 @@ jobs:
       - name: Validate Worker review hashes and disabled Access configuration
         run: python3 -I lab-source/worker-review/verify_review_snapshot.py
 
+      - name: Validate security HTTP rehearsal harness (mock only; no network)
+        run: node --test lab-source/security-http/browser-negative-harness.test.cjs
+
       - name: Report verification boundary
         run: |
           echo "LAB_REVIEW_CI=PASS"
