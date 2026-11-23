@@ -45,3 +45,13 @@ Preflight independente atual: Supabase LAB `gomexvhvecvvfbdzhjct` `ACTIVE_HEALTH
 **Próxima operação permitida ao proprietário:** obter o certificado CA e parâmetros de conexão **oficiais da LAB** no Dashboard Supabase; executar `--preflight` com `PGSSLMODE=verify-full` e `psql` em modo leitura. Direto: `db.gomexvhvecvvfbdzhjct.supabase.co:5432` (requer rota IPv6 no plano sem IPv4 adicional). Se conexão direta não funcionar, usar apenas o **Session Pooler indicado no painel LAB**, com porta `5432` e usuário `postgres.gomexvhvecvvfbdzhjct`. Nunca inventar hostname do pooler nem reutilizar certificado não verificado de outro projeto.
 
 **Permanecem bloqueados:** `--activate`, LOGIN, senha remota, novo Hyperdrive, deploy, arming, grants e testes HTTP reais. `COMERCIAL=NO-GO`.
+
+## RECIBO DE FALHA DO PREFLIGHT E DIAGNÓSTICO SEGURO
+
+Em 23/11/2026, o proprietário informou que o preflight local pediu senha administrativa (`Password:`) e terminou com `DB_ROLE_OPERATOR=HOLD; ERROR_TYPE=RuntimeError`. **Isso NÃO comprova autenticação bem-sucedida, nem identifica qual gate falhou.** Auditoria do código original `neroxa_watchdog_db_psql_20261123.py`: o mesmo tipo `RuntimeError` é usado tanto quando psql retorna exit code não zero (conexão, autenticação, TLS ou erro SQL), quanto quando a consulta read-only retorna `LAB_ROLE_PREFLIGHT_HOLD`. O operador omite stderr deliberadamente para não revelar credenciais.
+
+A leitura Supabase posterior confirmou `rolcanlogin=false` e `rolbypassrls=false` no papel restrito, sem ativação. O preflight original usa apenas SELECT; nenhum `ALTER ROLE` foi solicitado.
+
+Foi criado e testado fora do Git (arquivo entregue diretamente na conversa) `neroxa_watchdog_db_diagnose_20261123.py`, SHA-256 **do código** `84868b57738a5dac774757f0ede994680a4554cf97b273154798db22976e5934`. Reusa whitelist de host e checagem de CA do operador anterior, executa `BEGIN READ ONLY; SELECT CASE ...; ROLLBACK;` por psql, com `PGSSLMODE=verify-full`. Nunca abre `db-role.secret`, não imprime stdout/stderr brutos e converte erros em categorias de lista fechada (DNS, rota, timeout, autenticação, certificado/hostname, usuário/tenant pooler, permissões, SQL), ou `UNCLASSIFIED_PSQL_FAILURE` quando indeterminado. `--self-test` local: `OFFLINE_DB_DIAG_SELF_TEST=PASS`; compilação Python PASS.
+
+**Próximo passo:** usuário executar somente `--self-test` e `--diagnose` com o MESMO hostname, CA, admin-user e porta da tentativa anterior, enviar só o código `DB_DIAG`. Não coletar senhas nem transcrição completa do erro de psql. **`--activate` proibido** até confirmar preflight e capacidade de rollback; Hyperdrive exclusivo, watchdog armado, rotas e comercial permanecem bloqueados.
