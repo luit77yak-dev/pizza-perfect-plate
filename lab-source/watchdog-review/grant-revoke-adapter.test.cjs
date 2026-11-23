@@ -66,6 +66,7 @@ test('failed connect, query and malformed output must fail closed without leakin
     const f=fixture(options);
     await assert.rejects(()=>f.adapter.revokeTemporaryLabAGrant({instanceId:LAB_A}));
     assert.equal(f.revoked,options.invalidShape===true);
+    assert.equal(f.calls.filter(x=>x[0]==='end').length,1);
   }
 });
 test('SQL template is REVIEW ONLY with same LAB A and revoked_at IS NOT NULL readback',()=>{
