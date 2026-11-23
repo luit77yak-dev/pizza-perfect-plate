@@ -37,3 +37,8 @@ test('unauthorized SQL errors return 403',()=>{assert.equal(ops.lifecycleHttpSta
 test('Worker requires origin, deadline, nonce and closes public checkout (static)',()=>{const c=fs.readFileSync(path.join(root,'worker-order-ui-entry.ts'),'utf8');for(const x of ['public.neroxa_claim_cloudflare_grant',"request.headers.get('origin')!==url.origin",'Date.now()>=deadline',"request.headers.get('x-neroxa-lab-nonce')","url.pathname==='/api/checkout'"])assert.ok(c.includes(x),x);});
 
 test('review snapshot fails closed without Access configuration',()=>{const keys=fs.readFileSync(path.join(root,'access-keys.ts'),'utf8');assert.match(keys,/PINNED_ACCESS_KEYS[^=]*= \[\]/);assert.match(jwt,/const ISSUER='https:\/\/unconfigured\.invalid';/);assert.match(jwt,/const AUDIENCE='NOT_CONFIGURED';/);const entry=fs.readFileSync(path.join(root,'worker-order-ui-entry.ts'),'utf8');for(const txt of ["const HOST='unconfigured.invalid'","const PROJECT='NOT_CONFIGURED'","const ROLE='NOT_CONFIGURED'"])assert.ok(entry.includes(txt));});
+
+test('real empty pinned keyset rejects a correctly signed synthetic JWT',async()=>{
+ const actual=moduleFrom(jwt,'access-jwt.ts',{'./access-keys.ts':{PINNED_ACCESS_KEYS:[]}});
+ await assert.rejects(()=>actual.verifyAccess(signed()),/Access signing key not found/);
+});
