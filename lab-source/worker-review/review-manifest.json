@@ -1,0 +1,31 @@
+{
+  "source_archive_sha256": "a24acb8c3148f1a3156852d1f1e1d906eb56110f397b8494d879034b15dda53b",
+  "non_deployable": true,
+  "files": {
+    "access-jwt.ts": {
+      "original_sha256": "fa067902fe9d0c24394e9c4c7adbbee55a0b08b658918257bc9ad53cae829729",
+      "review_sha256": "a3b1ecaf85b995d4b4a0a4cd8bec697a2460d38930d0830935f77a83949f9ccd",
+      "modified": true
+    },
+    "access-keys.ts": {
+      "original_sha256": "c89518e669138a272c996a946a479b6204017927f35e84e0d141e9855267adf7",
+      "review_sha256": "0d1b2acde2f1f784fc84a7b2465b8c80382ce87e015b608483ec19115f9f5801",
+      "modified": true
+    },
+    "index.d.mts": {
+      "original_sha256": "ea69efba90c902120df64015167f626245ce62e12327e488f12761443a3f6aab",
+      "review_sha256": "ea69efba90c902120df64015167f626245ce62e12327e488f12761443a3f6aab",
+      "modified": false
+    },
+    "order-lifecycle.ts": {
+      "original_sha256": "0d40c36f8d262ecb7f96ca51576b72b26ea2685b18ef442389a1e766a0bec5e9",
+      "review_sha256": "0d40c36f8d262ecb7f96ca51576b72b26ea2685b18ef442389a1e766a0bec5e9",
+      "modified": false
+    },
+    "worker-order-ui-entry.ts": {
+      "original_sha256": "e9f9c8c8d49abdd41a7ef9746565e7e7fb2daf1db905aeff2f62c101c88a7f07",
+      "review_sha256": "99e61bcef3b7970bbdd181d591e6479492d528511ecb2bb14734318638e69744",
+      "modified": true
+    }
+  }
+}
