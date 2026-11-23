@@ -1,0 +1,63 @@
+name: NEROXA LAB review — offline gates
+
+on:
+  pull_request:
+    branches:
+      - integration/v1-cloudflare-food-20261120
+    paths:
+      - "lab-source/**"
+      - "docs/lab/e2e/**"
+      - ".github/workflows/neroxa-lab-review-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: neroxa-lab-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  lab-review-offline:
+    name: Verified sources and fail-closed Worker (no deploy)
+    if: github.event.pull_request.draft == true || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout PR head without persisting credentials
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Assert PR changed only isolated LAB review paths
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          git -c protocol.version=2 fetch --no-tags --depth=1 origin "$BASE_SHA"
+          mapfile -t changed < <(git diff --name-only --diff-filter=ACDMRT "$BASE_SHA" "$HEAD_SHA")
+          test "${#changed[@]}" -gt 0
+          for file in "${changed[@]}"; do
+            case "$file" in
+              lab-source/*|docs/lab/e2e/*|.github/workflows/neroxa-lab-review-ci.yml) ;;
+              *) echo "::error::Unexpected path outside isolated LAB review: $file"; exit 1 ;;
+            esac
+          done
+          echo "LAB_REVIEW_SCOPE=PASS; FILES=${#changed[@]}; RUNTIME_SRC_CHANGED=NO"
+
+      - name: Validate corrected Food source hashes (12 files)
+        run: python3 -I lab-source/verify_corrected_source.py
+
+      - name: Validate Worker review hashes and disabled Access configuration
+        run: python3 -I lab-source/worker-review/verify_review_snapshot.py
+
+      - name: Report verification boundary
+        run: |
+          echo "LAB_REVIEW_CI=PASS"
+          echo "MODE=OFFLINE; RUNTIME_BUILD=NOT_RUN; REMOTE_NEGATIVES=NOT_RUN"
+          echo "DEPLOY=NONE; COMMERCIAL_GO=NO_GO; PR_REMAINS_DRAFT_UNTIL_SEPARATE_APPROVAL"
