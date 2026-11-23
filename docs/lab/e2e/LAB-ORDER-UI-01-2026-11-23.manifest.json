@@ -26,7 +26,7 @@
     "src/features/orders-lab/private-food-cart.ts": "a2dbe9b96f02851cdb7bcdd345e7e28cecb8ea337b1fdd24b6a632b04f57be1f",
     "src/features/orders-lab/private-food-catalog.ts": "29fc3c20dfa3412c861270d58f31d251ea8b766e6c34dc3a8e2744a9e9844f0c",
     "src/routes/admin/pedidos.tsx": "21d92a81aa160dbd1db0535be38d056c333dfde9c45cae8023840553f88a9d5c",
-    "src/routes/loja/pedido-lab.tsx": "ef16f9a4b5a4698016b7a450f4b5dfab2c8b386f545d1c2d556e6d5f8293d88",
+    "src/routes/loja/pedido-lab.tsx": "ef16f9a4b5a4698016b7a450f4b5dfab2c8b386f545d1c2d5566e6d5f8293d88",
     "src/server/commercial-checkout.server.ts": "675bdfd0c16bcbb2a246aa929a6caa1c59fac30d6d279be59110da30b9279270",
     "src/server/commercial-hyperdrive.server.ts": "95840c192ae4bbbd303f08c91202f4d5f7c9a0c78a61c726476a6a691299e332"
   },
