@@ -65,6 +65,12 @@ jobs:
       - name: Validate watchdog recovery contract (mock only, no API/DB)
         run: node --test lab-source/watchdog-review/recovery-contract.test.cjs
 
+      - name: Validate LAB A private grant revoke adapter (no database)
+        run: node --test lab-source/watchdog-review/grant-revoke-adapter.test.cjs
+
+      - name: Validate integrated watchdog recovery wiring (mock I/O only)
+        run: node --test lab-source/watchdog-review/watchdog-wiring-preview.test.cjs
+
       - name: Report verification boundary
         run: |
           echo "LAB_REVIEW_CI=PASS"
