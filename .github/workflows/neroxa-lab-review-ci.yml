@@ -62,6 +62,9 @@ jobs:
       - name: Check time-bounded independent rollback admission (offline only)
         run: node --test lab-source/security-http/window-admission-gate.test.cjs
 
+      - name: Validate watchdog recovery contract (mock only, no API/DB)
+        run: node --test lab-source/watchdog-review/recovery-contract.test.cjs
+
       - name: Report verification boundary
         run: |
           echo "LAB_REVIEW_CI=PASS"
