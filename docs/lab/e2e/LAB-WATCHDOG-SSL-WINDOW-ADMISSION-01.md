@@ -30,3 +30,18 @@ Proprietário autorizou em conversa **preparar uma janela controlada para habili
 Não temos navegador controlável pelo assistente no chat nem ação conector que aplique SSL enforcement. O procedimento foi **preparado**, mas **não executado**; nenhum PUT/POST API, migração ou SQL de escrita foi realizado. O acesso via PAT fica exclusivamente no Termux. Sem autorização para outros projetos ou recursos. Monitoramento interno `postgres_exporter` é um risco conhecido sem confirmação de exceção.
 
 **Status:** `SSL_WINDOW_AUTHORIZED=YES`; `SSL_PREFLIGHT=PASS_WITH_MONITORING_CAVEAT`; `SSL_ENFORCEMENT=NOT_APPLIED_BY_ASSISTANT`; `JIT=HOLD_SSL_ENFORCEMENT_REQUIRED`; `ROLE=NOLOGIN`; `NEW_HYPERDRIVE=NONE`; `WATCHDOG_ARMED=false`; `COMMERCIAL=NO-GO`.
+
+## SSL ATIVADO — readback pós-mudança (23/11/2026)
+
+**Confirmação do proprietário:** `SSL ativado`, após mudança no painel Supabase **exclusivamente da LAB**. A confirmação de que o toggle está On é fornecida pelo proprietário; a API de configuração SSL não foi consultada de forma independente nesta sessão porque o conector disponível não expõe GET/PUT SSL enforcement. Nenhuma mudança do painel foi feita pelo assistente.
+
+**Auditoria remota posterior somente leitura, Supabase LAB `gomexvhvecvvfbdzhjct`:**
+- `get_project.status=ACTIVE_HEALTHY`, PostgreSQL `17.11.0.019`.
+- Readback: `current_database=postgres`, `current_user=postgres`, `neroxa_i04_lab_watchdog_revoke.rolcanlogin=false`, `neroxa_lab_e2e_runtime.rolcanlogin=true`, grants operacionais ativos=0.
+- `pg_stat_activity JOIN pg_stat_ssl` no instante pós-ativação: `authenticator` app `PostgREST 14.18` TLS=true `TLSv1.3` por loopback; `pgbouncer` TLS=true `TLSv1.3` por loopback; `postgres` app `mgmt-api` TLS=true `TLSv1.3` por TCP externo; `supabase_admin` `postgres_exporter` SSL=false por loopback TCP. **Observação:** exporter ainda presente, sem evidência direta de indisponibilidade; uma conexão observada não comprova saúde integral das métricas ou exceção permanente ao enforcement.
+- Cloudflare GET: Hyperdrive Food existente `neroxa-v1-i04-lab`, DB LAB com usuário `neroxa_lab_e2e_runtime`, TLS/mTLS mode `verify-full` configurado; nenhum Hyperdrive dedicado criado. Worker Food original `33c3539b-b50a-48b5-b869-9a4aa6811fed` 100%, workers.dev e previews desabilitados. Watchdog original `962e36d9-1b3f-425f-bb0e-703b7cba1e8b` 100%, `I04_WATCHDOG_ARMED=false`, `I04_GUARD_ENABLED=false`.
+- Nenhum teste HTTP real ou query funcional via Hyperdrive foi executado; não reportar disponibilidade HTTP/SSO ou desempenho do Worker como comprovados.
+
+**Decisão de avanço:** validação pós-reinício de saúde e conexões base satisfatória, **mas JIT ainda não foi retestado após a alteração**. Proprietário deve executar apenas `python3 neroxa_lab_jit_status_v2_20261123.py --check` no Termux com PAT oculto (pode preceder por `--self-test`) e compartilhar exclusivamente `LAB_JIT_STATUS`, `REASON` e `WRITES`. Se `DISABLED`, requisito SSL removido mas JIT não habilitado; `ENABLED` ainda não significa mapeamento autorizado para assumir `postgres`. Se `UNAVAILABLE` ou `HOLD`, não habilitar JIT/LOGIN; diagnosticar sem escrita.
+
+**Permanecem bloqueados:** JIT enable, mapear role postgres, definir senha watchdog, ALTER ROLE, Hyperdrive novo, arming watchdog, abertura de host, deploy público, modificações comerciais. `SSL_ON=USER_CONFIRMED`; `POST_SSL_LAB_HEALTH=PASS`; `JIT_POST_SSL=AWAIT_TERMUX`; `ROLE=NOLOGIN`; `ORIGINAL_100=PRESERVED`; `COMMERCIAL=NO-GO`.
