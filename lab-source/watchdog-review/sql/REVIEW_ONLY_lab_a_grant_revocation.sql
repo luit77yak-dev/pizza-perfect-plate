@@ -1,3 +1,8 @@
+-- ARCHIVED FIRST DRAFT — SUPERSEDED; NEVER EXECUTE.
+-- The actual applied LAB migrations are LAB_ONLY_bootstrap_no_login_20261123.sql
+-- and LAB_ONLY_fix_readback_volatility_20261123.sql. The role is NOLOGIN.
+-- This draft is deliberately blocked at runtime to prevent accidental use.
+
 -- NEROXA LAB A — SECURITY REVIEW ONLY / NOT APPLIED.
 -- This is a proposed private PostgreSQL contract, NOT a migration.
 -- Do not execute without explicit DB-write approval, independent review,
@@ -16,11 +21,12 @@
 -- configuration restricted to the LAB database. Do not add service_role keys.
 
 BEGIN;
+DO $ BEGIN RAISE EXCEPTION 'ARCHIVED_REVIEW_SQL_NOT_EXECUTABLE'; END $;
 
 DO $create_restricted_role$
 BEGIN
  IF NOT EXISTS (SELECT 1 FROM pg_catalog.pg_roles WHERE rolname='neroxa_i04_lab_watchdog_revoke') THEN
-  CREATE ROLE neroxa_i04_lab_watchdog_revoke LOGIN NOINHERIT PASSWORD NULL;
+  CREATE ROLE neroxa_i04_lab_watchdog_revoke NOLOGIN NOINHERIT PASSWORD NULL;
  END IF;
 END
 $create_restricted_role$;
