@@ -59,6 +59,9 @@ jobs:
       - name: Validate security HTTP rehearsal harness (mock only; no network)
         run: node --test lab-source/security-http/browser-negative-harness.test.cjs
 
+      - name: Check time-bounded independent rollback admission (offline only)
+        run: node --test lab-source/security-http/window-admission-gate.test.cjs
+
       - name: Report verification boundary
         run: |
           echo "LAB_REVIEW_CI=PASS"
