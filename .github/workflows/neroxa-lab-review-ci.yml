@@ -71,6 +71,9 @@ jobs:
       - name: Validate integrated watchdog recovery wiring (mock I/O only)
         run: node --test lab-source/watchdog-review/watchdog-wiring-preview.test.cjs
 
+      - name: Validate applied LAB-only NOLOGIN SQL contract (static, offline)
+        run: node --test lab-source/watchdog-review/bootstrap-sql-contract.test.cjs
+
       - name: Report verification boundary
         run: |
           echo "LAB_REVIEW_CI=PASS"
