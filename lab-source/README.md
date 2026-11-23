@@ -38,3 +38,7 @@ Resultado esperado: `SOURCE_SHA256=PASS; FILES=12; MODE=OFFLINE; WRITES=NONE`.
 4. Manter o PR draft até os gates de revisão e GO/NO-GO. Nenhum deploy, merge para `main` ou alteração comercial autorizada por estas evidências.
 
 A homologação funcional `LAB_ORDER_UI_E2E=PASS` e o rollback `PASS` permanecem preservados.
+
+## Worker privado para code review (inoperante por padrão)
+
+O diretório [`worker-review/`](./worker-review/) preserva os módulos da API LAB em versão revisável, **com a configuração Cloudflare Access real retirada** e todos os JWTs bloqueados por um conjunto de chaves vazio. Veja [`WORKER-REVIEW-FAIL-CLOSED-01`](../docs/lab/e2e/WORKER-REVIEW-FAIL-CLOSED-01.md) para hashes, 12/12 testes offline e negativas HTTP ainda pendentes. Não é runtime deployável e não modifica `src/` comercial.
