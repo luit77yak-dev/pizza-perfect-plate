@@ -43,9 +43,11 @@ function makeLabARevoker(options){
          i.rows[0].db!=='postgres'||i.rows[0].ssl!==true)
         throw Error('LAB_DB_IDENTITY_OR_TLS_DENIED');
       const r=await client.query(sql,params.slice());
-      if(r?.rows?.length!==1 || r.rows[0].revoked!==true)
+      if(r?.rows?.length!==1 || typeof r.rows[0].revoked!=='boolean')
+        throw Error('LAB_GRANT_REVOCATION_RESPONSE_INVALID');
+      if(sql===REVOKE_SQL && r.rows[0].revoked!==true)
         throw Error('LAB_GRANT_REVOCATION_UNVERIFIED');
-      return true;
+      return r.rows[0].revoked;
     }finally{
       // Do not leak credentials/query payloads to logs or errors.
       if(connected)await client.end().catch(()=>{});
