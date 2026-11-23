@@ -33,3 +33,12 @@ Credencial operacional nova **não disponível neste canal**. As anteriores fora
 ## PRÓXIMA AÇÃO
 
 Proprietário executa `neroxa_http_operator_20261123.py --prepare` localmente e informa apenas `LAB_A_TOKEN_SHA256`. Reconciliar novo hash com `private.neroxa_lab_operator_grants` via SELECT para assegurar não usado; preparar a janela protegida e então conceder grant A temporário autorizado, com revogação ao fechar. PR #50 permanece Draft, nenhum merge ou alteração comercial.
+
+
+## RECIBO DA CREDENCIAL — 23/11/2026 (apenas metadados, sem identificadores públicos)
+
+- Gerador local Termux confirmado pelo proprietário: `LOCAL_OPERATOR_PREP=PASS`, armazenamento local restrito `0600/0700`, `NETWORK=NONE`, `GRANT_CREATED=NO`.
+- Valor do novo Bearer, hash SHA-256 e identificador da sessão **não são copiados para o repositório público**, CI, documentação ou artefatos. A prova de unicidade foi consultada no Supabase LAB de forma somente leitura: `MATCHING_GRANTS=0` (nenhum grant ativo, revogado ou histórico para o hash fornecido no canal de homologação).
+- Revalidação por `BEGIN READ ONLY ... ROLLBACK`: LAB A, 5 grants revogados/0 ativos; LAB B, 1 revogado/0 ativos.
+- Cloudflare GET após o recebimento: original `33c3539b-b50a-48b5-b869-9a4aa6811fed` continua 100%, workers.dev/previews desabilitados, versão staging `de02bde8-0254-4b8a-af20-3dc238169d61` segue com deadline fechado `2000-01-01T00:00:00Z`.
+- **Resultado:** `OPERATOR_LOCAL=READY`, `SHA256_UNIQUE=PASS`, `GRANT_CREATED=NO`, `LIVE_WINDOW=HOLD`. Próximo gate: preparar janela protegida real com deadline novo e rollback independente antes de criar grant por tempo restrito. Não abrir host nem implantar versão a partir deste recibo.
