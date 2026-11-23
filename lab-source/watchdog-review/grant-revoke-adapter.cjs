@@ -34,9 +34,8 @@ function makeLabARevoker(options){
     if(!client || typeof client.connect!=='function' ||
        typeof client.query!=='function'||typeof client.end!=='function')
        throw Error('LAB_DB_CLIENT_UNAVAILABLE');
-    let connected=false;
     try{
-      await client.connect();connected=true;
+      await client.connect();
       const i=await client.query(IDENTITY_SQL);
       if(i?.rows?.length!==1 || i.rows[0].actor!==DB_ROLE ||
          i.rows[0].session_actor!==DB_ROLE ||
@@ -50,7 +49,7 @@ function makeLabARevoker(options){
       return r.rows[0].revoked;
     }finally{
       // Do not leak credentials/query payloads to logs or errors.
-      if(connected)await client.end().catch(()=>{});
+      await client.end().catch(()=>{});
     }
   }
   function admission(context){
