@@ -25,3 +25,11 @@ Estender o contrato `recovery-contract.cjs` com a **revogação verificável de 
 `DB_FUNCTIONS=NOT_APPLIED`; `DB_ROLE=NOT_CREATED`; `RESTRICTED_HYPERDRIVE=NOT_CONFIGURED`; `WORKER_ENTRY_BUNDLED=NO`; `WATCHDOG_NEW_VERSION=NOT_CREATED`; `WATCHDOG_CURRENT=DISARMED`; `CRON=* * * * *`; `HTTP_TESTS=NOT_RUN`; `COMMERCIAL=NO-GO`.
 
 O sucesso do CI demonstra apenas testes locais da interface e da lógica simulada. Não equivale a autorização, migração, deployment ou teste de recuperação real.
+
+## Atualização LAB-WATCHDOG-DB-ROLE-01 — 23/11/2026
+
+**Bootstrap LAB aplicado e verificado:** `neroxa_i04_lab_watchdog_revoke` foi criado `NOLOGIN` (não `LOGIN`), sem senha, no projeto Supabase LAB `gomexvhvecvvfbdzhjct`. Duas funções privadas foram criadas, com `EXECUTE` apenas ao papel dedicado e `search_path=''`; os papéis `anon`, `authenticated`, `service_role` não possuem EXECUTE e o role não possui DML direto na tabela.
+
+As fontes **aplicadas** são `sql/LAB_ONLY_bootstrap_no_login_20261123.sql` e `sql/LAB_ONLY_fix_readback_volatility_20261123.sql`, versões de migração `20261123173048` e `20261123173239`. A segunda torna o readback `VOLATILE` para observar alterações do mesmo comando. O arquivo `sql/REVIEW_ONLY_lab_a_grant_revocation.sql` é um rascunho substituído, agora bloqueado por exceção, **não o executar**.
+
+As etapas de provisionamento seguro de senha, LOGIN e Hyperdrive seguem **pendentes**. A conexão privada e a revogação efetiva de um grant ainda não foram exercitadas; não interpretar essa mudança de schema como aptidão do watchdog. Worker atual segue desarmado; nenhuma chamada HTTP real, deploy ou autorização comercial ocorreu.
