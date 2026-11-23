@@ -1,0 +1,61 @@
+{
+  "schema": "neroxa.lab-order-ui-e2e.evidence.v1",
+  "date": "2026-11-23",
+  "repository": "luit77yak-dev/pizza-perfect-plate",
+  "source_base": {
+    "ref": "integration/v1-cloudflare-food-20261120",
+    "commit": "a125b4857c151a7e9f6404aa309c39eee6377dfc"
+  },
+  "artifacts": {
+    "original_v6": {
+      "filename": "NEROXA-LAB-ORDER-UI-01-CODIGO-LOCAL-v6.zip",
+      "sha256": "0f9567f3eecb3d001173e960b182db40ecf7898cd128000dfe0a7f22b13cb5c6"
+    },
+    "corrected_integrated": {
+      "filename": "NEROXA-LAB-ORDER-UI-01-GO03R-INTEGRADO(1).zip",
+      "sha256": "090167fd3c7b4ecf23bb0b7ef9bfe31d61d63e3d027eade42c9cee666e0c323e"
+    }
+  },
+  "corrected_integrated_file_sha256": {
+    "src/components/LabBuyerTracking.tsx": "f1d570f799adca159ea1da51460249a1ada513bd1790bdbc0650aedb9f326250",
+    "src/components/LabBuyerTrackingScreen.tsx": "5a90d5a7b9219fe8155ca04a04ea72e68579e6f450bf744883ab65a2fa375537",
+    "src/components/LabFoodOrderCheckout.tsx": "8efb432b8da04c26dc5a0489cb7420164b4a2fea022d09727bcd374c66f88405",
+    "src/components/LabOperatorActions.tsx": "80531659d7508ca0eff1f42456508f2da50f60a4012325de8557e9ce55457baa",
+    "src/components/LabOrdersDashboard.tsx": "d961f651ee4e627b25f273c350bdb2c2b5c5e6ad1c7d73d0d8fc1a02ebbad06d",
+    "src/features/orders-lab/private-api.ts": "9552870b68717d71101b1c655a0bb89bf3efd883e6e275ec4310eb39534c8ae2",
+    "src/features/orders-lab/private-food-cart.ts": "a2dbe9b96f02851cdb7bcdd345e7e28cecb8ea337b1fdd24b6a632b04f57be1f",
+    "src/features/orders-lab/private-food-catalog.ts": "29fc3c20dfa3412c861270d58f31d251ea8b766e6c34dc3a8e2744a9e9844f0c",
+    "src/routes/admin/pedidos.tsx": "21d92a81aa160dbd1db0535be38d056c333dfde9c45cae8023840553f88a9d5c",
+    "src/routes/loja/pedido-lab.tsx": "ef16f9a4b5a4698016b7a450f4b5dfab2c8b386f545d1c2d5566e6d5f8293d88",
+    "src/server/commercial-checkout.server.ts": "675bdfd0c16bcbb2a246aa929a6caa1c59fac30d6d279be59110da30b9279270",
+    "src/server/commercial-hyperdrive.server.ts": "95840c192ae4bbbd303f08c91202f4d5f7c9a0c78a61c726476a6a691299e332"
+  },
+  "e2e": {
+    "result": "PASS_FUNCTIONAL_LAB_A_ONLY",
+    "version_id": "f7b21f69-ec76-4b95-85e7-ccb9da93f7c8",
+    "order_numbers": [
+      3,
+      4
+    ],
+    "status_final": "DELIVERED",
+    "transitions": [
+      "RECEIVED",
+      "CONFIRMED",
+      "PREPARING",
+      "READY",
+      "DELIVERED"
+    ],
+    "new_orders_each_1_item_10_brl": true,
+    "rollback": {
+      "result": "PASS",
+      "production_original_version": "33c3539b-b50a-48b5-b869-9a4aa6811fed",
+      "restored_deployment": "1f2f8c3e-1666-468e-a7fa-d7a0592ca054",
+      "workers_dev": false,
+      "previews": false,
+      "valid_grants_lab_a": 0,
+      "valid_grants_lab_b": 0
+    }
+  },
+  "warning": "Evidence only. Source files and build outputs are not committed by this manifest; do not mistake this for a deployable code integration. Do not merge/ship to production.",
+  "commercial_go": "NO-GO"
+}
