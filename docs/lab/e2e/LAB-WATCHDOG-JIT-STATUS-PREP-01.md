@@ -47,3 +47,19 @@ Readback Supabase LAB `gomexvhvecvvfbdzhjct` `ACTIVE_HEALTHY`: role `neroxa_i04_
 **Próximo gate:** proprietário executar versão v2 `--self-test` e `--check` e enviar apenas linhas de status. Se `REASON=SSL_ENFORCEMENT_REQUIRED`, **não** habilitar SSL à força: a alteração de SSL enforcement no Supabase pode reiniciar o banco e afetar conexões; exigir avaliação de impacto/janela antes. `--activate`, `ALTER ROLE`, migrações, regra JIT, novo Hyperdrive, Watchdog armar, acesso público e comercial permanecem bloqueados.
 
 `JIT_V1=HOLD_UNKNOWN_RESPONSE`; `JIT_V2_SELF_TEST=PASS`; `JIT_V2_REMOTE=AWAIT_TERMUX`; `DB_ROLE=NOLOGIN`; `COMMERCIAL=NO-GO`.
+
+## SSL_ENFORCEMENT_REQUIRED — análise de impacto read-only (23/11/2026)
+
+**Recibo do proprietário no Termux:** `neroxa_lab_jit_status_v2_20261123.py --self-test` => `LAB_JIT_V2_SELF_TEST=PASS; NETWORK=NONE; TOKEN_READ=NO; DB_CHANGED=NO`. `--check` privado => `LAB_JIT_STATUS=HOLD; REASON=SSL_ENFORCEMENT_REQUIRED; WRITES=NONE`. Isto comprova que a API de configuração JIT devolveu uma indisponibilidade com requisito de enforcement SSL. Não é prova de erro no Scoped PAT.
+
+**Documentação atual (23/11/2026):** Supabase requer `Enforce SSL on incoming connections` para JIT (https://supabase.com/docs/guides/platform/temporary-access). Aplicar/modificar SSL enforcement provoca reinício do banco PostgreSQL e potencial indisponibilidade temporária; abrange conexões diretas e pooler (https://supabase.com/docs/guides/platform/ssl-enforcement). NÃO habilitar sem autorização delimitada, avaliação de impacto e rollback.
+
+**Auditoria independente somente leitura, Supabase LAB `gomexvhvecvvfbdzhjct`:**
+- ACTIVE_HEALTHY; `neroxa_i04_lab_watchdog_revoke` permanece `NOLOGIN`, não pode criar papéis, `NOBYPASSRLS`; runtime `neroxa_lab_e2e_runtime` mantém `LOGIN`.
+- `pg_stat_activity JOIN pg_stat_ssl` (instantâneo): cinco conexões do tipo client backend: `authenticator` TLS=true (1), `pgbouncer` TLS=true (1), `postgres` TLS=true (1), `supabase_admin` TLS=true (1) e `supabase_admin` TLS=false (1).
+- Para a única conexão sem SSL, `application_name=postgres_exporter`, `client_addr` não nulo (TCP), origem classificada como IPv6 local/privada; sem divulgar o endereço. Isso sugere conexão de monitoramento de plataforma: **não há prova de que será ou não afetada pelo enforcement**; é um ponto de verificação pós-alteração, não causa para contorná-lo.
+- Cloudflare GET confirmou Hyperdrive EXISTENTE `neroxa-v1-i04-lab` aponta à LAB `postgres:5432` com papel `neroxa_lab_e2e_runtime`, e `mtls.sslmode=verify-full`; nenhuma mudança de configuração. Worker LAB original `33c3539b-b50a-48b5-b869-9a4aa6811fed` 100% host/subdomain/previews fechados, watchdog original `962e36d9-1b3f-425f-bb0e-703b7cba1e8b` 100%, `ARMED=false`, `GUARD_ENABLED=false`.
+
+**Plano antes da alteração:** (1) obter autorização específica apenas para projeto LAB, reconhecendo reinício; (2) conferir configuração atual de SSL e saúde/pooler, cópia das definições, monitoramento e rota de recuperação; (3) escolher janela com impacto aceitável; (4) executar enforcement exclusivamente no LAB pelo painel usando credencial administrativa legítima; (5) verificar `ACTIVE_HEALTHY`, conexões TCP/TLS, acesso via Hyperdrive, monitoramento `postgres_exporter`, e ausência de regressões; (6) rerodar JIT-v2 e só depois, com autorização adicional, considerar acesso JIT e `ALTER ROLE`. **Não presumir que reverter SSL seja instantâneo: reverter também pode reiniciar o banco**. Caso JIT permaneça unavailable, parar sem acionar credenciais ou rede comercial.
+
+**Status:** `JIT=HOLD_SSL_ENFORCEMENT_REQUIRED`, `SSL_CHANGE=NOT_AUTHORIZED_NOT_RUN`, `WATCHDOG_ROLE=NOLOGIN`, `HYPERDRIVE_WATCHDOG=NONE`, `WATCHDOG_ARMED=false`, `HOST_CLOSED=true`, `COMMERCIAL=NO-GO`, `REMOTE_WRITES=NONE`.
