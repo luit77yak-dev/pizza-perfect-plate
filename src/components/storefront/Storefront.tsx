@@ -26,6 +26,7 @@ import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
 
 import { getPrice } from "@/features/storefront/domain/storefront-utils";
 import { commercialStoreStatus } from "@/features/storefront/services/commercial-catalog";
+import { linkedGroups } from "@/features/storefront/domain/grouped-cart";
 export type TrackedOrder = {
   id: string;
   number: number;
@@ -288,6 +289,12 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
   };
 
   const addSimpleProductToCart = (product: Product) => {
+    if (!data) return;
+    if (linkedGroups(data.addonGroups, product.id).length || (Array.isArray(product.metadata?.["options"]) && product.metadata["options"].length)) {
+      setSelectedProduct(product);
+      return;
+    }
+    if (product.kind === "COMBO" || !product.active || !product.available) return;
     cart.addItem({
       lineId: crypto.randomUUID(),
       productId: product.id,
@@ -1052,6 +1059,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
       {checkoutOpen && (
         <CheckoutPanel
           organization={data.organization}
+          commercialCatalog={data}
           settings={data.settings}
           deliveryZones={data.deliveryZones}
           items={activeComplementOrderId ? complementItems : cart.items}

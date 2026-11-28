@@ -7,6 +7,7 @@ import { calculateProductUnitPrice } from "@/lib/domain/pricing";
 import type { CartItem, Product } from "@/lib/domain/types";
 import type { StoreData } from "@/features/storefront/services/load-store";
 import { getPrice } from "@/features/storefront/domain/storefront-utils";
+import { linkedGroups, groupSelectionError, canAddAddon, prepareGroupedItem } from "@/features/storefront/domain/grouped-cart";
 
 export function ProductConfigurator({
   product,
@@ -30,6 +31,8 @@ export function ProductConfigurator({
   const [notes, setNotes] = useState("");
   const [notesOpen, setNotesOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [selectionError, setSelectionError] = useState<string | null>(null);
+  const groups = linkedGroups(data.addonGroups, product.id);
   const personalizationScrollRef = useRef<HTMLDivElement | null>(null);
   const stepsScrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -97,9 +100,8 @@ export function ProductConfigurator({
   }, [step]);
 
   const toggleAddon = (id: string) => {
-    setAddonIds((current) =>
-      current.includes(id) ? current.filter((value) => value !== id) : [...current, id],
-    );
+    setSelectionError(null);
+    setAddonIds((current) => current.includes(id) ? current.filter((value) => value !== id) : canAddAddon(groups, current, id) ? [...current, id] : current);
   };
 
   const toggleCombo = (id: string) => {
@@ -146,6 +148,10 @@ export function ProductConfigurator({
         }, 0),
     };
 
+    try { prepareGroupedItem(mainItem, data); } catch (error) {
+      setSelectionError(error instanceof Error ? error.message : "Seleção inválida.");
+      return;
+    }
     onAdded([mainItem]);
   };
 
@@ -641,6 +647,9 @@ export function ProductConfigurator({
                       Toque para adicionar
                     </span>
                   </div>
+                  <div className="mb-2 space-y-1 text-xs text-white/70">
+                    {groups.map(g => <p key={g.id}>{g.name}: {Math.max(g.min_selections, g.required ? 1 : 0)}–{g.max_selections} opções</p>)}
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {availableAddons.map((item) => {
                       const checked = addonIds.includes(item.id);
@@ -649,6 +658,7 @@ export function ProductConfigurator({
                           key={item.id}
                           type="button"
                           onClick={() => toggleAddon(item.id)}
+                          disabled={!canAddAddon(groups, addonIds, item.id)}
                           className={
                             "inline-flex min-h-10 items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold transition " +
                             (checked
@@ -801,6 +811,7 @@ export function ProductConfigurator({
               </span>
             </div>
           </div>
+          {(selectionError || groupSelectionError(groups, addonIds)) && <p role="alert" className="mb-2 text-xs text-destructive">{selectionError || groupSelectionError(groups, addonIds)}</p>}
           <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
             <button
               type="button"
@@ -829,6 +840,7 @@ export function ProductConfigurator({
               <button
                 type="button"
                 onClick={addToCart}
+                disabled={Boolean(groupSelectionError(groups, addonIds)) || halfMode || comboProductIds.length > 0 || quantity > 10}
                 className="flex h-9 w-full min-w-0 items-center justify-center overflow-hidden rounded-full bg-primary px-2 text-[11px] font-bold text-primary-foreground shadow-[0_6px_16px_hsl(var(--primary)/.18)] transition active:scale-[.98] hover:brightness-105 sm:px-4"
               >
                 <span className="truncate">

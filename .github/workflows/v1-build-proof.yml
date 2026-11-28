@@ -55,6 +55,8 @@ jobs:
         run: node --experimental-strip-types --test tests/commercial-checkout-adapter.test.mjs
       - name: Verify grouped commercial catalog browser contract
         run: node --experimental-strip-types --test tests/commercial-catalog.test.mjs
+      - name: Verify grouped cart and commercial checkout payload
+        run: node --experimental-strip-types --test tests/grouped-cart.test.mjs
       - name: Candidate production build (no upload, no deploy)
         run: bun run build
       - name: Verify build output exists

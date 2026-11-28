@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/domain/money";
 import { normalizeNeighborhood } from "@/features/storefront/domain/storefront-utils";
+import { prepareGroupedCart } from "@/features/storefront/domain/grouped-cart";
+import type { StoreData } from "@/features/storefront/services/load-store";
 import type {
   CartItem,
   DeliveryZone,
@@ -16,6 +18,7 @@ import type {
 
 export function CheckoutPanel({
   organization,
+  commercialCatalog,
   settings,
   deliveryZones,
   items,
@@ -27,6 +30,7 @@ export function CheckoutPanel({
   existingOrder = null,
 }: {
   organization: Organization;
+  commercialCatalog: StoreData;
   settings: OrganizationSettings;
   deliveryZones: DeliveryZone[];
   items: CartItem[];
@@ -141,9 +145,12 @@ export function CheckoutPanel({
 
     setSubmitting(true);
     try {
+      const groupedItems = prepareGroupedCart(items, commercialCatalog, subtotal, total, fulfillment === "DELIVERY" ? deliveryFee : 0);
       const payload = {
         organization_id: organization.id,
-        subtotal,
+        instance_id: commercialCatalog.instanceId,
+        store_domain: commercialCatalog.storeDomain,
+        expected_total: Math.round(total * 100) / 100,
         customer_name: name.trim(),
         customer_phone: phone.trim(),
         fulfillment,
@@ -156,28 +163,8 @@ export function CheckoutPanel({
         address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
         notes: notes.trim() || null,
         idempotency_key: crypto.randomUUID(),
-        items: items.flatMap((item) => [
-          {
-            product_id: item.productId,
-            second_product_id: item.secondProductId,
-            is_half: item.isHalf,
-            size_id: item.sizeId,
-            crust_id: item.crustId,
-            quantity: item.quantity,
-            notes: item.notes,
-            addons: item.addons.map((addon) => ({ id: addon.id })),
-          },
-          ...(item.complements ?? []).map((complement) => ({
-            product_id: complement.productId,
-            second_product_id: null,
-            is_half: false,
-            size_id: null,
-            crust_id: null,
-            quantity: 1,
-            notes: "Complemento do pedido: " + item.productName,
-            addons: [],
-          })),
-        ]),
+        client_cart_reference: Array.from(crypto.getRandomValues(new Uint8Array(32)), v => v.toString(16).padStart(2, "0")).join(""),
+        items: groupedItems,
       };
 
       // No public order RPC fallback. Keep this branch blocked until a
