@@ -1,11 +1,13 @@
 import type { Addon, Category, Crust, Organization, OrganizationSettings, Product, ProductPrice, ProductSize } from "@/lib/domain/types";
-import { resolveStorefrontDomain, supabase } from "@/integrations/storefront-backend/client";
+import { fetchCommercialCatalog, type CommercialAddonGroup, type CommercialAvailability } from "./commercial-catalog";
 
 export type ProductAddonLink = { product_id: string; addon_id: string; sort_order: number };
 
 export type StoreData = {
   instanceId: string;
   storeDomain: string;
+  addonGroups: CommercialAddonGroup[];
+  availability: CommercialAvailability;
   organization: Organization;
   settings: OrganizationSettings;
   categories: Category[];
@@ -37,7 +39,7 @@ type PublicStorefrontCatalog = {
 
 function getDomain() {
   if (typeof window === "undefined") throw new Error("Storefront domain is unavailable outside the browser.");
-  return resolveStorefrontDomain(window.location.hostname);
+  return window.location.hostname.toLowerCase();
 }
 
 function toProduct(row: PublicStorefrontCatalog["products"][number], organizationId: string): Product {
@@ -65,19 +67,12 @@ function defaultSettings(organizationId: string): OrganizationSettings {
 export async function loadStore(): Promise<StoreData> {
   const domain = getDomain();
   try {
-    const { data, error } = await supabase.rpc("get_public_storefront_catalog", { p_domain: domain });
-    if (error) {
-      throw new Error(`Falha ao carregar a loja (${error.code ?? "RPC"}): ${error.message ?? "erro desconhecido"}`, { cause: error });
-    }
-    const catalog = data as PublicStorefrontCatalog | null;
-    if (!catalog?.context?.instance_id) throw new Error(`Nenhuma loja ativa foi configurada para o domínio ${domain}.`);
-    if (!Array.isArray(catalog.categories) || !Array.isArray(catalog.products)) {
-      throw new Error(`Resposta inválida do catálogo para ${domain}.`);
-    }
+    const validated = await fetchCommercialCatalog(window.location.origin);
+    const catalog = validated.catalog as unknown as PublicStorefrontCatalog;
     const { context } = catalog;
     const organization: Organization = {
       id: context.organization_id, slug: context.instance_slug,
-      name: context.organization_name || context.instance_name, active: true, demo_mode: true,
+      name: context.organization_name || context.instance_name, active: true, demo_mode: false,
     };
     const categories: Category[] = catalog.categories.map((category) => ({
       id: category.id, organization_id: context.organization_id, name: category.name,
@@ -136,27 +131,25 @@ export async function loadStore(): Promise<StoreData> {
       sort_order: index,
       active: true,
     }));
-    const addonProducts = products.filter((product) => {
-      const category = categories.find((item) => item.id === product.category_id)?.name ?? "";
-      return /adicional/i.test(category);
-    });
-    const addons: Addon[] = addonProducts.map((product, index) => ({
-      id: product.id,
+    const addons: Addon[] = validated.addonGroups.flatMap((group) => group.addons.map((addon) => ({
+      id: addon.id,
       organization_id: context.organization_id,
-      name: product.name,
-      price: Number(product.base_price),
-      sort_order: index,
-      active: product.active && product.available,
-    }));
+      name: addon.name,
+      price: addon.price_delta,
+      sort_order: addon.sort_order,
+      active: addon.active,
+    })));
     return {
       instanceId: context.instance_id,
       storeDomain: context.domain,
+      addonGroups: validated.addonGroups,
+      availability: validated.availability,
       organization, settings, categories, products, sizes, prices, crusts, addons,
-      productAddonLinks: pizzaRows.flatMap((product) => addons.map((addon) => ({
-        product_id: product.id,
+      productAddonLinks: validated.addonGroups.flatMap(group => group.products.flatMap(product => group.addons.map(addon => ({
+        product_id: product.product_id,
         addon_id: addon.id,
         sort_order: addon.sort_order,
-      }))),
+      })))),
       hours: [], specialHours: [], deliveryZones,
     };
   } catch (error) {

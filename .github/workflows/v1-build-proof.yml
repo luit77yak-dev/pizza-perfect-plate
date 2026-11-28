@@ -53,6 +53,8 @@ jobs:
         run: node --experimental-strip-types --test tests/private-admin-transport.test.mjs
       - name: Verify commercial checkout adapter with existing gateway
         run: node --experimental-strip-types --test tests/commercial-checkout-adapter.test.mjs
+      - name: Verify grouped commercial catalog browser contract
+        run: node --experimental-strip-types --test tests/commercial-catalog.test.mjs
       - name: Candidate production build (no upload, no deploy)
         run: bun run build
       - name: Verify build output exists

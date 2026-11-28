@@ -24,7 +24,8 @@ import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
 
-import { getPrice, getStoreStatus } from "@/features/storefront/domain/storefront-utils";
+import { getPrice } from "@/features/storefront/domain/storefront-utils";
+import { commercialStoreStatus } from "@/features/storefront/services/commercial-catalog";
 export type TrackedOrder = {
   id: string;
   number: number;
@@ -47,7 +48,9 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
     queryKey: ["public-store", mounted ? window.location.hostname.toLowerCase() : "server"],
     queryFn: () => loadStore(),
     enabled: mounted,
-    staleTime: 60_000,
+    staleTime: 30_000,
+    refetchInterval: 30_000,
+    retry: false,
   });
   const cart = useLocalCart(data?.instanceId);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -333,7 +336,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
     );
   }
 
-  const status = getStoreStatus(data.hours, data.specialHours, now);
+  const status = commercialStoreStatus(data.availability, now.getTime());
   const burgerFallbackImages: Record<string, string> = {
     "Classic Burger":
       "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=82&fm=jpg",
