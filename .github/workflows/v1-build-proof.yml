@@ -5,6 +5,7 @@ on:
       - 'integration/v1-cloudflare-*'
     paths:
       - 'src/**'
+      - 'tests/**'
       - 'tools/integration/**'
       - '.github/workflows/v1-build-proof.yml'
       - 'package.json'
