@@ -42,7 +42,9 @@ if(mode==='food')safe(()=>{
   check(/enabled\s*:\s*false\b/.test(closed)&&/handleCheckoutRequest\s*\(/.test(closed),'FOOD_CLOSED_ADAPTER_DISABLED');
   check(/if\s*\(\s*!dependencies\.enabled\s*\)\s*return\s+result\s*\(\s*503\b/.test(gateway),'FOOD_GATEWAY_503_BEFORE_SIDE_EFFECT');
   check(!/\.rpc\s*\(\s*['"\x60](?:create_public_order|append_public_order_items_with_payment|get_public_order_status)['"\x60]/.test(panel),'FOOD_BROWSER_NO_LEGACY_RPC');
-  check(/fetch\s*\(\s*['"]\/api\/checkout['"]/.test(panel),'FOOD_PANEL_USES_SERVER_ENDPOINT');
+  const commercialClient=source('src/features/storefront/services/commercial-checkout-client.ts');
+  check(panel.includes('submitCommercialCheckout(')&&commercialClient.includes('"/api/commercial/checkout"')&&!panel.includes('fetch("/api/checkout"'),'FOOD_PANEL_USES_SERVER_ENDPOINT');
+  check(!/\.rpc\s*\(|service_role|SUPABASE_SERVICE_ROLE_KEY/.test(commercialClient),'FOOD_COMMERCIAL_CLIENT_NO_DIRECT_DB');
   check(!/supabase\.rpc\s*\(\s*['"\x60](?:get_public_order_status|append_public_order_items_with_payment|create_public_order)['"\x60]/.test(storefront),'FOOD_BROWSER_NO_LEGACY_TRACKING_RPC');
   check(/handleClosedPrivateTracking\s*\(request\)/.test(trackingRoute),'FOOD_TRACKING_ROUTE_CLOSED');
   check(/enabled:\s*false/.test(closedTracking)&&!/supabaseAdmin|service_role|privateTrackingDependencies|hosted-admission/i.test(closedTracking+trackingRoute),'FOOD_TRACKING_NO_HOSTED_BACKEND');

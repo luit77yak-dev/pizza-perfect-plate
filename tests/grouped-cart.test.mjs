@@ -1,0 +1,14 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { prepareGroupedItem, prepareGroupedCart, linkedGroups, groupSelectionError, canAddAddon } from "../src/features/storefront/domain/grouped-cart.ts";
+const p={id:"p",base_price:20,active:true,available:true,kind:"PIZZA",metadata:{options:[{id:"tamanho",required:true,choices:[{id:"g",price:5}]}]}};
+const g={id:"group",name:"Molho",active:true,required:true,min_selections:0,max_selections:1,products:[{product_id:"p"}],addons:[{id:"a",active:true,price_delta:2},{id:"b",active:true,price_delta:3}]};
+const catalog={products:[p],addonGroups:[g]};
+const item={productId:"p",quantity:2,sizeId:"g",crustId:null,addons:[{id:"a",price:999}],complements:[],isHalf:false,secondProductId:null,unitPrice:27,notes:null};
+test("group ids, options and price acknowledgement match SQL contract",()=>assert.deepEqual(prepareGroupedItem(item,catalog),{product_id:"p",selection_contract:"GROUP_ADDONS_V1",quantity:2,expected_unit_price:27,group_addon_ids:["a"],size_id:"g",crust_id:null,notes:null}));
+test("required group with min zero still requires one",()=>assert.throws(()=>prepareGroupedItem({...item,addons:[]},catalog),/Molho/));
+test("duplicate, excessive and unlinked addons rejected",()=>{for(const addons of [[{id:"a"},{id:"a"}],[{id:"a"},{id:"b"}],[{id:"other"}]])assert.throws(()=>prepareGroupedItem({...item,addons},catalog));});
+test("max prevents selecting another but permits removal",()=>{assert.equal(canAddAddon([g],["a"],"b"),false);assert.equal(canAddAddon([g],["a"],"a"),true);assert.equal(groupSelectionError([g],["a"]),null);assert.equal(linkedGroups([g],"other").length,0);});
+test("option required and product option scope",()=>{for(const patch of [{sizeId:null},{sizeId:"other"},{crustId:"b"}])assert.throws(()=>prepareGroupedItem({...item,...patch},catalog));});
+test("unsupported or unavailable products and legacy combinations fail closed",()=>{for(const patch of [{isHalf:true},{secondProductId:"p"},{complements:[{}]},{quantity:11}])assert.throws(()=>prepareGroupedItem({...item,...patch},catalog));assert.throws(()=>prepareGroupedItem(item,{...catalog,products:[{...p,kind:"COMBO"}]}));});
+test("cart totals checked in cents; no client addon price authority",()=>{assert.equal(prepareGroupedCart([item],catalog,54,59,5).length,1);assert.throws(()=>prepareGroupedCart([item],catalog,54,60,5));assert.throws(()=>prepareGroupedItem({...item,unitPrice:28},catalog));});

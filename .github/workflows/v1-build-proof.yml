@@ -5,6 +5,7 @@ on:
       - 'integration/v1-cloudflare-*'
     paths:
       - 'src/**'
+      - 'tests/**'
       - 'tools/integration/**'
       - '.github/workflows/v1-build-proof.yml'
       - 'package.json'
@@ -49,6 +50,18 @@ jobs:
         run: node --test tests/legacy-tracking-quarantine.test.mjs
       - name: Verify capability tracking contract and closed production route
         run: node --experimental-strip-types --test tests/private-tracking.test.mjs tests/private-tracking-closed.test.mjs
+      - name: Verify private administrative browser transport
+        run: node --experimental-strip-types --test tests/private-admin-transport.test.mjs
+      - name: Verify commercial checkout adapter with existing gateway
+        run: node --experimental-strip-types --test tests/commercial-checkout-adapter.test.mjs
+      - name: Verify grouped commercial catalog browser contract
+        run: node --experimental-strip-types --test tests/commercial-catalog.test.mjs
+      - name: Verify grouped cart and commercial checkout payload
+        run: node --experimental-strip-types --test tests/grouped-cart.test.mjs
+      - name: Verify multi-segment product configuration
+        run: node --experimental-strip-types --test tests/multisegment-food.test.mjs
+      - name: Verify durable commercial checkout client
+        run: node --experimental-strip-types --test tests/commercial-buyer-client.test.mjs
       - name: Candidate production build (no upload, no deploy)
         run: bun run build
       - name: Verify build output exists

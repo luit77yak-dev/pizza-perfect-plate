@@ -19,12 +19,15 @@ import { CartPanel } from "@/features/cart/components/CartPanel";
 import { CheckoutPanel } from "@/features/storefront/components/CheckoutPanel";
 import { TrackedOrderPanel } from "@/components/storefront/TrackedOrderPanel";
 import { useLocalCart } from "@/features/cart/hooks/use-local-cart";
-import { storefrontLocalKey } from "@/lib/domain/store-context";
+import { readPrivateTracking } from "@/lib/domain/private-tracking-capability";
+import { beginNewCommercialIntent } from "@/features/storefront/services/commercial-checkout-client";
 import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
 
-import { getPrice, getStoreStatus } from "@/features/storefront/domain/storefront-utils";
+import { getPrice } from "@/features/storefront/domain/storefront-utils";
+import { commercialStoreStatus } from "@/features/storefront/services/commercial-catalog";
+import { commercialMenuProducts, commercialProductNeedsConfiguration } from "@/features/storefront/domain/grouped-cart";
 export type TrackedOrder = {
   id: string;
   number: number;
@@ -47,7 +50,9 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
     queryKey: ["public-store", mounted ? window.location.hostname.toLowerCase() : "server"],
     queryFn: () => loadStore(),
     enabled: mounted,
-    staleTime: 60_000,
+    staleTime: 30_000,
+    refetchInterval: 30_000,
+    retry: false,
   });
   const cart = useLocalCart(data?.instanceId);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -59,6 +64,8 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
   const [trackedOrders, setTrackedOrders] = useState<TrackedOrder[]>([]);
   const [selectedTrackedOrderId, setSelectedTrackedOrderId] = useState<string | null>(null);
   const [trackingOpen, setTrackingOpen] = useState(false);
+  const [trackingFresh, setTrackingFresh] = useState(false);
+  const [newIntentError, setNewIntentError] = useState<string|null>(null);
   const [complementPickerOpen, setComplementPickerOpen] = useState(false);
   const [selectedComplementIds, setSelectedComplementIds] = useState<string[]>([]);
   const [quickAddQuantities, setQuickAddQuantities] = useState<Record<string, number>>({});
@@ -67,77 +74,30 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    if (!data?.instanceId) return;
-    // Never show the previous store's order snapshot while loading this instance.
+    // No UUID/phone or unauthenticated snapshot can restore access.
     setTrackedOrders([]);
     setSelectedTrackedOrderId(null);
-    let cancelled = false;
-
-    const loadTrackedOrders = async () => {
-      try {
-        const raw =
-          localStorage.getItem(storefrontLocalKey("tracked-orders", data.instanceId)) ??
-          localStorage.getItem(storefrontLocalKey("last-order", data.instanceId));
-        if (!raw) {
-          if (!cancelled) {
-            setTrackedOrders([]);
-            setSelectedTrackedOrderId(null);
-          }
-          return;
-        }
-
-        const parsed = JSON.parse(raw);
-        const storedOrders = (Array.isArray(parsed) ? parsed : [parsed]).filter(
-          (item): item is TrackedOrder => Boolean(item?.id && item?.phone),
-        );
-
-        if (storedOrders.length === 0) {
-          if (!cancelled) {
-            setTrackedOrders([]);
-            setSelectedTrackedOrderId(null);
-          }
-          return;
-        }
-
-        // Local snapshots are the source of truth for showing the order immediately.
-        // The RPC only enriches/updates the snapshot; a temporary RPC/schema-cache
-        // failure must never make the tracking UI disappear.
-        const storedActiveOrders: TrackedOrder[] = storedOrders
-          .map((stored) => ({
-            ...stored,
-            status: stored.status ?? "RECEIVED",
-          }))
-          .filter((stored) => stored.status !== "DELIVERED" && stored.status !== "CANCELLED");
-
-        if (!cancelled) {
-          setTrackedOrders(storedActiveOrders);
-          setSelectedTrackedOrderId((current) =>
-            current && storedActiveOrders.some((order) => order.id === current)
-              ? current
-              : (storedActiveOrders[0]?.id ?? null),
-          );
-        }
-
-        // Private tracking by capability has not been admitted in this release.
-        // Keep only the current store's local snapshot; never query by UUID + phone.
-      } catch {
-        if (!cancelled) {
-          setTrackedOrders([]);
-          setSelectedTrackedOrderId(null);
-        }
-      }
-    };
-
-    void loadTrackedOrders();
-    const interval = window.setInterval(() => {
-      void loadTrackedOrders();
-    }, 5000);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
+    setTrackingFresh(false);
   }, [data?.instanceId]);
+  useEffect(() => {
+    const instance=data?.instanceId, order=selectedTrackedOrderId;
+    setTrackingFresh(false);
+    if(!trackingOpen||!instance||!order)return;
+    let cancelled=false, busy=false;
+    const refresh=async()=>{
+      if(busy||cancelled)return;
+      busy=true;
+      try{
+        const state=await readPrivateTracking(instance,order);
+        if(cancelled)return;
+        setTrackingFresh(Boolean(state));
+        if(state)setTrackedOrders(current=>current.map(item=>item.id===order?{...item,status:state.status,total:state.total}:item));
+      }finally{busy=false;}
+    };
+    void refresh();
+    const timer=window.setInterval(()=>void refresh(),30000);
+    return()=>{cancelled=true;window.clearInterval(timer);};
+  },[data?.instanceId,selectedTrackedOrderId,trackingOpen]);
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 30_000);
     return () => window.clearInterval(interval);
@@ -161,16 +121,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
     });
   }, [data]);
 
-  const mainProducts = useMemo(() => {
-    if (!data) return [];
-    const complementIds = new Set(complementProducts.map((product) => product.id));
-    const pizzas = data.products.filter(
-      (product) => product.kind === "PIZZA" && !complementIds.has(product.id),
-    );
-    return pizzas.length > 0
-      ? pizzas
-      : data.products.filter((product) => !complementIds.has(product.id));
-  }, [data, complementProducts]);
+  const mainProducts = useMemo(() => data ? commercialMenuProducts(data.products,data.categories.filter(c=>c.active).map(c=>c.id)) : [], [data]);
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
@@ -193,7 +144,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
     isBurgerDelivery,
     appearance,
   );
-  const isPizzaTheme = !isBurgerDelivery && !isFornoTheme;
+  const isPizzaTheme = !isBurgerDelivery && !isFornoTheme && (data?.products.some(p=>p.kind==="PIZZA")??false);
   const isBurgerTheme = isBurgerDelivery;
 
   const categoryProducts = useMemo(() => {
@@ -285,6 +236,12 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
   };
 
   const addSimpleProductToCart = (product: Product) => {
+    if (!data) return;
+    if (commercialProductNeedsConfiguration(product,data.addonGroups)) {
+      setSelectedProduct(product);
+      return;
+    }
+    if (product.kind === "COMBO" || !product.active || !product.available) return;
     cart.addItem({
       lineId: crypto.randomUUID(),
       productId: product.id,
@@ -333,7 +290,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
     );
   }
 
-  const status = getStoreStatus(data.hours, data.specialHours, now);
+  const status = commercialStoreStatus(data.availability, now.getTime());
   const burgerFallbackImages: Record<string, string> = {
     "Classic Burger":
       "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=82&fm=jpg",
@@ -459,14 +416,14 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
                       </>
                     ) : (
                       <>
-                        Escolha seu <em>burger.</em>
+                        Escolha seu <em>pedido.</em>
                       </>
                     )}
                   </h2>
                   <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
                     {isFornoTheme
                       ? "Sabores, bebidas e acompanhamentos em poucos passos."
-                      : "Assadas a 450 graus em menos de dois minutos."}
+                      : "Explore o cardápio e personalize seu pedido."}
                   </p>
                 </div>
                 <MenuFilters
@@ -499,8 +456,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
                 }
               >
                 {filteredProducts.map((product, index) => {
-                  const firstSize = data.sizes[0];
-                  const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
+                  const displayPrice = Number(product.base_price);
                   const categoryImage = data.categories.find(
                     (category) => category.id === product.category_id,
                   )?.image_url;
@@ -510,14 +466,14 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
                     (isBurgerTheme ? burgerFallbackImages[product.name] : undefined);
                   const categoryName =
                     data.categories.find((category) => category.id === product.category_id)?.name ||
-                    (isBurgerTheme ? "Hambúrguer" : "Pizza");
+                    "Produto";
 
                   return (
                     <button
                       key={product.id}
+                      disabled={!product.available || product.kind==="COMBO"}
                       onClick={() => {
-                        if (product.kind === "PIZZA") setSelectedProduct(product);
-                        else addSimpleProductToCart(product);
+                        addSimpleProductToCart(product);
                       }}
                       className={
                         isPizzaTheme
@@ -606,7 +562,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
                             isFornoTheme ? "forno-product-content p-4 sm:p-5" : "p-4 sm:p-5"
                           }
                         >
-                          {isFornoTheme && <h3 className="mb-2 font-display">{product.name}</h3>}
+                          <h3 className="mb-2 font-display">{product.name}</h3>
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 pr-1">
                               <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
@@ -624,11 +580,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
                           </div>
                           <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-[.08em]">
                             <span>
-                              {isFornoTheme && product.kind !== "PIZZA"
-                                ? "Adicionar"
-                                : product.allow_half
-                                  ? "Meio a meio"
-                                  : "Personalizar"}
+                              {commercialProductNeedsConfiguration(product,data.addonGroups) ? "Personalizar" : "Adicionar"}
                             </span>
                             <span className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-background">
                               <span aria-hidden="true" className="text-primary">
@@ -685,6 +637,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
 
       {selectedProduct && (
         <ProductConfigurator
+          key={selectedProduct.id}
           product={selectedProduct}
           data={data}
           onClose={() => {
@@ -1009,8 +962,13 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
           minOrderAmount={Number(data.settings.min_order_amount ?? 0)}
           pickupEnabled={Boolean(data.settings.pickup_enabled)}
           deliveryEnabled={Boolean(data.settings.delivery_enabled)}
-          onCheckout={() => {
-            // Opening checkout from the normal cart always starts a new order.
+          onCheckout={async () => {
+            setNewIntentError(null);
+            try{
+              const proceed=await beginNewCommercialIntent(data.instanceId,window.localStorage,navigator.locks,()=>window.confirm("O pedido anterior foi confirmado. Deseja iniciar outro pedido?"));
+              if(!proceed)return;
+            }catch(e){setNewIntentError(e instanceof Error?e.message:"Não foi possível iniciar o pedido.");return;}
+            // Explicitly begin a new checkout only after confirmed intent lifecycle.
             setComplementItems([]);
             setSelectedComplementIds([]);
             setComplementOrderId(null);
@@ -1029,6 +987,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
           return (
             <TrackedOrderPanel
               order={selectedOrder}
+              trackingFresh={trackingFresh}
               availableOrders={trackedOrders}
               onSelectOrder={setSelectedTrackedOrderId}
               onClose={() => setTrackingOpen(false)}
@@ -1046,9 +1005,11 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
           );
         })()}
 
+      {newIntentError && <div role="alert" className="fixed bottom-20 left-4 right-4 z-[160] rounded-xl border bg-card p-4 text-sm text-destructive">{newIntentError}<button type="button" className="ml-3 underline" onClick={()=>setNewIntentError(null)}>Fechar</button></div>}
       {checkoutOpen && (
         <CheckoutPanel
           organization={data.organization}
+          commercialCatalog={data}
           settings={data.settings}
           deliveryZones={data.deliveryZones}
           items={activeComplementOrderId ? complementItems : cart.items}
@@ -1072,42 +1033,13 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
             setSelectedComplementIds([]);
             setComplementOrderId(null);
 
-            // Keep this store's checkout response as a local display snapshot.
-            // Public UUID/phone order lookups remain disabled until capability tracking is admitted.
-            setTrackedOrders((current) => {
-              const previous = current.find((item) => item.id === order.id);
-              const nextOrder: TrackedOrder = {
-                ...(previous ?? {}),
-                ...order,
-                items: order.items ?? previous?.items,
-                subtotal: order.subtotal ?? previous?.subtotal,
-                total: order.total ?? previous?.total,
-                fulfillment: order.fulfillment ?? previous?.fulfillment,
-                status:
-                  (order.status as OrderStatus | undefined) ??
-                  previous?.status ??
-                  "RECEIVED",
-              };
-              const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
-              try {
-                localStorage.setItem(
-                  storefrontLocalKey("tracked-orders", data.instanceId),
-                  JSON.stringify(next),
-                );
-              } catch {
-                // Ignore storage failures; tracking still works for the current session.
-              }
-              return next;
-            });
-
+            // Receipt and capability stay in this page session.
+            const nextOrder:TrackedOrder={...order,phone:"",status:"RECEIVED"};
+            setTrackedOrders(current=>[nextOrder,...current.filter(item=>item.id!==order.id)]);
             setSelectedTrackedOrderId(order.id);
             setCheckoutOpen(false);
+            setTrackingFresh(false);
             setTrackingOpen(true);
-            try {
-              localStorage.setItem(storefrontLocalKey("last-order", data.instanceId), JSON.stringify(order));
-            } catch {
-              // Ignore storage failures.
-            }
           }}
         />
       )}

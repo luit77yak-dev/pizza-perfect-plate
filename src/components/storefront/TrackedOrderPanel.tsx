@@ -1,5 +1,5 @@
 import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
-import { Check, Clock3, Plus, Pizza, ShoppingBag, X } from "lucide-react";
+import { Check, Clock3, Plus, Utensils, ShoppingBag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, FulfillmentType, OrderStatus } from "@/lib/domain/types";
@@ -38,12 +38,14 @@ function getTrackedOrderStatusLabel(status?: OrderStatus) {
 
 export function TrackedOrderPanel({
   order,
+  trackingFresh = false,
   onClose,
   onAddToOrder,
   availableOrders,
   onSelectOrder,
 }: {
   order: PublicTrackedOrder;
+  trackingFresh?: boolean;
   onClose: () => void;
   onAddToOrder: () => void;
   availableOrders?: PublicTrackedOrder[];
@@ -51,7 +53,7 @@ export function TrackedOrderPanel({
 }) {
   const dialogRef = useCustomerDialog(onClose);
   const currentStatus = order.status ?? "RECEIVED";
-  const canAddMore = ["RECEIVED", "CONFIRMED", "PREPARING", "READY"].includes(currentStatus);
+  const canAddMore = false; // Amendment contract is not admitted.
   const items = Array.isArray(order.items)
     ? order.items.filter((item): item is CartItem => Boolean(item && typeof item === "object"))
     : [];
@@ -211,12 +213,12 @@ export function TrackedOrderPanel({
                       {getTrackedOrderStatusLabel(currentStatus)}
                     </h3>
                     <p className="mt-1.5 max-w-lg text-xs leading-5 text-background/50">
-                      {statusMessage}
+                      {trackingFresh ? statusMessage : "Última confirmação disponível. Atualização indisponível; mantenha esta página aberta."}
                     </p>
                   </div>
                   <div className="hidden size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary sm:grid">
                     {currentStatus === "PREPARING" ? (
-                      <Pizza className="size-5" />
+                      <Utensils className="size-5" />
                     ) : currentStatus === "OUT_FOR_DELIVERY" ? (
                       <ShoppingBag className="size-5" />
                     ) : (
@@ -337,7 +339,7 @@ export function TrackedOrderPanel({
                         className="flex gap-3 px-4 py-3.5 sm:px-5"
                       >
                         <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-primary">
-                          <Pizza className="size-4" />
+                          <Utensils className="size-4" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-bold">
