@@ -26,7 +26,7 @@ import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
 
 import { getPrice } from "@/features/storefront/domain/storefront-utils";
 import { commercialStoreStatus } from "@/features/storefront/services/commercial-catalog";
-import { linkedGroups } from "@/features/storefront/domain/grouped-cart";
+import { commercialMenuProducts, commercialProductNeedsConfiguration } from "@/features/storefront/domain/grouped-cart";
 export type TrackedOrder = {
   id: string;
   number: number;
@@ -165,16 +165,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
     });
   }, [data]);
 
-  const mainProducts = useMemo(() => {
-    if (!data) return [];
-    const complementIds = new Set(complementProducts.map((product) => product.id));
-    const pizzas = data.products.filter(
-      (product) => product.kind === "PIZZA" && !complementIds.has(product.id),
-    );
-    return pizzas.length > 0
-      ? pizzas
-      : data.products.filter((product) => !complementIds.has(product.id));
-  }, [data, complementProducts]);
+  const mainProducts = useMemo(() => data ? commercialMenuProducts(data.products,data.categories.filter(c=>c.active).map(c=>c.id)) : [], [data]);
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
@@ -197,7 +188,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
     isBurgerDelivery,
     appearance,
   );
-  const isPizzaTheme = !isBurgerDelivery && !isFornoTheme;
+  const isPizzaTheme = !isBurgerDelivery && !isFornoTheme && (data?.products.some(p=>p.kind==="PIZZA")??false);
   const isBurgerTheme = isBurgerDelivery;
 
   const categoryProducts = useMemo(() => {
@@ -290,7 +281,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
 
   const addSimpleProductToCart = (product: Product) => {
     if (!data) return;
-    if (linkedGroups(data.addonGroups, product.id).length || (Array.isArray(product.metadata?.["options"]) && product.metadata["options"].length)) {
+    if (commercialProductNeedsConfiguration(product,data.addonGroups)) {
       setSelectedProduct(product);
       return;
     }
@@ -469,14 +460,14 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
                       </>
                     ) : (
                       <>
-                        Escolha seu <em>burger.</em>
+                        Escolha seu <em>pedido.</em>
                       </>
                     )}
                   </h2>
                   <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
                     {isFornoTheme
                       ? "Sabores, bebidas e acompanhamentos em poucos passos."
-                      : "Assadas a 450 graus em menos de dois minutos."}
+                      : "Explore o cardápio e personalize seu pedido."}
                   </p>
                 </div>
                 <MenuFilters
@@ -509,8 +500,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
                 }
               >
                 {filteredProducts.map((product, index) => {
-                  const firstSize = data.sizes[0];
-                  const displayPrice = getPrice(product, firstSize?.id ?? null, data.prices);
+                  const displayPrice = Number(product.base_price);
                   const categoryImage = data.categories.find(
                     (category) => category.id === product.category_id,
                   )?.image_url;
@@ -520,14 +510,14 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
                     (isBurgerTheme ? burgerFallbackImages[product.name] : undefined);
                   const categoryName =
                     data.categories.find((category) => category.id === product.category_id)?.name ||
-                    (isBurgerTheme ? "Hambúrguer" : "Pizza");
+                    "Produto";
 
                   return (
                     <button
                       key={product.id}
+                      disabled={!product.available || product.kind==="COMBO"}
                       onClick={() => {
-                        if (product.kind === "PIZZA") setSelectedProduct(product);
-                        else addSimpleProductToCart(product);
+                        addSimpleProductToCart(product);
                       }}
                       className={
                         isPizzaTheme
@@ -616,7 +606,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
                             isFornoTheme ? "forno-product-content p-4 sm:p-5" : "p-4 sm:p-5"
                           }
                         >
-                          {isFornoTheme && <h3 className="mb-2 font-display">{product.name}</h3>}
+                          <h3 className="mb-2 font-display">{product.name}</h3>
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 pr-1">
                               <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
@@ -634,11 +624,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
                           </div>
                           <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-[.08em]">
                             <span>
-                              {isFornoTheme && product.kind !== "PIZZA"
-                                ? "Adicionar"
-                                : product.allow_half
-                                  ? "Meio a meio"
-                                  : "Personalizar"}
+                              {commercialProductNeedsConfiguration(product,data.addonGroups) ? "Personalizar" : "Adicionar"}
                             </span>
                             <span className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-background">
                               <span aria-hidden="true" className="text-primary">
@@ -695,6 +681,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
 
       {selectedProduct && (
         <ProductConfigurator
+          key={selectedProduct.id}
           product={selectedProduct}
           data={data}
           onClose={() => {

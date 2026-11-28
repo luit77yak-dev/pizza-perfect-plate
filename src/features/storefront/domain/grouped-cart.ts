@@ -24,6 +24,32 @@ export function canAddAddon(groups:CommercialAddonGroup[], selected:readonly str
  const g=groups.find(g=>g.active&&g.addons.some(a=>a.id===id&&a.active));
  return !!g&&selected.length<50&&g.addons.filter(a=>selected.includes(a.id)).length<g.max_selections;
 }
+export function productOptionGroups(p:Product) {
+ const raw=p.metadata?.["options"]??[];
+ if(!Array.isArray(raw))throw Error("Opções de produto inválidas.");
+ const seen=new Set<string>();
+ return raw.flatMap(value=>{
+  const opt=asRow(value),id=opt["id"];
+  if((id!=="tamanho"&&id!=="borda")||seen.has(id))throw Error("Opção de preparo ainda não admitida.");
+  seen.add(id);
+  if(opt["active"]===false){if(opt["required"]===true)throw Error("Opção obrigatória inativa.");return [];}
+  if(!Array.isArray(opt["choices"]))throw Error("Opções inválidas.");
+  const choices=opt["choices"].map(asRow).filter(c=>c["active"]!==false&&c["available"]!==false).map(c=>{
+    if(typeof c["id"]!=="string"||!c["id"]||typeof c["name"]!=="string"||!c["name"])throw Error("Opção inválida.");
+    return {id:c["id"],name:c["name"],price:cents(c["price"]??0)/100};
+  });
+  if(new Set(choices.map(c=>c.id)).size!==choices.length)throw Error("Opções duplicadas.");
+  if(opt["required"]===true&&!choices.length)throw Error("Opção obrigatória indisponível.");
+  return [{id:id as "tamanho"|"borda",name:typeof opt["name"]==="string"&&opt["name"]?opt["name"]:id==="tamanho"?"Tamanho":"Borda",required:opt["required"]===true,choices}];
+ });
+}
+export function commercialMenuProducts(products:Product[],categoryIds:readonly string[]){
+ const active=new Set(categoryIds);
+ return products.filter(p=>p.active&&(p.category_id===null||active.has(p.category_id)));
+}
+export function commercialProductNeedsConfiguration(p:Product,groups:CommercialAddonGroup[]){
+ return linkedGroups(groups,p.id).length>0 || (p.metadata?.["options"]!==undefined && p.metadata["options"]!==null && (!Array.isArray(p.metadata["options"])||p.metadata["options"].length>0));
+}
 function options(p:Product,size:string|null,crust:string|null):number{
  const raw=p.metadata?.["options"]??[];
  if(!Array.isArray(raw))throw Error("Opções de produto inválidas.");
