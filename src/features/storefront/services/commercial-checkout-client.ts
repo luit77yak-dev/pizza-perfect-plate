@@ -44,3 +44,21 @@ export async function submitCommercialCheckout({payload,origin,storage,locks,fet
   storage.setItem(slot,JSON.stringify({...marker,confirmed:true}));
  });
 }
+
+/** User explicitly starts another purchase; unresolved attempts cannot be erased. */
+export async function beginNewCommercialIntent(instance:string,storage:StoragePort,locks:LockPort,confirm:()=>boolean):Promise<boolean>{
+ if(!UUID.test(instance)||!locks||typeof locks.request!=="function")throw Error("Proteção de nova compra indisponível.");
+ const slot="ppp:commercial-intent:"+instance;
+ const before=storage.getItem(slot);
+ if(before===null)return true;
+ const marker:unknown=JSON.parse(before);
+ if(!object(marker)||!UUID.test(String(marker["key"]))||!HEX.test(String(marker["reference"]))||!HEX.test(String(marker["digest"])))throw Error("Tentativa anterior precisa de reconciliação pela loja.");
+ if(marker["confirmed"]!==true)return true; // Same original payload only, enforced on submit.
+ if(!confirm())return false;
+ return locks.request(slot,async()=>{
+  if(storage.getItem(slot)!==before)throw Error("A tentativa mudou em outra aba. Atualize antes de continuar.");
+  storage.removeItem(slot);
+  if(storage.getItem(slot)!==null)throw Error("Não foi possível iniciar outra compra.");
+  return true;
+ });
+}

@@ -19,7 +19,8 @@ import { CartPanel } from "@/features/cart/components/CartPanel";
 import { CheckoutPanel } from "@/features/storefront/components/CheckoutPanel";
 import { TrackedOrderPanel } from "@/components/storefront/TrackedOrderPanel";
 import { useLocalCart } from "@/features/cart/hooks/use-local-cart";
-import { storefrontLocalKey } from "@/lib/domain/store-context";
+import { readPrivateTracking } from "@/lib/domain/private-tracking-capability";
+import { beginNewCommercialIntent } from "@/features/storefront/services/commercial-checkout-client";
 import { calculateCartSubtotal } from "@/lib/domain/pricing";
 import { formatCurrency } from "@/lib/domain/money";
 import type { CartItem, OrderStatus, Product } from "@/lib/domain/types";
@@ -63,6 +64,8 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
   const [trackedOrders, setTrackedOrders] = useState<TrackedOrder[]>([]);
   const [selectedTrackedOrderId, setSelectedTrackedOrderId] = useState<string | null>(null);
   const [trackingOpen, setTrackingOpen] = useState(false);
+  const [trackingFresh, setTrackingFresh] = useState(false);
+  const [newIntentError, setNewIntentError] = useState<string|null>(null);
   const [complementPickerOpen, setComplementPickerOpen] = useState(false);
   const [selectedComplementIds, setSelectedComplementIds] = useState<string[]>([]);
   const [quickAddQuantities, setQuickAddQuantities] = useState<Record<string, number>>({});
@@ -71,77 +74,30 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    if (!data?.instanceId) return;
-    // Never show the previous store's order snapshot while loading this instance.
+    // No UUID/phone or unauthenticated snapshot can restore access.
     setTrackedOrders([]);
     setSelectedTrackedOrderId(null);
-    let cancelled = false;
-
-    const loadTrackedOrders = async () => {
-      try {
-        const raw =
-          localStorage.getItem(storefrontLocalKey("tracked-orders", data.instanceId)) ??
-          localStorage.getItem(storefrontLocalKey("last-order", data.instanceId));
-        if (!raw) {
-          if (!cancelled) {
-            setTrackedOrders([]);
-            setSelectedTrackedOrderId(null);
-          }
-          return;
-        }
-
-        const parsed = JSON.parse(raw);
-        const storedOrders = (Array.isArray(parsed) ? parsed : [parsed]).filter(
-          (item): item is TrackedOrder => Boolean(item?.id && item?.phone),
-        );
-
-        if (storedOrders.length === 0) {
-          if (!cancelled) {
-            setTrackedOrders([]);
-            setSelectedTrackedOrderId(null);
-          }
-          return;
-        }
-
-        // Local snapshots are the source of truth for showing the order immediately.
-        // The RPC only enriches/updates the snapshot; a temporary RPC/schema-cache
-        // failure must never make the tracking UI disappear.
-        const storedActiveOrders: TrackedOrder[] = storedOrders
-          .map((stored) => ({
-            ...stored,
-            status: stored.status ?? "RECEIVED",
-          }))
-          .filter((stored) => stored.status !== "DELIVERED" && stored.status !== "CANCELLED");
-
-        if (!cancelled) {
-          setTrackedOrders(storedActiveOrders);
-          setSelectedTrackedOrderId((current) =>
-            current && storedActiveOrders.some((order) => order.id === current)
-              ? current
-              : (storedActiveOrders[0]?.id ?? null),
-          );
-        }
-
-        // Private tracking by capability has not been admitted in this release.
-        // Keep only the current store's local snapshot; never query by UUID + phone.
-      } catch {
-        if (!cancelled) {
-          setTrackedOrders([]);
-          setSelectedTrackedOrderId(null);
-        }
-      }
-    };
-
-    void loadTrackedOrders();
-    const interval = window.setInterval(() => {
-      void loadTrackedOrders();
-    }, 5000);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
+    setTrackingFresh(false);
   }, [data?.instanceId]);
+  useEffect(() => {
+    const instance=data?.instanceId, order=selectedTrackedOrderId;
+    setTrackingFresh(false);
+    if(!trackingOpen||!instance||!order)return;
+    let cancelled=false, busy=false;
+    const refresh=async()=>{
+      if(busy||cancelled)return;
+      busy=true;
+      try{
+        const state=await readPrivateTracking(instance,order);
+        if(cancelled)return;
+        setTrackingFresh(Boolean(state));
+        if(state)setTrackedOrders(current=>current.map(item=>item.id===order?{...item,status:state.status,total:state.total}:item));
+      }finally{busy=false;}
+    };
+    void refresh();
+    const timer=window.setInterval(()=>void refresh(),30000);
+    return()=>{cancelled=true;window.clearInterval(timer);};
+  },[data?.instanceId,selectedTrackedOrderId,trackingOpen]);
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 30_000);
     return () => window.clearInterval(interval);
@@ -1006,8 +962,13 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
           minOrderAmount={Number(data.settings.min_order_amount ?? 0)}
           pickupEnabled={Boolean(data.settings.pickup_enabled)}
           deliveryEnabled={Boolean(data.settings.delivery_enabled)}
-          onCheckout={() => {
-            // Opening checkout from the normal cart always starts a new order.
+          onCheckout={async () => {
+            setNewIntentError(null);
+            try{
+              const proceed=await beginNewCommercialIntent(data.instanceId,window.localStorage,navigator.locks,()=>window.confirm("O pedido anterior foi confirmado. Deseja iniciar outro pedido?"));
+              if(!proceed)return;
+            }catch(e){setNewIntentError(e instanceof Error?e.message:"Não foi possível iniciar o pedido.");return;}
+            // Explicitly begin a new checkout only after confirmed intent lifecycle.
             setComplementItems([]);
             setSelectedComplementIds([]);
             setComplementOrderId(null);
@@ -1026,6 +987,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
           return (
             <TrackedOrderPanel
               order={selectedOrder}
+              trackingFresh={trackingFresh}
               availableOrders={trackedOrders}
               onSelectOrder={setSelectedTrackedOrderId}
               onClose={() => setTrackingOpen(false)}
@@ -1043,6 +1005,7 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
           );
         })()}
 
+      {newIntentError && <div role="alert" className="fixed bottom-20 left-4 right-4 z-[160] rounded-xl border bg-card p-4 text-sm text-destructive">{newIntentError}<button type="button" className="ml-3 underline" onClick={()=>setNewIntentError(null)}>Fechar</button></div>}
       {checkoutOpen && (
         <CheckoutPanel
           organization={data.organization}
@@ -1070,42 +1033,13 @@ export function Storefront({ appearance }: { appearance?: StorefrontAppearance }
             setSelectedComplementIds([]);
             setComplementOrderId(null);
 
-            // Keep this store's checkout response as a local display snapshot.
-            // Public UUID/phone order lookups remain disabled until capability tracking is admitted.
-            setTrackedOrders((current) => {
-              const previous = current.find((item) => item.id === order.id);
-              const nextOrder: TrackedOrder = {
-                ...(previous ?? {}),
-                ...order,
-                items: order.items ?? previous?.items,
-                subtotal: order.subtotal ?? previous?.subtotal,
-                total: order.total ?? previous?.total,
-                fulfillment: order.fulfillment ?? previous?.fulfillment,
-                status:
-                  (order.status as OrderStatus | undefined) ??
-                  previous?.status ??
-                  "RECEIVED",
-              };
-              const next = [nextOrder, ...current.filter((item) => item.id !== order.id)];
-              try {
-                localStorage.setItem(
-                  storefrontLocalKey("tracked-orders", data.instanceId),
-                  JSON.stringify(next),
-                );
-              } catch {
-                // Ignore storage failures; tracking still works for the current session.
-              }
-              return next;
-            });
-
+            // Receipt and capability stay in this page session.
+            const nextOrder:TrackedOrder={...order,phone:"",status:"RECEIVED"};
+            setTrackedOrders(current=>[nextOrder,...current.filter(item=>item.id!==order.id)]);
             setSelectedTrackedOrderId(order.id);
             setCheckoutOpen(false);
+            setTrackingFresh(false);
             setTrackingOpen(true);
-            try {
-              localStorage.setItem(storefrontLocalKey("last-order", data.instanceId), JSON.stringify(order));
-            } catch {
-              // Ignore storage failures.
-            }
           }}
         />
       )}

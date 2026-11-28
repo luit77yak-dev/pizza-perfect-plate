@@ -6,7 +6,8 @@ test("Food storefront has no direct UUID/phone tracking RPC", () => {
   const source = readFileSync("src/components/storefront/Storefront.tsx", "utf8");
   assert.doesNotMatch(source, /\bsupabase\.rpc\s*\(\s*['"`]get_public_order_status['"`]/);
   assert.doesNotMatch(source, /\bget_public_order_status\s*\(/);
-  assert.match(source, /setTrackedOrders\(storedActiveOrders\)/);
+  assert.match(source, /readPrivateTracking\(instance,order\)/);
+  assert.doesNotMatch(source, /localStorage\.getItem|localStorage\.setItem/);
 });
 
 test("checkout still rejects unauthorised public requests", () => {

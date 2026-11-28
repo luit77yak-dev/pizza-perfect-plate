@@ -1,6 +1,7 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {submitCommercialCheckout} from "../src/features/storefront/services/commercial-checkout-client.ts";
+import {submitCommercialCheckout,beginNewCommercialIntent} from "../src/features/storefront/services/commercial-checkout-client.ts";
+import {validatePrivateTrackingState} from "../src/lib/domain/private-tracking-capability.ts";
 const origin="https://review.example.com",instance="12345678-1234-4123-8123-123456789abc",org="22345678-1234-4123-8123-123456789abc",order="32345678-1234-4123-8123-123456789abc";
 const payload={store_domain:"review.example.com",instance_id:instance,organization_id:org,customer_name:"Synthetic Customer",expected_total:12};
 const receipt={order_id:order,order_number:1,total:12,tracking_token:"a".repeat(43),amendment_token:"b".repeat(43)};
@@ -11,3 +12,7 @@ test("replay uses same keys and payload with fresh nonce",async()=>{const x=setu
 test("changed body cannot replace uncertain attempt",async()=>{const x=setup();await assert.rejects(submitCommercialCheckout({...x.ports,fetcher:async()=>Response.json({}, {status:503})}));await assert.rejects(submitCommercialCheckout({...x.ports,payload:{...payload,expected_total:15}}),/anterior/);assert.equal(x.calls.length,0);});
 test("receipt without capabilities cannot confirm",async()=>{const x=setup();await assert.rejects(submitCommercialCheckout({...x.ports,fetcher:async()=>Response.json({order_id:order,order_number:1,total:12}),accept:()=>assert.fail()}));assert.equal(x.map.size,1);});
 test("no lock or storage denies before HTTP",async()=>{const x=setup();await assert.rejects(submitCommercialCheckout({...x.ports,locks:null}));await assert.rejects(submitCommercialCheckout({...x.ports,storage:{...x.ports.storage,setItem(){throw Error("storage");}}}));assert.equal(x.calls.length,0);});
+
+test("explicit new purchase only clears a confirmed marker",async()=>{const x=setup();await submitCommercialCheckout(x.ports);assert.equal(await beginNewCommercialIntent(instance,x.ports.storage,x.ports.locks,()=>false),false);assert.equal(x.map.size,1);assert.equal(await beginNewCommercialIntent(instance,x.ports.storage,x.ports.locks,()=>true),true);assert.equal(x.map.size,0);await submitCommercialCheckout(x.ports);assert.notEqual(x.calls[0].body.p_order.idempotency_key,x.calls[1].body.p_order.idempotency_key);});
+test("new purchase cannot clear unresolved intent",async()=>{const x=setup();await assert.rejects(submitCommercialCheckout({...x.ports,fetcher:async()=>Response.json({}, {status:503})}));assert.equal(await beginNewCommercialIntent(instance,x.ports.storage,x.ports.locks,()=>assert.fail()),true);assert.equal(x.map.size,1);});
+test("tracking accepts only matching order and known state, strips extras",()=>{assert.deepEqual(validatePrivateTrackingState({order_id:order,status:"READY",total:12,items:[],phone:"private"},order),{order_id:order,status:"READY",total:12});assert.equal(validatePrivateTrackingState({order_id:instance,status:"READY",total:12,items:[]},order),null);assert.equal(validatePrivateTrackingState({order_id:order,status:"UNKNOWN",total:12,items:[]},order),null);});
