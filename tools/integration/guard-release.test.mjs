@@ -23,7 +23,8 @@ test('Food: closed checkout accepted; privileged handler rejected',()=>{
     write(root,'src/routes/api/checkout.ts','POST: async ({ request }) => rejectPilotCheckout(request)');
     write(root,'src/server/pilot-checkout-closed.ts','return handleCheckoutRequest(request, { enabled: false });');
     write(root,'src/server/checkout-gateway.ts','if (!dependencies.enabled) return result(503, "disabled");');
-    write(root,'src/features/storefront/components/CheckoutPanel.tsx','await fetch("/api/checkout", { method: "POST" });');
+    write(root,'src/features/storefront/components/CheckoutPanel.tsx','await submitCommercialCheckout({});');
+    write(root,'src/features/storefront/services/commercial-checkout-client.ts','fetch("/api/commercial/checkout", {});');
     write(root,'src/components/storefront/Storefront.tsx','const records = [];');
     write(root,'src/routes/api/order-track.ts','POST: async ({ request }) => handleClosedPrivateTracking(request)');
     write(root,'src/server/private-tracking-closed.ts','const deps = {enabled: false};');

@@ -1,5 +1,7 @@
 import { useCustomerDialog } from "@/features/storefront/hooks/use-customer-dialog";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { submitCommercialCheckout } from "@/features/storefront/services/commercial-checkout-client";
+import { rememberPrivateTrackingToken } from "@/lib/domain/private-tracking-capability";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,7 +47,7 @@ export function CheckoutPanel({
     total?: number | undefined;
     fulfillment?: FulfillmentType | undefined;
     status?: string | undefined;
-  }) => void;
+  }) => void | Promise<void>;
   storeOpen: boolean;
   storeStatusLabel: string;
   existingOrder?: {
@@ -58,7 +60,8 @@ export function CheckoutPanel({
     fulfillment?: FulfillmentType | undefined;
   } | null;
 }) {
-  const dialogRef = useCustomerDialog(onClose);
+  const busy = useRef(false);
+  const dialogRef = useCustomerDialog(() => { if (!busy.current) onClose(); });
   const [fulfillment, setFulfillment] = useState<FulfillmentType>(
     existingOrder?.fulfillment ?? (settings.delivery_enabled ? "DELIVERY" : "PICKUP"),
   );
@@ -105,6 +108,7 @@ export function CheckoutPanel({
     : (["PIX"] as PaymentMethod[]);
 
   const submitOrder = async () => {
+    if (busy.current) return;
     setError(null);
 
     if (!storeOpen) {
@@ -143,6 +147,7 @@ export function CheckoutPanel({
       return;
     }
 
+    busy.current = true;
     setSubmitting(true);
     try {
       const groupedItems = prepareGroupedCart(items, commercialCatalog, subtotal, total, fulfillment === "DELIVERY" ? deliveryFee : 0);
@@ -162,8 +167,6 @@ export function CheckoutPanel({
         address_complement: fulfillment === "DELIVERY" ? complement.trim() || null : null,
         address_reference: fulfillment === "DELIVERY" ? reference.trim() || null : null,
         notes: notes.trim() || null,
-        idempotency_key: crypto.randomUUID(),
-        client_cart_reference: Array.from(crypto.getRandomValues(new Uint8Array(32)), v => v.toString(16).padStart(2, "0")).join(""),
         items: groupedItems,
       };
 
@@ -172,33 +175,12 @@ export function CheckoutPanel({
       if (import.meta.env["VITE_NEROXA_CHECKOUT_GATEWAY"] !== "true") {
         throw new Error("Checkout seguro indisponível. Solicite atendimento da loja.");
       }
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ p_order: payload }),
-      });
-      if (!response.ok) {
-        throw new Error("Checkout seguro indisponível. Solicite atendimento da loja.");
-      }
-      const created: unknown = await response.json();
-
-      const order = (Array.isArray(created) ? created[0] : created) as
-        { order_id?: string; order_number?: number; total?: number } | null | undefined;
-      if (!order?.order_number || !order?.order_id)
-        throw new Error("Não foi possível criar o pedido.");
-      const createdTotal = Number(order.total);
-      const fallbackTotal =
-        fulfillment === "DELIVERY" ? subtotal + Number(selectedZone?.delivery_fee ?? 0) : subtotal;
-
-      onSuccess({
-        id: String(order.order_id),
-        number: Number(order.order_number),
-        phone: phone.trim(),
-        items,
-        subtotal,
-        total: Number.isFinite(createdTotal) ? createdTotal : fallbackTotal,
-        fulfillment,
-        status: "RECEIVED",
+      await submitCommercialCheckout({
+        payload, origin: window.location.origin, storage: window.localStorage, locks: navigator.locks,
+        accept: async order => {
+          rememberPrivateTrackingToken(commercialCatalog.instanceId, order.order_id, order.tracking_token);
+          await onSuccess({ id: order.order_id, number: order.order_number, phone: phone.trim(), items, subtotal, total: order.total, fulfillment, status: "RECEIVED" });
+        },
       });
     } catch (submitError) {
       const message =
@@ -212,6 +194,7 @@ export function CheckoutPanel({
             : "Não foi possível enviar o pedido.";
       setError(message);
     } finally {
+      busy.current = false;
       setSubmitting(false);
     }
   };
@@ -240,7 +223,8 @@ export function CheckoutPanel({
             </h1>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => { if (!busy.current) onClose(); }}
+            disabled={submitting}
             className="grid size-11 shrink-0 place-items-center rounded-[14px] border border-white/15 bg-white/[.06] text-white transition hover:bg-white/10"
             aria-label="Fechar checkout"
           >

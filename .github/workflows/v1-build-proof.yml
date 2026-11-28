@@ -59,6 +59,8 @@ jobs:
         run: node --experimental-strip-types --test tests/grouped-cart.test.mjs
       - name: Verify multi-segment product configuration
         run: node --experimental-strip-types --test tests/multisegment-food.test.mjs
+      - name: Verify durable commercial checkout client
+        run: node --experimental-strip-types --test tests/commercial-buyer-client.test.mjs
       - name: Candidate production build (no upload, no deploy)
         run: bun run build
       - name: Verify build output exists
