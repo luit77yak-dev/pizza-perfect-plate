@@ -49,6 +49,8 @@ jobs:
         run: node --test tests/legacy-tracking-quarantine.test.mjs
       - name: Verify capability tracking contract and closed production route
         run: node --experimental-strip-types --test tests/private-tracking.test.mjs tests/private-tracking-closed.test.mjs
+      - name: Verify private administrative browser transport
+        run: node --experimental-strip-types --test tests/private-admin-transport.test.mjs
       - name: Candidate production build (no upload, no deploy)
         run: bun run build
       - name: Verify build output exists

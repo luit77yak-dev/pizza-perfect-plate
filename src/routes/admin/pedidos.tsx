@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, Clock3, LogIn, LogOut, RefreshCw, ShoppingBag, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const adminRpc = (fn: string, args?: Record<string, unknown>) => (supabase.rpc as unknown as (f: string, a?: Record<string, unknown>) => Promise<{ data: any; error: any }>)(fn, args);
+import { createPrivateOrderTransport } from "@/features/admin/private-order-transport";
 import { formatCurrency } from "@/lib/domain/money";
 import type { OrderStatus } from "@/lib/domain/types";
 
@@ -55,66 +54,71 @@ function AdminOrdersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const busy = useRef(false);
+  const generation = useRef(0);
+  const api = useMemo(() => createPrivateOrderTransport({
+    getToken: async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !data.session?.access_token) throw new Error("Sessão necessária.");
+      return data.session.access_token;
+    },
+  }), []);
+
+  const normalizeOrder = (item: Record<string, unknown>) => ({
+    ...item,
+    order_number: Number(item.order_number),
+    subtotal: Number(item.subtotal),
+    delivery_fee: Number(item.delivery_fee),
+    total: Number(item.total),
+  }) as Order;
+
   const loadOrders = async () => {
+    if (busy.current) return;
+    busy.current = true;
+    const request = ++generation.current;
     setLoading(true);
     setError(null);
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) {
-        setSession(false);
-        return;
-      }
-      setSession(true);
-
-      const domain = window.location.hostname.replace(/\.$/, "").toLowerCase();
-      const { data: context, error: contextError } = await adminRpc(
-        "get_public_storefront_context",
-        { p_domain: domain },
-      );
-      if (contextError) throw contextError;
-      const current = Array.isArray(context) ? context[0] : context;
-      if (!current?.instance_id) throw new Error("Nenhuma loja ativa foi encontrada neste domínio.");
-
-      setInstanceId(current.instance_id);
-      setStoreName(current.instance_name || current.organization_name || "Pedidos");
-
-      const { data, error: ordersError } = await adminRpc("get_admin_orders", {
-        p_instance_id: current.instance_id,
-        p_status: filter === "ALL" ? null : filter,
-      });
-      if (ordersError) throw ordersError;
-
-      const next = (Array.isArray(data) ? data : []).map((item) => ({
-        ...item,
-        order_number: Number(item.order_number),
-        subtotal: Number(item.subtotal),
-        delivery_fee: Number(item.delivery_fee),
-        total: Number(item.total),
-      })) as Order[];
+      const context = await api.context();
+      const result = await api.list(context.instance_id, filter === "ALL" ? null : filter);
+      if (request !== generation.current) return;
+      const next = result.orders.map(normalizeOrder);
+      setInstanceId(context.instance_id);
+      setStoreName(context.instance_name);
       setOrders(next);
-      setSelected((currentSelected) =>
-        currentSelected ? next.find((item) => item.id === currentSelected.id) ?? null : null,
-      );
+      setSelected((previous) => previous ? next.find((item) => item.id === previous.id) ?? null : null);
+      if (result.truncated) setError("Exibindo os primeiros 100 pedidos. Use os filtros de status.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível carregar os pedidos.");
+      if (request === generation.current) {
+        setOrders([]);
+        setSelected(null);
+        setInstanceId(null);
+        setError(err instanceof Error ? err.message : "Não foi possível carregar os pedidos.");
+      }
     } finally {
+      busy.current = false;
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(Boolean(data.session)));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, current) => {
+      if (!current) {
+        ++generation.current;
+        setOrders([]);
+        setSelected(null);
+        setInstanceId(null);
+      }
+      setSession(Boolean(current));
+    });
+    return () => { ++generation.current; subscription.unsubscribe(); };
   }, []);
 
   useEffect(() => {
     if (session) void loadOrders();
   }, [session, filter]);
 
-  useEffect(() => {
-    if (!session) return;
-    const timer = window.setInterval(() => void loadOrders(), 5000);
-    return () => window.clearInterval(timer);
-  }, [session, filter]);
+  // Private review window: refresh is explicit. No polling or mutation retry.
 
   const pendingCount = useMemo(
     () => orders.filter((order) => ["RECEIVED", "CONFIRMED", "PREPARING"].includes(order.status)).length,
@@ -131,28 +135,37 @@ function AdminOrdersPage() {
   };
 
   const signOut = async () => {
+    ++generation.current;
     await supabase.auth.signOut();
+    setInstanceId(null);
     setSession(false);
     setOrders([]);
     setSelected(null);
   };
 
   const changeStatus = async (status: OrderStatus) => {
-    if (!selected) return;
+    if (busy.current || !selected || !instanceId || selected.instance_id !== instanceId) return;
+    busy.current = true;
+    const request = ++generation.current;
     setLoading(true);
     setError(null);
-    const { data, error: updateError } = await adminRpc("update_admin_order_status", {
-      p_order_id: selected.id,
-      p_status: status,
-      p_note: null,
-    });
-    if (updateError) setError(updateError.message);
-    else {
-      const updated = (Array.isArray(data) ? data[0] : data) as Order;
-      setSelected(updated);
-      await loadOrders();
+    try {
+      const updated = normalizeOrder(await api.transition(instanceId, selected.id, status));
+      if (request !== generation.current) return;
+      setSelected(filter === "ALL" || updated.status === filter ? updated : null);
+      setOrders((previous) => previous.map((item) => item.id === updated.id ? updated : item)
+        .filter((item) => filter === "ALL" || item.status === filter));
+    } catch (err) {
+      if (request === generation.current) {
+        setSelected(null);
+        setOrders([]);
+        setInstanceId(null);
+        setError(err instanceof Error ? err.message : "Operação não confirmada. Atualize antes de repetir.");
+      }
+    } finally {
+      busy.current = false;
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   if (session === null) {
@@ -184,16 +197,16 @@ function AdminOrdersPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
           <div><p className="text-[10px] uppercase tracking-[.2em] text-[#ff6a3d]">{storeName}</p><h1 className="font-display text-2xl">Pedidos</h1><p className="text-xs text-white/45">{pendingCount} em andamento</p></div>
           <div className="flex items-center gap-2">
-            <button onClick={() => void loadOrders()} className="grid size-10 place-items-center rounded-[14px] border border-white/10 bg-white/[.04]" aria-label="Atualizar"><RefreshCw className={loading ? "size-4 animate-spin" : "size-4"} /></button>
-            <button onClick={() => void signOut()} className="grid size-10 place-items-center rounded-[14px] border border-white/10 bg-white/[.04]" aria-label="Sair"><LogOut className="size-4" /></button>
+            <button onClick={() => void loadOrders()} disabled={loading} className="grid size-10 place-items-center rounded-[14px] border border-white/10 bg-white/[.04]" aria-label="Atualizar"><RefreshCw className={loading ? "size-4 animate-spin" : "size-4"} /></button>
+            <button onClick={() => void signOut()} disabled={loading} className="grid size-10 place-items-center rounded-[14px] border border-white/10 bg-white/[.04]" aria-label="Sair"><LogOut className="size-4" /></button>
           </div>
         </div>
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6">
         <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
-          <button onClick={() => setFilter("ALL")} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${filter === "ALL" ? "bg-[#ff6a3d] text-[#0e0c0b]" : "bg-white/[.06] text-white/65"}`}>Todos</button>
-          {statuses.map((status) => <button key={status.value} onClick={() => setFilter(status.value)} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${filter === status.value ? "bg-[#ff6a3d] text-[#0e0c0b]" : "bg-white/[.06] text-white/65"}`}>{status.label}</button>)}
+          <button onClick={() => { setSelected(null); setOrders([]); setFilter("ALL"); }} disabled={loading || filter === "ALL"} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${filter === "ALL" ? "bg-[#ff6a3d] text-[#0e0c0b]" : "bg-white/[.06] text-white/65"}`}>Todos</button>
+          {statuses.map((status) => <button key={status.value} onClick={() => { setSelected(null); setOrders([]); setFilter(status.value); }} disabled={loading || filter === status.value} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${filter === status.value ? "bg-[#ff6a3d] text-[#0e0c0b]" : "bg-white/[.06] text-white/65"}`}>{status.label}</button>)}
         </div>
 
         {error && <div className="mb-4 rounded-[14px] border border-red-400/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</div>}
@@ -203,7 +216,7 @@ function AdminOrdersPage() {
             {orders.length === 0 ? (
               <div className="rounded-[14px] border border-white/10 bg-[#1a1614] p-10 text-center text-sm text-white/45">Nenhum pedido encontrado.</div>
             ) : orders.map((order) => (
-              <button key={order.id} onClick={() => setSelected(order)} className={`w-full rounded-[14px] border p-4 text-left transition ${selected?.id === order.id ? "border-[#ff6a3d] bg-[#1a1614]" : "border-white/10 bg-[#1a1614]/80 hover:border-white/20"}`}>
+              <button key={order.id} onClick={() => setSelected(order)} disabled={loading} className={`w-full rounded-[14px] border p-4 text-left transition ${selected?.id === order.id ? "border-[#ff6a3d] bg-[#1a1614]" : "border-white/10 bg-[#1a1614]/80 hover:border-white/20"}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div><p className="text-xs uppercase tracking-[.14em] text-white/45">Pedido #{order.order_number}</p><h2 className="mt-1 text-base font-bold">{order.customer_name}</h2><p className="mt-1 text-xs text-white/50">{order.fulfillment === "DELIVERY" ? "Entrega" : "Retirada"} · {order.customer_phone}</p></div>
                   <span className="rounded-full bg-[#ff6a3d]/10 px-2.5 py-1 text-[10px] font-bold text-[#ff9a7b]">{statuses.find((s) => s.value === order.status)?.label}</span>
