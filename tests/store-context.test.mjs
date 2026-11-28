@@ -27,8 +27,16 @@ test("loader propagates resolved instance and domain; cart remains keyed by stor
   assert.match(cart, /storefrontLocalKey\("cart", instanceId\)/);
   assert.doesNotMatch(cart, /getItem\(STORAGE_KEY\)/);
   assert.doesNotMatch(storefront, /tracked-orders:\$\{data\.organization\.id\}/);
-  assert.match(storefront, /storefrontLocalKey\("tracked-orders", data\.instanceId\)/);
-  assert.match(storefront, /storefrontLocalKey\("last-order", data\.instanceId\)/);
+  // Tracking migrated from persistent snapshots to memory-only capabilities.
+  const tracking = readFileSync("src/lib/domain/private-tracking-capability.ts", "utf8");
+  const client = readFileSync("src/features/storefront/services/commercial-checkout-client.ts", "utf8");
+  assert.doesNotMatch(storefront, /localStorage\.(?:getItem|setItem)/);
+  assert.match(storefront, /readPrivateTracking\(instance,order\)/);
+  assert.match(storefront, /setTrackedOrders\(\[\]\);[\s\S]*?\}, \[data\?\.instanceId\]\)/);
+  assert.match(tracking, /tokens\.set\(instance\+":"\+order,token\)/);
+  assert.match(tracking, /tokens\.get\(instance\+":"\+order\)/);
+  assert.doesNotMatch(tracking, /localStorage|sessionStorage|document\.cookie/);
+  assert.match(client, /"ppp:commercial-intent:"\+String\(payload\["instance_id"\]\)/);
 });
 
 test("closed checkout remains unchanged during state isolation", () => {
